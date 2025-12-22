@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>TNE United Express | Schedule</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'tne': {
+                            'maroon': '#8B1F3A',
+                            'red': '#E31837',
+                            'red-dark': '#C41230',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        .font-bebas { font-family: 'Bebas Neue', sans-serif; }
+        .font-mono { font-family: 'Space Mono', monospace; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #050505; }
+        ::-webkit-scrollbar-thumb { background: #E31837; border-radius: 3px; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-enter { animation: fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .delay-100 { animation-delay: 100ms; }
+        .delay-200 { animation-delay: 200ms; }
+    </style>
+</head>
+<body class="bg-[#050505] text-white antialiased min-h-screen flex flex-col font-sans selection:bg-tne-red/20 selection:text-red-100">
+
+    <!-- Navbar -->
+    <nav class="sticky supports-[backdrop-filter]:bg-black/80 bg-black/90 w-full z-50 border-white/5 border-b top-0 backdrop-blur-md">
+        <div class="sm:px-6 flex h-14 max-w-6xl mx-auto px-4 items-center justify-between">
+            <!-- Brand -->
+            <div class="flex items-center gap-3">
+                <div class="flex bg-gradient-to-tr from-tne-maroon to-tne-red w-7 h-7 rounded-full shadow-[0_0_24px_rgba(227,24,55,0.5)] items-center justify-center">
+                    <span class="font-bebas font-bold text-white text-[10px] leading-none pt-0.5">TNE</span>
+                </div>
+                <span class="text-sm font-medium tracking-tight text-white/90">TNE United Express</span>
+            </div>
+
+            <!-- Links -->
+            <div class="hidden md:flex items-center gap-6 text-xs font-medium uppercase tracking-[0.18em]">
+                <a href="index.html" class="hover:text-white transition-colors text-stone-300">Home</a>
+                <a href="teams.html" class="hover:text-white transition-colors text-stone-300">Teams</a>
+                <a href="schedule.html" class="text-white">Schedule</a>
+                <a href="#" class="text-stone-300 hover:text-white transition-colors">Tryouts</a>
+                <a href="#" class="text-stone-300 hover:text-white transition-colors">About</a>
+            </div>
+
+            <!-- Right -->
+            <div class="flex items-center gap-2">
+                <div class="hidden md:flex items-center gap-2">
+                    <a href="#" class="px-3 py-1.5 text-xs font-medium rounded-full border border-white/15 text-white/80 hover:text-white hover:border-white/40 transition-colors">
+                        Login
+                    </a>
+                    <a href="#" class="px-3 py-1.5 text-xs font-medium rounded-full bg-tne-red text-white hover:bg-tne-red-dark transition-colors">
+                        Register
+                    </a>
+                </div>
+                <button class="md:hidden inline-flex items-center justify-center w-8 h-8 rounded-full border border-white/10 text-white/70 hover:text-white hover:border-white/40 transition-colors">
+                    <i data-lucide="menu" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Header -->
+    <header class="relative border-b border-white/5 overflow-hidden">
+        <div class="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(227,24,55,0.2),transparent_60%),radial-gradient(circle_at_bottom_left,rgba(139,31,58,0.15),transparent_55%)]"></div>
+        <div class="absolute inset-0 bg-[url('https://images.pexels.com/photos/2834917/pexels-photo-2834917.jpeg?auto=compress&cs=tinysrgb&w=1600')] bg-cover bg-center opacity-20 mix-blend-screen"></div>
+        <div class="absolute inset-0 bg-gradient-to-b from-black via-black/90 to-black"></div>
+
+        <div class="sm:px-6 sm:pt-16 sm:pb-14 max-w-6xl mx-auto pt-12 px-4 pb-10 relative">
+            <div class="flex flex-col gap-6 animate-enter">
+                <div class="inline-flex items-center gap-2 rounded-full border border-tne-red/30 bg-tne-red/10 px-3 py-1 w-fit">
+                    <span class="h-1.5 w-1.5 rounded-full bg-tne-red shadow-[0_0_12px_rgba(227,24,55,0.9)]"></span>
+                    <span class="text-[0.7rem] font-mono uppercase tracking-[0.22em] text-red-300">2025-26 Season</span>
+                </div>
+
+                <div>
+                    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tight text-white">
+                        Practice & Game Schedule
+                    </h1>
+                    <p class="mt-2 text-base sm:text-lg text-white/70 max-w-2xl">
+                        Find your team's practices, games, and tournaments all in one place. Filter by team or date to see what's coming up.
+                    </p>
+                </div>
+
+                <div class="flex flex-wrap gap-4 items-center text-xs sm:text-sm text-white/70">
+                    <div class="inline-flex items-center gap-2 rounded-md bg-white/5 border border-white/10 px-3 py-1.5">
+                        <span class="inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.8)]"></span>
+                        <span class="font-mono uppercase tracking-[0.22em] text-[0.7rem]">Season Active</span>
+                    </div>
+                    <div class="inline-flex items-center gap-2 text-white/60">
+                        <i data-lucide="calendar-days" class="w-4 h-4"></i>
+                        <span>Updated weekly with practices and game times.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 w-full bg-neutral-50 text-neutral-900">
+        <section class="max-w-6xl mx-auto px-4 sm:px-6 -mt-6 pb-12 sm:pb-16 space-y-6 sm:space-y-8">
+
+            <!-- Controls Bar -->
+            <div class="animate-enter delay-100 rounded-2xl bg-white border border-neutral-200 shadow-sm px-3 py-2 sm:px-4 sm:py-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <!-- View Toggle + Filters -->
+                <div class="flex items-center gap-3 w-full sm:w-auto">
+                    <!-- View Toggle -->
+                    <div class="flex items-center rounded-full border border-neutral-200 p-0.5">
+                        <button class="px-3 py-1.5 rounded-full bg-neutral-900 text-white text-xs font-medium whitespace-nowrap">
+                            <i data-lucide="list" class="w-3.5 h-3.5 inline-block mr-1"></i>
+                            List
+                        </button>
+                        <button class="px-3 py-1.5 rounded-full text-xs text-neutral-600 font-medium whitespace-nowrap hover:bg-neutral-50 transition-colors">
+                            <i data-lucide="calendar" class="w-3.5 h-3.5 inline-block mr-1"></i>
+                            Calendar
+                        </button>
+                    </div>
+
+                    <!-- Filter Pills -->
+                    <div class="hidden sm:flex items-center gap-2 overflow-x-auto">
+                        <button class="px-3 py-1.5 rounded-full bg-neutral-900 text-white text-xs font-medium whitespace-nowrap">
+                            All Events
+                        </button>
+                        <button class="px-3 py-1.5 rounded-full border border-neutral-200 bg-white text-xs text-neutral-700 font-medium whitespace-nowrap hover:border-neutral-300 hover:bg-neutral-50 transition-colors">
+                            Practices
+                        </button>
+                        <button class="px-3 py-1.5 rounded-full border border-neutral-200 bg-white text-xs text-neutral-700 font-medium whitespace-nowrap hover:border-neutral-300 hover:bg-neutral-50 transition-colors">
+                            Games
+                        </button>
+                        <button class="px-3 py-1.5 rounded-full border border-neutral-200 bg-white text-xs text-neutral-700 font-medium whitespace-nowrap hover:border-neutral-300 hover:bg-neutral-50 transition-colors">
+                            Tournaments
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Team Filter + Search -->
+                <div class="flex items-center gap-2 w-full sm:w-auto">
+                    <select class="rounded-full border border-neutral-200 bg-neutral-50 px-3 py-1.5 text-xs text-neutral-700 focus:outline-none focus:ring-2 focus:ring-tne-red/50 focus:border-tne-red/50">
+                        <option>All Teams</option>
+                        <option>4th Grade - Foster</option>
+                        <option>4th Grade - Grisby/Evans</option>
+                        <option>5th Grade - Perry</option>
+                        <option>6th Grade - Todd</option>
+                        <option>7th Grade - Mitchell</option>
+                        <option>8th Grade - Johnson</option>
+                    </select>
+                    <div class="relative flex-1 sm:w-48">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-neutral-400">
+                            <i data-lucide="search" class="w-4 h-4"></i>
+                        </div>
+                        <input type="text" placeholder="Search events…" class="block w-full rounded-full border border-neutral-200 bg-neutral-50 pl-9 pr-3 py-1.5 text-xs text-neutral-900 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-tne-red/50 focus:border-tne-red/50">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mobile Filter Pills -->
+            <div class="flex sm:hidden items-center gap-2 overflow-x-auto pb-1">
+                <button class="px-3 py-1.5 rounded-full bg-neutral-900 text-white text-xs font-medium whitespace-nowrap">
+                    All Events
+                </button>
+                <button class="px-3 py-1.5 rounded-full border border-neutral-200 bg-white text-xs text-neutral-700 font-medium whitespace-nowrap">
+                    Practices
+                </button>
+                <button class="px-3 py-1.5 rounded-full border border-neutral-200 bg-white text-xs text-neutral-700 font-medium whitespace-nowrap">
+                    Games
+                </button>
+                <button class="px-3 py-1.5 rounded-full border border-neutral-200 bg-white text-xs text-neutral-700 font-medium whitespace-nowrap">
+                    Tournaments
+                </button>
+            </div>
+
+            <!-- Schedule List -->
+            <div class="animate-enter delay-200 space-y-6">
+
+                <!-- This Week Section -->
+                <div class="space-y-3">
+                    <div class="flex items-center gap-2">
+                        <h2 class="text-lg font-semibold text-neutral-900">This Week</h2>
+                        <span class="text-xs text-neutral-500 font-mono">Dec 23 - Dec 29</span>
+                    </div>
+
+                    <div class="rounded-3xl bg-white border border-neutral-300 shadow-sm overflow-hidden">
+                        <!-- Day Header -->
+                        <div class="bg-neutral-100 border-b border-neutral-200 px-5 py-2.5">
+                            <div class="flex items-center gap-3">
+                                <div class="flex items-center justify-center w-10 h-10 rounded-xl bg-neutral-900 text-white">
+                                    <div class="text-center">
+                                        <span class="block text-[0.6rem] font-mono uppercase tracking-wider">Mon</span>
+                                        <span class="block text-sm font-bold leading-none">23</span>
+                                    </div>
+                                </div>
+                                <span class="text-sm font-medium text-neutral-700">Monday, December 23</span>
+                            </div>
+                        </div>
+
+                        <!-- Events for this day -->
+                        <div class="divide-y divide-neutral-100">
+                            <!-- Event 1 -->
+                            <div class="px-5 py-4 flex items-start gap-4 hover:bg-neutral-50 transition-colors">
+                                <div class="flex-shrink-0 w-16 text-center">
+                                    <span class="text-sm font-semibold text-neutral-900">6:00 PM</span>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <span class="inline-flex items-center rounded-full bg-blue-100 text-blue-700 px-2 py-0.5 text-[0.65rem] font-medium uppercase tracking-wide">Practice</span>
+                                        <span class="text-[0.7rem] font-mono text-neutral-500">4th Grade</span>
+                                    </div>
+                                    <p class="font-medium text-neutral-900">Express United 4th - Foster</p>
+                                    <div class="flex items-center gap-3 mt-1 text-xs text-neutral-600">
+                                        <span class="inline-flex items-center gap-1">
+                                            <i data-lucide="map-pin" class="w-3.5 h-3.5"></i>
+                                            Monroe MS Gym, Court 1
+                                        </span>
+                                        <span class="inline-flex items-center gap-1">
+                                            <i data-lucide="clock" class="w-3.5 h-3.5"></i>
+                                            1.5 hours
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="flex-shrink-0">
+                                    <a href="#" class="text-xs font-medium text-tne-red hover:text-tne-red-dark">View team</a>
+                                </div>
+                            </div>
+
+                            <!-- Event 2 -->
+                            <div class="px-5 py-4 flex items-start gap-4 hover:bg-neutral-50 transition-colors">
+                                <div class="flex-shrink-0 w-16 text-center">
+                                    <span class="text-sm font-semibold text-neutral-900">6:00 PM</span>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <span class="inline-flex items-center rounded-full bg-blue-100 text-blue-700 px-2 py-0.5 text-[0.65rem] font-medium uppercase tracking-wide">Practice</span>
+                                        <span class="text-[0.7rem] font-mono text-neutral-500">7th Grade</span>
+                                    </div>
+                                    <p class="font-medium text-neutral-900">Express United 7th - Mitchell</p>
+                                    <div class="flex items-center gap-3 mt-1 text-xs text-neutral-600">
+                                        <span class="inline-flex items-center gap-1">
+                                            <i data-lucide="map-pin" class="w-3.5 h-3.5"></i>
+                                            Central HS
+                                        </span>
+                                        <span class="inline-flex items-center gap-1">
+                                            <i data-lucide="clock" class="w-3.5 h-3.5"></i>
+                                            1.5 hours
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="flex-shrink-0">
+                                    <a href="#" class="text-xs font-medium text-tne-red hover:text-tne-red-dark">View team</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tuesday -->
+                    <div class="rounded-3xl bg-white border border-neutral-300 shadow-sm overflow-hidden">
+                        <div class="bg-neutral-100 border-b border-neutral-200 px-5 py-2.5">
+                            <div class="flex items-center gap-3">
+                                <div class="flex items-center justify-center w-10 h-10 rounded-xl bg-neutral-900 text-white">
+                                    <div class="text-center">
+                                        <span class="block text-[0.6rem] font-mono uppercase tracking-wider">Tue</span>
+                                        <span class="block text-sm font-bold leading-none">24</span>
+                                    </div>
+                                </div>
+                                <span class="text-sm font-medium text-neutral-700">Tuesday, December 24</span>
+                            </div>
+                        </div>
+
+                        <div class="divide-y divide-neutral-100">
+                            <div class="px-5 py-4 flex items-start gap-4 hover:bg-neutral-50 transition-colors">
+                                <div class="flex-shrink-0 w-16 text-center">
+                                    <span class="text-sm font-semibold text-neutral-900">6:00 PM</span>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <span class="inline-flex items-center rounded-full bg-blue-100 text-blue-700 px-2 py-0.5 text-[0.65rem] font-medium uppercase tracking-wide">Practice</span>
+                                        <span class="text-[0.7rem] font-mono text-neutral-500">4th Grade</span>
+                                    </div>
+                                    <p class="font-medium text-neutral-900">Express United 4th - Grisby/Evans</p>
+                                    <div class="flex items-center gap-3 mt-1 text-xs text-neutral-600">
+                                        <span class="inline-flex items-center gap-1">
+                                            <i data-lucide="map-pin" class="w-3.5 h-3.5"></i>
+                                            Northwest HS
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="flex-shrink-0">
+                                    <a href="#" class="text-xs font-medium text-tne-red hover:text-tne-red-dark">View team</a>
+                                </div>
+                            </div>
+
+                            <div class="px-5 py-4 flex items-start gap-4 hover:bg-neutral-50 transition-colors">
+                                <div class="flex-shrink-0 w-16 text-center">
+                                    <span class="text-sm font-semibold text-neutral-900">6:00 PM</span>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <span class="inline-flex items-center rounded-full bg-blue-100 text-blue-700 px-2 py-0.5 text-[0.65rem] font-medium uppercase tracking-wide">Practice</span>
+                                        <span class="text-[0.7rem] font-mono text-neutral-500">5th Grade</span>
+                                    </div>
+                                    <p class="font-medium text-neutral-900">Express United 5th - Perry</p>
+                                    <div class="flex items-center gap-3 mt-1 text-xs text-neutral-600">
+                                        <span class="inline-flex items-center gap-1">
+                                            <i data-lucide="map-pin" class="w-3.5 h-3.5"></i>
+                                            Northwest HS
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="flex-shrink-0">
+                                    <a href="#" class="text-xs font-medium text-tne-red hover:text-tne-red-dark">View team</a>
+                                </div>
+                            </div>
+
+                            <div class="px-5 py-4 flex items-start gap-4 hover:bg-neutral-50 transition-colors">
+                                <div class="flex-shrink-0 w-16 text-center">
+                                    <span class="text-sm font-semibold text-neutral-900">6:00 PM</span>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <span class="inline-flex items-center rounded-full bg-blue-100 text-blue-700 px-2 py-0.5 text-[0.65rem] font-medium uppercase tracking-wide">Practice</span>
+                                        <span class="text-[0.7rem] font-mono text-neutral-500">6th Grade</span>
+                                    </div>
+                                    <p class="font-medium text-neutral-900">Express United 6th - Todd</p>
+                                    <div class="flex items-center gap-3 mt-1 text-xs text-neutral-600">
+                                        <span class="inline-flex items-center gap-1">
+                                            <i data-lucide="map-pin" class="w-3.5 h-3.5"></i>
+                                            McMillan MS
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="flex-shrink-0">
+                                    <a href="#" class="text-xs font-medium text-tne-red hover:text-tne-red-dark">View team</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Saturday - Games -->
+                    <div class="rounded-3xl bg-white border border-neutral-300 shadow-sm overflow-hidden">
+                        <div class="bg-neutral-100 border-b border-neutral-200 px-5 py-2.5">
+                            <div class="flex items-center gap-3">
+                                <div class="flex items-center justify-center w-10 h-10 rounded-xl bg-tne-red text-white">
+                                    <div class="text-center">
+                                        <span class="block text-[0.6rem] font-mono uppercase tracking-wider">Sat</span>
+                                        <span class="block text-sm font-bold leading-none">28</span>
+                                    </div>
+                                </div>
+                                <span class="text-sm font-medium text-neutral-700">Saturday, December 28</span>
+                                <span class="inline-flex items-center rounded-full bg-tne-red/10 text-tne-red px-2 py-0.5 text-[0.65rem] font-medium uppercase tracking-wide">Game Day</span>
+                            </div>
+                        </div>
+
+                        <div class="divide-y divide-neutral-100">
+                            <div class="px-5 py-4 flex items-start gap-4 hover:bg-neutral-50 transition-colors">
+                                <div class="flex-shrink-0 w-16 text-center">
+                                    <span class="text-sm font-semibold text-neutral-900">2:15 PM</span>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <span class="inline-flex items-center rounded-full bg-tne-red/10 text-tne-red px-2 py-0.5 text-[0.65rem] font-medium uppercase tracking-wide">Game</span>
+                                        <span class="text-[0.7rem] font-mono text-neutral-500">4th Grade</span>
+                                    </div>
+                                    <p class="font-medium text-neutral-900">Express United 4th - Foster vs Metro Elite</p>
+                                    <div class="flex items-center gap-3 mt-1 text-xs text-neutral-600">
+                                        <span class="inline-flex items-center gap-1">
+                                            <i data-lucide="map-pin" class="w-3.5 h-3.5"></i>
+                                            Central Fieldhouse
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="flex-shrink-0">
+                                    <a href="#" class="text-xs font-medium text-tne-red hover:text-tne-red-dark">View team</a>
+                                </div>
+                            </div>
+
+                            <div class="px-5 py-4 flex items-start gap-4 hover:bg-neutral-50 transition-colors">
+                                <div class="flex-shrink-0 w-16 text-center">
+                                    <span class="text-sm font-semibold text-neutral-900">4:30 PM</span>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <span class="inline-flex items-center rounded-full bg-tne-red/10 text-tne-red px-2 py-0.5 text-[0.65rem] font-medium uppercase tracking-wide">Game</span>
+                                        <span class="text-[0.7rem] font-mono text-neutral-500">4th Grade</span>
+                                    </div>
+                                    <p class="font-medium text-neutral-900">Express United 4th - Grisby/Evans vs Rocket Stars</p>
+                                    <div class="flex items-center gap-3 mt-1 text-xs text-neutral-600">
+                                        <span class="inline-flex items-center gap-1">
+                                            <i data-lucide="map-pin" class="w-3.5 h-3.5"></i>
+                                            Central Fieldhouse
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="flex-shrink-0">
+                                    <a href="#" class="text-xs font-medium text-tne-red hover:text-tne-red-dark">View team</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Upcoming Tournament Section -->
+                <div class="space-y-3">
+                    <div class="flex items-center gap-2">
+                        <h2 class="text-lg font-semibold text-neutral-900">Upcoming Tournament</h2>
+                    </div>
+
+                    <div class="rounded-3xl bg-gradient-to-br from-neutral-900 to-neutral-800 text-white border border-neutral-700 shadow-lg overflow-hidden">
+                        <div class="px-5 py-5 sm:px-6 sm:py-6">
+                            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                                <div class="space-y-2">
+                                    <div class="flex items-center gap-2">
+                                        <span class="inline-flex items-center rounded-full bg-amber-500/20 text-amber-400 px-2.5 py-0.5 text-[0.65rem] font-medium uppercase tracking-wide">Tournament</span>
+                                        <span class="text-[0.7rem] font-mono text-white/50">Jan 4-5, 2026</span>
+                                    </div>
+                                    <h3 class="text-xl sm:text-2xl font-semibold tracking-tight">New Year Classic Invitational</h3>
+                                    <p class="text-sm text-white/60">Multiple TNE teams competing across all age divisions</p>
+                                    <div class="flex items-center gap-3 text-xs text-white/50">
+                                        <span class="inline-flex items-center gap-1">
+                                            <i data-lucide="map-pin" class="w-3.5 h-3.5"></i>
+                                            Gateway Sports Complex
+                                        </span>
+                                        <span class="inline-flex items-center gap-1">
+                                            <i data-lucide="users" class="w-3.5 h-3.5"></i>
+                                            4 TNE Teams
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="flex-shrink-0">
+                                    <a href="#" class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-tne-red text-white text-sm font-medium hover:bg-tne-red-dark transition-colors">
+                                        View Details
+                                        <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Next Week Section -->
+                <div class="space-y-3">
+                    <div class="flex items-center gap-2">
+                        <h2 class="text-lg font-semibold text-neutral-900">Next Week</h2>
+                        <span class="text-xs text-neutral-500 font-mono">Dec 30 - Jan 5</span>
+                    </div>
+
+                    <div class="rounded-3xl bg-white border border-neutral-300 shadow-sm overflow-hidden">
+                        <div class="bg-neutral-100 border-b border-neutral-200 px-5 py-2.5">
+                            <div class="flex items-center gap-3">
+                                <div class="flex items-center justify-center w-10 h-10 rounded-xl bg-neutral-900 text-white">
+                                    <div class="text-center">
+                                        <span class="block text-[0.6rem] font-mono uppercase tracking-wider">Wed</span>
+                                        <span class="block text-sm font-bold leading-none">1</span>
+                                    </div>
+                                </div>
+                                <span class="text-sm font-medium text-neutral-700">Wednesday, January 1</span>
+                                <span class="inline-flex items-center rounded-full bg-neutral-200 text-neutral-600 px-2 py-0.5 text-[0.65rem] font-medium uppercase tracking-wide">No Practice</span>
+                            </div>
+                        </div>
+                        <div class="px-5 py-4 text-sm text-neutral-500 italic">
+                            New Year's Day - All practices cancelled
+                        </div>
+                    </div>
+
+                    <div class="rounded-3xl bg-white border border-neutral-300 shadow-sm overflow-hidden">
+                        <div class="bg-neutral-100 border-b border-neutral-200 px-5 py-2.5">
+                            <div class="flex items-center gap-3">
+                                <div class="flex items-center justify-center w-10 h-10 rounded-xl bg-neutral-900 text-white">
+                                    <div class="text-center">
+                                        <span class="block text-[0.6rem] font-mono uppercase tracking-wider">Thu</span>
+                                        <span class="block text-sm font-bold leading-none">2</span>
+                                    </div>
+                                </div>
+                                <span class="text-sm font-medium text-neutral-700">Thursday, January 2</span>
+                            </div>
+                        </div>
+
+                        <div class="divide-y divide-neutral-100">
+                            <div class="px-5 py-4 flex items-start gap-4 hover:bg-neutral-50 transition-colors">
+                                <div class="flex-shrink-0 w-16 text-center">
+                                    <span class="text-sm font-semibold text-neutral-900">6:30 PM</span>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <span class="inline-flex items-center rounded-full bg-blue-100 text-blue-700 px-2 py-0.5 text-[0.65rem] font-medium uppercase tracking-wide">Practice</span>
+                                        <span class="text-[0.7rem] font-mono text-neutral-500">8th Grade</span>
+                                    </div>
+                                    <p class="font-medium text-neutral-900">Express United 8th - Johnson</p>
+                                    <div class="flex items-center gap-3 mt-1 text-xs text-neutral-600">
+                                        <span class="inline-flex items-center gap-1">
+                                            <i data-lucide="map-pin" class="w-3.5 h-3.5"></i>
+                                            Gateway HS
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="flex-shrink-0">
+                                    <a href="#" class="text-xs font-medium text-tne-red hover:text-tne-red-dark">View team</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-white/10 bg-black py-8 sm:py-10 mt-4">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col gap-6 sm:gap-4 sm:flex-row sm:items-center sm:justify-between text-xs sm:text-sm text-white/45">
+            <div class="flex items-center gap-3">
+                <div class="w-6 h-6 rounded-full bg-gradient-to-tr from-tne-maroon to-tne-red flex items-center justify-center">
+                    <span class="font-bebas font-semibold text-white text-[0.5rem] leading-none pt-[1px]">TNE</span>
+                </div>
+                <span class="font-semibold tracking-tight text-white text-base">
+                    UNITED <span class="text-white/40">EXPRESS</span>
+                </span>
+                <span class="hidden sm:inline text-white/30">·</span>
+                <span class="hidden sm:inline text-white/40">© 2025 TNE United Express. All rights reserved.</span>
+            </div>
+            <div class="flex flex-wrap items-center gap-3">
+                <div class="inline-flex items-center gap-1.5">
+                    <span class="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>
+                    <span class="text-[0.7rem] font-mono uppercase tracking-[0.2em] text-white/60">
+                        Registration Open
+                    </span>
+                </div>
+                <div class="flex items-center gap-3">
+                    <a href="#" class="text-white/40 hover:text-white transition-colors">
+                        <i data-lucide="instagram" class="w-4 h-4"></i>
+                    </a>
+                    <a href="#" class="text-white/40 hover:text-white transition-colors">
+                        <i data-lucide="twitter" class="w-4 h-4"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        lucide.createIcons({ attrs: { strokeWidth: 1.5 } });
+    </script>
+
+</body>
+</html>
