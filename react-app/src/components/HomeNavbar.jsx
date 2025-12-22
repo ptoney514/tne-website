@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { Menu } from 'lucide-react';
 
 export default function HomeNavbar() {
@@ -6,7 +7,7 @@ export default function HomeNavbar() {
       <div className="glass-nav flex max-w-4xl border-white/10 border rounded-full mx-auto p-2 shadow-2xl items-center justify-between">
         {/* Left Links */}
         <div className="hidden md:flex items-center gap-1 px-4">
-          <a href="#" className="text-[11px] hover:text-white uppercase hover:bg-white/10 transition-all font-medium text-white/80 tracking-wider font-mono rounded-full px-3 py-1.5">Teams</a>
+          <Link to="/teams" className="text-[11px] hover:text-white uppercase hover:bg-white/10 transition-all font-medium text-white/80 tracking-wider font-mono rounded-full px-3 py-1.5">Teams</Link>
           <a href="#" className="text-[11px] hover:text-white uppercase hover:bg-white/10 transition-all font-medium text-white/80 tracking-wider font-mono rounded-full px-3 py-1.5">Schedule</a>
         </div>
 

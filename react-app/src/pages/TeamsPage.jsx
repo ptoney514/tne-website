@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import {
   CalendarDays,
   Search,
@@ -16,6 +17,7 @@ import TeamsFooter from '../components/TeamsFooter';
 
 const teamData = [
   {
+    id: 'foster-4th',
     grade: '4th Grade',
     name: 'Express United',
     coaches: 'Foster · Express United 4th · Boys',
@@ -28,6 +30,7 @@ const teamData = [
     roster: 'Roster Active · 7 players'
   },
   {
+    id: 'grisby-evans-4th',
     grade: '4th Grade',
     name: 'Express United',
     coaches: 'Grisby / Evans · Boys',
@@ -40,6 +43,7 @@ const teamData = [
     roster: 'Roster: 8 players · Northwest HS'
   },
   {
+    id: 'perry-5th',
     grade: '5th Grade',
     name: 'Express United',
     coaches: 'Perry · Boys',
@@ -51,6 +55,7 @@ const teamData = [
     roster: 'Roster: 11 players · Northwest HS'
   },
   {
+    id: 'todd-6th',
     grade: '6th Grade',
     name: 'Express United',
     coaches: 'Todd · Boys',
@@ -62,6 +67,7 @@ const teamData = [
     roster: 'Roster: 10 players · McMillan MS'
   },
   {
+    id: 'mitchell-7th',
     grade: '7th Grade',
     name: 'Express United',
     coaches: 'Mitchell · Boys',
@@ -73,6 +79,7 @@ const teamData = [
     roster: 'Roster: 7 players · Central HS'
   },
   {
+    id: 'johnson-8th',
     grade: '8th Grade',
     name: 'Express United',
     coaches: 'Johnson · Boys',
@@ -147,7 +154,7 @@ function TeamCard({ team }) {
           {team.roster.includes('Active') && <span className="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>}
           {team.roster}
         </span>
-        <a href="#" className="font-medium text-tne-red hover:text-tne-red-dark">Open team details</a>
+        <Link to={`/teams/${team.id}`} className="font-medium text-tne-red hover:text-tne-red-dark">Open team details</Link>
       </div>
     </article>
   );
