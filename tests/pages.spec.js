@@ -5,6 +5,7 @@ const PAGES = [
   { name: 'Homepage', file: 'index.html' },
   { name: 'Teams', file: 'teams.html' },
   { name: 'Schedule', file: 'schedule.html' },
+  { name: 'Tryouts', file: 'tryouts.html' },
 ];
 
 for (const page of PAGES) {
@@ -107,6 +108,55 @@ test.describe('Schedule Page - Specific', () => {
   });
 });
 
+// Tryouts page specific tests
+test.describe('Tryouts Page - Specific', () => {
+  test.beforeEach(async ({ page }) => {
+    const filePath = path.resolve(process.cwd(), 'src/pages/tryouts.html');
+    await page.goto(`file://${filePath}`);
+  });
+
+  test('should display upcoming tryout dates', async ({ page }) => {
+    // Check for tryout cards
+    const tryoutCards = page.locator('.rounded-3xl').filter({ hasText: /Grade Tryouts/i });
+    const count = await tryoutCards.count();
+    expect(count).toBeGreaterThan(0);
+  });
+
+  test('should display registration form', async ({ page }) => {
+    // Check for form fields
+    await expect(page.locator('#firstName')).toBeVisible();
+    await expect(page.locator('#lastName')).toBeVisible();
+    await expect(page.locator('#email')).toBeVisible();
+    await expect(page.locator('#grade')).toBeVisible();
+  });
+
+  test('should display FAQ accordion', async ({ page }) => {
+    // Check for FAQ section
+    const faqItems = page.locator('details');
+    const count = await faqItems.count();
+    expect(count).toBeGreaterThan(0);
+  });
+
+  test('should display what to expect section', async ({ page }) => {
+    await expect(page.getByText('What to Expect')).toBeVisible();
+    await expect(page.getByText('Skills Evaluation')).toBeVisible();
+  });
+
+  test('should display what to bring checklist', async ({ page }) => {
+    await expect(page.getByText('What to Bring')).toBeVisible();
+    await expect(page.getByText('Basketball shoes')).toBeVisible();
+  });
+
+  test('should have form validation attributes', async ({ page }) => {
+    // Check required fields have required attribute
+    const firstNameInput = page.locator('#firstName');
+    await expect(firstNameInput).toHaveAttribute('required', '');
+
+    const emailInput = page.locator('#email');
+    await expect(emailInput).toHaveAttribute('type', 'email');
+  });
+});
+
 // Mobile responsiveness tests
 test.describe('Mobile Responsiveness', () => {
   test.use({ viewport: { width: 375, height: 667 } });
@@ -125,5 +175,21 @@ test.describe('Mobile Responsiveness', () => {
 
     // Filter controls should be visible
     await expect(page.getByRole('button', { name: /all events/i }).first()).toBeVisible();
+  });
+
+  test('tryouts page should be usable on mobile', async ({ page }) => {
+    const filePath = path.resolve(process.cwd(), 'src/pages/tryouts.html');
+    await page.goto(`file://${filePath}`);
+
+    // Mobile menu button should be visible
+    const menuButton = page.locator('button[class*="md:hidden"]');
+    await expect(menuButton).toBeVisible();
+
+    // Page content should be visible
+    const mainContent = page.locator('main');
+    await expect(mainContent).toBeVisible();
+
+    // Registration form should be visible
+    await expect(page.locator('#firstName')).toBeVisible();
   });
 });
