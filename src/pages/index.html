@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>TNE United Express | Elite Youth Basketball Omaha</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'tne': {
+                            'maroon': '#8B1F3A',
+                            'red': '#E31837',
+                            'red-dark': '#C41230',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        .glass-nav {
+            background: rgba(10, 10, 10, 0.6);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+        }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #08090A; }
+        ::-webkit-scrollbar-thumb { background: #E31837; border-radius: 3px; }
+        .font-bebas { font-family: 'Bebas Neue', sans-serif; }
+        .font-mono { font-family: 'Space Mono', monospace; }
+        .hide-scroll {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .hide-scroll::-webkit-scrollbar {
+            display: none;
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in-up {
+            animation: fadeInUp 0.8s ease-out both;
+        }
+    </style>
+</head>
+<body class="bg-white text-stone-950 antialiased min-h-screen flex flex-col font-sans selection:bg-tne-red selection:text-white">
+
+    <!-- ============================================
+         SECTION 01: HERO
+         ============================================ -->
+    <div class="relative w-full h-[850px] overflow-hidden bg-stone-950 border-b border-stone-800">
+        <!-- Corner Detail -->
+        <div class="absolute bottom-12 left-8 z-30 hidden lg:flex items-center gap-3">
+            <span class="font-mono text-xs text-tne-red">01</span>
+            <div class="w-px h-8 bg-white/20"></div>
+            <span class="font-mono text-[10px] text-white/50 uppercase tracking-widest">
+                Est. 2012 — Omaha, NE
+            </span>
+        </div>
+
+        <!-- Background -->
+        <div class="w-full h-full absolute inset-0" id="parallax-bg">
+            <img src="https://images.unsplash.com/photo-1546519638-68e109498ffc?q=80&w=2980&auto=format&fit=crop" alt="Basketball Court" class="opacity-40 mix-blend-luminosity w-full h-full object-cover">
+            <div class="bg-gradient-to-t from-stone-950 via-stone-950/60 to-transparent absolute inset-0"></div>
+        </div>
+
+        <!-- Navbar -->
+        <nav class="-translate-x-1/2 z-30 w-[95%] max-w-6xl absolute top-6 left-1/2">
+            <div class="glass-nav flex max-w-4xl border-white/10 border rounded-full mx-auto p-2 shadow-2xl items-center justify-between">
+                <!-- Left Links -->
+                <div class="hidden md:flex items-center gap-1 px-4">
+                    <a href="#" class="text-[11px] hover:text-white uppercase hover:bg-white/10 transition-all font-medium text-white/80 tracking-wider font-mono rounded-full px-3 py-1.5">Teams</a>
+                    <a href="#" class="text-[11px] hover:text-white uppercase hover:bg-white/10 transition-all font-medium text-white/80 tracking-wider font-mono rounded-full px-3 py-1.5">Schedule</a>
+                </div>
+
+                <!-- Center Brand -->
+                <div class="flex-1 text-center">
+                    <span class="uppercase text-lg font-semibold text-white tracking-[0.12em] font-bebas px-6">
+                        TNE <span class="text-tne-red">UNITED EXPRESS</span>
+                    </span>
+                </div>
+
+                <!-- Right Links -->
+                <div class="hidden md:flex items-center gap-1 px-4">
+                    <a href="#" class="text-[11px] hover:text-white uppercase hover:bg-white/10 transition-all font-medium text-white/80 tracking-wider font-mono rounded-full px-3 py-1.5">Login</a>
+                    <a href="#" class="text-[11px] uppercase transition-all font-medium text-white tracking-wider font-mono bg-tne-red hover:bg-tne-red-dark rounded-full px-4 py-1.5">
+                        Register
+                    </a>
+                </div>
+
+                <!-- Mobile Menu -->
+                <button class="md:hidden p-2 text-white">
+                    <i data-lucide="menu" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </nav>
+
+        <!-- Hero Content -->
+        <div class="absolute inset-0 z-20 flex flex-col items-center justify-center pointer-events-none px-4 mt-10">
+            <div class="flex flex-col items-center text-center space-y-8">
+                <!-- Status Badge -->
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-tne-red/30 bg-tne-red/10 backdrop-blur-md pointer-events-auto">
+                    <div class="w-1.5 h-1.5 rounded-full bg-tne-red animate-pulse"></div>
+                    <span class="text-[10px] font-mono font-medium text-red-300 uppercase tracking-widest">
+                        Fall/Winter '25-26 Reg Open
+                    </span>
+                </div>
+
+                <!-- Hero Title -->
+                <h1 class="text-5xl sm:text-7xl lg:text-8xl font-bold text-transparent bg-clip-text bg-gradient-to-b from-white to-white/50 tracking-tight leading-[0.95] font-bebas uppercase">
+                    <span class="block">To be the best,</span>
+                    <span class="block">you have to play the best</span>
+                </h1>
+
+                <p class="max-w-md text-white/60 text-sm sm:text-base font-mono leading-relaxed mt-6 tracking-wide">
+                    Omaha's premier grassroots pipeline. Developing elite character and D1 talent since 2012.
+                </p>
+
+                <!-- CTAs -->
+                <div class="flex flex-col sm:flex-row gap-4 pt-4 pointer-events-auto">
+                    <a href="#" class="group relative px-8 py-3 bg-tne-red text-white text-sm font-semibold uppercase tracking-wider overflow-hidden transition-all hover:bg-tne-red-dark shadow-lg shadow-tne-red/25">
+                        <span class="relative z-10 flex items-center gap-2">
+                            Register For Tryouts
+                            <i data-lucide="arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-1"></i>
+                        </span>
+                    </a>
+                    <a href="#" class="px-8 py-3 border border-white/20 text-white text-sm font-semibold uppercase tracking-wider rounded hover:bg-white/10 transition-all backdrop-blur-sm">
+                        View 2025 Rosters
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="w-full bg-white relative z-10">
+        <!-- Vertical Grid Lines -->
+        <div class="absolute inset-0 w-full max-w-[1400px] mx-auto pointer-events-none z-0 hidden lg:block">
+            <div class="absolute top-0 bottom-0 left-0 w-px bg-stone-100"></div>
+            <div class="absolute top-0 bottom-0 left-[33.33%] w-px bg-stone-100"></div>
+            <div class="absolute top-0 bottom-0 left-[66.66%] w-px bg-stone-100"></div>
+            <div class="absolute top-0 bottom-0 right-0 w-px bg-stone-100"></div>
+        </div>
+
+        <!-- ============================================
+             SECTION 02: TYPOGRAPHY BANNER
+             ============================================ -->
+        <div class="border-b border-stone-200 relative z-10 overflow-hidden">
+            <h2 class="text-[13vw] sm:text-[14vw] leading-[0.8] font-bold text-stone-950 text-center tracking-tighter pt-10 pb-4 select-none opacity-10 font-bebas uppercase whitespace-nowrap">
+                United Express
+            </h2>
+        </div>
+
+        <!-- ============================================
+             SECTION 03: INTRO GRID (3 Columns)
+             ============================================ -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 w-full max-w-[1400px] mx-auto relative z-10">
+            <!-- Col 1: Hook -->
+            <div class="lg:col-span-4 border-b lg:border-b-0 lg:border-r border-stone-200 p-8 lg:p-12 flex flex-col justify-between group h-full min-h-[400px] relative">
+                <div class="absolute top-6 left-6 font-mono text-[10px] text-stone-400 opacity-50">02</div>
+                <div class="h-full flex flex-col justify-center">
+                    <h2 class="font-bebas uppercase text-3xl sm:text-4xl text-stone-400 leading-none tracking-tight group-hover:text-stone-900 transition-colors duration-500">
+                        Not a rec league.
+                        <span class="text-tne-red">A Pipeline.</span>
+                    </h2>
+                </div>
+                <div class="hidden lg:block mt-12 opacity-50 group-hover:opacity-100 transition-opacity">
+                    <i data-lucide="activity" class="w-6 h-6 text-tne-red"></i>
+                </div>
+            </div>
+
+            <!-- Col 2: Stat Card -->
+            <div class="lg:col-span-4 border-b lg:border-b-0 lg:border-r border-stone-200 p-8 lg:p-12 flex flex-col items-center justify-center bg-stone-50/50 relative">
+                <div class="relative w-full max-w-xs aspect-[3/4] bg-stone-950 rounded-lg p-6 flex flex-col justify-between shadow-2xl hover:-translate-y-1 transition-transform duration-500 border border-stone-800 overflow-hidden group">
+                    <!-- Top accent bar -->
+                    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-tne-maroon to-tne-red"></div>
+                    
+                    <div class="flex justify-between items-start z-10 relative">
+                        <div class="text-white font-bebas uppercase text-2xl tracking-wider">TNE ELITE</div>
+                        <i data-lucide="medal" class="text-tne-red w-6 h-6"></i>
+                    </div>
+
+                    <div class="z-10 relative">
+                        <div class="text-[10px] font-mono text-stone-400 uppercase tracking-widest mb-1">D1 Commitments</div>
+                        <div class="text-6xl font-bebas text-white font-bold tracking-tighter">37</div>
+                        <div class="h-px w-full bg-white/10 my-4"></div>
+                        <div class="flex justify-between items-end">
+                            <div>
+                                <div class="text-[10px] font-mono text-stone-400 uppercase tracking-widest">Scholarships</div>
+                                <div class="text-xl text-white font-medium">$5M+</div>
+                            </div>
+                            <i data-lucide="trending-up" class="text-green-500 w-5 h-5"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20"></div>
+                </div>
+            </div>
+
+            <!-- Col 3: Narrative -->
+            <div class="lg:col-span-4 p-8 lg:p-12 flex flex-col justify-center space-y-8 relative">
+                <div class="absolute top-6 right-6 font-mono text-[10px] text-stone-300">#OMAHA</div>
+                <p class="font-mono text-xs sm:text-sm text-stone-600 leading-7">
+                    We are a competitive program for dedicated athletes. We don't just roll the ball out; we teach the game. From fundamental skills to advanced read-and-react offensive concepts.
+                </p>
+                <p class="font-mono text-xs sm:text-sm text-stone-400 leading-7">
+                    Our rigorous schedule puts players in front of collegiate scouts and challenges them against the nation's best competition. 
+                </p>
+                
+                <div class="pt-6 border-t border-stone-100 flex items-center gap-6 opacity-40 grayscale hover:grayscale-0 transition-all duration-300">
+                    <div class="font-bold text-xl tracking-tighter">adidas</div>
+                    <div class="font-bold text-sm tracking-tight">PREP HOOPS</div>
+                    <div class="font-bold text-sm tracking-tight">NY2LA</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================
+             SECTION 04: STATS (Dark)
+             ============================================ -->
+        <section class="z-20 bg-[#08090A] w-full border-stone-800/50 border-t pt-24 pb-24 relative">
+            <div class="max-w-[1400px] mx-auto px-6 lg:px-12 relative z-10">
+                <!-- Header -->
+                <div class="max-w-3xl mb-16">
+                    <div class="flex items-center gap-2 mb-6">
+                        <div class="w-1.5 h-1.5 rounded-full bg-tne-red shadow-[0_0_8px_rgba(227,24,55,0.5)]"></div>
+                        <span class="font-mono text-xs text-tne-red/80 uppercase tracking-widest">The Track Record</span>
+                    </div>
+                    <h2 class="text-4xl md:text-5xl lg:text-6xl font-semibold text-[#F2F2F3] tracking-tight leading-[1.1] mb-6">
+                        Numbers don't lie. <br> neither does the work.
+                    </h2>
+                </div>
+
+                <!-- Stats Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-4 bg-neutral-900 border-white/5 border">
+                    
+                    <div class="group relative p-8 border-b md:border-b-0 md:border-r border-white/5 hover:bg-white/[0.02] transition-colors">
+                        <div class="mb-8 opacity-50 group-hover:opacity-100 transition-opacity">
+                            <i data-lucide="users" class="w-8 h-8 text-tne-red"></i>
+                        </div>
+                        <h3 class="text-xs font-mono font-semibold uppercase tracking-widest text-tne-red mb-2">Development</h3>
+                        <h4 class="text-3xl font-bebas text-white mb-2">500+</h4>
+                        <p class="text-sm text-stone-500">Athletes trained through our system since 2012.</p>
+                    </div>
+
+                    <div class="group relative p-8 border-b md:border-b-0 md:border-r border-white/5 hover:bg-white/[0.02] transition-colors">
+                        <div class="mb-8 opacity-50 group-hover:opacity-100 transition-opacity">
+                            <i data-lucide="graduation-cap" class="w-8 h-8 text-tne-red"></i>
+                        </div>
+                        <h3 class="text-xs font-mono font-semibold uppercase tracking-widest text-tne-red mb-2">Success</h3>
+                        <h4 class="text-3xl font-bebas text-white mb-2">37</h4>
+                        <p class="text-sm text-stone-500">NCAA Division 1 Alumni playing at the next level.</p>
+                    </div>
+
+                    <div class="group relative p-8 border-b md:border-b-0 md:border-r border-white/5 hover:bg-white/[0.02] transition-colors">
+                        <div class="mb-8 opacity-50 group-hover:opacity-100 transition-opacity">
+                            <i data-lucide="award" class="w-8 h-8 text-tne-red"></i>
+                        </div>
+                        <h3 class="text-xs font-mono font-semibold uppercase tracking-widest text-tne-red mb-2">Excellence</h3>
+                        <h4 class="text-3xl font-bebas text-white mb-2">15+</h4>
+                        <p class="text-sm text-stone-500">Tournament Championships in past 2 seasons.</p>
+                    </div>
+
+                    <div class="group relative p-8 hover:bg-white/[0.02] transition-colors">
+                        <div class="mb-8 opacity-50 group-hover:opacity-100 transition-opacity">
+                            <i data-lucide="clipboard-check" class="w-8 h-8 text-tne-red"></i>
+                        </div>
+                        <h3 class="text-xs font-mono font-semibold uppercase tracking-widest text-tne-red mb-2">Staff</h3>
+                        <h4 class="text-3xl font-bebas text-white mb-2">100%</h4>
+                        <p class="text-sm text-stone-500">USA Basketball Certified & Background Checked Coaches.</p>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================
+             SECTION 05: PROGRAMS
+             ============================================ -->
+        <section class="bg-white w-full border-t border-stone-200 pt-24 pb-24 relative z-10 text-stone-950">
+            <div class="absolute top-12 left-1/2 -translate-x-1/2 font-mono text-[10px] text-stone-400 tracking-widest uppercase">03 — Development</div>
+            
+            <div class="max-w-[1400px] mx-auto px-6 lg:px-12 relative z-10">
+                <div class="max-w-3xl mb-20">
+                    <h2 class="text-4xl sm:text-5xl lg:text-6xl font-semibold text-stone-950 tracking-tight leading-[1.05] mb-6">
+                        A Complete Game.
+                    </h2>
+                    <p class="text-lg text-stone-500 max-w-xl leading-relaxed">
+                        We build players from the ground up. Whether you are looking to refine mechanics or prepare for collegiate exposure.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-0 border border-stone-200 rounded-lg overflow-hidden">
+                    
+                    <!-- Program 1 -->
+                    <div class="lg:border-r border-stone-200 p-8 flex flex-col h-full bg-stone-50/50 hover:bg-white transition-colors group">
+                        <div class="mb-6">
+                            <span class="inline-block p-2 rounded bg-stone-200 mb-4 text-stone-600">
+                                <i data-lucide="dribbble" class="w-5 h-5"></i>
+                            </span>
+                            <h3 class="text-2xl font-bold text-stone-950 mb-2">Skills Academy</h3>
+                            <p class="text-stone-500 text-sm leading-6">Foundational mechanics and IQ.</p>
+                        </div>
+                        <ul class="space-y-3 mb-8 flex-1">
+                            <li class="flex items-start gap-3 text-sm text-stone-600">
+                                <i data-lucide="check" class="w-4 h-4 text-tne-red mt-0.5"></i> Ball Handling & Footwork
+                            </li>
+                            <li class="flex items-start gap-3 text-sm text-stone-600">
+                                <i data-lucide="check" class="w-4 h-4 text-tne-red mt-0.5"></i> Shooting Mechanics
+                            </li>
+                            <li class="flex items-start gap-3 text-sm text-stone-600">
+                                <i data-lucide="check" class="w-4 h-4 text-tne-red mt-0.5"></i> Defensive Principles
+                            </li>
+                        </ul>
+                        <button class="text-sm font-semibold text-stone-950 flex items-center gap-2 group-hover:gap-4 transition-all">
+                            Learn More <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+
+                    <!-- Program 2 (Featured) -->
+                    <div class="lg:border-r border-stone-200 p-8 flex flex-col h-full bg-white relative group">
+                        <div class="absolute top-0 left-0 right-0 h-1 bg-tne-red"></div>
+                        <div class="mb-6">
+                            <span class="inline-block p-2 rounded bg-red-100 mb-4 text-tne-red">
+                                <i data-lucide="users" class="w-5 h-5"></i>
+                            </span>
+                            <h3 class="text-2xl font-bold text-stone-950 mb-2">Team Training</h3>
+                            <p class="text-stone-500 text-sm leading-6">Elite travel teams (3rd - 11th Grade).</p>
+                        </div>
+                        <ul class="space-y-3 mb-8 flex-1">
+                            <li class="flex items-start gap-3 text-sm text-stone-600">
+                                <i data-lucide="check" class="w-4 h-4 text-tne-red mt-0.5"></i> Regional & National Schedule
+                            </li>
+                            <li class="flex items-start gap-3 text-sm text-stone-600">
+                                <i data-lucide="check" class="w-4 h-4 text-tne-red mt-0.5"></i> 2x Weekly Practices
+                            </li>
+                            <li class="flex items-start gap-3 text-sm text-stone-600">
+                                <i data-lucide="check" class="w-4 h-4 text-tne-red mt-0.5"></i> Collegiate Recruiting Support
+                            </li>
+                        </ul>
+                        <button class="text-sm font-semibold text-tne-red flex items-center gap-2 group-hover:gap-4 transition-all">
+                            View Tryouts <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+
+                    <!-- Program 3 -->
+                    <div class="p-8 flex flex-col h-full bg-stone-50/50 hover:bg-white transition-colors group">
+                        <div class="mb-6">
+                            <span class="inline-block p-2 rounded bg-stone-200 mb-4 text-stone-600">
+                                <i data-lucide="dumbbell" class="w-5 h-5"></i>
+                            </span>
+                            <h3 class="text-2xl font-bold text-stone-950 mb-2">Strength & Cond.</h3>
+                            <p class="text-stone-500 text-sm leading-6">Building the athletic engine.</p>
+                        </div>
+                        <ul class="space-y-3 mb-8 flex-1">
+                            <li class="flex items-start gap-3 text-sm text-stone-600">
+                                <i data-lucide="check" class="w-4 h-4 text-tne-red mt-0.5"></i> Plyometrics & Vertical
+                            </li>
+                            <li class="flex items-start gap-3 text-sm text-stone-600">
+                                <i data-lucide="check" class="w-4 h-4 text-tne-red mt-0.5"></i> Injury Prevention
+                            </li>
+                            <li class="flex items-start gap-3 text-sm text-stone-600">
+                                <i data-lucide="check" class="w-4 h-4 text-tne-red mt-0.5"></i> Speed & Agility
+                            </li>
+                        </ul>
+                        <button class="text-sm font-semibold text-stone-950 flex items-center gap-2 group-hover:gap-4 transition-all">
+                            Details <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================
+             SECTION 06: ON THE COURT (Media Carousel) - NEW
+             ============================================ -->
+        <section class="overflow-hidden bg-[#050505] w-full border-stone-800 border-t pt-24 pb-24 relative">
+            <div class="max-w-[1400px] mx-auto px-6 lg:px-12 relative z-10">
+                <!-- Header with Controls -->
+                <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-8">
+                    <div>
+                        <div class="flex items-center gap-2 mb-4">
+                            <div class="w-1.5 h-1.5 rounded-full bg-tne-red shadow-[0_0_8px_rgba(227,24,55,0.5)]"></div>
+                            <span class="font-mono text-xs text-tne-red/80 uppercase tracking-widest">Media</span>
+                        </div>
+                        <h2 class="text-4xl md:text-5xl font-semibold text-[#F2F2F3] tracking-tight leading-none">
+                            On The Court
+                        </h2>
+                    </div>
+
+                    <!-- Carousel Controls -->
+                    <div class="flex gap-2">
+                        <button id="scrollLeft" class="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-white/60 hover:text-white hover:bg-white/10 transition-all active:scale-95">
+                            <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                        </button>
+                        <button id="scrollRight" class="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-white/60 hover:text-white hover:bg-white/10 transition-all active:scale-95">
+                            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Carousel Container -->
+                <div id="carousel" class="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-8 hide-scroll -mx-6 px-6 lg:mx-0 lg:px-0">
+
+                    <!-- Item 1 (Photo) -->
+                    <div class="snap-center shrink-0 w-[85vw] md:w-[400px] aspect-[4/5] relative rounded-lg overflow-hidden group cursor-pointer border border-white/10">
+                        <img src="https://images.unsplash.com/photo-1546519638-68e109498ffc?q=80&w=1000&auto=format&fit=crop" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-80 group-hover:opacity-100" alt="Game Action">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
+                        <div class="absolute bottom-6 left-6 right-6">
+                            <div class="text-xs font-mono text-tne-red mb-1">Elite 8</div>
+                            <div class="text-xl font-bebas text-white uppercase">Championship Sunday</div>
+                        </div>
+                    </div>
+
+                    <!-- Item 2 (Video Mockup) -->
+                    <div class="snap-center shrink-0 w-[85vw] md:w-[400px] aspect-[4/5] relative rounded-lg overflow-hidden group cursor-pointer border border-white/10">
+                        <img src="https://images.unsplash.com/photo-1505666287802-931dc83948e9?q=80&w=1000&auto=format&fit=crop" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-60 group-hover:opacity-90" alt="Training">
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <div class="w-14 h-14 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                <i data-lucide="play" class="w-5 h-5 text-white ml-1 fill-white"></i>
+                            </div>
+                        </div>
+                        <div class="absolute bottom-6 left-6 right-6">
+                            <div class="text-xs font-mono text-tne-red mb-1">Training</div>
+                            <div class="text-xl font-bebas text-white uppercase">Speed & Agility Session</div>
+                        </div>
+                    </div>
+
+                    <!-- Item 3 (Photo) -->
+                    <div class="snap-center shrink-0 w-[85vw] md:w-[400px] aspect-[4/5] relative rounded-lg overflow-hidden group cursor-pointer border border-white/10">
+                        <img src="https://images.unsplash.com/photo-1544919982-b61976f0ba43?q=80&w=1000&auto=format&fit=crop" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-80 group-hover:opacity-100" alt="Huddle">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
+                        <div class="absolute bottom-6 left-6 right-6">
+                            <div class="text-xs font-mono text-tne-red mb-1">Culture</div>
+                            <div class="text-xl font-bebas text-white uppercase">Timeout Adjustment</div>
+                        </div>
+                    </div>
+
+                    <!-- Item 4 (Video Mockup) -->
+                    <div class="snap-center shrink-0 w-[85vw] md:w-[400px] aspect-[4/5] relative rounded-lg overflow-hidden group cursor-pointer border border-white/10">
+                        <img src="https://images.unsplash.com/photo-1519861531473-920026393112?q=80&w=1000&auto=format&fit=crop" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-60 group-hover:opacity-90" alt="Dunk">
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <div class="w-14 h-14 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                <i data-lucide="play" class="w-5 h-5 text-white ml-1 fill-white"></i>
+                            </div>
+                        </div>
+                        <div class="absolute bottom-6 left-6 right-6">
+                            <div class="text-xs font-mono text-tne-red mb-1">Highlights</div>
+                            <div class="text-xl font-bebas text-white uppercase">Poster Dunk - Chicago</div>
+                        </div>
+                    </div>
+
+                    <!-- Item 5 (Photo) -->
+                    <div class="snap-center shrink-0 w-[85vw] md:w-[400px] aspect-[4/5] relative rounded-lg overflow-hidden group cursor-pointer border border-white/10">
+                        <img src="https://images.unsplash.com/photo-1574629810360-7efbbe195018?q=80&w=1000&auto=format&fit=crop" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-80 group-hover:opacity-100" alt="Celebration">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
+                        <div class="absolute bottom-6 left-6 right-6">
+                            <div class="text-xs font-mono text-tne-red mb-1">Victory</div>
+                            <div class="text-xl font-bebas text-white uppercase">Regional Champs</div>
+                        </div>
+                    </div>
+
+                    <!-- Item 6 (Photo) -->
+                    <div class="snap-center shrink-0 w-[85vw] md:w-[400px] aspect-[4/5] relative rounded-lg overflow-hidden group cursor-pointer border border-white/10">
+                        <img src="https://images.unsplash.com/photo-1628779238951-be2c9f255915?q=80&w=1000&auto=format&fit=crop" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-80 group-hover:opacity-100" alt="Coach">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
+                        <div class="absolute bottom-6 left-6 right-6">
+                            <div class="text-xs font-mono text-tne-red mb-1">Staff</div>
+                            <div class="text-xl font-bebas text-white uppercase">Coach Mentorship</div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================
+             SECTION 07: LEGACY (Mitch Memorial)
+             ============================================ -->
+        <section class="overflow-hidden bg-[#050505] w-full z-20 border-t border-stone-800 py-24 relative">
+            <div class="absolute top-12 left-1/2 -translate-x-1/2 font-mono text-[10px] text-white/20 tracking-widest uppercase">04 — Legacy</div>
+            
+            <div class="max-w-[1400px] mx-auto px-6 lg:px-12 relative z-10">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24 items-center">
+                    <div class="lg:col-span-5 flex flex-col justify-center space-y-8">
+                        <div>
+                            <div class="flex items-center gap-2 text-tne-red mb-6">
+                                <i data-lucide="heart" class="w-4 h-4"></i>
+                                <span class="font-mono text-xs uppercase tracking-wider">Our Foundation</span>
+                            </div>
+                            <h2 class="text-4xl sm:text-5xl font-semibold text-[#F2F2F3] tracking-tight leading-[1.05] mb-6">
+                                Remembering Mitch
+                            </h2>
+                            <p class="text-lg leading-relaxed text-[#8A8F98]">
+                                TNE United Express is built on the values instilled by our foundational figure, Mitch. His dedication to youth mentorship went far beyond the court. 
+                            </p>
+                            <p class="text-base leading-relaxed text-[#8A8F98] mt-4">
+                                He taught us that wins are temporary, but character lasts forever. Every jersey we wear and every practice we run is a continuation of his legacy.
+                            </p>
+                        </div>
+                        <div class="pt-6 border-t border-white/10">
+                            <span class="font-bebas text-2xl text-white/40 uppercase tracking-widest">"Family Over Everything"</span>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-7 h-[500px] bg-[#0A0A0A] border border-white/5 rounded-xl relative overflow-hidden flex items-center justify-center group">
+                        <div class="absolute inset-0 opacity-20" style="background-size: 40px 40px; background-image: linear-gradient(to right, rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.03) 1px, transparent 1px);"></div>
+                        
+                        <div class="relative z-10 text-center">
+                            <i data-lucide="shirt" class="w-32 h-32 text-white/10 mx-auto mb-4 stroke-1"></i>
+                            <div class="text-9xl font-bebas font-bold text-white/5 group-hover:text-white/10 transition-colors duration-700 select-none">
+                                23
+                            </div>
+                        </div>
+                        
+                        <div class="absolute bottom-6 left-6">
+                            <div class="text-[10px] font-mono text-tne-red uppercase tracking-widest mb-1">Status</div>
+                            <div class="text-sm font-mono text-white/60">Forever in our hearts</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================
+             SECTION 08: PARTNERS / SPONSORS - NEW
+             ============================================ -->
+        <section class="bg-white w-full border-t border-stone-200 py-20 relative z-10">
+            <div class="max-w-[1400px] mx-auto px-6 lg:px-12">
+                <div class="text-center mb-12">
+                    <div class="flex items-center justify-center gap-2 mb-4">
+                        <div class="w-8 h-px bg-stone-300"></div>
+                        <span class="font-mono text-[10px] text-stone-400 uppercase tracking-widest">Proudly Supported By</span>
+                        <div class="w-8 h-px bg-stone-300"></div>
+                    </div>
+                    <h3 class="text-2xl font-semibold text-stone-900 tracking-tight">Our Partners</h3>
+                </div>
+                
+                <div class="flex flex-wrap items-center justify-center gap-12 lg:gap-20">
+                    <div class="group cursor-pointer transition-all duration-300 opacity-40 grayscale hover:opacity-100 hover:grayscale-0">
+                        <div class="font-bold text-3xl tracking-tighter text-stone-900">adidas</div>
+                    </div>
+                    <div class="group cursor-pointer transition-all duration-300 opacity-40 grayscale hover:opacity-100 hover:grayscale-0">
+                        <div class="font-bold text-xl tracking-tight text-stone-900">PREP HOOPS</div>
+                    </div>
+                    <div class="group cursor-pointer transition-all duration-300 opacity-40 grayscale hover:opacity-100 hover:grayscale-0">
+                        <div class="font-bold text-xl tracking-tight text-stone-900">NY2LA</div>
+                    </div>
+                    <div class="group cursor-pointer transition-all duration-300 opacity-40 grayscale hover:opacity-100 hover:grayscale-0">
+                        <div class="font-bold text-xl tracking-tight text-stone-900">SLAM</div>
+                    </div>
+                    <div class="group cursor-pointer transition-all duration-300 opacity-40 grayscale hover:opacity-100 hover:grayscale-0">
+                        <div class="font-bold text-lg tracking-tight text-stone-900">BASKETBALL NEBRASKA</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================
+             SECTION 09: INSTAGRAM FEED - NEW
+             ============================================ -->
+        <section class="bg-[#08090A] w-full border-t border-stone-800 py-16 relative overflow-hidden">
+            <div class="max-w-[1400px] mx-auto px-6 lg:px-12">
+                <!-- Header -->
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 flex items-center justify-center">
+                            <i data-lucide="instagram" class="w-6 h-6 text-white"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-semibold text-white">@taborneexpress</h3>
+                            <p class="text-sm text-stone-500">Follow us for updates</p>
+                        </div>
+                    </div>
+                    <a href="https://instagram.com/taborneexpress" target="_blank" class="inline-flex items-center gap-2 text-sm font-medium text-tne-red hover:text-white transition-colors">
+                        View Profile
+                        <i data-lucide="external-link" class="w-4 h-4"></i>
+                    </a>
+                </div>
+                
+                <!-- Instagram Grid -->
+                <div class="grid grid-cols-3 md:grid-cols-6 gap-2">
+                    <a href="#" class="aspect-square bg-stone-800 relative overflow-hidden group">
+                        <img src="https://images.unsplash.com/photo-1546519638-68e109498ffc?q=80&w=400&auto=format&fit=crop" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" alt="">
+                        <div class="absolute inset-0 bg-tne-red/0 group-hover:bg-tne-red/30 transition-colors flex items-center justify-center">
+                            <i data-lucide="heart" class="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                        </div>
+                    </a>
+                    <a href="#" class="aspect-square bg-stone-800 relative overflow-hidden group">
+                        <img src="https://images.unsplash.com/photo-1574629810360-7efbbe195018?q=80&w=400&auto=format&fit=crop" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" alt="">
+                        <div class="absolute inset-0 bg-tne-red/0 group-hover:bg-tne-red/30 transition-colors flex items-center justify-center">
+                            <i data-lucide="heart" class="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                        </div>
+                    </a>
+                    <a href="#" class="aspect-square bg-stone-800 relative overflow-hidden group">
+                        <img src="https://images.unsplash.com/photo-1519861531473-920026393112?q=80&w=400&auto=format&fit=crop" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" alt="">
+                        <div class="absolute inset-0 bg-tne-red/0 group-hover:bg-tne-red/30 transition-colors flex items-center justify-center">
+                            <i data-lucide="heart" class="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                        </div>
+                    </a>
+                    <a href="#" class="aspect-square bg-stone-800 relative overflow-hidden group hidden md:block">
+                        <img src="https://images.unsplash.com/photo-1544919982-b61976f0ba43?q=80&w=400&auto=format&fit=crop" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" alt="">
+                        <div class="absolute inset-0 bg-tne-red/0 group-hover:bg-tne-red/30 transition-colors flex items-center justify-center">
+                            <i data-lucide="heart" class="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                        </div>
+                    </a>
+                    <a href="#" class="aspect-square bg-stone-800 relative overflow-hidden group hidden md:block">
+                        <img src="https://images.unsplash.com/photo-1505666287802-931dc83948e9?q=80&w=400&auto=format&fit=crop" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" alt="">
+                        <div class="absolute inset-0 bg-tne-red/0 group-hover:bg-tne-red/30 transition-colors flex items-center justify-center">
+                            <i data-lucide="heart" class="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                        </div>
+                    </a>
+                    <a href="#" class="aspect-square bg-stone-800 relative overflow-hidden group hidden md:block">
+                        <img src="https://images.unsplash.com/photo-1628779238951-be2c9f255915?q=80&w=400&auto=format&fit=crop" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" alt="">
+                        <div class="absolute inset-0 bg-tne-red/0 group-hover:bg-tne-red/30 transition-colors flex items-center justify-center">
+                            <i data-lucide="heart" class="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================
+             SECTION 10: CTA
+             ============================================ -->
+        <section class="bg-[#F5F5F4] w-full border-t border-stone-200 py-32 relative overflow-hidden">
+            <div class="absolute inset-0 z-0 opacity-[0.03]" style="background-image: linear-gradient(#000 1px, transparent 1px), linear-gradient(to right, #000 1px, transparent 1px); background-size: 40px 40px;"></div>
+            
+            <div class="max-w-4xl mx-auto px-6 relative z-10 text-center">
+                <div class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-stone-200/50 backdrop-blur-sm border border-stone-300 text-stone-600 mb-8 shadow-sm">
+                    <i data-lucide="calendar" class="w-6 h-6"></i>
+                </div>
+
+                <h2 class="text-5xl md:text-6xl font-semibold text-stone-900 tracking-tighter leading-none mb-8">
+                    The season starts <br>
+                    <span class="text-stone-400">when you sign up.</span>
+                </h2>
+
+                <p class="text-lg text-stone-500 mb-10 max-w-xl mx-auto leading-relaxed">
+                    Fall/Winter 2025-26 evaluations are approaching. Spaces are limited by team capacity. Secure your spot at tryouts today.
+                </p>
+
+                <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+                    <button class="h-12 px-8 bg-tne-red text-white font-medium hover:bg-tne-red-dark transition-all shadow-xl shadow-tne-red/20 flex items-center gap-2 hover:scale-105 active:scale-95 duration-200">
+                        <span>Register for Tryouts</span>
+                        <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                    </button>
+                    <button class="h-12 px-8 rounded border border-stone-300 text-stone-600 font-medium hover:bg-white hover:text-stone-900 transition-all bg-white/50 backdrop-blur-sm">
+                        Contact Coaches
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================
+             SECTION 11: FOOTER
+             ============================================ -->
+        <footer class="bg-[#050505] w-full border-t border-white/10 pt-20 pb-10 relative overflow-hidden text-[#8A8F98]">
+            <div class="max-w-[1400px] mx-auto px-6 lg:px-12 relative z-10">
+                <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-12 mb-20">
+                    <div class="col-span-2 lg:col-span-2 pr-8">
+                        <a href="#" class="inline-block text-white font-bebas font-bold text-2xl tracking-tight mb-6">
+                            TNE <span class="text-tne-red">UNITED</span>
+                        </a>
+                        <p class="text-sm leading-7 text-[#8A8F98] max-w-xs mb-8">
+                            Developing elite players and building character in Omaha's youth. The road to the next level starts here.
+                        </p>
+                        <div class="flex items-center gap-4">
+                            <a href="#" class="text-white/40 hover:text-white transition-colors">
+                                <i data-lucide="instagram" class="w-5 h-5"></i>
+                            </a>
+                            <a href="#" class="text-white/40 hover:text-white transition-colors">
+                                <i data-lucide="youtube" class="w-5 h-5"></i>
+                            </a>
+                            <a href="#" class="text-white/40 hover:text-white transition-colors">
+                                <i data-lucide="twitter" class="w-5 h-5"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h4 class="font-mono text-xs text-white uppercase tracking-widest mb-6">Program</h4>
+                        <ul class="space-y-4 text-sm">
+                            <li><a href="#" class="hover:text-white transition-colors">Tryouts</a></li>
+                            <li><a href="#" class="hover:text-white transition-colors">Teams</a></li>
+                            <li><a href="#" class="hover:text-white transition-colors">Skills Academy</a></li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h4 class="font-mono text-xs text-white uppercase tracking-widest mb-6">Resources</h4>
+                        <ul class="space-y-4 text-sm">
+                            <li><a href="#" class="hover:text-white transition-colors">Parent Portal</a></li>
+                            <li><a href="#" class="hover:text-white transition-colors">Schedule</a></li>
+                            <li><a href="#" class="hover:text-white transition-colors">Merch Store</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div>
+                        <h4 class="font-mono text-xs text-white uppercase tracking-widest mb-6">Contact</h4>
+                        <ul class="space-y-4 text-sm">
+                            <li><a href="#" class="hover:text-white transition-colors">info@tneexpress.com</a></li>
+                            <li><a href="#" class="hover:text-white transition-colors">(402) 555-0123</a></li>
+                            <li><span class="text-white/40">Omaha, NE</span></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="border-t border-white/5 pt-10 flex flex-col md:flex-row justify-between items-center gap-6">
+                    <div class="text-xs text-white/30 font-mono">
+                        © 2025 TNE United Express Basketball. All rights reserved.
+                    </div>
+                    <div class="flex items-center gap-2 border border-white/10 bg-white/5 rounded-full px-3 py-1">
+                        <div class="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]"></div>
+                        <span class="text-[10px] font-mono text-white/60 uppercase tracking-wider">
+                            Registration Open
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="absolute -bottom-12 -right-10 pointer-events-none select-none opacity-[0.03] overflow-hidden">
+                    <span class="text-[180px] font-bebas font-bold leading-none tracking-tighter text-white whitespace-nowrap uppercase">
+                        United
+                    </span>
+                </div>
+            </div>
+        </footer>
+    </main>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+        
+        // Parallax effect
+        document.addEventListener('scroll', function() {
+            const bg = document.getElementById('parallax-bg');
+            if(bg) {
+                bg.style.transform = `translateY(${window.scrollY * 0.4}px)`;
+            }
+        });
+        
+        // Carousel controls
+        const carousel = document.getElementById('carousel');
+        const scrollLeftBtn = document.getElementById('scrollLeft');
+        const scrollRightBtn = document.getElementById('scrollRight');
+        
+        if (carousel && scrollLeftBtn && scrollRightBtn) {
+            scrollLeftBtn.addEventListener('click', () => {
+                carousel.scrollBy({ left: -420, behavior: 'smooth' });
+            });
+            
+            scrollRightBtn.addEventListener('click', () => {
+                carousel.scrollBy({ left: 420, behavior: 'smooth' });
+            });
+        }
+    </script>
+
+</body>
+</html>
