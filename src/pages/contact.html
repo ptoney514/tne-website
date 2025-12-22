@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Contact Us | TNE United Express</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'tne': {
+                            'maroon': '#8B1F3A',
+                            'red': '#E31837',
+                            'red-dark': '#C41230',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        .font-bebas { font-family: 'Bebas Neue', sans-serif; }
+        .font-mono { font-family: 'Space Mono', monospace; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #050505; }
+        ::-webkit-scrollbar-thumb { background: #E31837; border-radius: 3px; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-enter { animation: fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .delay-100 { animation-delay: 100ms; }
+        .delay-200 { animation-delay: 200ms; }
+    </style>
+</head>
+<body class="bg-[#050505] text-white antialiased min-h-screen flex flex-col font-sans selection:bg-tne-red/20 selection:text-red-100">
+
+    <!-- Navbar -->
+    <nav class="sticky supports-[backdrop-filter]:bg-black/80 bg-black/90 w-full z-50 border-white/5 border-b top-0 backdrop-blur-md">
+        <div class="sm:px-6 flex h-14 max-w-6xl mx-auto px-4 items-center justify-between">
+            <!-- Brand -->
+            <div class="flex items-center gap-3">
+                <div class="flex bg-gradient-to-tr from-tne-maroon to-tne-red w-7 h-7 rounded-full shadow-[0_0_24px_rgba(227,24,55,0.5)] items-center justify-center">
+                    <span class="font-bebas font-bold text-white text-[10px] leading-none pt-0.5">TNE</span>
+                </div>
+                <span class="text-sm font-medium tracking-tight text-white/90">TNE United Express</span>
+            </div>
+
+            <!-- Links -->
+            <div class="hidden md:flex items-center gap-6 text-xs font-medium uppercase tracking-[0.18em]">
+                <a href="index.html" class="hover:text-white transition-colors text-stone-300">Home</a>
+                <a href="teams.html" class="hover:text-white transition-colors text-stone-300">Teams</a>
+                <a href="schedule.html" class="hover:text-white transition-colors text-stone-300">Schedule</a>
+                <a href="tournaments.html" class="text-stone-300 hover:text-white transition-colors">Tournaments</a>
+                <a href="tryouts.html" class="text-stone-300 hover:text-white transition-colors">Tryouts</a>
+                <a href="about.html" class="text-stone-300 hover:text-white transition-colors">About</a>
+                <a href="contact.html" class="text-white">Contact</a>
+            </div>
+
+            <!-- Right -->
+            <div class="flex items-center gap-2">
+                <div class="hidden md:flex items-center gap-2">
+                    <a href="#" class="px-3 py-1.5 text-xs font-medium rounded-full border border-white/15 text-white/80 hover:text-white hover:border-white/40 transition-colors">
+                        Login
+                    </a>
+                    <a href="#" class="px-3 py-1.5 text-xs font-medium rounded-full bg-tne-red text-white hover:bg-tne-red-dark transition-colors">
+                        Register
+                    </a>
+                </div>
+                <button class="md:hidden inline-flex items-center justify-center w-8 h-8 rounded-full border border-white/10 text-white/70 hover:text-white hover:border-white/40 transition-colors">
+                    <i data-lucide="menu" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Header -->
+    <header class="relative border-b border-white/5 overflow-hidden">
+        <div class="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(227,24,55,0.2),transparent_60%),radial-gradient(circle_at_bottom_left,rgba(139,31,58,0.15),transparent_55%)]"></div>
+        <div class="absolute inset-0 bg-gradient-to-b from-black via-black/90 to-black"></div>
+
+        <div class="sm:px-6 sm:pt-16 sm:pb-14 max-w-6xl mx-auto pt-12 px-4 pb-10 relative">
+            <div class="flex flex-col gap-6 animate-enter">
+                <!-- Breadcrumb -->
+                <div class="inline-flex items-center gap-2">
+                    <a href="index.html" class="text-[0.7rem] font-mono text-white/50 uppercase tracking-[0.2em] hover:text-white transition-colors">Home</a>
+                    <span class="text-white/30">/</span>
+                    <span class="text-[0.7rem] font-mono text-tne-red uppercase tracking-[0.2em]">Contact</span>
+                </div>
+
+                <div>
+                    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tight text-white">
+                        Get in Touch
+                    </h1>
+                    <p class="mt-2 text-base sm:text-lg text-white/70 max-w-2xl">
+                        Have questions about our program? We'd love to hear from you. Reach out and our team will get back to you within 24 hours.
+                    </p>
+                </div>
+
+                <div class="flex flex-wrap gap-4 items-center text-xs sm:text-sm text-white/70">
+                    <div class="inline-flex items-center gap-2 rounded-md bg-white/5 border border-white/10 px-3 py-1.5">
+                        <span class="inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.8)]"></span>
+                        <span class="font-mono uppercase tracking-[0.22em] text-[0.7rem]">Quick Response</span>
+                    </div>
+                    <div class="inline-flex items-center gap-2 text-white/60">
+                        <i data-lucide="clock" class="w-4 h-4"></i>
+                        <span>Typically respond within 24 hours</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 w-full bg-neutral-50 text-neutral-900">
+        <section class="max-w-6xl mx-auto px-4 sm:px-6 -mt-6 pb-12 sm:pb-16">
+
+            <div class="animate-enter delay-100 grid grid-cols-1 lg:grid-cols-5 gap-6 sm:gap-8">
+
+                <!-- Contact Form - 3 columns -->
+                <div class="lg:col-span-3">
+                    <div class="rounded-3xl bg-white border border-neutral-300 shadow-sm overflow-hidden">
+                        <div class="bg-neutral-900 text-white px-5 py-4 sm:px-6 sm:py-5">
+                            <h2 class="text-xl sm:text-2xl font-semibold tracking-tight">Send Us a Message</h2>
+                            <p class="text-sm text-white/60 mt-1">Fill out the form below and we'll get back to you soon.</p>
+                        </div>
+
+                        <form id="contactForm" class="px-5 py-5 sm:px-6 sm:py-6 space-y-5">
+                            <!-- Name Fields -->
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div class="space-y-1.5">
+                                    <label for="firstName" class="block text-sm font-medium text-neutral-700">First Name <span class="text-tne-red">*</span></label>
+                                    <input type="text" id="firstName" name="firstName" required
+                                        class="block w-full rounded-xl border border-neutral-300 bg-neutral-50 px-4 py-2.5 text-sm text-neutral-900 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-tne-red/50 focus:border-tne-red/50 transition-colors"
+                                        placeholder="John">
+                                </div>
+                                <div class="space-y-1.5">
+                                    <label for="lastName" class="block text-sm font-medium text-neutral-700">Last Name <span class="text-tne-red">*</span></label>
+                                    <input type="text" id="lastName" name="lastName" required
+                                        class="block w-full rounded-xl border border-neutral-300 bg-neutral-50 px-4 py-2.5 text-sm text-neutral-900 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-tne-red/50 focus:border-tne-red/50 transition-colors"
+                                        placeholder="Smith">
+                                </div>
+                            </div>
+
+                            <!-- Email -->
+                            <div class="space-y-1.5">
+                                <label for="email" class="block text-sm font-medium text-neutral-700">Email Address <span class="text-tne-red">*</span></label>
+                                <input type="email" id="email" name="email" required
+                                    class="block w-full rounded-xl border border-neutral-300 bg-neutral-50 px-4 py-2.5 text-sm text-neutral-900 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-tne-red/50 focus:border-tne-red/50 transition-colors"
+                                    placeholder="john.smith@example.com">
+                            </div>
+
+                            <!-- Phone (Optional) -->
+                            <div class="space-y-1.5">
+                                <label for="phone" class="block text-sm font-medium text-neutral-700">Phone Number <span class="text-neutral-400">(Optional)</span></label>
+                                <input type="tel" id="phone" name="phone"
+                                    class="block w-full rounded-xl border border-neutral-300 bg-neutral-50 px-4 py-2.5 text-sm text-neutral-900 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-tne-red/50 focus:border-tne-red/50 transition-colors"
+                                    placeholder="(402) 555-0123">
+                            </div>
+
+                            <!-- Subject -->
+                            <div class="space-y-1.5">
+                                <label for="subject" class="block text-sm font-medium text-neutral-700">Subject <span class="text-tne-red">*</span></label>
+                                <select id="subject" name="subject" required
+                                    class="block w-full rounded-xl border border-neutral-300 bg-neutral-50 px-4 py-2.5 text-sm text-neutral-900 focus:outline-none focus:ring-2 focus:ring-tne-red/50 focus:border-tne-red/50 transition-colors">
+                                    <option value="">Select a topic...</option>
+                                    <option value="general">General Inquiry</option>
+                                    <option value="registration">Registration Question</option>
+                                    <option value="tryouts">Tryouts Information</option>
+                                    <option value="schedule">Schedule Question</option>
+                                    <option value="sponsorship">Sponsorship Inquiry</option>
+                                    <option value="coaching">Coaching / Employment</option>
+                                    <option value="media">Media / Press</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+
+                            <!-- Message -->
+                            <div class="space-y-1.5">
+                                <label for="message" class="block text-sm font-medium text-neutral-700">Message <span class="text-tne-red">*</span></label>
+                                <textarea id="message" name="message" rows="5" required
+                                    class="block w-full rounded-xl border border-neutral-300 bg-neutral-50 px-4 py-2.5 text-sm text-neutral-900 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-tne-red/50 focus:border-tne-red/50 transition-colors resize-none"
+                                    placeholder="How can we help you?"></textarea>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <div class="pt-2">
+                                <button type="submit"
+                                    class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-tne-red text-white font-medium hover:bg-tne-red-dark transition-colors">
+                                    Send Message
+                                    <i data-lucide="send" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Contact Info Sidebar - 2 columns -->
+                <div class="lg:col-span-2 space-y-5">
+
+                    <!-- Direct Contact Card -->
+                    <div class="rounded-3xl bg-white border border-neutral-300 shadow-sm overflow-hidden">
+                        <div class="px-5 py-5 sm:px-6">
+                            <h3 class="text-lg font-semibold text-neutral-900 mb-4">Contact Information</h3>
+
+                            <div class="space-y-4">
+                                <!-- Email -->
+                                <a href="mailto:info@tneexpress.com" class="flex items-start gap-3 group">
+                                    <div class="flex items-center justify-center w-10 h-10 rounded-full bg-tne-red/10 text-tne-red group-hover:bg-tne-red group-hover:text-white transition-colors">
+                                        <i data-lucide="mail" class="w-5 h-5"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-medium text-neutral-900">Email</p>
+                                        <p class="text-sm text-neutral-600 group-hover:text-tne-red transition-colors">info@tneexpress.com</p>
+                                    </div>
+                                </a>
+
+                                <!-- Phone -->
+                                <a href="tel:+14025550123" class="flex items-start gap-3 group">
+                                    <div class="flex items-center justify-center w-10 h-10 rounded-full bg-tne-red/10 text-tne-red group-hover:bg-tne-red group-hover:text-white transition-colors">
+                                        <i data-lucide="phone" class="w-5 h-5"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-medium text-neutral-900">Phone</p>
+                                        <p class="text-sm text-neutral-600 group-hover:text-tne-red transition-colors">(402) 555-0123</p>
+                                    </div>
+                                </a>
+
+                                <!-- Location -->
+                                <div class="flex items-start gap-3">
+                                    <div class="flex items-center justify-center w-10 h-10 rounded-full bg-tne-red/10 text-tne-red">
+                                        <i data-lucide="map-pin" class="w-5 h-5"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-medium text-neutral-900">Location</p>
+                                        <p class="text-sm text-neutral-600">Omaha, Nebraska</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Social Links Card -->
+                    <div class="rounded-3xl bg-white border border-neutral-300 shadow-sm overflow-hidden">
+                        <div class="px-5 py-5 sm:px-6">
+                            <h3 class="text-lg font-semibold text-neutral-900 mb-4">Follow Us</h3>
+
+                            <div class="flex gap-3">
+                                <a href="https://www.facebook.com/TNEUnitedExpress" target="_blank" rel="noopener noreferrer"
+                                    class="flex items-center justify-center w-12 h-12 rounded-full bg-neutral-100 text-neutral-600 hover:bg-tne-red hover:text-white transition-colors">
+                                    <i data-lucide="facebook" class="w-5 h-5"></i>
+                                </a>
+                                <a href="https://twitter.com/tikibarber" target="_blank" rel="noopener noreferrer"
+                                    class="flex items-center justify-center w-12 h-12 rounded-full bg-neutral-100 text-neutral-600 hover:bg-tne-red hover:text-white transition-colors">
+                                    <i data-lucide="twitter" class="w-5 h-5"></i>
+                                </a>
+                                <a href="https://www.instagram.com/tneunitedexpress" target="_blank" rel="noopener noreferrer"
+                                    class="flex items-center justify-center w-12 h-12 rounded-full bg-neutral-100 text-neutral-600 hover:bg-tne-red hover:text-white transition-colors">
+                                    <i data-lucide="instagram" class="w-5 h-5"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Links Card -->
+                    <div class="rounded-3xl bg-gradient-to-br from-neutral-900 to-neutral-800 text-white border border-neutral-700 shadow-lg overflow-hidden">
+                        <div class="px-5 py-5 sm:px-6">
+                            <h3 class="text-lg font-semibold mb-3">Looking for something specific?</h3>
+                            <p class="text-sm text-white/60 mb-4">These pages might have what you need:</p>
+
+                            <div class="space-y-2">
+                                <a href="tryouts.html" class="flex items-center gap-2 text-sm text-white/80 hover:text-white transition-colors">
+                                    <i data-lucide="chevron-right" class="w-4 h-4 text-tne-red"></i>
+                                    Tryouts & Registration
+                                </a>
+                                <a href="schedule.html" class="flex items-center gap-2 text-sm text-white/80 hover:text-white transition-colors">
+                                    <i data-lucide="chevron-right" class="w-4 h-4 text-tne-red"></i>
+                                    Practice & Game Schedule
+                                </a>
+                                <a href="teams.html" class="flex items-center gap-2 text-sm text-white/80 hover:text-white transition-colors">
+                                    <i data-lucide="chevron-right" class="w-4 h-4 text-tne-red"></i>
+                                    Team Rosters & Coaches
+                                </a>
+                                <a href="tournaments.html" class="flex items-center gap-2 text-sm text-white/80 hover:text-white transition-colors">
+                                    <i data-lucide="chevron-right" class="w-4 h-4 text-tne-red"></i>
+                                    Tournament Information
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-white/10 bg-black py-8 sm:py-10 mt-4">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col gap-6 sm:gap-4 sm:flex-row sm:items-center sm:justify-between text-xs sm:text-sm text-white/45">
+            <div class="flex items-center gap-3">
+                <div class="w-6 h-6 rounded-full bg-gradient-to-tr from-tne-maroon to-tne-red flex items-center justify-center">
+                    <span class="font-bebas font-semibold text-white text-[0.5rem] leading-none pt-[1px]">TNE</span>
+                </div>
+                <span class="font-semibold tracking-tight text-white text-base">
+                    UNITED <span class="text-white/40">EXPRESS</span>
+                </span>
+                <span class="hidden sm:inline text-white/30">·</span>
+                <span class="hidden sm:inline text-white/40">© 2025 TNE United Express. All rights reserved.</span>
+            </div>
+            <div class="flex flex-wrap items-center gap-3">
+                <div class="inline-flex items-center gap-1.5">
+                    <span class="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>
+                    <span class="text-[0.7rem] font-mono uppercase tracking-[0.2em] text-white/60">
+                        Registration Open
+                    </span>
+                </div>
+                <div class="flex items-center gap-3">
+                    <a href="https://www.facebook.com/TNEUnitedExpress" target="_blank" rel="noopener noreferrer" class="text-white/40 hover:text-white transition-colors">
+                        <i data-lucide="facebook" class="w-4 h-4"></i>
+                    </a>
+                    <a href="https://twitter.com/tikibarber" target="_blank" rel="noopener noreferrer" class="text-white/40 hover:text-white transition-colors">
+                        <i data-lucide="twitter" class="w-4 h-4"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        lucide.createIcons({ attrs: { strokeWidth: 1.5 } });
+
+        // Simple form handling - will be enhanced with Supabase later
+        document.getElementById('contactForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            // Get form data
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData.entries());
+
+            // For now, show a success message
+            // This will be replaced with actual form submission when Supabase is integrated
+            alert('Thank you for your message! We will get back to you within 24 hours.');
+            this.reset();
+        });
+    </script>
+
+</body>
+</html>
