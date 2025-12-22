@@ -50,7 +50,7 @@ const teamsData = {
 function PlayerCard({ player }) {
   return (
     <div className="rounded-2xl bg-white border border-neutral-200 p-4 flex items-center gap-4 hover:border-neutral-300 transition-colors">
-      <div className="flex items-center justify-center w-12 h-12 rounded-full bg-tne-red text-white font-bebas text-xl">
+      <div className="flex items-center justify-center w-12 h-12 rounded-full bg-tne-red text-white font-semibold text-lg">
         #{player.number}
       </div>
       <div className="flex-1 min-w-0">
@@ -148,7 +148,7 @@ export default function TeamDetailPage() {
 
             {/* Team Name */}
             <div>
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bebas font-semibold tracking-tight text-white uppercase">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tight text-white">
                 {team.name}
               </h1>
               <p className="mt-2 text-base sm:text-lg text-white/60">
