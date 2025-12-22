@@ -1,0 +1,17 @@
+{
+  "name": "tne_website",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "TNE United Express youth basketball website",
+  "scripts": {
+    "test": "npx playwright test",
+    "test:ui": "npx playwright test --ui",
+    "test:headed": "npx playwright test --headed",
+    "lint:react": "cd react-app && npm run lint",
+    "build:react": "cd react-app && npm run build",
+    "pr-check": "npm run lint:react && npm run build:react && npm run test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.57.0"
+  }
+}

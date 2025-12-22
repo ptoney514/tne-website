@@ -87,6 +87,28 @@ Use keywords to auto-close issues:
 gh pr create --title "Add schedule page" --body "Closes #1"
 ```
 
+### Pre-PR Checklist (REQUIRED)
+
+Before creating any PR, run the full check:
+
+```bash
+npm run pr-check
+```
+
+This runs:
+1. `npm run lint:react` - ESLint on React app
+2. `npm run build:react` - Vite production build
+3. `npm run test` - Playwright E2E tests
+
+**All checks must pass before creating a PR.**
+
+Individual commands:
+```bash
+npm test              # Run E2E tests
+npm run test:headed   # Run tests with browser visible (debugging)
+npm run test:ui       # Interactive test UI
+```
+
 ## Remaining Pages to Build
 
 See GitHub Issues for full tracking:
