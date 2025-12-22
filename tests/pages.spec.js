@@ -7,6 +7,8 @@ const PAGES = [
   { name: 'Schedule', file: 'schedule.html' },
   { name: 'Tournaments', file: 'tournaments.html' },
   { name: 'Tryouts', file: 'tryouts.html' },
+  { name: 'About', file: 'about.html' },
+  { name: 'Contact', file: 'contact.html' },
 ];
 
 for (const page of PAGES) {
@@ -266,5 +268,96 @@ test.describe('Mobile Responsiveness', () => {
 
     // Filter controls should be visible
     await expect(page.getByRole('button', { name: /all tournaments/i })).toBeVisible();
+  });
+
+  test('contact page should be usable on mobile', async ({ page }) => {
+    const filePath = path.resolve(process.cwd(), 'src/pages/contact.html');
+    await page.goto(`file://${filePath}`);
+
+    // Mobile menu button should be visible
+    const menuButton = page.locator('button[class*="md:hidden"]');
+    await expect(menuButton).toBeVisible();
+
+    // Page content should be visible
+    const mainContent = page.locator('main');
+    await expect(mainContent).toBeVisible();
+
+    // Contact form should be visible
+    await expect(page.locator('#contactForm')).toBeVisible();
+  });
+});
+
+// Contact page specific tests
+test.describe('Contact Page - Specific', () => {
+  test.beforeEach(async ({ page }) => {
+    const filePath = path.resolve(process.cwd(), 'src/pages/contact.html');
+    await page.goto(`file://${filePath}`);
+  });
+
+  test('should display contact form with all fields', async ({ page }) => {
+    // Check for form fields
+    await expect(page.locator('#firstName')).toBeVisible();
+    await expect(page.locator('#lastName')).toBeVisible();
+    await expect(page.locator('#email')).toBeVisible();
+    await expect(page.locator('#phone')).toBeVisible();
+    await expect(page.locator('#subject')).toBeVisible();
+    await expect(page.locator('#message')).toBeVisible();
+  });
+
+  test('should have form validation attributes', async ({ page }) => {
+    // Check required fields have required attribute
+    const firstNameInput = page.locator('#firstName');
+    await expect(firstNameInput).toHaveAttribute('required', '');
+
+    const lastNameInput = page.locator('#lastName');
+    await expect(lastNameInput).toHaveAttribute('required', '');
+
+    const emailInput = page.locator('#email');
+    await expect(emailInput).toHaveAttribute('type', 'email');
+    await expect(emailInput).toHaveAttribute('required', '');
+
+    const subjectSelect = page.locator('#subject');
+    await expect(subjectSelect).toHaveAttribute('required', '');
+
+    const messageTextarea = page.locator('#message');
+    await expect(messageTextarea).toHaveAttribute('required', '');
+  });
+
+  test('should display subject dropdown with options', async ({ page }) => {
+    const subjectSelect = page.locator('#subject');
+    await expect(subjectSelect).toBeVisible();
+
+    // Check for options
+    const options = subjectSelect.locator('option');
+    const count = await options.count();
+    expect(count).toBeGreaterThan(3);
+  });
+
+  test('should display contact info sidebar', async ({ page }) => {
+    // Check for contact info sections
+    await expect(page.getByText('info@tneexpress.com')).toBeVisible();
+    await expect(page.getByText('(402) 555-0123')).toBeVisible();
+    await expect(page.getByText('Omaha, Nebraska')).toBeVisible();
+  });
+
+  test('should display social links', async ({ page }) => {
+    // Check for social links section
+    await expect(page.getByRole('heading', { name: 'Follow Us' })).toBeVisible();
+    // Check for social link icons
+    const socialLinks = page.locator('a[href*="facebook"], a[href*="twitter"], a[href*="instagram"]');
+    const count = await socialLinks.count();
+    expect(count).toBeGreaterThan(0);
+  });
+
+  test('should display quick links section', async ({ page }) => {
+    await expect(page.getByText('Looking for something specific?')).toBeVisible();
+    // Check for quick link buttons
+    await expect(page.getByRole('link', { name: 'Tryouts & Registration' })).toBeVisible();
+  });
+
+  test('should have submit button', async ({ page }) => {
+    const submitButton = page.getByRole('button', { name: /send message/i });
+    await expect(submitButton).toBeVisible();
+    await expect(submitButton).toHaveAttribute('type', 'submit');
   });
 });
