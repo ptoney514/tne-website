@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Menu, LogOut, User, ChevronDown, Settings } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
+import tneLogoWhite from '../assets/tne-logo-white-transparent.png';
 
 function UserDropdown({ profile, onSignOut }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -98,16 +99,16 @@ export default function TeamsNavbar() {
     <nav className="sticky supports-[backdrop-filter]:bg-black/80 bg-black/90 w-full z-50 border-white/5 border-b top-0 backdrop-blur-md">
       <div className="sm:px-6 flex h-14 max-w-6xl mx-auto px-4 items-center justify-between">
         {/* Brand */}
-        <div className="flex items-center gap-3">
-          <div className="flex bg-gradient-to-tr from-tne-maroon to-tne-red w-7 h-7 rounded-full shadow-[0_0_24px_rgba(227,24,55,0.5)] items-center justify-center">
-            <span className="font-bebas font-bold text-white text-[10px] leading-none pt-0.5">
-              TNE
-            </span>
-          </div>
-          <span className="text-sm font-medium tracking-tight text-white/90">
+        <Link to="/" className="flex items-center gap-3 hover:opacity-90 transition-opacity">
+          <img
+            src={tneLogoWhite}
+            alt="TNE United Express"
+            className="h-12 w-12 object-contain"
+          />
+          <span className="text-sm font-medium tracking-tight text-white/90 hidden sm:inline">
             TNE United Express
           </span>
-        </div>
+        </Link>
 
         {/* Links */}
         <div className="hidden md:flex items-center gap-6 text-xs font-medium uppercase tracking-[0.18em]">

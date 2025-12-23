@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Menu } from 'lucide-react';
+import tneLogoWhite from '../assets/tne-logo-white-transparent.png';
 
 export default function HomeNavbar() {
   return (
@@ -8,22 +9,24 @@ export default function HomeNavbar() {
         {/* Left Links */}
         <div className="hidden md:flex items-center gap-1 px-4">
           <Link to="/teams" className="text-[11px] hover:text-white uppercase hover:bg-white/10 transition-all font-medium text-white/80 tracking-wider font-mono rounded-full px-3 py-1.5">Teams</Link>
-          <a href="#" className="text-[11px] hover:text-white uppercase hover:bg-white/10 transition-all font-medium text-white/80 tracking-wider font-mono rounded-full px-3 py-1.5">Schedule</a>
+          <Link to="/schedule" className="text-[11px] hover:text-white uppercase hover:bg-white/10 transition-all font-medium text-white/80 tracking-wider font-mono rounded-full px-3 py-1.5">Schedule</Link>
         </div>
 
         {/* Center Brand */}
-        <div className="flex-1 text-center">
-          <span className="uppercase text-lg font-semibold text-white tracking-[0.12em] font-bebas px-6">
-            TNE <span className="text-tne-red">UNITED EXPRESS</span>
-          </span>
-        </div>
+        <Link to="/" className="flex-1 flex justify-center">
+          <img
+            src={tneLogoWhite}
+            alt="TNE United Express"
+            className="h-10 w-10 object-contain"
+          />
+        </Link>
 
         {/* Right Links */}
         <div className="hidden md:flex items-center gap-1 px-4">
-          <a href="#" className="text-[11px] hover:text-white uppercase hover:bg-white/10 transition-all font-medium text-white/80 tracking-wider font-mono rounded-full px-3 py-1.5">Login</a>
-          <a href="#" className="text-[11px] uppercase transition-all font-medium text-white tracking-wider font-mono bg-tne-red hover:bg-tne-red-dark rounded-full px-4 py-1.5">
+          <Link to="/login" className="text-[11px] hover:text-white uppercase hover:bg-white/10 transition-all font-medium text-white/80 tracking-wider font-mono rounded-full px-3 py-1.5">Login</Link>
+          <Link to="/tryouts" className="text-[11px] uppercase transition-all font-medium text-white tracking-wider font-mono bg-tne-red hover:bg-tne-red-dark rounded-full px-4 py-1.5">
             Register
-          </a>
+          </Link>
         </div>
 
         {/* Mobile Menu */}
