@@ -448,19 +448,22 @@ export default function AdminTeamsPage() {
 
       <TeamsFooter />
 
-      {/* Create/Edit Modal */}
-      <TeamModal
-        isOpen={modalOpen}
-        onClose={() => {
-          setModalOpen(false);
-          setEditingTeam(null);
-        }}
-        team={editingTeam}
-        seasons={seasons}
-        coaches={coaches}
-        onSave={handleSave}
-        isSaving={isSaving}
-      />
+      {/* Create/Edit Modal - key forces remount when editing different teams */}
+      {modalOpen && (
+        <TeamModal
+          key={editingTeam?.id || 'new'}
+          isOpen={modalOpen}
+          onClose={() => {
+            setModalOpen(false);
+            setEditingTeam(null);
+          }}
+          team={editingTeam}
+          seasons={seasons}
+          coaches={coaches}
+          onSave={handleSave}
+          isSaving={isSaving}
+        />
+      )}
 
       {/* Delete Confirmation */}
       {deleteConfirm && (

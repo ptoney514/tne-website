@@ -29,6 +29,15 @@ export default defineConfig({
         baseURL: 'http://localhost:5173',
       },
     },
+    // React app (admin tests)
+    {
+      name: 'admin-app',
+      testMatch: /admin\/.*\.spec\.js/,
+      use: {
+        ...devices['Desktop Chrome'],
+        baseURL: 'http://localhost:5173',
+      },
+    },
   ],
   webServer: {
     command: 'cd react-app && npm run dev',
