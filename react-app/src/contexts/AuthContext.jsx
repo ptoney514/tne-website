@@ -64,8 +64,11 @@ export function AuthProvider({ children }) {
         console.error('[Auth] Initialization error:', err);
         setUser(null);
         setProfile(null);
-        // Don't set error for timeout - just proceed without auth
-        if (err.name !== 'TimeoutError' && err.name !== 'AbortError') {
+        // Don't set error for timeout - just proceed without auth (allow login page to render)
+        const isTimeout = err.message?.includes('timed out') ||
+                          err.name === 'TimeoutError' ||
+                          err.name === 'AbortError';
+        if (!isTimeout) {
           setError(err.message);
         }
       } finally {

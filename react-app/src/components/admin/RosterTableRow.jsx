@@ -4,7 +4,7 @@
  * Shows jersey badge, player name/grade, position, parent contact, status, actions
  */
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import JerseyBadge from './JerseyBadge';
 import { getPositionName } from '../../utils/playerParser';
 
@@ -14,6 +14,17 @@ const STATUS_STYLES = {
   partial: 'bg-blue-100 text-blue-700',
   waived: 'bg-stone-100 text-stone-600',
 };
+
+// Calculate if dropdown should open upward based on button position
+function shouldOpenUpward(buttonElement) {
+  if (!buttonElement) return false;
+  const rect = buttonElement.getBoundingClientRect();
+  const spaceBelow = window.innerHeight - rect.bottom;
+  // Menu is ~140px tall. Only open upward if truly at the bottom (< 160px space)
+  // AND the button is in the lower half of the viewport
+  const isInLowerHalf = rect.top > window.innerHeight / 2;
+  return spaceBelow < 160 && isInLowerHalf;
+}
 
 export default function RosterTableRow({
   entry,
@@ -26,17 +37,13 @@ export default function RosterTableRow({
   const [openUpward, setOpenUpward] = useState(false);
   const buttonRef = useRef(null);
 
-  // Calculate dropdown direction when menu opens
-  useEffect(() => {
-    if (showMenu && buttonRef.current) {
-      const rect = buttonRef.current.getBoundingClientRect();
-      const spaceBelow = window.innerHeight - rect.bottom;
-      // Menu is ~140px tall. Only open upward if truly at the bottom (< 160px space)
-      // AND the button is in the lower half of the viewport
-      const isInLowerHalf = rect.top > window.innerHeight / 2;
-      setOpenUpward(spaceBelow < 160 && isInLowerHalf);
+  // Handle menu toggle - calculate direction on open
+  const handleToggleMenu = () => {
+    if (!showMenu) {
+      setOpenUpward(shouldOpenUpward(buttonRef.current));
     }
-  }, [showMenu]);
+    setShowMenu(!showMenu);
+  };
 
   const player = entry.player || {};
   const parent = player.primary_parent;
@@ -94,7 +101,7 @@ export default function RosterTableRow({
       <td className="px-5 py-4 text-right relative">
         <button
           ref={buttonRef}
-          onClick={() => setShowMenu(!showMenu)}
+          onClick={handleToggleMenu}
           className="p-2 text-stone-400 hover:text-stone-600 hover:bg-stone-100 rounded-lg transition-colors"
         >
           <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">

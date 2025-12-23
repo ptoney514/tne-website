@@ -4,7 +4,7 @@
  * Allows editing: jersey number, position, parent contact info
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { getGradeColor } from '../../utils/gradeColors';
 
 const POSITIONS = [
@@ -16,6 +16,30 @@ const POSITIONS = [
   { value: 'C', label: 'Center (C)' },
 ];
 
+// Derive initial form data from entry
+function getInitialFormData(entry) {
+  if (!entry) {
+    return {
+      jerseyNumber: '',
+      position: '',
+      parentFirstName: '',
+      parentLastName: '',
+      parentPhone: '',
+      parentEmail: '',
+    };
+  }
+  const player = entry.player || {};
+  const parent = player.primary_parent;
+  return {
+    jerseyNumber: entry.jersey_number || player.jersey_number || '',
+    position: entry.position || player.position || '',
+    parentFirstName: parent?.first_name || '',
+    parentLastName: parent?.last_name || '',
+    parentPhone: parent?.phone || '',
+    parentEmail: parent?.email || '',
+  };
+}
+
 export default function EditPlayerModal({
   isOpen,
   onClose,
@@ -24,31 +48,14 @@ export default function EditPlayerModal({
   onSave,
   isSaving = false,
 }) {
-  const [formData, setFormData] = useState({
-    jerseyNumber: '',
-    position: '',
-    parentFirstName: '',
-    parentLastName: '',
-    parentPhone: '',
-    parentEmail: '',
-  });
+  // Use entry.id as key to reset form state when entry changes
+  const initialData = useMemo(() => getInitialFormData(entry), [entry]);
+  const [formData, setFormData] = useState(initialData);
 
-  // Initialize form when entry changes
-  useEffect(() => {
-    if (entry) {
-      const player = entry.player || {};
-      const parent = player.primary_parent;
-
-      setFormData({
-        jerseyNumber: entry.jersey_number || player.jersey_number || '',
-        position: entry.position || player.position || '',
-        parentFirstName: parent?.first_name || '',
-        parentLastName: parent?.last_name || '',
-        parentPhone: parent?.phone || '',
-        parentEmail: parent?.email || '',
-      });
-    }
-  }, [entry]);
+  // Reset form when entry changes (using key pattern via useMemo)
+  if (entry && formData.jerseyNumber === '' && initialData.jerseyNumber !== '') {
+    setFormData(initialData);
+  }
 
   if (!isOpen || !entry) return null;
 
