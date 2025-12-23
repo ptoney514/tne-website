@@ -35,9 +35,26 @@
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
         .animate-enter { animation: fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .animate-slide-up { animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         .delay-100 { animation-delay: 100ms; }
         .delay-200 { animation-delay: 200ms; }
+        .delay-300 { animation-delay: 300ms; }
+
+        /* Tab content transitions */
+        .tab-content { display: none; opacity: 0; }
+        .tab-content.active { display: block; animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+        /* Subtle pulse for registration deadline */
+        @keyframes softPulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(227, 24, 55, 0); }
+            50% { box-shadow: 0 0 0 8px rgba(227, 24, 55, 0.1); }
+        }
+        .deadline-pulse { animation: softPulse 3s infinite; }
     </style>
 </head>
 <body class="bg-[#050505] text-white antialiased min-h-screen flex flex-col font-sans selection:bg-tne-red/20 selection:text-red-100">
@@ -56,7 +73,6 @@
                 <a href="index.html" class="hover:text-white transition-colors text-stone-300">Home</a>
                 <a href="teams.html" class="hover:text-white transition-colors text-stone-300">Teams</a>
                 <a href="schedule.html" class="text-white">Schedule</a>
-                <a href="tournaments.html" class="text-stone-300 hover:text-white transition-colors">Tournaments</a>
                 <a href="tryouts.html" class="text-stone-300 hover:text-white transition-colors">Tryouts</a>
                 <a href="about.html" class="text-stone-300 hover:text-white transition-colors">About</a>
                 <a href="contact.html" class="text-stone-300 hover:text-white transition-colors">Contact</a>
@@ -93,7 +109,6 @@
                 <a href="index.html" class="block px-4 py-3 text-sm font-medium text-white/80 hover:text-white hover:bg-white/5 rounded-xl transition-colors">Home</a>
                 <a href="teams.html" class="block px-4 py-3 text-sm font-medium text-white/80 hover:text-white hover:bg-white/5 rounded-xl transition-colors">Teams</a>
                 <a href="schedule.html" class="block px-4 py-3 text-sm font-medium text-white bg-white/10 rounded-xl">Schedule</a>
-                <a href="tournaments.html" class="block px-4 py-3 text-sm font-medium text-white/80 hover:text-white hover:bg-white/5 rounded-xl transition-colors">Tournaments</a>
                 <a href="tryouts.html" class="block px-4 py-3 text-sm font-medium text-white/80 hover:text-white hover:bg-white/5 rounded-xl transition-colors">Tryouts</a>
                 <a href="about.html" class="block px-4 py-3 text-sm font-medium text-white/80 hover:text-white hover:bg-white/5 rounded-xl transition-colors">About</a>
                 <a href="contact.html" class="block px-4 py-3 text-sm font-medium text-white/80 hover:text-white hover:bg-white/5 rounded-xl transition-colors">Contact</a>
@@ -120,7 +135,7 @@
 
                 <div>
                     <h1 class="text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tight text-white">
-                        Practice & Game Schedule
+                        Schedule & Tournaments
                     </h1>
                     <p class="mt-2 text-base sm:text-lg text-white/70 max-w-2xl">
                         Find your team's practices, games, and tournaments all in one place. Filter by team or date to see what's coming up.
@@ -134,7 +149,7 @@
                     </div>
                     <div class="inline-flex items-center gap-2 text-white/60">
                         <i data-lucide="calendar-days" class="w-4 h-4"></i>
-                        <span>Updated weekly with practices and game times.</span>
+                        <span>Updated weekly with practices and game times</span>
                     </div>
                 </div>
             </div>
@@ -149,13 +164,13 @@
             <div class="animate-enter delay-100 rounded-2xl bg-white border border-neutral-200 shadow-sm px-3 py-2 sm:px-4 sm:py-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <!-- View Toggle + Filters -->
                 <div class="flex items-center gap-3 w-full sm:w-auto">
-                    <!-- View Toggle -->
-                    <div class="flex items-center rounded-full border border-neutral-200 p-0.5">
-                        <button class="px-3 py-1.5 rounded-full bg-neutral-900 text-white text-xs font-medium whitespace-nowrap">
+                    <!-- View Toggle (hidden when Tournaments tab is active) -->
+                    <div id="view-toggle" class="flex items-center rounded-full border border-neutral-200 p-0.5">
+                        <button class="view-btn px-3 py-1.5 rounded-full bg-neutral-900 text-white text-xs font-medium whitespace-nowrap" data-view="list">
                             <i data-lucide="list" class="w-3.5 h-3.5 inline-block mr-1"></i>
                             List
                         </button>
-                        <button class="px-3 py-1.5 rounded-full text-xs text-neutral-600 font-medium whitespace-nowrap hover:bg-neutral-50 transition-colors">
+                        <button class="view-btn px-3 py-1.5 rounded-full text-xs text-neutral-600 font-medium whitespace-nowrap hover:bg-neutral-50 transition-colors" data-view="calendar">
                             <i data-lucide="calendar" class="w-3.5 h-3.5 inline-block mr-1"></i>
                             Calendar
                         </button>
@@ -163,16 +178,16 @@
 
                     <!-- Filter Pills -->
                     <div class="hidden sm:flex items-center gap-2 overflow-x-auto">
-                        <button class="px-3 py-1.5 rounded-full bg-neutral-900 text-white text-xs font-medium whitespace-nowrap">
+                        <button class="filter-btn px-3 py-1.5 rounded-full bg-neutral-900 text-white text-xs font-medium whitespace-nowrap" data-filter="all">
                             All Events
                         </button>
-                        <button class="px-3 py-1.5 rounded-full border border-neutral-200 bg-white text-xs text-neutral-700 font-medium whitespace-nowrap hover:border-neutral-300 hover:bg-neutral-50 transition-colors">
+                        <button class="filter-btn px-3 py-1.5 rounded-full border border-neutral-200 bg-white text-xs text-neutral-700 font-medium whitespace-nowrap hover:border-neutral-300 hover:bg-neutral-50 transition-colors" data-filter="practices">
                             Practices
                         </button>
-                        <button class="px-3 py-1.5 rounded-full border border-neutral-200 bg-white text-xs text-neutral-700 font-medium whitespace-nowrap hover:border-neutral-300 hover:bg-neutral-50 transition-colors">
+                        <button class="filter-btn px-3 py-1.5 rounded-full border border-neutral-200 bg-white text-xs text-neutral-700 font-medium whitespace-nowrap hover:border-neutral-300 hover:bg-neutral-50 transition-colors" data-filter="games">
                             Games
                         </button>
-                        <button class="px-3 py-1.5 rounded-full border border-neutral-200 bg-white text-xs text-neutral-700 font-medium whitespace-nowrap hover:border-neutral-300 hover:bg-neutral-50 transition-colors">
+                        <button class="filter-btn px-3 py-1.5 rounded-full border border-neutral-200 bg-white text-xs text-neutral-700 font-medium whitespace-nowrap hover:border-neutral-300 hover:bg-neutral-50 transition-colors" data-filter="tournaments">
                             Tournaments
                         </button>
                     </div>
@@ -180,42 +195,44 @@
 
                 <!-- Team Filter + Search -->
                 <div class="flex items-center gap-2 w-full sm:w-auto">
-                    <select class="rounded-full border border-neutral-200 bg-neutral-50 px-3 py-1.5 text-xs text-neutral-700 focus:outline-none focus:ring-2 focus:ring-tne-red/50 focus:border-tne-red/50">
-                        <option>All Teams</option>
-                        <option>4th Grade - Foster</option>
-                        <option>4th Grade - Grisby/Evans</option>
-                        <option>5th Grade - Perry</option>
-                        <option>6th Grade - Todd</option>
-                        <option>7th Grade - Mitchell</option>
-                        <option>8th Grade - Johnson</option>
+                    <select id="team-filter" class="rounded-full border border-neutral-200 bg-neutral-50 px-3 py-1.5 text-xs text-neutral-700 focus:outline-none focus:ring-2 focus:ring-tne-red/50 focus:border-tne-red/50">
+                        <option value="all">All Teams</option>
+                        <option value="4th-foster">4th Grade - Foster</option>
+                        <option value="4th-grisby">4th Grade - Grisby/Evans</option>
+                        <option value="5th-perry">5th Grade - Perry</option>
+                        <option value="6th-todd">6th Grade - Todd</option>
+                        <option value="7th-mitchell">7th Grade - Mitchell</option>
+                        <option value="8th-johnson">8th Grade - Johnson</option>
                     </select>
                     <div class="relative flex-1 sm:w-48">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-neutral-400">
                             <i data-lucide="search" class="w-4 h-4"></i>
                         </div>
-                        <input type="text" placeholder="Search events…" class="block w-full rounded-full border border-neutral-200 bg-neutral-50 pl-9 pr-3 py-1.5 text-xs text-neutral-900 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-tne-red/50 focus:border-tne-red/50">
+                        <input type="text" id="search-input" placeholder="Search events..." class="block w-full rounded-full border border-neutral-200 bg-neutral-50 pl-9 pr-3 py-1.5 text-xs text-neutral-900 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-tne-red/50 focus:border-tne-red/50">
                     </div>
                 </div>
             </div>
 
             <!-- Mobile Filter Pills -->
             <div class="flex sm:hidden items-center gap-2 overflow-x-auto pb-1">
-                <button class="px-3 py-1.5 rounded-full bg-neutral-900 text-white text-xs font-medium whitespace-nowrap">
+                <button class="filter-btn-mobile px-3 py-1.5 rounded-full bg-neutral-900 text-white text-xs font-medium whitespace-nowrap" data-filter="all">
                     All Events
                 </button>
-                <button class="px-3 py-1.5 rounded-full border border-neutral-200 bg-white text-xs text-neutral-700 font-medium whitespace-nowrap">
+                <button class="filter-btn-mobile px-3 py-1.5 rounded-full border border-neutral-200 bg-white text-xs text-neutral-700 font-medium whitespace-nowrap" data-filter="practices">
                     Practices
                 </button>
-                <button class="px-3 py-1.5 rounded-full border border-neutral-200 bg-white text-xs text-neutral-700 font-medium whitespace-nowrap">
+                <button class="filter-btn-mobile px-3 py-1.5 rounded-full border border-neutral-200 bg-white text-xs text-neutral-700 font-medium whitespace-nowrap" data-filter="games">
                     Games
                 </button>
-                <button class="px-3 py-1.5 rounded-full border border-neutral-200 bg-white text-xs text-neutral-700 font-medium whitespace-nowrap">
+                <button class="filter-btn-mobile px-3 py-1.5 rounded-full border border-neutral-200 bg-white text-xs text-neutral-700 font-medium whitespace-nowrap" data-filter="tournaments">
                     Tournaments
                 </button>
             </div>
 
-            <!-- Schedule List -->
-            <div class="animate-enter delay-200 space-y-6">
+            <!-- ========================================== -->
+            <!-- SCHEDULE LIST VIEW (Default Tab Content) -->
+            <!-- ========================================== -->
+            <div id="schedule-content" class="tab-content active animate-enter delay-200 space-y-6">
 
                 <!-- This Week Section -->
                 <div class="space-y-3">
@@ -442,44 +459,6 @@
                     </div>
                 </div>
 
-                <!-- Upcoming Tournament Section -->
-                <div class="space-y-3">
-                    <div class="flex items-center gap-2">
-                        <h2 class="text-lg font-semibold text-neutral-900">Upcoming Tournament</h2>
-                    </div>
-
-                    <div class="rounded-3xl bg-gradient-to-br from-neutral-900 to-neutral-800 text-white border border-neutral-700 shadow-lg overflow-hidden">
-                        <div class="px-5 py-5 sm:px-6 sm:py-6">
-                            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                                <div class="space-y-2">
-                                    <div class="flex items-center gap-2">
-                                        <span class="inline-flex items-center rounded-full bg-amber-500/20 text-amber-400 px-2.5 py-0.5 text-[0.65rem] font-medium uppercase tracking-wide">Tournament</span>
-                                        <span class="text-[0.7rem] font-mono text-white/50">Jan 4-5, 2026</span>
-                                    </div>
-                                    <h3 class="text-xl sm:text-2xl font-semibold tracking-tight">New Year Classic Invitational</h3>
-                                    <p class="text-sm text-white/60">Multiple TNE teams competing across all age divisions</p>
-                                    <div class="flex items-center gap-3 text-xs text-white/50">
-                                        <span class="inline-flex items-center gap-1">
-                                            <i data-lucide="map-pin" class="w-3.5 h-3.5"></i>
-                                            Gateway Sports Complex
-                                        </span>
-                                        <span class="inline-flex items-center gap-1">
-                                            <i data-lucide="users" class="w-3.5 h-3.5"></i>
-                                            4 TNE Teams
-                                        </span>
-                                    </div>
-                                </div>
-                                <div class="flex-shrink-0">
-                                    <a href="#" class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-tne-red text-white text-sm font-medium hover:bg-tne-red-dark transition-colors">
-                                        View Details
-                                        <i data-lucide="arrow-right" class="w-4 h-4"></i>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
                 <!-- Next Week Section -->
                 <div class="space-y-3">
                     <div class="flex items-center gap-2">
@@ -545,6 +524,342 @@
                 </div>
 
             </div>
+
+            <!-- ========================================== -->
+            <!-- TOURNAMENTS TAB CONTENT -->
+            <!-- ========================================== -->
+            <div id="tournaments-content" class="tab-content space-y-6">
+
+                <!-- Upcoming Tournaments Header -->
+                <div class="flex items-center gap-3">
+                    <h2 class="text-lg font-semibold text-neutral-900">Upcoming Tournaments</h2>
+                    <span class="inline-flex items-center rounded-full bg-amber-100 text-amber-700 px-2.5 py-0.5 text-[0.65rem] font-medium uppercase tracking-wide">3 Events</span>
+                </div>
+
+                <!-- Featured Tournament Card -->
+                <div class="rounded-3xl bg-gradient-to-br from-neutral-900 via-neutral-900 to-neutral-800 text-white border border-neutral-700/50 shadow-xl overflow-hidden relative">
+                    <!-- Subtle gradient accent -->
+                    <div class="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-tne-red/5 to-transparent pointer-events-none"></div>
+
+                    <div class="px-5 py-6 sm:px-8 sm:py-8 relative">
+                        <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
+                            <div class="space-y-4 flex-1">
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <span class="inline-flex items-center rounded-full bg-amber-500/20 text-amber-400 px-2.5 py-0.5 text-[0.65rem] font-medium uppercase tracking-wide border border-amber-500/20">Featured</span>
+                                    <span class="inline-flex items-center rounded-full bg-emerald-500/20 text-emerald-400 px-2.5 py-0.5 text-[0.65rem] font-medium uppercase tracking-wide border border-emerald-500/20">Registration Open</span>
+                                    <span class="text-[0.7rem] font-mono text-white/50">Jan 4-5, 2026</span>
+                                </div>
+                                <h3 class="text-2xl sm:text-3xl font-semibold tracking-tight">New Year Classic Invitational</h3>
+                                <p class="text-sm text-white/60 max-w-xl leading-relaxed">Kick off 2026 with one of the premier youth basketball tournaments in the region. Multiple TNE teams competing across all age divisions with full bracket play.</p>
+
+                                <div class="flex flex-wrap gap-4 pt-1">
+                                    <div class="flex items-center gap-2 text-sm text-white/70">
+                                        <i data-lucide="map-pin" class="w-4 h-4 text-white/40"></i>
+                                        <span>Gateway Sports Complex</span>
+                                    </div>
+                                    <div class="flex items-center gap-2 text-sm text-white/70">
+                                        <i data-lucide="users" class="w-4 h-4 text-white/40"></i>
+                                        <span>4 TNE Teams Registered</span>
+                                    </div>
+                                    <div class="flex items-center gap-2 text-sm text-white/70">
+                                        <i data-lucide="ticket" class="w-4 h-4 text-white/40"></i>
+                                        <span>$250 per team</span>
+                                    </div>
+                                </div>
+
+                                <!-- Participating Teams -->
+                                <div class="pt-4 border-t border-white/10 mt-2">
+                                    <p class="text-xs font-medium text-white/40 uppercase tracking-wider mb-2">TNE Teams Participating</p>
+                                    <div class="flex flex-wrap gap-2">
+                                        <span class="inline-flex items-center rounded-full bg-white/5 border border-white/10 px-3 py-1.5 text-xs text-white/80 hover:bg-white/10 transition-colors">4th Grade - Foster</span>
+                                        <span class="inline-flex items-center rounded-full bg-white/5 border border-white/10 px-3 py-1.5 text-xs text-white/80 hover:bg-white/10 transition-colors">5th Grade - Perry</span>
+                                        <span class="inline-flex items-center rounded-full bg-white/5 border border-white/10 px-3 py-1.5 text-xs text-white/80 hover:bg-white/10 transition-colors">6th Grade - Todd</span>
+                                        <span class="inline-flex items-center rounded-full bg-white/5 border border-white/10 px-3 py-1.5 text-xs text-white/80 hover:bg-white/10 transition-colors">7th Grade - Mitchell</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flex flex-col gap-4 lg:items-end lg:min-w-[180px]">
+                                <div class="px-5 py-4 rounded-2xl bg-white/5 border border-white/10 text-center deadline-pulse">
+                                    <span class="block text-[0.65rem] text-white/40 uppercase tracking-wider mb-1">Registration Deadline</span>
+                                    <span class="font-bebas text-3xl text-white tracking-wide">Dec 28</span>
+                                </div>
+                                <a href="#" class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-tne-red text-white text-sm font-medium hover:bg-tne-red-dark transition-all hover:scale-[1.02] shadow-lg shadow-tne-red/20">
+                                    Register Now
+                                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                                </a>
+                                <a href="#" class="text-xs text-white/50 hover:text-white transition-colors text-center">View tournament details</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tournament Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <!-- Tournament Card 2 -->
+                    <article class="rounded-3xl bg-white border border-neutral-200 shadow-sm overflow-hidden flex flex-col hover:shadow-md hover:border-neutral-300 transition-all">
+                        <div class="bg-neutral-900 text-white px-5 py-4">
+                            <div class="flex items-center justify-between gap-3 mb-2">
+                                <span class="inline-flex items-center rounded-full bg-emerald-500/20 text-emerald-400 px-2 py-0.5 text-[0.65rem] font-medium uppercase tracking-wide">Open</span>
+                                <span class="text-[0.7rem] font-mono text-white/50">Jan 18-19, 2026</span>
+                            </div>
+                            <h3 class="text-xl font-semibold tracking-tight">MLK Weekend Showcase</h3>
+                            <p class="text-sm text-white/60 mt-1">8-team bracket format with guaranteed 3 games</p>
+                        </div>
+
+                        <div class="px-5 py-4 space-y-3 flex-1">
+                            <div class="flex flex-wrap gap-3 text-sm text-neutral-600">
+                                <span class="inline-flex items-center gap-1.5">
+                                    <i data-lucide="map-pin" class="w-4 h-4 text-neutral-400"></i>
+                                    Central Sports Arena
+                                </span>
+                                <span class="inline-flex items-center gap-1.5">
+                                    <i data-lucide="ticket" class="w-4 h-4 text-neutral-400"></i>
+                                    $200 per team
+                                </span>
+                            </div>
+
+                            <div class="space-y-1.5">
+                                <p class="text-xs font-medium text-neutral-500 uppercase tracking-wider">Age Divisions</p>
+                                <div class="flex flex-wrap gap-1.5">
+                                    <span class="inline-flex items-center rounded-full bg-neutral-100 border border-neutral-200 px-2 py-0.5 text-[0.65rem] font-mono text-neutral-600">4th Grade</span>
+                                    <span class="inline-flex items-center rounded-full bg-neutral-100 border border-neutral-200 px-2 py-0.5 text-[0.65rem] font-mono text-neutral-600">5th Grade</span>
+                                    <span class="inline-flex items-center rounded-full bg-neutral-100 border border-neutral-200 px-2 py-0.5 text-[0.65rem] font-mono text-neutral-600">6th Grade</span>
+                                    <span class="inline-flex items-center rounded-full bg-neutral-100 border border-neutral-200 px-2 py-0.5 text-[0.65rem] font-mono text-neutral-600">7th Grade</span>
+                                    <span class="inline-flex items-center rounded-full bg-neutral-100 border border-neutral-200 px-2 py-0.5 text-[0.65rem] font-mono text-neutral-600">8th Grade</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="px-5 py-3 border-t border-neutral-200 bg-neutral-50 flex items-center justify-between">
+                            <span class="text-[0.7rem] sm:text-xs text-neutral-500">Deadline: Jan 10</span>
+                            <a href="#" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-tne-red text-white text-xs font-medium hover:bg-tne-red-dark transition-colors">
+                                Register
+                                <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                            </a>
+                        </div>
+                    </article>
+
+                    <!-- Tournament Card 3 -->
+                    <article class="rounded-3xl bg-white border border-neutral-200 shadow-sm overflow-hidden flex flex-col hover:shadow-md hover:border-neutral-300 transition-all">
+                        <div class="bg-neutral-900 text-white px-5 py-4">
+                            <div class="flex items-center justify-between gap-3 mb-2">
+                                <span class="inline-flex items-center rounded-full bg-amber-500/20 text-amber-400 px-2 py-0.5 text-[0.65rem] font-medium uppercase tracking-wide">Coming Soon</span>
+                                <span class="text-[0.7rem] font-mono text-white/50">Feb 15-16, 2026</span>
+                            </div>
+                            <h3 class="text-xl font-semibold tracking-tight">Presidents Day Classic</h3>
+                            <p class="text-sm text-white/60 mt-1">Premier regional tournament with top programs</p>
+                        </div>
+
+                        <div class="px-5 py-4 space-y-3 flex-1">
+                            <div class="flex flex-wrap gap-3 text-sm text-neutral-600">
+                                <span class="inline-flex items-center gap-1.5">
+                                    <i data-lucide="map-pin" class="w-4 h-4 text-neutral-400"></i>
+                                    Metro Convention Center
+                                </span>
+                                <span class="inline-flex items-center gap-1.5">
+                                    <i data-lucide="ticket" class="w-4 h-4 text-neutral-400"></i>
+                                    $275 per team
+                                </span>
+                            </div>
+
+                            <div class="space-y-1.5">
+                                <p class="text-xs font-medium text-neutral-500 uppercase tracking-wider">Age Divisions</p>
+                                <div class="flex flex-wrap gap-1.5">
+                                    <span class="inline-flex items-center rounded-full bg-neutral-100 border border-neutral-200 px-2 py-0.5 text-[0.65rem] font-mono text-neutral-600">5th Grade</span>
+                                    <span class="inline-flex items-center rounded-full bg-neutral-100 border border-neutral-200 px-2 py-0.5 text-[0.65rem] font-mono text-neutral-600">6th Grade</span>
+                                    <span class="inline-flex items-center rounded-full bg-neutral-100 border border-neutral-200 px-2 py-0.5 text-[0.65rem] font-mono text-neutral-600">7th Grade</span>
+                                    <span class="inline-flex items-center rounded-full bg-neutral-100 border border-neutral-200 px-2 py-0.5 text-[0.65rem] font-mono text-neutral-600">8th Grade</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="px-5 py-3 border-t border-neutral-200 bg-neutral-50 flex items-center justify-between">
+                            <span class="text-[0.7rem] sm:text-xs text-neutral-500">Opens: Jan 15</span>
+                            <span class="text-xs text-neutral-400">Registration opens soon</span>
+                        </div>
+                    </article>
+                </div>
+
+                <!-- Past Results Section -->
+                <div class="space-y-4 pt-4">
+                    <div class="flex items-center gap-2">
+                        <h2 class="text-lg font-semibold text-neutral-900">Past Results</h2>
+                        <span class="text-xs text-neutral-500 font-mono">2024-25 Season</span>
+                    </div>
+
+                    <div class="rounded-3xl bg-white border border-neutral-200 shadow-sm overflow-hidden">
+                        <!-- Results Table Header -->
+                        <div class="bg-neutral-100 border-b border-neutral-200 px-5 py-3 hidden sm:block">
+                            <div class="grid grid-cols-12 gap-4 text-xs font-medium text-neutral-500 uppercase tracking-wider">
+                                <div class="col-span-4">Tournament</div>
+                                <div class="col-span-2">Date</div>
+                                <div class="col-span-3">Team</div>
+                                <div class="col-span-2">Result</div>
+                                <div class="col-span-1"></div>
+                            </div>
+                        </div>
+
+                        <div class="divide-y divide-neutral-100">
+                            <!-- Result Row 1 -->
+                            <div class="px-5 py-4 hover:bg-neutral-50 transition-colors">
+                                <div class="grid grid-cols-1 sm:grid-cols-12 gap-2 sm:gap-4 items-center">
+                                    <div class="col-span-4">
+                                        <p class="font-medium text-neutral-900">Holiday Hoops Classic</p>
+                                        <p class="text-xs text-neutral-500 sm:hidden">Dec 21-22, 2024</p>
+                                    </div>
+                                    <div class="col-span-2 hidden sm:block">
+                                        <span class="text-sm text-neutral-600">Dec 21-22</span>
+                                    </div>
+                                    <div class="col-span-3">
+                                        <span class="inline-flex items-center rounded-full bg-neutral-100 border border-neutral-200 px-2 py-0.5 text-[0.7rem] font-mono text-neutral-700">7th Grade - Mitchell</span>
+                                    </div>
+                                    <div class="col-span-2">
+                                        <span class="inline-flex items-center gap-1.5 rounded-full bg-amber-100 text-amber-700 px-2.5 py-1 text-xs font-medium">
+                                            <i data-lucide="trophy" class="w-3.5 h-3.5"></i>
+                                            Champions
+                                        </span>
+                                    </div>
+                                    <div class="col-span-1 text-right">
+                                        <a href="#" class="text-xs text-tne-red hover:text-tne-red-dark font-medium">Details</a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Result Row 2 -->
+                            <div class="px-5 py-4 hover:bg-neutral-50 transition-colors">
+                                <div class="grid grid-cols-1 sm:grid-cols-12 gap-2 sm:gap-4 items-center">
+                                    <div class="col-span-4">
+                                        <p class="font-medium text-neutral-900">Thanksgiving Showdown</p>
+                                        <p class="text-xs text-neutral-500 sm:hidden">Nov 29-30, 2024</p>
+                                    </div>
+                                    <div class="col-span-2 hidden sm:block">
+                                        <span class="text-sm text-neutral-600">Nov 29-30</span>
+                                    </div>
+                                    <div class="col-span-3">
+                                        <span class="inline-flex items-center rounded-full bg-neutral-100 border border-neutral-200 px-2 py-0.5 text-[0.7rem] font-mono text-neutral-700">6th Grade - Todd</span>
+                                    </div>
+                                    <div class="col-span-2">
+                                        <span class="inline-flex items-center gap-1.5 rounded-full bg-neutral-200 text-neutral-700 px-2.5 py-1 text-xs font-medium">
+                                            <i data-lucide="medal" class="w-3.5 h-3.5"></i>
+                                            Runner-up
+                                        </span>
+                                    </div>
+                                    <div class="col-span-1 text-right">
+                                        <a href="#" class="text-xs text-tne-red hover:text-tne-red-dark font-medium">Details</a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Result Row 3 -->
+                            <div class="px-5 py-4 hover:bg-neutral-50 transition-colors">
+                                <div class="grid grid-cols-1 sm:grid-cols-12 gap-2 sm:gap-4 items-center">
+                                    <div class="col-span-4">
+                                        <p class="font-medium text-neutral-900">Thanksgiving Showdown</p>
+                                        <p class="text-xs text-neutral-500 sm:hidden">Nov 29-30, 2024</p>
+                                    </div>
+                                    <div class="col-span-2 hidden sm:block">
+                                        <span class="text-sm text-neutral-600">Nov 29-30</span>
+                                    </div>
+                                    <div class="col-span-3">
+                                        <span class="inline-flex items-center rounded-full bg-neutral-100 border border-neutral-200 px-2 py-0.5 text-[0.7rem] font-mono text-neutral-700">5th Grade - Perry</span>
+                                    </div>
+                                    <div class="col-span-2">
+                                        <span class="inline-flex items-center gap-1.5 rounded-full bg-amber-100 text-amber-700 px-2.5 py-1 text-xs font-medium">
+                                            <i data-lucide="trophy" class="w-3.5 h-3.5"></i>
+                                            Champions
+                                        </span>
+                                    </div>
+                                    <div class="col-span-1 text-right">
+                                        <a href="#" class="text-xs text-tne-red hover:text-tne-red-dark font-medium">Details</a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Result Row 4 -->
+                            <div class="px-5 py-4 hover:bg-neutral-50 transition-colors">
+                                <div class="grid grid-cols-1 sm:grid-cols-12 gap-2 sm:gap-4 items-center">
+                                    <div class="col-span-4">
+                                        <p class="font-medium text-neutral-900">Fall Classic Tournament</p>
+                                        <p class="text-xs text-neutral-500 sm:hidden">Oct 12-13, 2024</p>
+                                    </div>
+                                    <div class="col-span-2 hidden sm:block">
+                                        <span class="text-sm text-neutral-600">Oct 12-13</span>
+                                    </div>
+                                    <div class="col-span-3">
+                                        <span class="inline-flex items-center rounded-full bg-neutral-100 border border-neutral-200 px-2 py-0.5 text-[0.7rem] font-mono text-neutral-700">4th Grade - Foster</span>
+                                    </div>
+                                    <div class="col-span-2">
+                                        <span class="inline-flex items-center gap-1.5 rounded-full bg-orange-100 text-orange-700 px-2.5 py-1 text-xs font-medium">
+                                            3rd Place
+                                        </span>
+                                    </div>
+                                    <div class="col-span-1 text-right">
+                                        <a href="#" class="text-xs text-tne-red hover:text-tne-red-dark font-medium">Details</a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Result Row 5 -->
+                            <div class="px-5 py-4 hover:bg-neutral-50 transition-colors">
+                                <div class="grid grid-cols-1 sm:grid-cols-12 gap-2 sm:gap-4 items-center">
+                                    <div class="col-span-4">
+                                        <p class="font-medium text-neutral-900">Labor Day Shootout</p>
+                                        <p class="text-xs text-neutral-500 sm:hidden">Aug 31 - Sep 1, 2024</p>
+                                    </div>
+                                    <div class="col-span-2 hidden sm:block">
+                                        <span class="text-sm text-neutral-600">Aug 31 - Sep 1</span>
+                                    </div>
+                                    <div class="col-span-3">
+                                        <span class="inline-flex items-center rounded-full bg-neutral-100 border border-neutral-200 px-2 py-0.5 text-[0.7rem] font-mono text-neutral-700">8th Grade - Johnson</span>
+                                    </div>
+                                    <div class="col-span-2">
+                                        <span class="inline-flex items-center gap-1.5 rounded-full bg-amber-100 text-amber-700 px-2.5 py-1 text-xs font-medium">
+                                            <i data-lucide="trophy" class="w-3.5 h-3.5"></i>
+                                            Champions
+                                        </span>
+                                    </div>
+                                    <div class="col-span-1 text-right">
+                                        <a href="#" class="text-xs text-tne-red hover:text-tne-red-dark font-medium">Details</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- View More -->
+                        <div class="px-5 py-3 border-t border-neutral-200 bg-neutral-50 text-center">
+                            <a href="#" class="text-sm font-medium text-tne-red hover:text-tne-red-dark">View all past results</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Season Stats Summary -->
+                <div class="rounded-3xl bg-gradient-to-br from-neutral-900 via-neutral-900 to-neutral-800 text-white border border-neutral-700/50 shadow-xl overflow-hidden">
+                    <div class="px-5 py-6 sm:px-8 sm:py-8">
+                        <h3 class="text-lg font-semibold mb-5">2024-25 Season Highlights</h3>
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                            <div class="px-4 py-4 rounded-2xl bg-white/5 border border-white/10 text-center hover:bg-white/10 transition-colors">
+                                <span class="font-bebas text-4xl text-white tracking-wide">12</span>
+                                <span class="block text-[0.65rem] text-white/50 uppercase tracking-wider mt-1">Tournaments</span>
+                            </div>
+                            <div class="px-4 py-4 rounded-2xl bg-white/5 border border-white/10 text-center hover:bg-white/10 transition-colors">
+                                <span class="font-bebas text-4xl text-amber-400 tracking-wide">5</span>
+                                <span class="block text-[0.65rem] text-white/50 uppercase tracking-wider mt-1">Championships</span>
+                            </div>
+                            <div class="px-4 py-4 rounded-2xl bg-white/5 border border-white/10 text-center hover:bg-white/10 transition-colors">
+                                <span class="font-bebas text-4xl text-white tracking-wide">38</span>
+                                <span class="block text-[0.65rem] text-white/50 uppercase tracking-wider mt-1">Wins</span>
+                            </div>
+                            <div class="px-4 py-4 rounded-2xl bg-white/5 border border-white/10 text-center hover:bg-white/10 transition-colors">
+                                <span class="font-bebas text-4xl text-white tracking-wide">76%</span>
+                                <span class="block text-[0.65rem] text-white/50 uppercase tracking-wider mt-1">Win Rate</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
         </section>
     </main>
 
@@ -567,10 +882,10 @@
                     </span>
                 </div>
                 <div class="flex items-center gap-3">
-                    <a href="#" class="text-white/40 hover:text-white transition-colors">
-                        <i data-lucide="instagram" class="w-4 h-4"></i>
+                    <a href="https://www.facebook.com/TNEUnitedExpress" target="_blank" rel="noopener noreferrer" class="text-white/40 hover:text-white transition-colors">
+                        <i data-lucide="facebook" class="w-4 h-4"></i>
                     </a>
-                    <a href="#" class="text-white/40 hover:text-white transition-colors">
+                    <a href="https://twitter.com/tikibarber" target="_blank" rel="noopener noreferrer" class="text-white/40 hover:text-white transition-colors">
                         <i data-lucide="twitter" class="w-4 h-4"></i>
                     </a>
                 </div>
@@ -607,6 +922,57 @@
         mobileMenuBtn.addEventListener('click', openMobileMenu);
         mobileMenuClose.addEventListener('click', closeMobileMenu);
         mobileMenuBackdrop.addEventListener('click', closeMobileMenu);
+
+        // Tab switching functionality
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const filterBtnsMobile = document.querySelectorAll('.filter-btn-mobile');
+        const viewToggle = document.getElementById('view-toggle');
+        const scheduleContent = document.getElementById('schedule-content');
+        const tournamentsContent = document.getElementById('tournaments-content');
+
+        function setActiveFilter(filter, buttons) {
+            buttons.forEach(btn => {
+                if (btn.dataset.filter === filter) {
+                    btn.classList.remove('border', 'border-neutral-200', 'bg-white', 'text-neutral-700');
+                    btn.classList.add('bg-neutral-900', 'text-white');
+                } else {
+                    btn.classList.remove('bg-neutral-900', 'text-white');
+                    btn.classList.add('border', 'border-neutral-200', 'bg-white', 'text-neutral-700');
+                }
+            });
+        }
+
+        function switchTab(filter) {
+            if (filter === 'tournaments') {
+                // Show tournaments content, hide schedule
+                scheduleContent.classList.remove('active');
+                tournamentsContent.classList.add('active');
+                viewToggle.style.display = 'none';
+            } else {
+                // Show schedule content, hide tournaments
+                tournamentsContent.classList.remove('active');
+                scheduleContent.classList.add('active');
+                viewToggle.style.display = 'flex';
+            }
+
+            // Update both desktop and mobile filter buttons
+            setActiveFilter(filter, filterBtns);
+            setActiveFilter(filter, filterBtnsMobile);
+        }
+
+        // Add click handlers to filter buttons
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => switchTab(btn.dataset.filter));
+        });
+
+        filterBtnsMobile.forEach(btn => {
+            btn.addEventListener('click', () => switchTab(btn.dataset.filter));
+        });
+
+        // Check URL hash for direct link to tournaments
+        if (window.location.hash === '#tournaments') {
+            switchTab('tournaments');
+        }
     </script>
 
 </body>

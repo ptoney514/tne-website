@@ -74,23 +74,31 @@
         </div>
 
         <!-- Navbar -->
-        <nav class="-translate-x-1/2 z-30 w-[95%] max-w-6xl absolute top-6 left-1/2">
-            <div class="glass-nav flex max-w-4xl border-white/10 border rounded-full mx-auto p-2 shadow-2xl items-center justify-between">
+        <nav class="-translate-x-1/2 z-30 w-[95%] max-w-6xl absolute top-8 left-1/2">
+            <!-- Floating Center Logo -->
+            <a href="index.html" class="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 z-10 hover:scale-105 transition-transform duration-200">
+                <div class="relative">
+                    <div class="absolute inset-0 bg-black/40 rounded-full blur-xl scale-90"></div>
+                    <img src="../assets/images/tne-logo-white-transparent.png" alt="TNE United Express" class="relative h-[72px] w-[72px] object-contain drop-shadow-2xl">
+                </div>
+            </a>
+
+            <div class="glass-nav flex max-w-4xl border-white/10 border rounded-full mx-auto px-3 py-1.5 shadow-2xl items-center justify-between">
                 <!-- Left Links -->
-                <div class="hidden md:flex items-center gap-1 px-4">
+                <div class="hidden md:flex items-center gap-1 pl-2">
                     <a href="teams.html" class="text-[11px] hover:text-white uppercase hover:bg-white/10 transition-all font-medium text-white/80 tracking-wider font-mono rounded-full px-3 py-1.5">Teams</a>
                     <a href="schedule.html" class="text-[11px] hover:text-white uppercase hover:bg-white/10 transition-all font-medium text-white/80 tracking-wider font-mono rounded-full px-3 py-1.5">Schedule</a>
                     <a href="tryouts.html" class="text-[11px] hover:text-white uppercase hover:bg-white/10 transition-all font-medium text-white/80 tracking-wider font-mono rounded-full px-3 py-1.5">Tryouts</a>
                     <a href="about.html" class="text-[11px] hover:text-white uppercase hover:bg-white/10 transition-all font-medium text-white/80 tracking-wider font-mono rounded-full px-3 py-1.5">About</a>
                 </div>
 
-                <!-- Center Brand -->
-                <a href="index.html" class="flex-1 flex justify-center items-center hover:opacity-90 transition-opacity">
-                    <img src="../assets/images/tne-logo-white-transparent.png" alt="TNE United Express" class="h-14 w-14 object-contain">
-                </a>
+                <!-- Center Spacer for Logo -->
+                <div class="flex-1 flex justify-center items-center">
+                    <div class="w-20"></div>
+                </div>
 
                 <!-- Right Links -->
-                <div class="hidden md:flex items-center gap-1 px-4">
+                <div class="hidden md:flex items-center gap-1 pr-2">
                     <a href="../react-app/dist/index.html#/login" class="text-[11px] hover:text-white uppercase hover:bg-white/10 transition-all font-medium text-white/80 tracking-wider font-mono rounded-full px-3 py-1.5">Login</a>
                     <a href="tryouts.html" class="text-[11px] uppercase transition-all font-medium text-white tracking-wider font-mono bg-tne-red hover:bg-tne-red-dark rounded-full px-4 py-1.5">
                         Register
@@ -118,7 +126,6 @@
                     <a href="index.html" class="block px-4 py-3 text-sm font-medium text-white bg-white/10 rounded-xl">Home</a>
                     <a href="teams.html" class="block px-4 py-3 text-sm font-medium text-white/80 hover:text-white hover:bg-white/5 rounded-xl transition-colors">Teams</a>
                     <a href="schedule.html" class="block px-4 py-3 text-sm font-medium text-white/80 hover:text-white hover:bg-white/5 rounded-xl transition-colors">Schedule</a>
-                    <a href="tournaments.html" class="block px-4 py-3 text-sm font-medium text-white/80 hover:text-white hover:bg-white/5 rounded-xl transition-colors">Tournaments</a>
                     <a href="tryouts.html" class="block px-4 py-3 text-sm font-medium text-white/80 hover:text-white hover:bg-white/5 rounded-xl transition-colors">Tryouts</a>
                     <a href="about.html" class="block px-4 py-3 text-sm font-medium text-white/80 hover:text-white hover:bg-white/5 rounded-xl transition-colors">About</a>
                     <a href="contact.html" class="block px-4 py-3 text-sm font-medium text-white/80 hover:text-white hover:bg-white/5 rounded-xl transition-colors">Contact</a>
