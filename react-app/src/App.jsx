@@ -9,7 +9,7 @@ import ProfilePage from './pages/ProfilePage';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminTeamsPage from './pages/AdminTeamsPage';
 import AdminPlayersPage from './pages/AdminPlayersPage';
-import AdminRosterPage from './pages/AdminRosterPage';
+import AdminTeamDetailPage from './pages/AdminTeamDetailPage';
 
 function App() {
   return (
@@ -44,7 +44,7 @@ function App() {
             path="/admin/teams/:teamId/roster"
             element={
               <ProtectedRoute allowedRoles={['admin']}>
-                <AdminRosterPage />
+                <AdminTeamDetailPage />
               </ProtectedRoute>
             }
           />

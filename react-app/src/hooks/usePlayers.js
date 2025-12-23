@@ -133,12 +133,17 @@ export function useTeamRoster(teamId) {
     setError(null);
 
     try {
-      // Get current roster
+      // Get current roster with player and parent data
       const { data: rosterData, error: rosterError } = await supabase
         .from('team_roster')
         .select(`
           *,
-          player:players(*)
+          player:players(
+            *,
+            primary_parent:parents!players_primary_parent_id_fkey(
+              id, first_name, last_name, phone, email
+            )
+          )
         `)
         .eq('team_id', teamId)
         .eq('is_active', true);
@@ -221,6 +226,68 @@ export function useTeamRoster(teamId) {
     await fetchRoster();
   };
 
+  /**
+   * Bulk add players to roster (for Quick Add feature)
+   * Creates new player records if needed, then adds them to the roster
+   * @param {Array} players - Array of { firstName, lastName, jerseyNumber, position }
+   * @param {Object} teamData - Team data with grade_level, gender for new players
+   * @returns {Object} Results with added count and any errors
+   */
+  const bulkAddToRoster = async (players, teamData = {}) => {
+    const results = {
+      added: 0,
+      errors: [],
+    };
+
+    for (const player of players) {
+      try {
+        // Create the player record
+        const { data: newPlayer, error: playerError } = await supabase
+          .from('players')
+          .insert([{
+            first_name: player.firstName,
+            last_name: player.lastName || '',
+            current_grade: teamData.grade_level || '',
+            gender: teamData.gender || 'male',
+            graduating_year: calculateGraduatingYear(teamData.grade_level),
+            date_of_birth: '2015-01-01', // Placeholder - needs parent input later
+            jersey_number: player.jerseyNumber || null,
+            position: player.position || null,
+          }])
+          .select()
+          .single();
+
+        if (playerError) throw playerError;
+
+        // Add to roster
+        const { error: rosterError } = await supabase
+          .from('team_roster')
+          .insert([{
+            team_id: teamId,
+            player_id: newPlayer.id,
+            jersey_number: player.jerseyNumber || null,
+            position: player.position || null,
+            joined_date: new Date().toISOString().split('T')[0],
+            is_active: true,
+            payment_status: 'pending',
+          }]);
+
+        if (rosterError) throw rosterError;
+
+        results.added++;
+      } catch (err) {
+        console.error(`Error adding player ${player.firstName} ${player.lastName}:`, err);
+        results.errors.push({
+          player: `${player.firstName} ${player.lastName}`,
+          error: err.message,
+        });
+      }
+    }
+
+    await fetchRoster();
+    return results;
+  };
+
   return {
     roster,
     availablePlayers,
@@ -230,5 +297,21 @@ export function useTeamRoster(teamId) {
     addToRoster,
     removeFromRoster,
     updateRosterEntry,
+    bulkAddToRoster,
   };
+}
+
+/**
+ * Calculate graduating year based on current grade
+ * Assumes current school year (e.g., 5th grader in 2025 graduates 2032)
+ */
+function calculateGraduatingYear(gradeLevel) {
+  if (!gradeLevel) return new Date().getFullYear() + 7;
+
+  const gradeNum = parseInt(gradeLevel.replace(/\D/g, ''), 10);
+  if (isNaN(gradeNum)) return new Date().getFullYear() + 7;
+
+  // Years until 12th grade graduation
+  const yearsUntilGraduation = 12 - gradeNum;
+  return new Date().getFullYear() + yearsUntilGraduation;
 }
