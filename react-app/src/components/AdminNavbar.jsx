@@ -341,6 +341,17 @@ export default function AdminNavbar() {
             >
               Tournaments
             </NavLink>
+            <NavLink
+              to="/admin/settings"
+              onClick={() => setMobileMenuOpen(false)}
+              className={({ isActive }) =>
+                `block px-3 py-2 rounded-lg text-sm font-medium ${
+                  isActive ? 'bg-tne-red text-white' : 'text-stone-600 hover:bg-stone-100'
+                }`
+              }
+            >
+              Settings
+            </NavLink>
           </div>
           <div className="px-4 py-3 border-t border-stone-100">
             <SeasonDropdown />

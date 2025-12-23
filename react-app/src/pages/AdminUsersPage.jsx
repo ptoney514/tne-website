@@ -129,6 +129,7 @@ export default function AdminUsersPage() {
   // UI State
   const [inviteModalOpen, setInviteModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [deactivateConfirm, setDeactivateConfirm] = useState(null);
 
   // Filter State
   const [searchTerm, setSearchTerm] = useState('');
@@ -176,12 +177,19 @@ export default function AdminUsersPage() {
     }
   };
 
-  const handleDeactivate = async (userId) => {
+  const handleDeactivate = (user) => {
+    // Show confirmation dialog instead of immediately deactivating
+    setDeactivateConfirm(user);
+  };
+
+  const confirmDeactivate = async () => {
+    if (!deactivateConfirm) return;
     try {
-      await deactivateUser(userId);
-      if (selectedUser?.id === userId) {
+      await deactivateUser(deactivateConfirm.id);
+      if (selectedUser?.id === deactivateConfirm.id) {
         setSelectedUser((prev) => ({ ...prev, is_active: false }));
       }
+      setDeactivateConfirm(null);
     } catch (err) {
       console.error('Error deactivating user:', err);
       alert(`Error: ${err.message}`);
@@ -485,6 +493,38 @@ export default function AdminUsersPage() {
           refetch();
         }}
       />
+
+      {/* Deactivate Confirmation */}
+      {deactivateConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="bg-white rounded-2xl w-full max-w-md p-6 shadow-xl">
+            <h3 className="text-lg font-semibold text-stone-900 mb-2">
+              Deactivate User?
+            </h3>
+            <p className="text-stone-600 mb-6">
+              Are you sure you want to deactivate{' '}
+              <strong>
+                {deactivateConfirm.first_name} {deactivateConfirm.last_name}
+              </strong>
+              ? They will no longer be able to sign in until reactivated.
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setDeactivateConfirm(null)}
+                className="px-4 py-2 rounded-lg border border-stone-300 text-stone-700 hover:bg-stone-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDeactivate}
+                className="px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-600 text-white font-medium transition-colors"
+              >
+                Deactivate
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

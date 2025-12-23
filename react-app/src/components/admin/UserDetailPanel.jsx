@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   X,
   Mail,
@@ -98,6 +98,7 @@ function formatDate(dateStr) {
 // Role Select Dropdown
 function RoleSelect({ currentRole, onChange, disabled }) {
   const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef(null);
 
   const roles = [
     { value: 'admin', label: 'Admin', description: 'Full system access' },
@@ -106,13 +107,26 @@ function RoleSelect({ currentRole, onChange, disabled }) {
     { value: 'parent', label: 'Parent', description: 'Player & registration access' },
   ];
 
+  // Close dropdown on click outside
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    }
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [isOpen]);
+
   const handleSelect = (role) => {
     onChange(role);
     setIsOpen(false);
   };
 
   return (
-    <div className="relative">
+    <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => !disabled && setIsOpen(!isOpen)}
         disabled={disabled}
@@ -256,7 +270,7 @@ export default function UserDetailPanel({
 
                 {user.is_active ? (
                   <button
-                    onClick={() => onDeactivate(user.id)}
+                    onClick={() => onDeactivate(user)}
                     className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg border border-amber-200 bg-amber-50 hover:bg-amber-100 transition-colors text-left"
                   >
                     <UserX className="w-4 h-4 text-amber-600" />
