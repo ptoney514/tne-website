@@ -11,6 +11,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import AdminTeamsPage from './pages/AdminTeamsPage';
 import AdminPlayersPage from './pages/AdminPlayersPage';
 import AdminTeamDetailPage from './pages/AdminTeamDetailPage';
+import AdminCoachesPage from './pages/AdminCoachesPage';
 
 function App() {
   return (
@@ -61,6 +62,16 @@ function App() {
               <ProtectedRoute allowedRoles={['admin']}>
                 <SeasonProvider>
                   <AdminPlayersPage />
+                </SeasonProvider>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/coaches"
+            element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <SeasonProvider>
+                  <AdminCoachesPage />
                 </SeasonProvider>
               </ProtectedRoute>
             }
