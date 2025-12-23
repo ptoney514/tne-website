@@ -4,6 +4,7 @@
     <title>TNE United Express | Elite Youth Basketball Omaha</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="../assets/images/favicon.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -84,11 +85,12 @@
                 </div>
 
                 <!-- Center Brand -->
-                <div class="flex-1 text-center">
-                    <span class="uppercase text-lg font-semibold text-white tracking-[0.12em] font-bebas px-6">
+                <a href="index.html" class="flex-1 flex justify-center items-center gap-2 hover:opacity-90 transition-opacity">
+                    <img src="../assets/images/tne-logo-red.png" alt="TNE United Express" class="h-8 w-8 object-contain">
+                    <span class="uppercase text-lg font-semibold text-white tracking-[0.12em] font-bebas hidden sm:inline">
                         TNE <span class="text-tne-red">UNITED EXPRESS</span>
                     </span>
-                </div>
+                </a>
 
                 <!-- Right Links -->
                 <div class="hidden md:flex items-center gap-1 px-4">
@@ -99,11 +101,37 @@
                 </div>
 
                 <!-- Mobile Menu -->
-                <button class="md:hidden p-2 text-white">
+                <button id="mobile-menu-btn" class="md:hidden p-2 text-white">
                     <i data-lucide="menu" class="w-5 h-5"></i>
                 </button>
             </div>
         </nav>
+
+        <!-- Mobile Menu Drawer -->
+        <div id="mobile-menu" class="fixed inset-0 z-[60] hidden">
+            <div id="mobile-menu-backdrop" class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
+            <div class="absolute right-0 top-0 h-full w-72 bg-[#0a0a0a] border-l border-white/10 shadow-2xl transform transition-transform duration-300 translate-x-full" id="mobile-menu-drawer">
+                <div class="flex items-center justify-between p-4 border-b border-white/10">
+                    <img src="../assets/images/tne-logo-red.png" alt="TNE" class="h-8 w-8">
+                    <button id="mobile-menu-close" class="p-2 text-white/70 hover:text-white transition-colors">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+                <nav class="p-4 space-y-1">
+                    <a href="index.html" class="block px-4 py-3 text-sm font-medium text-white bg-white/10 rounded-xl">Home</a>
+                    <a href="teams.html" class="block px-4 py-3 text-sm font-medium text-white/80 hover:text-white hover:bg-white/5 rounded-xl transition-colors">Teams</a>
+                    <a href="schedule.html" class="block px-4 py-3 text-sm font-medium text-white/80 hover:text-white hover:bg-white/5 rounded-xl transition-colors">Schedule</a>
+                    <a href="tournaments.html" class="block px-4 py-3 text-sm font-medium text-white/80 hover:text-white hover:bg-white/5 rounded-xl transition-colors">Tournaments</a>
+                    <a href="tryouts.html" class="block px-4 py-3 text-sm font-medium text-white/80 hover:text-white hover:bg-white/5 rounded-xl transition-colors">Tryouts</a>
+                    <a href="about.html" class="block px-4 py-3 text-sm font-medium text-white/80 hover:text-white hover:bg-white/5 rounded-xl transition-colors">About</a>
+                    <a href="contact.html" class="block px-4 py-3 text-sm font-medium text-white/80 hover:text-white hover:bg-white/5 rounded-xl transition-colors">Contact</a>
+                </nav>
+                <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-white/10 space-y-2">
+                    <a href="#" class="block w-full text-center px-4 py-2.5 text-sm font-medium rounded-xl border border-white/15 text-white/80 hover:text-white hover:border-white/40 transition-colors">Login</a>
+                    <a href="#" class="block w-full text-center px-4 py-2.5 text-sm font-medium rounded-xl bg-tne-red text-white hover:bg-tne-red-dark transition-colors">Register</a>
+                </div>
+            </div>
+        </div>
 
         <!-- Hero Content -->
         <div class="absolute inset-0 z-20 flex flex-col items-center justify-center pointer-events-none px-4 mt-10">
@@ -669,8 +697,9 @@
             <div class="max-w-[1400px] mx-auto px-6 lg:px-12 relative z-10">
                 <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-12 mb-20">
                     <div class="col-span-2 lg:col-span-2 pr-8">
-                        <a href="#" class="inline-block text-white font-bebas font-bold text-2xl tracking-tight mb-6">
-                            TNE <span class="text-tne-red">UNITED</span>
+                        <a href="index.html" class="inline-flex items-center gap-3 mb-6">
+                            <img src="../assets/images/tne-logo-red.png" alt="TNE" class="h-10 w-10 object-contain">
+                            <span class="text-white font-bebas font-bold text-2xl tracking-tight">TNE <span class="text-tne-red">UNITED</span></span>
                         </a>
                         <p class="text-sm leading-7 text-[#8A8F98] max-w-xs mb-8">
                             Developing elite players and building character in Omaha's youth. The road to the next level starts here.
@@ -740,7 +769,34 @@
     <script>
         // Initialize Lucide icons
         lucide.createIcons();
-        
+
+        // Mobile menu functionality
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const mobileMenuDrawer = document.getElementById('mobile-menu-drawer');
+        const mobileMenuClose = document.getElementById('mobile-menu-close');
+        const mobileMenuBackdrop = document.getElementById('mobile-menu-backdrop');
+
+        function openMobileMenu() {
+            mobileMenu.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            setTimeout(() => {
+                mobileMenuDrawer.classList.remove('translate-x-full');
+            }, 10);
+        }
+
+        function closeMobileMenu() {
+            mobileMenuDrawer.classList.add('translate-x-full');
+            setTimeout(() => {
+                mobileMenu.classList.add('hidden');
+                document.body.style.overflow = '';
+            }, 300);
+        }
+
+        mobileMenuBtn.addEventListener('click', openMobileMenu);
+        mobileMenuClose.addEventListener('click', closeMobileMenu);
+        mobileMenuBackdrop.addEventListener('click', closeMobileMenu);
+
         // Parallax effect
         document.addEventListener('scroll', function() {
             const bg = document.getElementById('parallax-bg');
@@ -748,17 +804,17 @@
                 bg.style.transform = `translateY(${window.scrollY * 0.4}px)`;
             }
         });
-        
+
         // Carousel controls
         const carousel = document.getElementById('carousel');
         const scrollLeftBtn = document.getElementById('scrollLeft');
         const scrollRightBtn = document.getElementById('scrollRight');
-        
+
         if (carousel && scrollLeftBtn && scrollRightBtn) {
             scrollLeftBtn.addEventListener('click', () => {
                 carousel.scrollBy({ left: -420, behavior: 'smooth' });
             });
-            
+
             scrollRightBtn.addEventListener('click', () => {
                 carousel.scrollBy({ left: 420, behavior: 'smooth' });
             });
