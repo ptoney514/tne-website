@@ -134,10 +134,10 @@ export default function TryoutsPage() {
 
       {/* Main Content */}
       <main className="flex-1 w-full bg-neutral-50 text-neutral-900">
-        <section className="max-w-6xl mx-auto px-4 sm:px-6 -mt-6 pb-12 sm:pb-16 space-y-8 sm:space-y-10">
-          {/* Upcoming Tryouts */}
-          <div className="space-y-4">
-            <h2 className="text-xl font-semibold text-neutral-900">
+        <section className="max-w-6xl mx-auto px-4 sm:px-6 -mt-6 pb-12 sm:pb-16 space-y-6 sm:space-y-8">
+          {/* Upcoming Tryouts - Card Container */}
+          <div className="animate-enter delay-100 rounded-2xl bg-white border border-neutral-200 shadow-sm p-4 sm:p-6 relative z-10">
+            <h2 className="text-lg font-semibold text-neutral-900 mb-4">
               Upcoming Tryout Dates
             </h2>
 
@@ -146,12 +146,12 @@ export default function TryoutsPage() {
                 {[1, 2, 3].map((i) => (
                   <div
                     key={i}
-                    className="rounded-3xl bg-white border border-neutral-200 h-48 animate-pulse"
+                    className="rounded-2xl bg-neutral-100 border border-neutral-200 h-48 animate-pulse"
                   />
                 ))}
               </div>
             ) : sessions.length === 0 ? (
-              <div className="rounded-3xl bg-white border border-neutral-200 p-8 text-center">
+              <div className="rounded-2xl bg-neutral-50 border border-neutral-200 p-8 text-center">
                 <CalendarCheck className="w-12 h-12 text-neutral-300 mx-auto mb-4" />
                 <h3 className="text-lg font-semibold text-neutral-900 mb-2">
                   No Upcoming Tryouts

@@ -6,11 +6,11 @@ import {
   Phone,
   Mail,
   User,
-  Shirt,
   MessageCircle,
 } from 'lucide-react';
 import PublicLayout from '../components/layouts/PublicLayout';
 import PageHero from '../components/PageHero';
+import mitchHeadshot from '../assets/mitch-headshot.png';
 
 const stats = [
   { value: '150+', label: 'Active Players', description: 'Across Nebraska' },
@@ -320,10 +320,15 @@ export default function AboutPage() {
                   }}
                 />
 
-                <div className="relative z-10 text-center">
-                  <Shirt className="w-24 sm:w-32 h-24 sm:h-32 text-white/10 mx-auto mb-4 stroke-1" />
-                  <div className="text-7xl sm:text-9xl font-bebas font-bold text-white/5 group-hover:text-white/10 transition-colors duration-700 select-none">
-                    23
+                {/* Mitch Photo */}
+                <div className="relative z-10 flex flex-col items-center">
+                  <div className="relative">
+                    <div className="absolute -inset-4 bg-gradient-to-b from-tne-red/20 to-transparent rounded-3xl blur-xl opacity-60" />
+                    <img
+                      src={mitchHeadshot}
+                      alt="Mitch"
+                      className="relative w-56 h-72 sm:w-72 sm:h-96 lg:w-80 lg:h-[420px] rounded-2xl object-cover object-top border-4 border-white/10 shadow-2xl grayscale group-hover:grayscale-0 transition-all duration-700"
+                    />
                   </div>
                 </div>
 

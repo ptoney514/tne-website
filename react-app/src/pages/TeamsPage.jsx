@@ -181,7 +181,7 @@ export default function TeamsPage() {
 
             <div>
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tight text-white">
-                Team Rosters & Schedules
+                Teams & Rosters
               </h1>
               <p className="mt-2 text-base sm:text-lg text-white/70 max-w-2xl">
                 Browse every team's coach information, practice details, and upcoming games for the 2025‑26 season.

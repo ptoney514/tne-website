@@ -12,7 +12,6 @@ export default function SchedulePage() {
   const [activeFilter, setActiveFilter] = useState('all');
   const [activeTeam, setActiveTeam] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
-  const [view, setView] = useState('list');
   const [showTournaments, setShowTournaments] = useState(false);
 
   // Handle hash changes for direct linking to tournaments
@@ -204,9 +203,6 @@ export default function SchedulePage() {
             onTeamChange={setActiveTeam}
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
-            view={view}
-            onViewChange={setView}
-            showViewToggle={!showTournaments}
           />
 
           {/* Content */}

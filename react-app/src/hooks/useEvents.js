@@ -1,6 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 
+// Set to true to skip Supabase and use sample data (faster for development)
+const USE_SAMPLE_DATA = true;
+
 export function useEvents() {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -9,6 +12,13 @@ export function useEvents() {
   const fetchEvents = useCallback(async () => {
     setLoading(true);
     setError(null);
+
+    // Use sample data for development (instant load)
+    if (USE_SAMPLE_DATA) {
+      setEvents(getSampleEvents());
+      setLoading(false);
+      return;
+    }
 
     try {
       const { data, error: fetchError } = await supabase
@@ -23,7 +33,13 @@ export function useEvents() {
 
       if (fetchError) throw fetchError;
 
-      setEvents(data || []);
+      // If no data returned, use sample data
+      if (!data || data.length === 0) {
+        console.log('[useEvents] No events in database, using sample data');
+        setEvents(getSampleEvents());
+      } else {
+        setEvents(data);
+      }
     } catch (err) {
       console.error('Error fetching events:', err);
       setError(err.message || 'Failed to fetch events');

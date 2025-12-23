@@ -88,7 +88,7 @@ function UserDropdown({ profile, onSignOut }) {
 }
 
 export default function TeamsNavbar() {
-  const { user, profile, signOut, loading } = useAuth();
+  const { user, profile, signOut } = useAuth();
 
   const handleSignOut = async () => {
     await signOut();
@@ -111,7 +111,7 @@ export default function TeamsNavbar() {
         </Link>
 
         {/* Links */}
-        <div className="hidden md:flex items-center gap-6 text-xs font-medium uppercase tracking-[0.18em]">
+        <div className="hidden md:flex items-center gap-6 text-[11px] font-medium font-mono uppercase tracking-wider">
           <Link
             to="/"
             className="hover:text-white transition-colors text-stone-300"
@@ -150,21 +150,19 @@ export default function TeamsNavbar() {
         {/* Right */}
         <div className="flex items-center gap-2">
           <div className="hidden md:flex items-center gap-2">
-            {loading ? (
-              <div className="w-20 h-8 bg-white/10 rounded-full animate-pulse" />
-            ) : user ? (
+            {user ? (
               <UserDropdown profile={profile} onSignOut={handleSignOut} />
             ) : (
               <>
                 <Link
                   to="/login"
-                  className="px-3 py-1.5 text-xs font-medium rounded-full border border-white/15 text-white/80 hover:text-white hover:border-white/40 transition-colors"
+                  className="px-4 py-1.5 text-[11px] font-medium font-mono uppercase tracking-wider rounded-full border border-white/15 text-white/80 hover:text-white hover:border-white/40 transition-colors"
                 >
                   Login
                 </Link>
                 <Link
                   to="/login"
-                  className="px-3 py-1.5 text-xs font-medium rounded-full bg-tne-red text-white hover:bg-tne-red-dark transition-colors"
+                  className="px-4 py-1.5 text-[11px] font-medium font-mono uppercase tracking-wider rounded-full bg-tne-red text-white hover:bg-tne-red-dark transition-colors"
                 >
                   Register
                 </Link>

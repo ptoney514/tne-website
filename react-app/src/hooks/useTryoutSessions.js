@@ -1,6 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 
+// Set to true to skip Supabase and use sample data (faster for development)
+const USE_SAMPLE_DATA = true;
+
 export function useTryoutSessions() {
   const [sessions, setSessions] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -12,6 +15,13 @@ export function useTryoutSessions() {
   const fetchSessions = useCallback(async () => {
     setLoading(true);
     setError(null);
+
+    // Use sample data for development (instant load)
+    if (USE_SAMPLE_DATA) {
+      setSessions(getSampleSessions());
+      setLoading(false);
+      return;
+    }
 
     try {
       const { data, error: fetchError } = await supabase
