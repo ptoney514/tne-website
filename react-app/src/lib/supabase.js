@@ -10,4 +10,36 @@ if (!supabaseUrl || !supabaseAnonKey) {
   );
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// Log for debugging
+console.log('[Supabase] Initializing client for:', supabaseUrl);
+
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: true,
+    // Use localStorage explicitly
+    storage: typeof window !== 'undefined' ? window.localStorage : undefined,
+  },
+  // Add request timeout
+  global: {
+    fetch: (url, options) => {
+      return fetch(url, {
+        ...options,
+        // 10 second timeout for requests
+        signal: AbortSignal.timeout(10000),
+      });
+    },
+  },
+});
+
+// Test connection immediately
+supabase.auth.getSession().then(({ data, error }) => {
+  if (error) {
+    console.error('[Supabase] Session check error:', error);
+  } else {
+    console.log('[Supabase] Session check OK, user:', data.session?.user?.email || 'none');
+  }
+}).catch(err => {
+  console.error('[Supabase] Session check failed:', err);
+});
