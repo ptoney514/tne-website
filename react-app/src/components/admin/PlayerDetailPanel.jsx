@@ -11,8 +11,6 @@ import {
   Calendar,
   MapPin,
   Users,
-  AlertCircle,
-  CreditCard,
   Shield,
   Clock,
   Heart,
@@ -80,19 +78,6 @@ function PaymentBadge({ status }) {
   return (
     <span className={`px-2 py-0.5 rounded text-xs font-semibold ${config.bg} ${config.text}`}>
       {config.label}
-    </span>
-  );
-}
-
-// Status Badge
-function StatusBadge({ isActive }) {
-  return (
-    <span
-      className={`px-2 py-0.5 rounded text-xs font-semibold ${
-        isActive ? 'bg-green-100 text-green-700' : 'bg-stone-100 text-stone-500'
-      }`}
-    >
-      {isActive ? 'Active' : 'Inactive'}
     </span>
   );
 }
@@ -209,6 +194,15 @@ export default function PlayerDetailPanel({ player, onClose, onEdit, onDelete, o
       isMounted = false;
     };
   }, [player?.id, getPlayerHistory]);
+
+  // Close panel on Escape key
+  useEffect(() => {
+    const handleEscape = (e) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleEscape);
+    return () => window.removeEventListener('keydown', handleEscape);
+  }, [onClose]);
 
   if (!player) return null;
 

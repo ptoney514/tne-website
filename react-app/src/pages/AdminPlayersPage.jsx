@@ -538,6 +538,15 @@ export default function AdminPlayersPage() {
   };
 
   const handleExport = () => {
+    // Escape CSV values to handle commas, quotes, and newlines
+    const escapeCSV = (val) => {
+      const str = String(val ?? '');
+      if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+        return `"${str.replace(/"/g, '""')}"`;
+      }
+      return str;
+    };
+
     const headers = [
       'First Name',
       'Last Name',
@@ -568,7 +577,7 @@ export default function AdminPlayersPage() {
       p.primary_parent?.phone || '',
     ]);
 
-    const csv = [headers, ...rows].map((row) => row.join(',')).join('\n');
+    const csv = [headers, ...rows].map((row) => row.map(escapeCSV).join(',')).join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
