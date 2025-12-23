@@ -17,6 +17,8 @@ import TeamDetailTabs from '../components/admin/TeamDetailTabs';
 import QuickAddPlayersCard from '../components/admin/QuickAddPlayersCard';
 import ParsePreviewModal from '../components/admin/ParsePreviewModal';
 import EnhancedRosterTable from '../components/admin/EnhancedRosterTable';
+import EditPlayerModal from '../components/admin/EditPlayerModal';
+import TeamsNavbar from '../components/TeamsNavbar';
 
 // Add Player Modal (for existing players)
 function AddPlayerModal({ isOpen, onClose, availablePlayers, onAdd, isAdding }) {
@@ -387,6 +389,7 @@ export default function AdminTeamDetailPage() {
     availablePlayers,
     loading,
     error,
+    refetch: refetchRoster,
     addToRoster,
     removeFromRoster,
     updateRosterEntry,
@@ -400,9 +403,11 @@ export default function AdminTeamDetailPage() {
   const [parsedPlayers, setParsedPlayers] = useState([]);
   const [showParsePreview, setShowParsePreview] = useState(false);
   const [addModalOpen, setAddModalOpen] = useState(false);
+  const [editModal, setEditModal] = useState(null);
   const [paymentModal, setPaymentModal] = useState(null);
   const [removeConfirm, setRemoveConfirm] = useState(null);
   const [isAdding, setIsAdding] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isBulkAdding, setIsBulkAdding] = useState(false);
 
@@ -511,6 +516,60 @@ export default function AdminTeamDetailPage() {
     }
   };
 
+  // Handle edit player (roster data + parent data)
+  const handleEditPlayer = async ({ rosterId, playerId, parentId, rosterData, parentData }) => {
+    setIsEditing(true);
+    try {
+      // Update roster entry (jersey number, position)
+      await updateRosterEntry(rosterId, rosterData);
+
+      // Handle parent data if any fields are filled
+      const hasParentData =
+        parentData.first_name ||
+        parentData.last_name ||
+        parentData.phone ||
+        parentData.email;
+
+      if (hasParentData) {
+        if (parentId) {
+          // Update existing parent
+          const { error: parentError } = await supabase
+            .from('parents')
+            .update(parentData)
+            .eq('id', parentId);
+
+          if (parentError) throw parentError;
+        } else {
+          // Create new parent and link to player
+          const { data: newParent, error: createError } = await supabase
+            .from('parents')
+            .insert([parentData])
+            .select()
+            .single();
+
+          if (createError) throw createError;
+
+          // Link parent to player
+          const { error: linkError } = await supabase
+            .from('players')
+            .update({ primary_parent_id: newParent.id })
+            .eq('id', playerId);
+
+          if (linkError) throw linkError;
+        }
+      }
+
+      setEditModal(null);
+      // Refresh roster to show updated data
+      await refetchRoster();
+    } catch (err) {
+      console.error('Error editing player:', err);
+      alert(`Error: ${err.message}`);
+    } finally {
+      setIsEditing(false);
+    }
+  };
+
   // Render tab content
   const renderTabContent = () => {
     switch (activeTab) {
@@ -548,6 +607,7 @@ export default function AdminTeamDetailPage() {
               <EnhancedRosterTable
                 roster={roster}
                 gradeLevel={team?.grade_level}
+                onEdit={setEditModal}
                 onUpdatePayment={setPaymentModal}
                 onRemove={setRemoveConfirm}
                 onAddManually={() => setAddModalOpen(true)}
@@ -568,6 +628,8 @@ export default function AdminTeamDetailPage() {
 
   return (
     <div className="bg-stone-100 text-stone-900 antialiased min-h-screen">
+      <TeamsNavbar />
+
       {/* Header */}
       <TeamDetailHeader
         team={team}
@@ -602,6 +664,17 @@ export default function AdminTeamDetailPage() {
         onAdd={handleAddPlayer}
         isAdding={isAdding}
       />
+
+      {editModal && (
+        <EditPlayerModal
+          isOpen={!!editModal}
+          onClose={() => setEditModal(null)}
+          entry={editModal}
+          gradeLevel={team?.grade_level}
+          onSave={handleEditPlayer}
+          isSaving={isEditing}
+        />
+      )}
 
       {paymentModal && (
         <PaymentModal

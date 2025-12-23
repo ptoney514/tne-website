@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTeams } from '../hooks/useTeams';
 import { getGradeBadgeClass, formatGradeLabel } from '../utils/gradeColors';
+import TeamsNavbar from '../components/TeamsNavbar';
 
 // Icons as inline SVGs to avoid lucide dependency issues
 const PlusIcon = () => (
@@ -465,6 +466,8 @@ export default function AdminTeamsPage() {
 
   return (
     <div className="bg-stone-100 text-stone-900 antialiased min-h-screen">
+      <TeamsNavbar />
+
       {/* Header */}
       <div className="bg-white border-b border-stone-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">

@@ -11,6 +11,7 @@ import RosterTableRow from './RosterTableRow';
 export default function EnhancedRosterTable({
   roster = [],
   gradeLevel,
+  onEdit,
   onUpdatePayment,
   onRemove,
   onAddManually,
@@ -163,6 +164,7 @@ export default function EnhancedRosterTable({
                   key={entry.id}
                   entry={entry}
                   gradeLevel={gradeLevel}
+                  onEdit={onEdit}
                   onUpdatePayment={onUpdatePayment}
                   onRemove={onRemove}
                 />

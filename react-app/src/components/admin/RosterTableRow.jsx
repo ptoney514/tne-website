@@ -4,7 +4,7 @@
  * Shows jersey badge, player name/grade, position, parent contact, status, actions
  */
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import JerseyBadge from './JerseyBadge';
 import { getPositionName } from '../../utils/playerParser';
 
@@ -18,10 +18,25 @@ const STATUS_STYLES = {
 export default function RosterTableRow({
   entry,
   gradeLevel,
+  onEdit,
   onUpdatePayment,
   onRemove,
 }) {
   const [showMenu, setShowMenu] = useState(false);
+  const [openUpward, setOpenUpward] = useState(false);
+  const buttonRef = useRef(null);
+
+  // Calculate dropdown direction when menu opens
+  useEffect(() => {
+    if (showMenu && buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      const spaceBelow = window.innerHeight - rect.bottom;
+      // Menu is ~140px tall. Only open upward if truly at the bottom (< 160px space)
+      // AND the button is in the lower half of the viewport
+      const isInLowerHalf = rect.top > window.innerHeight / 2;
+      setOpenUpward(spaceBelow < 160 && isInLowerHalf);
+    }
+  }, [showMenu]);
 
   const player = entry.player || {};
   const parent = player.primary_parent;
@@ -78,6 +93,7 @@ export default function RosterTableRow({
       {/* Actions Menu */}
       <td className="px-5 py-4 text-right relative">
         <button
+          ref={buttonRef}
           onClick={() => setShowMenu(!showMenu)}
           className="p-2 text-stone-400 hover:text-stone-600 hover:bg-stone-100 rounded-lg transition-colors"
         >
@@ -93,7 +109,33 @@ export default function RosterTableRow({
               className="fixed inset-0 z-10"
               onClick={() => setShowMenu(false)}
             />
-            <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-stone-200 py-1 z-20">
+            <div
+              className={`absolute right-0 w-48 bg-white rounded-lg shadow-lg border border-stone-200 py-1 z-20 ${
+                openUpward ? 'bottom-full mb-2' : 'top-full mt-2'
+              }`}
+            >
+              <button
+                onClick={() => {
+                  setShowMenu(false);
+                  onEdit?.(entry);
+                }}
+                className="w-full px-4 py-2 text-left text-sm text-stone-700 hover:bg-stone-100 flex items-center gap-2"
+              >
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                  />
+                </svg>
+                Edit Player
+              </button>
               <button
                 onClick={() => {
                   setShowMenu(false);
