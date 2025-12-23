@@ -3,6 +3,7 @@ import { supabase } from '../lib/supabase';
 
 export function usePlayers() {
   const [players, setPlayers] = useState([]);
+  const [teams, setTeams] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -22,11 +23,12 @@ export function usePlayers() {
 
       if (playersError) throw playersError;
 
-      // Fetch team assignments for each player
+      // Fetch team assignments for each player with payment status
       const { data: rosterData, error: rosterError } = await supabase
         .from('team_roster')
         .select(`
           player_id,
+          payment_status,
           team:teams(id, name, grade_level)
         `)
         .eq('is_active', true);
@@ -35,17 +37,25 @@ export function usePlayers() {
 
       // Map team assignments to players
       const teamMap = {};
+      const paymentMap = {};
       rosterData?.forEach((r) => {
         if (!teamMap[r.player_id]) {
           teamMap[r.player_id] = [];
         }
         teamMap[r.player_id].push(r.team);
+        // Use the most "urgent" payment status (pending > partial > paid > waived)
+        const priority = { pending: 0, partial: 1, paid: 2, waived: 3 };
+        const current = paymentMap[r.player_id];
+        if (!current || priority[r.payment_status] < priority[current]) {
+          paymentMap[r.player_id] = r.payment_status;
+        }
       });
 
       // Add team info to players
       const playersWithTeams = playersData?.map((player) => ({
         ...player,
         teams: teamMap[player.id] || [],
+        payment_status: paymentMap[player.id] || null,
       })) || [];
 
       setPlayers(playersWithTeams);
@@ -57,9 +67,23 @@ export function usePlayers() {
     }
   }, []);
 
+  const fetchTeams = useCallback(async () => {
+    const { data, error } = await supabase
+      .from('teams')
+      .select('id, name, grade_level')
+      .order('grade_level', { ascending: true });
+
+    if (error) {
+      console.error('Error fetching teams:', error);
+      return;
+    }
+    setTeams(data || []);
+  }, []);
+
   useEffect(() => {
     fetchPlayers();
-  }, [fetchPlayers]);
+    fetchTeams();
+  }, [fetchPlayers, fetchTeams]);
 
   const createPlayer = async (playerData) => {
     const { data, error } = await supabase
@@ -105,14 +129,54 @@ export function usePlayers() {
     await fetchPlayers();
   };
 
+  /**
+   * Get player's team history across all seasons
+   * @param {string} playerId
+   * @returns {Promise<Array>} Array of roster entries with team and season info
+   */
+  const getPlayerHistory = useCallback(async (playerId) => {
+    if (!playerId) return [];
+
+    const { data, error } = await supabase
+      .from('team_roster')
+      .select(`
+        id,
+        jersey_number,
+        position,
+        payment_status,
+        joined_date,
+        team:teams(
+          id,
+          name,
+          grade_level,
+          season:seasons(id, name, is_active)
+        )
+      `)
+      .eq('player_id', playerId)
+      .order('joined_date', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching player history:', error);
+      return [];
+    }
+
+    // Flatten the season data
+    return (data || []).map((entry) => ({
+      ...entry,
+      season: entry.team?.season,
+    }));
+  }, []);
+
   return {
     players,
+    teams,
     loading,
     error,
     refetch: fetchPlayers,
     createPlayer,
     updatePlayer,
     deletePlayer,
+    getPlayerHistory,
   };
 }
 

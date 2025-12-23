@@ -227,6 +227,7 @@ export default function AdminNavbar() {
             {/* Desktop Nav Links */}
             <div className="hidden md:flex items-center gap-1">
               <AdminNavLink to="/admin/teams">Teams</AdminNavLink>
+              <AdminNavLink to="/admin/players">Players</AdminNavLink>
               <AdminNavLink to="/admin/coaches">Coaches</AdminNavLink>
               <AdminNavLink to="/admin/tryouts" badge={stats.tryoutSignups}>
                 Tryouts
@@ -271,6 +272,17 @@ export default function AdminNavbar() {
               }
             >
               Teams
+            </NavLink>
+            <NavLink
+              to="/admin/players"
+              onClick={() => setMobileMenuOpen(false)}
+              className={({ isActive }) =>
+                `block px-3 py-2 rounded-lg text-sm font-medium ${
+                  isActive ? 'bg-tne-red text-white' : 'text-stone-600 hover:bg-stone-100'
+                }`
+              }
+            >
+              Players
             </NavLink>
             <NavLink
               to="/admin/coaches"
