@@ -1,12 +1,11 @@
 import { createContext, useState, useEffect, useCallback } from 'react';
-import { supabase } from '../lib/supabase';
+import { supabase, withTimeout } from '../lib/supabase';
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const AuthContext = createContext(null);
 
-// Configurable timeouts (can be overridden via env vars)
-const AUTH_INIT_TIMEOUT = parseInt(import.meta.env.VITE_AUTH_INIT_TIMEOUT || '10000', 10);
-const SIGN_IN_TIMEOUT = parseInt(import.meta.env.VITE_SIGN_IN_TIMEOUT || '15000', 10);
+// Sign in timeout (can be overridden via env vars)
+const SIGN_IN_TIMEOUT = parseInt(import.meta.env.VITE_SIGN_IN_TIMEOUT || '30000', 10);
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
@@ -32,28 +31,45 @@ export function AuthProvider({ children }) {
 
   // Initialize auth state
   useEffect(() => {
-    // Get initial session with timeout
     const initAuth = async () => {
+      console.log('[Auth] Starting initialization...');
       try {
-        // Add timeout to prevent infinite loading
-        const timeoutPromise = new Promise((_, reject) =>
-          setTimeout(() => reject(new Error('Auth initialization timed out')), AUTH_INIT_TIMEOUT)
+        // Use timeout to prevent hanging forever
+        const { data: { session }, error: sessionError } = await withTimeout(
+          supabase.auth.getSession(),
+          8000,
+          'Session check timed out - Supabase may be slow or unreachable'
         );
 
-        const sessionPromise = supabase.auth.getSession();
-        const { data: { session } } = await Promise.race([sessionPromise, timeoutPromise]);
+        console.log('[Auth] Session result:', session?.user?.email || 'no session', sessionError?.message || 'no error');
+
+        if (sessionError) {
+          console.error('[Auth] Session error:', sessionError);
+          setError(sessionError.message);
+          setLoading(false);
+          return;
+        }
 
         setUser(session?.user ?? null);
+
         if (session?.user) {
+          console.log('[Auth] Fetching profile for:', session.user.id);
           setProfileLoading(true);
           const profileData = await fetchProfile(session.user.id);
+          console.log('[Auth] Profile result:', profileData?.email || 'no profile');
           setProfile(profileData);
           setProfileLoading(false);
         }
       } catch (err) {
-        console.error('Auth initialization error:', err);
-        setError(err.message);
+        console.error('[Auth] Initialization error:', err);
+        setUser(null);
+        setProfile(null);
+        // Don't set error for timeout - just proceed without auth
+        if (err.name !== 'TimeoutError' && err.name !== 'AbortError') {
+          setError(err.message);
+        }
       } finally {
+        console.log('[Auth] Initialization complete');
         setLoading(false);
       }
     };
@@ -63,7 +79,7 @@ export function AuthProvider({ children }) {
     // Listen for auth changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
+    } = supabase.auth.onAuthStateChange(async (_event, session) => {
       // Clear any previous errors when auth state changes successfully
       setError(null);
       setUser(session?.user ?? null);
