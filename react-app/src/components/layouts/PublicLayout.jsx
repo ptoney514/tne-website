@@ -4,20 +4,12 @@ import { Menu, Facebook, Twitter } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import MobileDrawer from '../MobileDrawer';
 import tneLogoWhite from '../../assets/tne-logo-white-transparent.png';
-
-const navLinks = [
-  { path: '/', label: 'Home' },
-  { path: '/teams', label: 'Teams' },
-  { path: '/schedule', label: 'Schedule' },
-  { path: '/tryouts', label: 'Tryouts' },
-  { path: '/about', label: 'About' },
-  { path: '/contact', label: 'Contact' },
-];
+import { navLinks, navLinkStyles } from '../../constants/navigation';
 
 function PublicNavbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
-  const { user, loading } = useAuth();
+  const { user } = useAuth();
 
   const isActive = (path) => location.pathname === path;
 
@@ -38,16 +30,12 @@ function PublicNavbar() {
           </Link>
 
           {/* Desktop Links */}
-          <div className="hidden md:flex items-center gap-6 text-xs font-medium uppercase tracking-[0.18em]">
+          <div className={`hidden md:flex items-center gap-6 ${navLinkStyles.base}`}>
             {navLinks.map((link) => (
               <Link
                 key={link.path}
                 to={link.path}
-                className={
-                  isActive(link.path)
-                    ? 'text-white'
-                    : 'text-stone-300 hover:text-white transition-colors'
-                }
+                className={isActive(link.path) ? navLinkStyles.active : navLinkStyles.inactive}
               >
                 {link.label}
               </Link>
@@ -57,12 +45,10 @@ function PublicNavbar() {
           {/* Right Side */}
           <div className="flex items-center gap-2">
             <div className="hidden md:flex items-center gap-2">
-              {loading ? (
-                <div className="w-20 h-8 bg-white/10 rounded-full animate-pulse" />
-              ) : user ? (
+              {user ? (
                 <Link
                   to="/profile"
-                  className="px-3 py-1.5 text-xs font-medium rounded-full border border-white/15 text-white/80 hover:text-white hover:border-white/40 transition-colors"
+                  className={`px-4 py-1.5 ${navLinkStyles.base} rounded-full border border-white/15 text-white/80 hover:text-white hover:border-white/40 transition-colors`}
                 >
                   My Account
                 </Link>
@@ -70,13 +56,13 @@ function PublicNavbar() {
                 <>
                   <Link
                     to="/login"
-                    className="px-3 py-1.5 text-xs font-medium rounded-full border border-white/15 text-white/80 hover:text-white hover:border-white/40 transition-colors"
+                    className={`px-4 py-1.5 ${navLinkStyles.base} rounded-full border border-white/15 text-white/80 hover:text-white hover:border-white/40 transition-colors`}
                   >
                     Login
                   </Link>
                   <Link
                     to="/tryouts"
-                    className="px-3 py-1.5 text-xs font-medium rounded-full bg-tne-red text-white hover:bg-tne-red-dark transition-colors"
+                    className={`px-4 py-1.5 ${navLinkStyles.base} rounded-full bg-tne-red text-white hover:bg-tne-red-dark transition-colors`}
                   >
                     Register
                   </Link>

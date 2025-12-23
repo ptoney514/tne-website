@@ -2,15 +2,7 @@ import { useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { X } from 'lucide-react';
 import tneLogoWhite from '../assets/tne-logo-white-transparent.png';
-
-const navLinks = [
-  { path: '/', label: 'Home' },
-  { path: '/teams', label: 'Teams' },
-  { path: '/schedule', label: 'Schedule' },
-  { path: '/tryouts', label: 'Tryouts' },
-  { path: '/about', label: 'About' },
-  { path: '/contact', label: 'Contact' },
-];
+import { navLinks } from '../constants/navigation';
 
 export default function MobileDrawer({ isOpen, onClose }) {
   const location = useLocation();

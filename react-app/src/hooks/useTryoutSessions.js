@@ -109,10 +109,17 @@ export function useTryoutSessions() {
 
 // Sample data for development/fallback
 function getSampleSessions() {
+  const today = new Date();
+  const formatDate = (daysOffset) => {
+    const date = new Date(today);
+    date.setDate(date.getDate() + daysOffset);
+    return date.toISOString().split('T')[0];
+  };
+
   return [
     {
       id: '1',
-      session_date: '2026-01-11',
+      session_date: formatDate(14), // 2 weeks from now
       start_time: '09:00',
       end_time: '12:00',
       location: 'Central Recreation Center',
@@ -124,7 +131,7 @@ function getSampleSessions() {
     },
     {
       id: '2',
-      session_date: '2026-01-12',
+      session_date: formatDate(15), // 2 weeks + 1 day
       start_time: '13:00',
       end_time: '16:00',
       location: 'Central Recreation Center',
@@ -136,7 +143,7 @@ function getSampleSessions() {
     },
     {
       id: '3',
-      session_date: '2026-01-18',
+      session_date: formatDate(21), // 3 weeks from now
       start_time: '09:00',
       end_time: '12:00',
       location: 'Gateway High School Gym',

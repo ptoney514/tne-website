@@ -161,7 +161,7 @@ export default function TeamsNavbar() {
                   Login
                 </Link>
                 <Link
-                  to="/login"
+                  to="/tryouts"
                   className="px-4 py-1.5 text-[11px] font-medium font-mono uppercase tracking-wider rounded-full bg-tne-red text-white hover:bg-tne-red-dark transition-colors"
                 >
                   Register

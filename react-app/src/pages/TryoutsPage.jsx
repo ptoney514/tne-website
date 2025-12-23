@@ -120,16 +120,6 @@ export default function TryoutsPage() {
             </div>
           </div>
         </div>
-
-        <style>{`
-          @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-          }
-          .animate-enter {
-            animation: fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-          }
-        `}</style>
       </header>
 
       {/* Main Content */}
