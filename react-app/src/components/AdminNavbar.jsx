@@ -242,7 +242,10 @@ export default function AdminNavbar() {
           {/* Right: Season + Settings + User */}
           <div className="hidden md:flex items-center gap-3">
             <SeasonDropdown />
-            <button className="p-2 rounded-lg text-stone-400 hover:text-stone-600 hover:bg-stone-100 transition-colors">
+            <button
+              onClick={() => navigate('/admin/settings')}
+              className="p-2 rounded-lg text-stone-400 hover:text-stone-600 hover:bg-stone-100 transition-colors"
+            >
               <SettingsIcon />
             </button>
             <UserDropdown profile={profile} onSignOut={handleSignOut} />

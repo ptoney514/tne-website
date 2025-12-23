@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import { SeasonProvider } from './contexts/SeasonContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
@@ -12,6 +12,8 @@ import AdminTeamsPage from './pages/AdminTeamsPage';
 import AdminPlayersPage from './pages/AdminPlayersPage';
 import AdminTeamDetailPage from './pages/AdminTeamDetailPage';
 import AdminCoachesPage from './pages/AdminCoachesPage';
+import AdminSettingsLayout from './pages/AdminSettingsLayout';
+import AdminUsersPage from './pages/AdminUsersPage';
 
 function App() {
   return (
@@ -76,6 +78,24 @@ function App() {
               </ProtectedRoute>
             }
           />
+
+          {/* Settings routes - redirect /admin/settings to /admin/settings/users */}
+          <Route
+            path="/admin/settings"
+            element={<Navigate to="/admin/settings/users" replace />}
+          />
+          <Route
+            path="/admin/settings/*"
+            element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <SeasonProvider>
+                  <AdminSettingsLayout />
+                </SeasonProvider>
+              </ProtectedRoute>
+            }
+          >
+            <Route path="users" element={<AdminUsersPage />} />
+          </Route>
         </Routes>
       </AuthProvider>
     </Router>
