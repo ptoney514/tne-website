@@ -18,7 +18,7 @@ import QuickAddPlayersCard from '../components/admin/QuickAddPlayersCard';
 import ParsePreviewModal from '../components/admin/ParsePreviewModal';
 import EnhancedRosterTable from '../components/admin/EnhancedRosterTable';
 import EditPlayerModal from '../components/admin/EditPlayerModal';
-import TeamsNavbar from '../components/TeamsNavbar';
+import AdminNavbar from '../components/AdminNavbar';
 
 // Add Player Modal (for existing players)
 function AddPlayerModal({ isOpen, onClose, availablePlayers, onAdd, isAdding }) {
@@ -628,7 +628,7 @@ export default function AdminTeamDetailPage() {
 
   return (
     <div className="bg-stone-100 text-stone-900 antialiased min-h-screen">
-      <TeamsNavbar />
+      <AdminNavbar />
 
       {/* Header */}
       <TeamDetailHeader

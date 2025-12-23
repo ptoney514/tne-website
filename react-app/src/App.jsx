@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
+import { SeasonProvider } from './contexts/SeasonContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import HomePage from './pages/HomePage';
 import TeamsPage from './pages/TeamsPage';
@@ -23,12 +24,14 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/profile" element={<ProfilePage />} />
 
-          {/* Protected admin routes */}
+          {/* Protected admin routes - wrapped with SeasonProvider */}
           <Route
             path="/admin"
             element={
               <ProtectedRoute allowedRoles={['admin']}>
-                <AdminDashboard />
+                <SeasonProvider>
+                  <AdminDashboard />
+                </SeasonProvider>
               </ProtectedRoute>
             }
           />
@@ -36,7 +39,9 @@ function App() {
             path="/admin/teams"
             element={
               <ProtectedRoute allowedRoles={['admin']}>
-                <AdminTeamsPage />
+                <SeasonProvider>
+                  <AdminTeamsPage />
+                </SeasonProvider>
               </ProtectedRoute>
             }
           />
@@ -44,7 +49,9 @@ function App() {
             path="/admin/teams/:teamId/roster"
             element={
               <ProtectedRoute allowedRoles={['admin']}>
-                <AdminTeamDetailPage />
+                <SeasonProvider>
+                  <AdminTeamDetailPage />
+                </SeasonProvider>
               </ProtectedRoute>
             }
           />
@@ -52,7 +59,9 @@ function App() {
             path="/admin/players"
             element={
               <ProtectedRoute allowedRoles={['admin']}>
-                <AdminPlayersPage />
+                <SeasonProvider>
+                  <AdminPlayersPage />
+                </SeasonProvider>
               </ProtectedRoute>
             }
           />
