@@ -8,13 +8,32 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: [['html', { open: 'never' }], ['list']],
   use: {
-    baseURL: 'file://' + process.cwd(),
     trace: 'on-first-retry',
   },
   projects: [
+    // Static HTML pages (existing tests)
     {
-      name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      name: 'static-pages',
+      testMatch: /pages\.spec\.js/,
+      use: {
+        ...devices['Desktop Chrome'],
+        baseURL: 'file://' + process.cwd(),
+      },
+    },
+    // React app (auth tests)
+    {
+      name: 'react-app',
+      testMatch: /auth\/.*\.spec\.js/,
+      use: {
+        ...devices['Desktop Chrome'],
+        baseURL: 'http://localhost:5173',
+      },
     },
   ],
+  webServer: {
+    command: 'cd react-app && npm run dev',
+    url: 'http://localhost:5173',
+    reuseExistingServer: !process.env.CI,
+    timeout: 120 * 1000,
+  },
 });
