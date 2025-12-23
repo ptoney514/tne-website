@@ -242,7 +242,10 @@ export default function AdminNavbar() {
           {/* Right: Season + Settings + User */}
           <div className="hidden md:flex items-center gap-3">
             <SeasonDropdown />
-            <button className="p-2 rounded-lg text-stone-400 hover:text-stone-600 hover:bg-stone-100 transition-colors">
+            <button
+              onClick={() => navigate('/admin/settings')}
+              className="p-2 rounded-lg text-stone-400 hover:text-stone-600 hover:bg-stone-100 transition-colors"
+            >
               <SettingsIcon />
             </button>
             <UserDropdown profile={profile} onSignOut={handleSignOut} />
@@ -337,6 +340,17 @@ export default function AdminNavbar() {
               }
             >
               Tournaments
+            </NavLink>
+            <NavLink
+              to="/admin/settings"
+              onClick={() => setMobileMenuOpen(false)}
+              className={({ isActive }) =>
+                `block px-3 py-2 rounded-lg text-sm font-medium ${
+                  isActive ? 'bg-tne-red text-white' : 'text-stone-600 hover:bg-stone-100'
+                }`
+              }
+            >
+              Settings
             </NavLink>
           </div>
           <div className="px-4 py-3 border-t border-stone-100">
