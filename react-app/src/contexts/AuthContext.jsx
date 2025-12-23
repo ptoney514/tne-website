@@ -5,8 +5,8 @@ import { supabase } from '../lib/supabase';
 export const AuthContext = createContext(null);
 
 // Configurable timeouts (can be overridden via env vars)
-const AUTH_INIT_TIMEOUT = parseInt(import.meta.env.VITE_AUTH_INIT_TIMEOUT || '10000', 10);
-const SIGN_IN_TIMEOUT = parseInt(import.meta.env.VITE_SIGN_IN_TIMEOUT || '15000', 10);
+const AUTH_INIT_TIMEOUT = parseInt(import.meta.env.VITE_AUTH_INIT_TIMEOUT || '30000', 10);
+const SIGN_IN_TIMEOUT = parseInt(import.meta.env.VITE_SIGN_IN_TIMEOUT || '30000', 10);
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
@@ -51,8 +51,15 @@ export function AuthProvider({ children }) {
           setProfileLoading(false);
         }
       } catch (err) {
-        console.error('Auth initialization error:', err);
-        setError(err.message);
+        // On timeout, proceed with no user instead of showing error
+        // This allows public pages to still load
+        console.warn('Auth initialization issue:', err.message);
+        setUser(null);
+        setProfile(null);
+        // Only set error for non-timeout issues
+        if (!err.message.includes('timed out')) {
+          setError(err.message);
+        }
       } finally {
         setLoading(false);
       }
