@@ -120,24 +120,30 @@ export default function TeamsNavbar() {
           <Link to="/teams" className="text-white">
             Teams
           </Link>
-          <a
-            href="#"
+          <Link
+            to="/schedule"
             className="hover:text-white transition-colors text-stone-300"
           >
             Schedule
-          </a>
-          <a
-            href="#"
+          </Link>
+          <Link
+            to="/tryouts"
             className="text-stone-300 hover:text-white transition-colors"
           >
             Tryouts
-          </a>
-          <a
-            href="#"
+          </Link>
+          <Link
+            to="/about"
             className="text-stone-300 hover:text-white transition-colors"
           >
             About
-          </a>
+          </Link>
+          <Link
+            to="/contact"
+            className="text-stone-300 hover:text-white transition-colors"
+          >
+            Contact
+          </Link>
         </div>
 
         {/* Right */}

@@ -5,6 +5,10 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import HomePage from './pages/HomePage';
 import TeamsPage from './pages/TeamsPage';
 import TeamDetailPage from './pages/TeamDetailPage';
+import SchedulePage from './pages/SchedulePage';
+import TryoutsPage from './pages/TryoutsPage';
+import AboutPage from './pages/AboutPage';
+import ContactPage from './pages/ContactPage';
 import LoginPage from './pages/LoginPage';
 import ProfilePage from './pages/ProfilePage';
 import AdminDashboard from './pages/AdminDashboard';
@@ -24,6 +28,10 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/teams" element={<TeamsPage />} />
           <Route path="/teams/:teamId" element={<TeamDetailPage />} />
+          <Route path="/schedule" element={<SchedulePage />} />
+          <Route path="/tryouts" element={<TryoutsPage />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/contact" element={<ContactPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/profile" element={<ProfilePage />} />
 
