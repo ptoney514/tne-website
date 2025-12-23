@@ -123,7 +123,9 @@
     <!-- Hero Header -->
     <header class="relative border-b border-white/5 overflow-hidden">
         <div class="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(227,24,55,0.2),transparent_60%),radial-gradient(circle_at_bottom_left,rgba(139,31,58,0.15),transparent_55%)]"></div>
-        <div class="absolute inset-0 bg-[url('https://images.pexels.com/photos/2834917/pexels-photo-2834917.jpeg?auto=compress&cs=tinysrgb&w=1600')] bg-cover bg-center opacity-20 mix-blend-screen"></div>
+        <div class="absolute inset-0 opacity-20 mix-blend-screen">
+            <img src="https://images.pexels.com/photos/2834917/pexels-photo-2834917.jpeg?auto=compress&cs=tinysrgb&w=1600" alt="" class="w-full h-full object-cover" loading="eager">
+        </div>
         <div class="absolute inset-0 bg-gradient-to-b from-black via-black/90 to-black"></div>
 
         <div class="sm:px-6 sm:pt-16 sm:pb-14 max-w-6xl mx-auto pt-12 px-4 pb-10 relative">
@@ -178,16 +180,16 @@
 
                     <!-- Filter Pills -->
                     <div class="hidden sm:flex items-center gap-2 overflow-x-auto">
-                        <button class="filter-btn px-3 py-1.5 rounded-full bg-neutral-900 text-white text-xs font-medium whitespace-nowrap" data-filter="all">
+                        <button class="filter-btn px-3 py-1.5 rounded-full bg-neutral-900 text-white text-xs font-medium whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-tne-red/50 focus:ring-offset-1" data-filter="all">
                             All Events
                         </button>
-                        <button class="filter-btn px-3 py-1.5 rounded-full border border-neutral-200 bg-white text-xs text-neutral-700 font-medium whitespace-nowrap hover:border-neutral-300 hover:bg-neutral-50 transition-colors" data-filter="practices">
+                        <button class="filter-btn px-3 py-1.5 rounded-full border border-neutral-200 bg-white text-xs text-neutral-700 font-medium whitespace-nowrap hover:border-neutral-300 hover:bg-neutral-50 focus:outline-none focus:ring-2 focus:ring-tne-red/50 focus:ring-offset-1 transition-colors" data-filter="practices">
                             Practices
                         </button>
-                        <button class="filter-btn px-3 py-1.5 rounded-full border border-neutral-200 bg-white text-xs text-neutral-700 font-medium whitespace-nowrap hover:border-neutral-300 hover:bg-neutral-50 transition-colors" data-filter="games">
+                        <button class="filter-btn px-3 py-1.5 rounded-full border border-neutral-200 bg-white text-xs text-neutral-700 font-medium whitespace-nowrap hover:border-neutral-300 hover:bg-neutral-50 focus:outline-none focus:ring-2 focus:ring-tne-red/50 focus:ring-offset-1 transition-colors" data-filter="games">
                             Games
                         </button>
-                        <button class="filter-btn px-3 py-1.5 rounded-full border border-neutral-200 bg-white text-xs text-neutral-700 font-medium whitespace-nowrap hover:border-neutral-300 hover:bg-neutral-50 transition-colors" data-filter="tournaments">
+                        <button class="filter-btn px-3 py-1.5 rounded-full border border-neutral-200 bg-white text-xs text-neutral-700 font-medium whitespace-nowrap hover:border-neutral-300 hover:bg-neutral-50 focus:outline-none focus:ring-2 focus:ring-tne-red/50 focus:ring-offset-1 transition-colors" data-filter="tournaments">
                             Tournaments
                         </button>
                     </div>
@@ -215,16 +217,16 @@
 
             <!-- Mobile Filter Pills -->
             <div class="flex sm:hidden items-center gap-2 overflow-x-auto pb-1">
-                <button class="filter-btn-mobile px-3 py-1.5 rounded-full bg-neutral-900 text-white text-xs font-medium whitespace-nowrap" data-filter="all">
+                <button class="filter-btn-mobile px-3 py-1.5 rounded-full bg-neutral-900 text-white text-xs font-medium whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-tne-red/50 focus:ring-offset-1" data-filter="all">
                     All Events
                 </button>
-                <button class="filter-btn-mobile px-3 py-1.5 rounded-full border border-neutral-200 bg-white text-xs text-neutral-700 font-medium whitespace-nowrap" data-filter="practices">
+                <button class="filter-btn-mobile px-3 py-1.5 rounded-full border border-neutral-200 bg-white text-xs text-neutral-700 font-medium whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-tne-red/50 focus:ring-offset-1 transition-colors" data-filter="practices">
                     Practices
                 </button>
-                <button class="filter-btn-mobile px-3 py-1.5 rounded-full border border-neutral-200 bg-white text-xs text-neutral-700 font-medium whitespace-nowrap" data-filter="games">
+                <button class="filter-btn-mobile px-3 py-1.5 rounded-full border border-neutral-200 bg-white text-xs text-neutral-700 font-medium whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-tne-red/50 focus:ring-offset-1 transition-colors" data-filter="games">
                     Games
                 </button>
-                <button class="filter-btn-mobile px-3 py-1.5 rounded-full border border-neutral-200 bg-white text-xs text-neutral-700 font-medium whitespace-nowrap" data-filter="tournaments">
+                <button class="filter-btn-mobile px-3 py-1.5 rounded-full border border-neutral-200 bg-white text-xs text-neutral-700 font-medium whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-tne-red/50 focus:ring-offset-1 transition-colors" data-filter="tournaments">
                     Tournaments
                 </button>
             </div>
@@ -970,9 +972,17 @@
         });
 
         // Check URL hash for direct link to tournaments
-        if (window.location.hash === '#tournaments') {
-            switchTab('tournaments');
+        function handleHashChange() {
+            if (window.location.hash === '#tournaments') {
+                switchTab('tournaments');
+            } else if (window.location.hash === '' || window.location.hash === '#') {
+                switchTab('all');
+            }
         }
+
+        // Handle initial load and hash changes
+        handleHashChange();
+        window.addEventListener('hashchange', handleHashChange);
     </script>
 
 </body>
