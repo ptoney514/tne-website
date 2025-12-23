@@ -44,7 +44,8 @@ for (const page of PAGES) {
     });
 
     test('should display navbar', async ({ page: browserPage }) => {
-      const nav = browserPage.locator('nav');
+      // Use first() to handle mobile menu drawer which adds a second nav element
+      const nav = browserPage.locator('nav').first();
       await expect(nav).toBeVisible();
     });
 
