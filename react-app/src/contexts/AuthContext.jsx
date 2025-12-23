@@ -1,5 +1,5 @@
 import { createContext, useState, useEffect, useCallback } from 'react';
-import { supabase } from '../lib/supabase';
+import { supabase, withTimeout } from '../lib/supabase';
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const AuthContext = createContext(null);
@@ -34,7 +34,12 @@ export function AuthProvider({ children }) {
     const initAuth = async () => {
       console.log('[Auth] Starting initialization...');
       try {
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        // Use timeout to prevent hanging forever
+        const { data: { session }, error: sessionError } = await withTimeout(
+          supabase.auth.getSession(),
+          8000,
+          'Session check timed out - Supabase may be slow or unreachable'
+        );
 
         console.log('[Auth] Session result:', session?.user?.email || 'no session', sessionError?.message || 'no error');
 
