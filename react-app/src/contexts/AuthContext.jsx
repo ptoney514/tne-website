@@ -4,9 +4,14 @@ import { supabase } from '../lib/supabase';
 // eslint-disable-next-line react-refresh/only-export-components
 export const AuthContext = createContext(null);
 
+// Configurable timeouts (can be overridden via env vars)
+const AUTH_INIT_TIMEOUT = parseInt(import.meta.env.VITE_AUTH_INIT_TIMEOUT || '10000', 10);
+const SIGN_IN_TIMEOUT = parseInt(import.meta.env.VITE_SIGN_IN_TIMEOUT || '15000', 10);
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
+  const [profileLoading, setProfileLoading] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -32,7 +37,7 @@ export function AuthProvider({ children }) {
       try {
         // Add timeout to prevent infinite loading
         const timeoutPromise = new Promise((_, reject) =>
-          setTimeout(() => reject(new Error('Auth initialization timed out')), 10000)
+          setTimeout(() => reject(new Error('Auth initialization timed out')), AUTH_INIT_TIMEOUT)
         );
 
         const sessionPromise = supabase.auth.getSession();
@@ -40,8 +45,10 @@ export function AuthProvider({ children }) {
 
         setUser(session?.user ?? null);
         if (session?.user) {
+          setProfileLoading(true);
           const profileData = await fetchProfile(session.user.id);
           setProfile(profileData);
+          setProfileLoading(false);
         }
       } catch (err) {
         console.error('Auth initialization error:', err);
@@ -57,10 +64,14 @@ export function AuthProvider({ children }) {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
+      // Clear any previous errors when auth state changes successfully
+      setError(null);
       setUser(session?.user ?? null);
       if (session?.user) {
+        setProfileLoading(true);
         const profileData = await fetchProfile(session.user.id);
         setProfile(profileData);
+        setProfileLoading(false);
       } else {
         setProfile(null);
       }
@@ -75,7 +86,7 @@ export function AuthProvider({ children }) {
 
     // Add timeout to prevent infinite hanging
     const timeoutPromise = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error('Sign in timed out. Please try again.')), 15000)
+      setTimeout(() => reject(new Error('Sign in timed out. Please try again.')), SIGN_IN_TIMEOUT)
     );
 
     try {
@@ -118,6 +129,7 @@ export function AuthProvider({ children }) {
   const value = {
     user,
     profile,
+    profileLoading,
     loading,
     error,
     signIn,

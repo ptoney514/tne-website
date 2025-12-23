@@ -6,11 +6,11 @@ export function ProtectedRoute({
   allowedRoles = [],
   redirectTo = '/login',
 }) {
-  const { user, profile, loading, error } = useAuth();
+  const { user, profile, profileLoading, loading, error } = useAuth();
   const location = useLocation();
 
-  // Show loading state while checking auth
-  if (loading) {
+  // Show loading state while checking auth or profile
+  if (loading || (user && profileLoading)) {
     return (
       <div className="min-h-screen bg-[#050505] flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">

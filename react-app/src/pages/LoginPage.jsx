@@ -1,15 +1,20 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { Mail, Lock, AlertCircle, Loader2 } from 'lucide-react';
 import TeamsNavbar from '../components/TeamsNavbar';
 import TeamsFooter from '../components/TeamsFooter';
 
+const MAX_FAILED_ATTEMPTS = 5;
+const LOCKOUT_DURATION_MS = 30000; // 30 seconds
+
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
+  const [isLockedOut, setIsLockedOut] = useState(false);
+  const failedAttempts = useRef(0);
 
   const { signIn } = useAuth();
   const navigate = useNavigate();
@@ -19,6 +24,13 @@ export default function LoginPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Check if locked out due to too many attempts
+    if (isLockedOut) {
+      setError('Too many failed attempts. Please wait before trying again.');
+      return;
+    }
+
     setIsSubmitting(true);
     setError(null);
 
@@ -26,9 +38,22 @@ export default function LoginPage() {
       const result = await signIn(email, password);
 
       if (result.error) {
-        setError(result.error);
+        failedAttempts.current += 1;
+
+        // Check if we've hit the rate limit
+        if (failedAttempts.current >= MAX_FAILED_ATTEMPTS) {
+          setIsLockedOut(true);
+          setError('Too many failed attempts. Please wait 30 seconds before trying again.');
+          setTimeout(() => {
+            setIsLockedOut(false);
+            failedAttempts.current = 0;
+          }, LOCKOUT_DURATION_MS);
+        } else {
+          setError(result.error);
+        }
         setIsSubmitting(false);
       } else {
+        failedAttempts.current = 0;
         navigate(from, { replace: true });
       }
     } catch {
@@ -113,7 +138,7 @@ export default function LoginPage() {
 
               <button
                 type="submit"
-                disabled={isSubmitting}
+                disabled={isSubmitting || isLockedOut}
                 className="w-full py-2.5 px-4 rounded-xl bg-[#E31837] text-white font-medium text-sm hover:bg-[#C41230] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {isSubmitting ? (
@@ -121,6 +146,8 @@ export default function LoginPage() {
                     <Loader2 className="w-4 h-4 animate-spin" />
                     Signing in...
                   </>
+                ) : isLockedOut ? (
+                  'Please wait...'
                 ) : (
                   'Sign In'
                 )}
