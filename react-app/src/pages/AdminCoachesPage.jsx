@@ -11,10 +11,9 @@ import {
   X,
   Loader2,
   ChevronDown,
-  User,
   Mail,
   Phone,
-  Check,
+  User,
   AlertCircle,
 } from 'lucide-react';
 
