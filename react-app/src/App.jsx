@@ -7,6 +7,9 @@ import TeamDetailPage from './pages/TeamDetailPage';
 import LoginPage from './pages/LoginPage';
 import ProfilePage from './pages/ProfilePage';
 import AdminDashboard from './pages/AdminDashboard';
+import AdminTeamsPage from './pages/AdminTeamsPage';
+import AdminPlayersPage from './pages/AdminPlayersPage';
+import AdminRosterPage from './pages/AdminRosterPage';
 
 function App() {
   return (
@@ -26,6 +29,30 @@ function App() {
             element={
               <ProtectedRoute allowedRoles={['admin']}>
                 <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/teams"
+            element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <AdminTeamsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/teams/:teamId/roster"
+            element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <AdminRosterPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/players"
+            element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <AdminPlayersPage />
               </ProtectedRoute>
             }
           />
