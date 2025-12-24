@@ -38,6 +38,15 @@ export default defineConfig({
         baseURL: 'http://localhost:5173',
       },
     },
+    // React app (public pages)
+    {
+      name: 'public-pages',
+      testMatch: /public\/.*\.spec\.js/,
+      use: {
+        ...devices['Desktop Chrome'],
+        baseURL: 'http://localhost:5173',
+      },
+    },
   ],
   webServer: {
     command: 'cd react-app && npm run dev',
