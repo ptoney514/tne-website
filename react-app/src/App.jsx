@@ -9,6 +9,7 @@ import SchedulePage from './pages/SchedulePage';
 import TryoutsPage from './pages/TryoutsPage';
 import AboutPage from './pages/AboutPage';
 import ContactPage from './pages/ContactPage';
+import PaymentsPage from './pages/PaymentsPage';
 import LoginPage from './pages/LoginPage';
 import ProfilePage from './pages/ProfilePage';
 import AdminDashboard from './pages/AdminDashboard';
@@ -33,6 +34,7 @@ function App() {
           <Route path="/tryouts" element={<TryoutsPage />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/contact" element={<ContactPage />} />
+          <Route path="/payments" element={<PaymentsPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/profile" element={<ProfilePage />} />
 
