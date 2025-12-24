@@ -1,8 +1,13 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useCoaches } from '../hooks/useCoaches';
 import { getGradeColor, formatGradeShort } from '../utils/gradeColors';
 import AdminNavbar from '../components/AdminNavbar';
 import CoachDetailPanel from '../components/admin/CoachDetailPanel';
+import {
+  CertBadge,
+  StatusBadge,
+  FilterPill,
+} from '../components/admin/AdminBadges';
 import {
   Plus,
   Search,
@@ -15,6 +20,10 @@ import {
   Phone,
   User,
   AlertCircle,
+  Shield,
+  Users,
+  Clock,
+  ChevronRight,
 } from 'lucide-react';
 
 const EMPTY_COACH_FORM = {
@@ -261,21 +270,6 @@ function CoachModal({ isOpen, onClose, coach, onSave, isSaving }) {
   );
 }
 
-// Certification Badge
-function CertBadge({ label, hasIt }) {
-  return (
-    <span
-      className={`px-2 py-0.5 rounded text-[10px] font-semibold ${
-        hasIt
-          ? 'bg-green-100 text-green-700'
-          : 'bg-stone-100 text-stone-400'
-      }`}
-    >
-      {label}
-    </span>
-  );
-}
-
 // Team Grade Badge
 function TeamGradeBadge({ grade }) {
   const color = getGradeColor(grade);
@@ -289,18 +283,73 @@ function TeamGradeBadge({ grade }) {
   );
 }
 
-// Status Badge
-function StatusBadge({ isActive }) {
+// Coach Status Badge (for table display)
+function CoachStatusBadge({ isActive }) {
   return (
-    <span
-      className={`px-2 py-0.5 rounded text-[10px] font-semibold ${
-        isActive
-          ? 'bg-green-100 text-green-700'
-          : 'bg-stone-100 text-stone-500'
-      }`}
-    >
-      {isActive ? 'Active' : 'Inactive'}
-    </span>
+    <StatusBadge status={isActive ? 'active' : 'inactive'} />
+  );
+}
+
+// Certification Legend Component
+function CertificationLegend() {
+  return (
+    <div className="bg-white border border-stone-200 rounded-xl p-4 mb-4">
+      <div className="flex flex-wrap items-center gap-6 text-xs">
+        <div className="flex items-center gap-2">
+          <span className="font-semibold text-stone-700">Legend:</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <span className="px-2 py-0.5 rounded border bg-stone-100 text-stone-600 font-medium">USA</span>
+          <span className="text-stone-500">= USA Basketball</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <span className="px-2 py-0.5 rounded border bg-stone-100 text-stone-600 font-medium">CPR</span>
+          <span className="text-stone-500">= CPR/First Aid</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <span className="px-2 py-0.5 rounded border bg-stone-100 text-stone-600 font-medium">BG</span>
+          <span className="text-stone-500">= Background Check</span>
+        </div>
+        <div className="h-4 border-l border-stone-200 mx-2" />
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-emerald-500" />
+            <span className="text-stone-500">Valid</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-amber-500" />
+            <span className="text-stone-500">Expiring</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-stone-300" />
+            <span className="text-stone-500">Missing</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Stats Card Component
+function StatsCard(props) {
+  const { label, value, icon, color = 'stone' } = props;
+  const IconComponent = icon;
+  const colorClasses = {
+    stone: 'bg-stone-50 border-stone-200 text-stone-600',
+    green: 'bg-emerald-50 border-emerald-200 text-emerald-600',
+    amber: 'bg-amber-50 border-amber-200 text-amber-600',
+    orange: 'bg-orange-50 border-orange-200 text-orange-600',
+    red: 'bg-red-50 border-red-200 text-red-600',
+  };
+
+  return (
+    <div className={`p-4 rounded-xl border ${colorClasses[color]}`}>
+      <div className="flex items-center gap-2 mb-1">
+        <IconComponent className="w-4 h-4" />
+        <span className="text-xs font-medium">{label}</span>
+      </div>
+      <p className="text-2xl font-bold">{value}</p>
+    </div>
   );
 }
 
@@ -344,36 +393,94 @@ export default function AdminCoachesPage() {
 
   // Filter State
   const [searchTerm, setSearchTerm] = useState('');
-  const [searchField, setSearchField] = useState('name');
   const [statusFilter, setStatusFilter] = useState('all');
-  const [certFilter, setCertFilter] = useState('all');
+  const [roleFilter, setRoleFilter] = useState('all');
+
+  // Quick Filter State
+  const [quickFilters, setQuickFilters] = useState({
+    missingCerts: false,
+    expiringSoon: false,
+    noTeam: false,
+  });
+
+  // Compute filter counts
+  const filterCounts = useMemo(() => {
+    const activeCoaches = coaches.filter((c) => c.is_active);
+    return {
+      active: activeCoaches.length,
+      pending: coaches.filter((c) => !c.is_active).length,
+      missingCerts: coaches.filter((c) =>
+        !c.has_usa_cert || !c.has_cpr_cert || !c.has_background_check
+      ).length,
+      expiringSoon: coaches.filter((c) => {
+        const now = new Date();
+        const soon = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+        return (c.usa_cert_expires && new Date(c.usa_cert_expires) <= soon) ||
+               (c.cpr_cert_expires && new Date(c.cpr_cert_expires) <= soon);
+      }).length,
+      noTeam: coaches.filter((c) => !c.teams || c.teams.length === 0).length,
+      teamsNeedCoach: 0, // Would need teams data to calculate
+    };
+  }, [coaches]);
 
   // Filter coaches
-  const filteredCoaches = coaches.filter((coach) => {
-    // Status filter
-    if (statusFilter === 'active' && !coach.is_active) return false;
-    if (statusFilter === 'inactive' && coach.is_active) return false;
-
-    // Certification filter
-    if (certFilter === 'usa' && !coach.has_usa_cert) return false;
-    if (certFilter === 'cpr' && !coach.has_cpr_cert) return false;
-    if (certFilter === 'bg' && !coach.has_background_check) return false;
-
-    // Search filter
-    if (searchTerm) {
-      const search = searchTerm.toLowerCase();
-      if (searchField === 'name') {
-        const fullName = `${coach.first_name} ${coach.last_name}`.toLowerCase();
-        if (!fullName.includes(search)) return false;
-      } else if (searchField === 'email') {
-        if (!coach.email?.toLowerCase().includes(search)) return false;
-      } else if (searchField === 'phone') {
-        if (!coach.phone?.includes(search)) return false;
+  const filteredCoaches = useMemo(() => {
+    return coaches.filter((coach) => {
+      // Quick Filters
+      if (quickFilters.missingCerts) {
+        if (coach.has_usa_cert && coach.has_cpr_cert && coach.has_background_check) return false;
       }
-    }
+      if (quickFilters.expiringSoon) {
+        const now = new Date();
+        const soon = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+        const isExpiring = (coach.usa_cert_expires && new Date(coach.usa_cert_expires) <= soon) ||
+                          (coach.cpr_cert_expires && new Date(coach.cpr_cert_expires) <= soon);
+        if (!isExpiring) return false;
+      }
+      if (quickFilters.noTeam) {
+        if (coach.teams && coach.teams.length > 0) return false;
+      }
 
-    return true;
-  });
+      // Status filter
+      if (statusFilter === 'active' && !coach.is_active) return false;
+      if (statusFilter === 'inactive' && coach.is_active) return false;
+
+      // Role filter
+      if (roleFilter !== 'all' && coach.role !== roleFilter) return false;
+
+      // Search filter
+      if (searchTerm) {
+        const search = searchTerm.toLowerCase();
+        const fullName = `${coach.first_name} ${coach.last_name}`.toLowerCase();
+        const email = coach.email?.toLowerCase() || '';
+        const phone = coach.phone || '';
+
+        if (!fullName.includes(search) && !email.includes(search) && !phone.includes(search)) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+  }, [coaches, quickFilters, statusFilter, roleFilter, searchTerm]);
+
+  const hasActiveFilters = statusFilter !== 'all' || roleFilter !== 'all' || searchTerm ||
+    quickFilters.missingCerts || quickFilters.expiringSoon || quickFilters.noTeam;
+
+  const toggleQuickFilter = (filterName) => {
+    setQuickFilters((prev) => ({ ...prev, [filterName]: !prev[filterName] }));
+  };
+
+  const clearFilters = () => {
+    setSearchTerm('');
+    setStatusFilter('all');
+    setRoleFilter('all');
+    setQuickFilters({
+      missingCerts: false,
+      expiringSoon: false,
+      noTeam: false,
+    });
+  };
 
   const handleCreate = () => {
     setEditingCoach(null);
@@ -484,86 +591,120 @@ export default function AdminCoachesPage() {
             selectedCoach ? 'mr-[480px]' : ''
           }`}
         >
-          {/* Toolbar */}
-          <div className="bg-white border-b border-stone-200 px-4 py-3">
-            <div className="flex items-center justify-between gap-4 flex-wrap">
-              {/* Left: Search and Filters */}
-              <div className="flex items-center gap-3 flex-wrap">
-                {/* Search */}
-                <div className="flex items-center">
-                  <FilterDropdown
-                    label="Search by"
-                    value={searchField}
-                    options={[
-                      { value: 'name', label: 'Name' },
-                      { value: 'email', label: 'Email' },
-                      { value: 'phone', label: 'Phone' },
-                    ]}
-                    onChange={setSearchField}
-                  />
-                  <div className="relative ml-2">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400" />
-                    <input
-                      type="text"
-                      placeholder={`Search by ${searchField}...`}
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="w-64 pl-9 pr-4 py-1.5 rounded-lg border border-stone-300 text-sm text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
-                    />
-                  </div>
-                </div>
-
-                {/* Status Filter */}
-                <FilterDropdown
-                  label="Status"
-                  value={statusFilter}
-                  options={[
-                    { value: 'all', label: 'All Status' },
-                    { value: 'active', label: 'Active' },
-                    { value: 'inactive', label: 'Inactive' },
-                  ]}
-                  onChange={setStatusFilter}
-                />
-
-                {/* Certifications Filter */}
-                <FilterDropdown
-                  label="Certifications"
-                  value={certFilter}
-                  options={[
-                    { value: 'all', label: 'All Certs' },
-                    { value: 'usa', label: 'USA Basketball' },
-                    { value: 'cpr', label: 'CPR/First Aid' },
-                    { value: 'bg', label: 'Background Check' },
-                  ]}
-                  onChange={setCertFilter}
+          {/* Filter Bar */}
+          <div className="bg-white border-b border-stone-200 px-4 py-4">
+            {/* Search + Dropdowns + Actions Row */}
+            <div className="flex items-center gap-3 mb-4 flex-wrap">
+              {/* Search */}
+              <div className="relative flex-1 max-w-sm">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400" />
+                <input
+                  type="text"
+                  placeholder="Search by name, email, or phone..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 rounded-lg border border-stone-200 text-sm text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
                 />
               </div>
 
-              {/* Right: Actions */}
-              <div className="flex items-center gap-2">
+              {/* Status Filter */}
+              <FilterDropdown
+                value={statusFilter}
+                options={[
+                  { value: 'all', label: 'All Status' },
+                  { value: 'active', label: 'Active' },
+                  { value: 'inactive', label: 'Inactive' },
+                ]}
+                onChange={setStatusFilter}
+              />
+
+              {/* Role Filter */}
+              <FilterDropdown
+                value={roleFilter}
+                options={[
+                  { value: 'all', label: 'All Roles' },
+                  { value: 'head_coach', label: 'Head Coach' },
+                  { value: 'assistant_coach', label: 'Assistant' },
+                  { value: 'trainer', label: 'Skills Trainer' },
+                ]}
+                onChange={setRoleFilter}
+              />
+
+              {/* Actions */}
+              <div className="flex items-center gap-2 ml-auto">
                 <button
                   onClick={refetch}
-                  className="p-2 rounded-lg border border-stone-300 text-stone-600 hover:bg-stone-50 transition-colors"
+                  className="p-2 text-stone-400 hover:text-stone-600 hover:bg-stone-100 rounded-lg transition-colors"
                   title="Refresh"
                 >
                   <RefreshCw className="w-4 h-4" />
                 </button>
                 <button
                   onClick={handleExport}
-                  className="p-2 rounded-lg border border-stone-300 text-stone-600 hover:bg-stone-50 transition-colors"
-                  title="Export CSV"
+                  className="p-2 text-stone-400 hover:text-stone-600 hover:bg-stone-100 rounded-lg transition-colors"
+                  title="Export"
                 >
                   <Download className="w-4 h-4" />
                 </button>
                 <button
                   onClick={handleCreate}
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-tne-red hover:bg-tne-red-dark text-white font-medium transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 bg-tne-red text-white text-sm font-medium rounded-lg hover:bg-tne-red-dark transition-colors shadow-sm"
                 >
                   <Plus className="w-4 h-4" />
                   Add Coach
                 </button>
               </div>
             </div>
+
+            {/* Quick Filter Pills */}
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-xs font-medium text-stone-500 uppercase tracking-wide mr-1">Quick filters:</span>
+
+              <FilterPill
+                active={quickFilters.missingCerts}
+                onClick={() => toggleQuickFilter('missingCerts')}
+                variant="error"
+                icon={<AlertCircle className="w-3.5 h-3.5" />}
+                count={filterCounts.missingCerts}
+              >
+                Missing Certs
+              </FilterPill>
+
+              <FilterPill
+                active={quickFilters.expiringSoon}
+                onClick={() => toggleQuickFilter('expiringSoon')}
+                variant="warning"
+                icon={<Clock className="w-3.5 h-3.5" />}
+                count={filterCounts.expiringSoon}
+              >
+                Expiring Soon
+              </FilterPill>
+
+              <FilterPill
+                active={quickFilters.noTeam}
+                onClick={() => toggleQuickFilter('noTeam')}
+                variant="default"
+                count={filterCounts.noTeam}
+              >
+                No Team
+              </FilterPill>
+
+              {/* Clear Filters */}
+              {hasActiveFilters && (
+                <button
+                  onClick={clearFilters}
+                  className="flex items-center gap-1 px-2 py-1.5 rounded-lg text-xs text-stone-500 hover:text-stone-700 hover:bg-stone-100 transition-colors ml-2"
+                >
+                  <X className="w-3 h-3" />
+                  Clear all
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Certification Legend */}
+          <div className="px-4 pt-4">
+            <CertificationLegend />
           </div>
 
           {/* Table */}
@@ -588,16 +729,16 @@ export default function AdminCoachesPage() {
               <div className="flex flex-col items-center justify-center py-16 text-center">
                 <User className="w-12 h-12 text-stone-300 mb-4" />
                 <h3 className="text-lg font-medium text-stone-900 mb-2">
-                  {searchTerm || statusFilter !== 'all' || certFilter !== 'all'
+                  {hasActiveFilters
                     ? 'No coaches found'
                     : 'No coaches yet'}
                 </h3>
                 <p className="text-stone-500 mb-6">
-                  {searchTerm || statusFilter !== 'all' || certFilter !== 'all'
+                  {hasActiveFilters
                     ? 'Try adjusting your filters'
                     : 'Add your first coach to get started'}
                 </p>
-                {!searchTerm && statusFilter === 'all' && certFilter === 'all' && (
+                {!hasActiveFilters && (
                   <button
                     onClick={handleCreate}
                     className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-tne-red hover:bg-tne-red-dark text-white font-medium transition-colors"
@@ -629,91 +770,108 @@ export default function AdminCoachesPage() {
                     <th className="px-4 py-3 text-left text-xs font-medium text-stone-500 uppercase tracking-wider">
                       Status
                     </th>
+                    <th className="w-10 px-4 py-3"></th>
                   </tr>
                 </thead>
-                <tbody>
-                  {filteredCoaches.map((coach) => (
-                    <tr
-                      key={coach.id}
-                      onClick={() => handleRowClick(coach)}
-                      className={`border-b border-stone-100 cursor-pointer transition-colors ${
-                        selectedCoach?.id === coach.id
-                          ? 'bg-tne-red/5'
-                          : 'hover:bg-stone-50'
-                      }`}
-                    >
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-tne-maroon to-tne-red flex items-center justify-center text-white text-xs font-bold">
-                            {coach.first_name[0]}
-                            {coach.last_name[0]}
+                <tbody className="divide-y divide-stone-100">
+                  {filteredCoaches.map((coach) => {
+                    const hasMissingCerts = !coach.has_usa_cert || !coach.has_cpr_cert || !coach.has_background_check;
+                    const isSelected = selectedCoach?.id === coach.id;
+
+                    return (
+                      <tr
+                        key={coach.id}
+                        onClick={() => handleRowClick(coach)}
+                        className={`cursor-pointer transition-colors ${
+                          isSelected
+                            ? 'bg-red-50'
+                            : hasMissingCerts
+                              ? 'bg-red-50/30 hover:bg-red-50/50'
+                              : 'hover:bg-stone-50'
+                        }`}
+                        data-testid={`coach-row-${coach.id}`}
+                      >
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-3">
+                            <div className="w-9 h-9 rounded-full bg-tne-red flex items-center justify-center text-white text-xs font-semibold">
+                              {coach.first_name[0]}
+                              {coach.last_name[0]}
+                            </div>
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <p className="font-medium text-stone-900">
+                                  {coach.first_name} {coach.last_name}
+                                </p>
+                                {hasMissingCerts && (
+                                  <AlertCircle className="w-3.5 h-3.5 text-red-500" />
+                                )}
+                              </div>
+                              <p className="text-xs text-stone-500">
+                                {coach.role === 'head_coach'
+                                  ? 'Head Coach'
+                                  : coach.role === 'assistant_coach'
+                                    ? 'Assistant'
+                                    : 'Trainer'}
+                                {coach.years_with_org > 0 &&
+                                  ` \u2022 ${coach.years_with_org} yr${
+                                    coach.years_with_org !== 1 ? 's' : ''
+                                  }`}
+                              </p>
+                            </div>
                           </div>
-                          <div>
-                            <p className="font-medium text-stone-900">
-                              {coach.first_name} {coach.last_name}
-                            </p>
-                            <p className="text-xs text-stone-500">
-                              {coach.role === 'head_coach'
-                                ? 'Head Coach'
-                                : coach.role === 'assistant_coach'
-                                ? 'Assistant'
-                                : 'Trainer'}
-                              {coach.years_with_org > 0 &&
-                                ` \u2022 ${coach.years_with_org} yr${
-                                  coach.years_with_org !== 1 ? 's' : ''
-                                }`}
-                            </p>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3">
-                        {coach.email ? (
-                          <div className="flex items-center gap-1.5 text-sm text-stone-600">
-                            <Mail className="w-3.5 h-3.5 text-stone-400" />
-                            {coach.email}
-                          </div>
-                        ) : (
-                          <span className="text-sm text-stone-400">-</span>
-                        )}
-                      </td>
-                      <td className="px-4 py-3">
-                        {coach.phone ? (
-                          <div className="flex items-center gap-1.5 text-sm text-stone-600">
-                            <Phone className="w-3.5 h-3.5 text-stone-400" />
-                            {coach.phone}
-                          </div>
-                        ) : (
-                          <span className="text-sm text-stone-400">-</span>
-                        )}
-                      </td>
-                      <td className="px-4 py-3">
-                        {coach.teams?.length > 0 ? (
+                        </td>
+                        <td className="px-4 py-3">
+                          {coach.email ? (
+                            <div className="flex items-center gap-1.5 text-sm text-stone-600">
+                              <Mail className="w-3.5 h-3.5 text-stone-400" />
+                              {coach.email}
+                            </div>
+                          ) : (
+                            <span className="text-sm text-stone-400">-</span>
+                          )}
+                        </td>
+                        <td className="px-4 py-3">
+                          {coach.phone ? (
+                            <div className="flex items-center gap-1.5 text-sm text-stone-600">
+                              <Phone className="w-3.5 h-3.5 text-stone-400" />
+                              {coach.phone}
+                            </div>
+                          ) : (
+                            <span className="text-sm text-stone-400">-</span>
+                          )}
+                        </td>
+                        <td className="px-4 py-3">
+                          {coach.teams?.length > 0 ? (
+                            <div className="flex flex-wrap gap-1">
+                              {coach.teams.map((team) => (
+                                <TeamGradeBadge
+                                  key={team.id}
+                                  grade={team.grade_level}
+                                />
+                              ))}
+                            </div>
+                          ) : (
+                            <span className="text-sm text-stone-500">
+                              Unassigned
+                            </span>
+                          )}
+                        </td>
+                        <td className="px-4 py-3">
                           <div className="flex flex-wrap gap-1">
-                            {coach.teams.map((team) => (
-                              <TeamGradeBadge
-                                key={team.id}
-                                grade={team.grade_level}
-                              />
-                            ))}
+                            <CertBadge label="USA" hasIt={coach.has_usa_cert} expiresAt={coach.usa_cert_expires} />
+                            <CertBadge label="CPR" hasIt={coach.has_cpr_cert} expiresAt={coach.cpr_cert_expires} />
+                            <CertBadge label="BG" hasIt={coach.has_background_check} />
                           </div>
-                        ) : (
-                          <span className="text-sm text-stone-400">
-                            Unassigned
-                          </span>
-                        )}
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="flex flex-wrap gap-1">
-                          <CertBadge label="USA" hasIt={coach.has_usa_cert} />
-                          <CertBadge label="CPR" hasIt={coach.has_cpr_cert} />
-                          <CertBadge label="BG" hasIt={coach.has_background_check} />
-                        </div>
-                      </td>
-                      <td className="px-4 py-3">
-                        <StatusBadge isActive={coach.is_active} />
-                      </td>
-                    </tr>
-                  ))}
+                        </td>
+                        <td className="px-4 py-3">
+                          <CoachStatusBadge isActive={coach.is_active} />
+                        </td>
+                        <td className="px-4 py-3">
+                          <ChevronRight className="w-4 h-4 text-stone-400" />
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             )}
@@ -725,6 +883,36 @@ export default function AdminCoachesPage() {
               {filteredCoaches.length} of {coaches.length} coach
               {coaches.length !== 1 ? 'es' : ''}
             </p>
+          </div>
+
+          {/* Stats Cards */}
+          <div className="px-4 py-4 bg-stone-100">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <StatsCard
+                label="Active Coaches"
+                value={filterCounts.active}
+                icon={Users}
+                color="green"
+              />
+              <StatsCard
+                label="Pending Approval"
+                value={filterCounts.pending}
+                icon={Clock}
+                color="amber"
+              />
+              <StatsCard
+                label="Expiring Soon"
+                value={filterCounts.expiringSoon}
+                icon={AlertCircle}
+                color="orange"
+              />
+              <StatsCard
+                label="Missing Certs"
+                value={filterCounts.missingCerts}
+                icon={Shield}
+                color="red"
+              />
+            </div>
           </div>
         </div>
 
