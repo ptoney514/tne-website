@@ -1,4 +1,5 @@
-import { Instagram, Youtube, Twitter } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Instagram, Youtube, Twitter, LogIn, Calendar } from 'lucide-react';
 
 export default function HomeFooter() {
   return (
@@ -6,9 +7,9 @@ export default function HomeFooter() {
       <div className="max-w-[1400px] mx-auto px-6 lg:px-12 relative z-10">
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-12 mb-20">
           <div className="col-span-2 lg:col-span-2 pr-8">
-            <a href="#" className="inline-block text-white font-bebas font-bold text-2xl tracking-tight mb-6">
+            <Link to="/" className="inline-block text-white font-bebas font-bold text-2xl tracking-tight mb-6">
               TNE <span className="text-tne-red">UNITED</span>
-            </a>
+            </Link>
             <p className="text-sm leading-7 text-[#8A8F98] max-w-xs mb-8">
               Developing elite players and building character in Omaha's youth. The road to the next level starts here.
             </p>
@@ -28,8 +29,8 @@ export default function HomeFooter() {
           <div>
             <h4 className="font-mono text-xs text-white uppercase tracking-widest mb-6">Program</h4>
             <ul className="space-y-4 text-sm">
-              <li><a href="#" className="hover:text-white transition-colors">Tryouts</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Teams</a></li>
+              <li><Link to="/teams" className="hover:text-white transition-colors">Teams</Link></li>
+              <li><Link to="/schedule" className="hover:text-white transition-colors">Schedule</Link></li>
               <li><a href="#" className="hover:text-white transition-colors">Skills Academy</a></li>
             </ul>
           </div>
@@ -37,18 +38,27 @@ export default function HomeFooter() {
           <div>
             <h4 className="font-mono text-xs text-white uppercase tracking-widest mb-6">Resources</h4>
             <ul className="space-y-4 text-sm">
-              <li><a href="#" className="hover:text-white transition-colors">Parent Portal</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Schedule</a></li>
+              <li><Link to="/about" className="hover:text-white transition-colors">About Us</Link></li>
+              <li><Link to="/contact" className="hover:text-white transition-colors">Contact</Link></li>
               <li><a href="#" className="hover:text-white transition-colors">Merch Store</a></li>
             </ul>
           </div>
 
           <div>
-            <h4 className="font-mono text-xs text-white uppercase tracking-widest mb-6">Contact</h4>
+            <h4 className="font-mono text-xs text-white uppercase tracking-widest mb-6">Account</h4>
             <ul className="space-y-4 text-sm">
-              <li><a href="#" className="hover:text-white transition-colors">info@tneexpress.com</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">(402) 555-0123</a></li>
-              <li><span className="text-white/40">Omaha, NE</span></li>
+              <li>
+                <Link to="/login" className="hover:text-white transition-colors inline-flex items-center gap-2">
+                  <LogIn className="w-4 h-4" />
+                  Parent/Coach Login
+                </Link>
+              </li>
+              <li>
+                <Link to="/tryouts" className="hover:text-white transition-colors inline-flex items-center gap-2">
+                  <Calendar className="w-4 h-4" />
+                  Tryout Registration
+                </Link>
+              </li>
             </ul>
           </div>
         </div>

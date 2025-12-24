@@ -100,9 +100,9 @@ test.describe('Schedule Page - Specific', () => {
     await expect(gameBadges.first()).toBeVisible();
   });
 
-  test('should display tournament preview card', async ({ page }) => {
-    const tournamentCard = page.getByText('Tournament', { exact: true });
-    await expect(tournamentCard.first()).toBeVisible();
+  test('should have tournaments tab', async ({ page }) => {
+    // Check that the Tournaments tab exists in the schedule page navigation
+    await expect(page.getByRole('button', { name: /tournaments/i }).first()).toBeVisible();
   });
 
   test('should have game day highlighting', async ({ page }) => {
@@ -161,61 +161,12 @@ test.describe('Tryouts Page - Specific', () => {
   });
 });
 
-// Tournaments page specific tests
-test.describe('Tournaments Page - Specific', () => {
-  test.beforeEach(async ({ page }) => {
-    const filePath = path.resolve(process.cwd(), 'src/pages/tournaments.html');
-    await page.goto(`file://${filePath}`);
-  });
-
-  test('should display filter controls', async ({ page }) => {
-    // Check for filter buttons
-    await expect(page.getByRole('button', { name: /all tournaments/i })).toBeVisible();
-    await expect(page.getByRole('button', { name: /upcoming/i })).toBeVisible();
-    await expect(page.getByRole('button', { name: /past results/i })).toBeVisible();
-
-    // Grade dropdown
-    await expect(page.locator('select')).toBeVisible();
-
-    // Search input
-    await expect(page.getByPlaceholder(/search tournaments/i)).toBeVisible();
-  });
-
-  test('should display featured tournament card', async ({ page }) => {
-    // Check for featured badge
-    await expect(page.getByText('Featured')).toBeVisible();
-    // Check for tournament name
-    await expect(page.getByText('New Year Classic Invitational')).toBeVisible();
-  });
-
-  test('should display upcoming tournaments section', async ({ page }) => {
-    await expect(page.getByRole('heading', { name: 'Upcoming Tournaments' })).toBeVisible();
-    // Check for multiple tournament cards
-    const tournamentCards = page.locator('article.rounded-3xl');
-    const count = await tournamentCards.count();
-    expect(count).toBeGreaterThan(0);
-  });
-
-  test('should display past results section', async ({ page }) => {
-    await expect(page.getByRole('heading', { name: 'Past Results' })).toBeVisible();
-    // Check for champions badges
-    const championBadges = page.getByText('Champions');
-    const count = await championBadges.count();
-    expect(count).toBeGreaterThan(0);
-  });
-
-  test('should display season stats summary', async ({ page }) => {
-    await expect(page.getByText('2024-25 Season Highlights')).toBeVisible();
-    // Check for stat numbers using the specific stats section
-    const statsSection = page.locator('.grid.grid-cols-2');
-    await expect(statsSection).toBeVisible();
-    await expect(page.getByText('Championships')).toBeVisible();
-  });
-
-  test('should have registration CTAs', async ({ page }) => {
-    const registerButtons = page.getByRole('link', { name: /register/i });
-    const count = await registerButtons.count();
-    expect(count).toBeGreaterThan(0);
+// Tournaments page is now a redirect to schedule.html#tournaments
+// These tests are skipped as the page was consolidated
+test.describe.skip('Tournaments Page - Specific (DEPRECATED - redirects to Schedule)', () => {
+  test('tournaments page redirects to schedule', async ({ page }) => {
+    // The tournaments.html now redirects to schedule.html#tournaments
+    // No specific tests needed as this page is deprecated
   });
 });
 
@@ -255,20 +206,9 @@ test.describe('Mobile Responsiveness', () => {
     await expect(page.locator('#firstName')).toBeVisible();
   });
 
-  test('tournaments page should be usable on mobile', async ({ page }) => {
-    const filePath = path.resolve(process.cwd(), 'src/pages/tournaments.html');
-    await page.goto(`file://${filePath}`);
-
-    // Mobile menu button should be visible
-    const menuButton = page.locator('button[class*="md:hidden"]');
-    await expect(menuButton).toBeVisible();
-
-    // Page content should be visible
-    const mainContent = page.locator('main');
-    await expect(mainContent).toBeVisible();
-
-    // Filter controls should be visible
-    await expect(page.getByRole('button', { name: /all tournaments/i })).toBeVisible();
+  // Skip - tournaments page now redirects to schedule
+  test.skip('tournaments page should be usable on mobile', async ({ page }) => {
+    // Tournaments page is deprecated and redirects to schedule.html#tournaments
   });
 
   test('contact page should be usable on mobile', async ({ page }) => {

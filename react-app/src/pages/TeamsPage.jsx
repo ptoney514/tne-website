@@ -239,6 +239,47 @@ export default function TeamsPage() {
               <TeamCard key={index} team={team} />
             ))}
           </div>
+
+          {/* OSA League Games Info */}
+          <div className="animate-enter delay-300 rounded-3xl bg-white border border-neutral-200 shadow-sm overflow-hidden">
+            <div className="bg-gradient-to-r from-neutral-800 to-neutral-900 text-white px-6 py-5">
+              <div className="flex items-center gap-3">
+                <div className="flex items-center justify-center w-10 h-10 rounded-full bg-white/10 border border-white/20">
+                  <Trophy className="w-5 h-5" />
+                </div>
+                <div>
+                  <h2 className="text-lg sm:text-xl font-semibold tracking-tight">OSA League Games</h2>
+                  <p className="text-sm text-white/70">Omaha Sports Academy Winter League</p>
+                </div>
+              </div>
+            </div>
+            <div className="px-6 py-5 space-y-4">
+              <div className="flex flex-wrap gap-6 text-sm">
+                <div>
+                  <span className="block text-xs font-mono uppercase tracking-wider text-neutral-500 mb-1">Season Period</span>
+                  <span className="font-medium text-neutral-900">Jan 3 – Mar 1, 2026</span>
+                  <span className="text-neutral-500 ml-1">(9 weeks)</span>
+                </div>
+                <div>
+                  <span className="block text-xs font-mono uppercase tracking-wider text-neutral-500 mb-1">Game Days</span>
+                  <span className="font-medium text-neutral-900">Saturdays & Sundays</span>
+                </div>
+              </div>
+              <p className="text-sm text-neutral-600">
+                League game schedules are managed through TourneyMachine and are typically finalized the week before each game.
+                Check the link below for up-to-date game times, locations, and opponents.
+              </p>
+              <a
+                href="https://tourneymachine.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-tne-red text-white text-sm font-medium hover:bg-tne-red-dark transition-colors shadow-sm"
+              >
+                <CalendarDays className="w-4 h-4" />
+                View League Schedule on TourneyMachine
+              </a>
+            </div>
+          </div>
         </section>
       </main>
 

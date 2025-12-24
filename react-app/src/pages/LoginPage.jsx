@@ -12,6 +12,7 @@ const LOCKOUT_DURATION_MS = 30000; // 30 seconds
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [isLockedOut, setIsLockedOut] = useState(false);
@@ -36,7 +37,7 @@ export default function LoginPage() {
     setError(null);
 
     try {
-      const result = await signIn(email, password);
+      const result = await signIn(email, password, rememberMe);
 
       if (result.error) {
         failedAttempts.current += 1;
@@ -156,6 +157,27 @@ export default function LoginPage() {
                     className="block w-full rounded-xl border border-neutral-200 bg-neutral-50 pl-10 pr-3 py-2.5 text-sm text-neutral-900 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-[#E31837]/50 focus:border-[#E31837]/50"
                     placeholder="Enter your password"
                   />
+                </div>
+              </div>
+
+              <div className="flex items-start gap-2">
+                <input
+                  id="remember-me"
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  className="mt-0.5 h-4 w-4 rounded border-neutral-300 text-[#E31837] focus:ring-[#E31837]/50"
+                />
+                <div>
+                  <label
+                    htmlFor="remember-me"
+                    className="text-sm font-medium text-neutral-700 cursor-pointer"
+                  >
+                    Keep me signed in
+                  </label>
+                  <p className="text-xs text-neutral-500">
+                    Recommended on trusted devices.
+                  </p>
                 </div>
               </div>
 

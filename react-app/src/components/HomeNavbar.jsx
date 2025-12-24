@@ -20,56 +20,44 @@ export default function HomeNavbar() {
             <img
               src={tneLogoWhite}
               alt="TNE United Express"
-              className="relative h-[72px] w-[72px] object-contain drop-shadow-2xl"
+              className="relative h-[88px] w-[88px] object-contain drop-shadow-2xl"
             />
           </div>
         </Link>
 
-        <div className="glass-nav flex max-w-4xl border-white/10 border rounded-full mx-auto px-3 py-1.5 shadow-2xl items-center justify-between">
-          {/* Left Links */}
-          <div className="hidden md:flex items-center gap-1 pl-2">
+        <div className="glass-nav flex max-w-4xl border-white/10 border rounded-full mx-auto px-4 py-2 shadow-2xl items-center justify-between">
+          {/* Left Links - Teams & Schedule */}
+          <div className="hidden md:flex items-center gap-2 pl-2">
             <Link
               to="/teams"
-              className="text-[11px] hover:text-white uppercase hover:bg-white/10 transition-all font-medium text-white/80 tracking-wider font-mono rounded-full px-3 py-1.5"
+              className="text-[13px] hover:text-white uppercase hover:bg-white/10 transition-all font-semibold text-white/90 tracking-wider font-mono rounded-full px-4 py-2"
             >
               Teams
             </Link>
             <Link
               to="/schedule"
-              className="text-[11px] hover:text-white uppercase hover:bg-white/10 transition-all font-medium text-white/80 tracking-wider font-mono rounded-full px-3 py-1.5"
+              className="text-[13px] hover:text-white uppercase hover:bg-white/10 transition-all font-semibold text-white/90 tracking-wider font-mono rounded-full px-4 py-2"
             >
               Schedule
-            </Link>
-            <Link
-              to="/tryouts"
-              className="text-[11px] hover:text-white uppercase hover:bg-white/10 transition-all font-medium text-white/80 tracking-wider font-mono rounded-full px-3 py-1.5"
-            >
-              Tryouts
-            </Link>
-            <Link
-              to="/about"
-              className="text-[11px] hover:text-white uppercase hover:bg-white/10 transition-all font-medium text-white/80 tracking-wider font-mono rounded-full px-3 py-1.5"
-            >
-              About
             </Link>
           </div>
 
           {/* Center Spacer for Logo */}
           <div className="flex-1 flex justify-center items-center">
-            <div className="w-20" />
+            <div className="w-28" />
           </div>
 
-          {/* Right Links */}
-          <div className="hidden md:flex items-center gap-1 pr-2">
+          {/* Right Links - About & Register */}
+          <div className="hidden md:flex items-center gap-2 pr-2">
             <Link
-              to="/login"
-              className="text-[11px] hover:text-white uppercase hover:bg-white/10 transition-all font-medium text-white/80 tracking-wider font-mono rounded-full px-3 py-1.5"
+              to="/about"
+              className="text-[13px] hover:text-white uppercase hover:bg-white/10 transition-all font-semibold text-white/90 tracking-wider font-mono rounded-full px-4 py-2"
             >
-              Login
+              About
             </Link>
             <Link
               to="/tryouts"
-              className="text-[11px] uppercase transition-all font-medium text-white tracking-wider font-mono bg-tne-red hover:bg-tne-red-dark rounded-full px-4 py-1.5"
+              className="text-[13px] uppercase transition-all font-semibold text-white tracking-wider font-mono bg-tne-red hover:bg-tne-red-dark rounded-full px-5 py-2 shadow-lg shadow-tne-red/25"
             >
               Register
             </Link>

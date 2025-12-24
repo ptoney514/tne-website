@@ -235,7 +235,7 @@ export default function AdminNavbar() {
               <AdminNavLink to="/admin/registrations" badge={stats.pendingRegistrations}>
                 Registrations
               </AdminNavLink>
-              <AdminNavLink to="/admin/tournaments">Tournaments</AdminNavLink>
+              <AdminNavLink to="/admin/games">Tournament Schedule</AdminNavLink>
             </div>
           </div>
 
@@ -331,7 +331,7 @@ export default function AdminNavbar() {
               )}
             </NavLink>
             <NavLink
-              to="/admin/tournaments"
+              to="/admin/games"
               onClick={() => setMobileMenuOpen(false)}
               className={({ isActive }) =>
                 `block px-3 py-2 rounded-lg text-sm font-medium ${
@@ -339,7 +339,7 @@ export default function AdminNavbar() {
                 }`
               }
             >
-              Tournaments
+              Tournament Schedule
             </NavLink>
             <NavLink
               to="/admin/settings"
