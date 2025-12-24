@@ -6,8 +6,8 @@ export const AuthContext = createContext(null);
 
 // Sign in timeout (can be overridden via env vars)
 const SIGN_IN_TIMEOUT = parseInt(import.meta.env.VITE_SIGN_IN_TIMEOUT || '30000', 10);
-// Session check timeout (8s default, can be overridden)
-const SESSION_CHECK_TIMEOUT = parseInt(import.meta.env.VITE_SESSION_CHECK_TIMEOUT || '8000', 10);
+// Session check timeout (15s default - generous for slow networks, can be overridden)
+const SESSION_CHECK_TIMEOUT = parseInt(import.meta.env.VITE_SESSION_CHECK_TIMEOUT || '15000', 10);
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
@@ -20,19 +20,40 @@ export function AuthProvider({ children }) {
   // This prevents the timeout from clearing valid state
   const hasReceivedAuthState = useRef(false);
 
-  // Fetch user profile with role
-  const fetchProfile = useCallback(async (userId) => {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', userId)
-      .single();
+  // Track active profile fetch to prevent concurrent requests
+  const activeProfileFetch = useRef(null);
 
-    if (error) {
-      console.error('Profile fetch error:', error);
+  // Track loading state in ref to avoid useEffect dependency issues
+  const loadingRef = useRef(loading);
+
+  // Fetch user profile with role (with debouncing)
+  const fetchProfile = useCallback(async (userId) => {
+    // Skip if already fetching for this user
+    if (activeProfileFetch.current === userId) {
+      console.log('[Auth] Profile fetch already in progress for:', userId);
       return null;
     }
-    return data;
+
+    activeProfileFetch.current = userId;
+
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+
+      if (error) {
+        console.error('[Auth] Profile fetch error:', error);
+        return null;
+      }
+      return data;
+    } finally {
+      // Clear the active fetch tracker
+      if (activeProfileFetch.current === userId) {
+        activeProfileFetch.current = null;
+      }
+    }
   }, []);
 
   // Initialize auth state
@@ -58,6 +79,7 @@ export function AuthProvider({ children }) {
           console.error('[Auth] Session error:', sessionError);
           setError(sessionError.message);
           setLoading(false);
+          loadingRef.current = false;
           return;
         }
 
@@ -106,6 +128,7 @@ export function AuthProvider({ children }) {
         if (isMounted) {
           console.log('[Auth] Initialization complete');
           setLoading(false);
+          loadingRef.current = false;
         }
       }
     };
@@ -123,7 +146,7 @@ export function AuthProvider({ children }) {
       // Track that we've received auth state
       if (session?.user && (event === 'SIGNED_IN' || event === 'INITIAL_SESSION' || event === 'TOKEN_REFRESHED')) {
         hasReceivedAuthState.current = true;
-        console.log('[Auth] Received valid auth state from listener');
+        console.log('[Auth] Received valid auth state from listener:', event);
       }
 
       // If init timed out and this is the INITIAL_SESSION event with a user, process it
@@ -162,8 +185,9 @@ export function AuthProvider({ children }) {
       }
 
       // Mark loading as complete if we receive auth state before getSession completes
-      if (loading) {
+      if (loadingRef.current) {
         setLoading(false);
+        loadingRef.current = false;
       }
     });
 
@@ -171,7 +195,7 @@ export function AuthProvider({ children }) {
       isMounted = false;
       subscription.unsubscribe();
     };
-  }, [fetchProfile, loading]);
+  }, [fetchProfile]);
 
   // Sign in with email/password
   const signIn = async (email, password, rememberMe = false) => {
