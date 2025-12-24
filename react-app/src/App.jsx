@@ -18,6 +18,7 @@ import AdminTeamDetailPage from './pages/AdminTeamDetailPage';
 import AdminCoachesPage from './pages/AdminCoachesPage';
 import AdminSettingsLayout from './pages/AdminSettingsLayout';
 import AdminUsersPage from './pages/AdminUsersPage';
+import AdminTournamentsPage from './pages/AdminTournamentsPage';
 
 function App() {
   return (
@@ -82,6 +83,16 @@ function App() {
               <ProtectedRoute allowedRoles={['admin']}>
                 <SeasonProvider>
                   <AdminCoachesPage />
+                </SeasonProvider>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/tournaments"
+            element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <SeasonProvider>
+                  <AdminTournamentsPage />
                 </SeasonProvider>
               </ProtectedRoute>
             }

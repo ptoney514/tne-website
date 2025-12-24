@@ -20,7 +20,7 @@ CREATE INDEX IF NOT EXISTS idx_profiles_is_active ON profiles(is_active);
 
 -- Table to track pending user invitations
 CREATE TABLE IF NOT EXISTS user_invites (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     email TEXT NOT NULL,
     display_name TEXT,
     role user_role NOT NULL DEFAULT 'parent',

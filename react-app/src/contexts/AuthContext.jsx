@@ -100,7 +100,7 @@ export function AuthProvider({ children }) {
   }, [fetchProfile]);
 
   // Sign in with email/password
-  const signIn = async (email, password) => {
+  const signIn = async (email, password, rememberMe = false) => {
     setError(null);
 
     // Add timeout to prevent infinite hanging
@@ -118,6 +118,16 @@ export function AuthProvider({ children }) {
         setError(error.message);
         return { error: error.message };
       }
+
+      // Store remember me preference
+      if (rememberMe) {
+        localStorage.setItem('tne_remember_me', 'true');
+      } else {
+        localStorage.removeItem('tne_remember_me');
+        // For non-remembered sessions, we'll clear on window close
+        sessionStorage.setItem('tne_session_only', 'true');
+      }
+
       return { data };
     } catch (err) {
       const message = err.message || 'Sign in failed. Please try again.';
