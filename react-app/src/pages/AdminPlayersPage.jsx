@@ -4,6 +4,12 @@ import { getGradeColor, formatGradeShort } from '../utils/gradeColors';
 import AdminNavbar from '../components/AdminNavbar';
 import PlayerDetailPanel from '../components/admin/PlayerDetailPanel';
 import {
+  GradeBadge,
+  PaymentBadge,
+  FilterPill,
+  QuickFilterGroup,
+} from '../components/admin/AdminBadges';
+import {
   Plus,
   Search,
   RefreshCw,
@@ -14,6 +20,7 @@ import {
   User,
   AlertCircle,
   Filter,
+  Phone,
 } from 'lucide-react';
 
 const EMPTY_PLAYER_FORM = {
@@ -442,7 +449,7 @@ function FilterDropdown({ value, options, onChange }) {
   );
 }
 
-// Team Badge with Color
+// Team Badge with Color (used in table)
 function TeamBadge({ team }) {
   const color = getGradeColor(team.grade_level);
   return (
@@ -451,22 +458,6 @@ function TeamBadge({ team }) {
       style={{ backgroundColor: color.hex }}
     >
       {formatGradeShort(team.grade_level)}
-    </span>
-  );
-}
-
-// Payment Status Badge
-function PaymentBadge({ status }) {
-  const config = {
-    paid: { bg: 'bg-green-100', text: 'text-green-700', label: 'Paid' },
-    partial: { bg: 'bg-amber-100', text: 'text-amber-700', label: 'Partial' },
-    pending: { bg: 'bg-red-100', text: 'text-red-700', label: 'Unpaid' },
-    waived: { bg: 'bg-stone-100', text: 'text-stone-600', label: 'Waived' },
-  }[status] || { bg: 'bg-stone-100', text: 'text-stone-500', label: '-' };
-
-  return (
-    <span className={`px-2 py-0.5 rounded text-[10px] font-semibold ${config.bg} ${config.text}`}>
-      {config.label}
     </span>
   );
 }
@@ -497,10 +488,18 @@ export default function AdminPlayersPage() {
 
   // Filter State
   const [searchTerm, setSearchTerm] = useState('');
-  const [searchField, setSearchField] = useState('name');
+  const [sortBy, setSortBy] = useState('name');
   const [teamFilter, setTeamFilter] = useState('all');
   const [gradeFilter, setGradeFilter] = useState('all');
   const [paymentFilter, setPaymentFilter] = useState('all');
+
+  // Quick Filter State
+  const [quickFilters, setQuickFilters] = useState({
+    unassigned: false,
+    unpaid: false,
+    newPlayers: false,
+    tournamentRoster: false,
+  });
 
   // Keep editingPlayer in sync with players list (for team assignment updates)
   useEffect(() => {
@@ -522,9 +521,25 @@ export default function AdminPlayersPage() {
     return opts;
   }, [teams]);
 
+  // Compute quick filter counts
+  const filterCounts = useMemo(() => {
+    return {
+      unassigned: players.filter((p) => !p.teams || p.teams.length === 0).length,
+      unpaid: players.filter((p) => p.payment_status === 'pending' || p.payment_status === 'unpaid').length,
+      newPlayers: players.filter((p) => p.prior_tne_player === false).length,
+      tournamentRoster: players.filter((p) => p.tags?.includes('tournament')).length,
+    };
+  }, [players]);
+
   // Filter players
   const filteredPlayers = useMemo(() => {
-    return players.filter((player) => {
+    let result = players.filter((player) => {
+      // Quick Filters (applied first)
+      if (quickFilters.unassigned && player.teams?.length > 0) return false;
+      if (quickFilters.unpaid && player.payment_status !== 'pending' && player.payment_status !== 'unpaid') return false;
+      if (quickFilters.newPlayers && player.prior_tne_player !== false) return false;
+      if (quickFilters.tournamentRoster && !player.tags?.includes('tournament')) return false;
+
       // Team filter
       if (teamFilter === 'unassigned') {
         if (player.teams?.length > 0) return false;
@@ -545,27 +560,58 @@ export default function AdminPlayersPage() {
       // Search filter
       if (searchTerm) {
         const search = searchTerm.toLowerCase();
-        if (searchField === 'name') {
-          const fullName = `${player.first_name} ${player.last_name}`.toLowerCase();
-          if (!fullName.includes(search)) return false;
-        } else if (searchField === 'email') {
-          if (!player.primary_parent?.email?.toLowerCase().includes(search)) return false;
-        } else if (searchField === 'phone') {
-          if (!player.primary_parent?.phone?.includes(search)) return false;
+        const fullName = `${player.first_name} ${player.last_name}`.toLowerCase();
+        const parentName = player.primary_parent
+          ? `${player.primary_parent.first_name} ${player.primary_parent.last_name}`.toLowerCase()
+          : '';
+        const phone = player.primary_parent?.phone || '';
+
+        if (!fullName.includes(search) && !parentName.includes(search) && !phone.includes(search)) {
+          return false;
         }
       }
 
       return true;
     });
-  }, [players, teamFilter, gradeFilter, paymentFilter, searchTerm, searchField]);
 
-  const hasActiveFilters = teamFilter !== 'all' || gradeFilter !== 'all' || paymentFilter !== 'all' || searchTerm;
+    // Sort players
+    result = [...result].sort((a, b) => {
+      switch (sortBy) {
+        case 'name':
+          return `${a.first_name} ${a.last_name}`.localeCompare(`${b.first_name} ${b.last_name}`);
+        case 'grade':
+          return (a.current_grade || '').localeCompare(b.current_grade || '');
+        case 'team': {
+          const aTeam = a.teams?.[0]?.name || 'ZZZ';
+          const bTeam = b.teams?.[0]?.name || 'ZZZ';
+          return aTeam.localeCompare(bTeam);
+        }
+        default:
+          return 0;
+      }
+    });
+
+    return result;
+  }, [players, teamFilter, gradeFilter, paymentFilter, searchTerm, sortBy, quickFilters]);
+
+  const hasActiveFilters = teamFilter !== 'all' || gradeFilter !== 'all' || paymentFilter !== 'all' || searchTerm ||
+    quickFilters.unassigned || quickFilters.unpaid || quickFilters.newPlayers || quickFilters.tournamentRoster;
+
+  const toggleQuickFilter = (filterName) => {
+    setQuickFilters((prev) => ({ ...prev, [filterName]: !prev[filterName] }));
+  };
 
   const clearFilters = () => {
     setSearchTerm('');
     setTeamFilter('all');
     setGradeFilter('all');
     setPaymentFilter('all');
+    setQuickFilters({
+      unassigned: false,
+      unpaid: false,
+      newPlayers: false,
+      tournamentRoster: false,
+    });
   };
 
   const handleCreate = () => {
@@ -706,100 +752,138 @@ export default function AdminPlayersPage() {
             selectedPlayer ? 'mr-[480px]' : ''
           }`}
         >
-          {/* Toolbar */}
-          <div className="bg-white border-b border-stone-200 px-4 py-3">
-            <div className="flex items-center justify-between gap-4 flex-wrap">
-              {/* Left: Search and Filters */}
-              <div className="flex items-center gap-3 flex-wrap">
-                {/* Search */}
-                <div className="flex items-center">
-                  <FilterDropdown
-                    value={searchField}
-                    options={[
-                      { value: 'name', label: 'Name' },
-                      { value: 'email', label: 'Email' },
-                      { value: 'phone', label: 'Phone' },
-                    ]}
-                    onChange={setSearchField}
-                  />
-                  <div className="relative ml-2">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400" />
-                    <input
-                      type="text"
-                      placeholder={`Search by ${searchField}...`}
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="w-64 pl-9 pr-4 py-1.5 rounded-lg border border-stone-300 text-sm text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
-                    />
-                  </div>
-                </div>
+          {/* Filter Bar */}
+          <div className="bg-white border-b border-stone-200 px-4 py-4">
+            {/* Search + Dropdowns + Actions Row */}
+            <div className="flex items-center gap-3 mb-4 flex-wrap">
+              {/* Sort dropdown */}
+              <FilterDropdown
+                value={sortBy}
+                options={[
+                  { value: 'name', label: 'Name' },
+                  { value: 'grade', label: 'Grade' },
+                  { value: 'team', label: 'Team' },
+                ]}
+                onChange={setSortBy}
+              />
 
-                {/* Team Filter */}
-                <FilterDropdown
-                  value={teamFilter}
-                  options={teamOptions}
-                  onChange={setTeamFilter}
+              {/* Search */}
+              <div className="relative flex-1 max-w-sm">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400" />
+                <input
+                  type="text"
+                  placeholder="Search by name..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 rounded-lg border border-stone-200 text-sm text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
                 />
-
-                {/* Grade Filter */}
-                <FilterDropdown
-                  value={gradeFilter}
-                  options={[
-                    { value: 'all', label: 'All Grades' },
-                    ...GRADES.map((g) => ({ value: g, label: `${g} Grade` })),
-                  ]}
-                  onChange={setGradeFilter}
-                />
-
-                {/* Payment Filter */}
-                <FilterDropdown
-                  value={paymentFilter}
-                  options={[
-                    { value: 'all', label: 'All Payments' },
-                    { value: 'paid', label: 'Paid' },
-                    { value: 'partial', label: 'Partial' },
-                    { value: 'pending', label: 'Unpaid' },
-                    { value: 'waived', label: 'Waived' },
-                  ]}
-                  onChange={setPaymentFilter}
-                />
-
-                {/* Clear Filters */}
-                {hasActiveFilters && (
-                  <button
-                    onClick={clearFilters}
-                    className="flex items-center gap-1 px-2 py-1.5 rounded-lg text-xs text-stone-600 hover:bg-stone-100 transition-colors"
-                  >
-                    <Filter className="w-3 h-3" />
-                    Clear
-                  </button>
-                )}
               </div>
 
-              {/* Right: Actions */}
-              <div className="flex items-center gap-2">
+              {/* Team Filter */}
+              <FilterDropdown
+                value={teamFilter}
+                options={teamOptions}
+                onChange={setTeamFilter}
+              />
+
+              {/* Grade Filter */}
+              <FilterDropdown
+                value={gradeFilter}
+                options={[
+                  { value: 'all', label: 'All Grades' },
+                  ...GRADES.map((g) => ({ value: g, label: `${g} Grade` })),
+                ]}
+                onChange={setGradeFilter}
+              />
+
+              {/* Payment Filter */}
+              <FilterDropdown
+                value={paymentFilter}
+                options={[
+                  { value: 'all', label: 'All Payments' },
+                  { value: 'paid', label: 'Paid' },
+                  { value: 'partial', label: 'Partial' },
+                  { value: 'pending', label: 'Unpaid' },
+                  { value: 'waived', label: 'Waived' },
+                ]}
+                onChange={setPaymentFilter}
+              />
+
+              {/* Actions */}
+              <div className="flex items-center gap-2 ml-auto">
                 <button
                   onClick={refetch}
-                  className="p-2 rounded-lg border border-stone-300 text-stone-600 hover:bg-stone-50 transition-colors"
+                  className="p-2 text-stone-400 hover:text-stone-600 hover:bg-stone-100 rounded-lg transition-colors"
                   title="Refresh"
                 >
                   <RefreshCw className="w-4 h-4" />
                 </button>
                 <button
                   onClick={handleExport}
-                  className="p-2 rounded-lg border border-stone-300 text-stone-600 hover:bg-stone-50 transition-colors"
-                  title="Export CSV"
+                  className="p-2 text-stone-400 hover:text-stone-600 hover:bg-stone-100 rounded-lg transition-colors"
+                  title="Export"
                 >
                   <Download className="w-4 h-4" />
                 </button>
                 <button
                   onClick={handleCreate}
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-tne-red hover:bg-tne-red-dark text-white font-medium transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 bg-tne-red text-white text-sm font-medium rounded-lg hover:bg-tne-red-dark transition-colors shadow-sm"
                 >
                   <Plus className="w-4 h-4" />
                   Add Player
                 </button>
               </div>
+            </div>
+
+            {/* Quick Filter Pills */}
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-xs font-medium text-stone-500 uppercase tracking-wide mr-1">Quick filters:</span>
+
+              <FilterPill
+                active={quickFilters.unassigned}
+                onClick={() => toggleQuickFilter('unassigned')}
+                variant="error"
+                icon={<AlertCircle className="w-3.5 h-3.5" />}
+                count={filterCounts.unassigned}
+              >
+                Unassigned
+              </FilterPill>
+
+              <FilterPill
+                active={quickFilters.unpaid}
+                onClick={() => toggleQuickFilter('unpaid')}
+                variant="error"
+                count={filterCounts.unpaid}
+              >
+                Unpaid
+              </FilterPill>
+
+              <FilterPill
+                active={quickFilters.newPlayers}
+                onClick={() => toggleQuickFilter('newPlayers')}
+                variant="warning"
+              >
+                New Players
+              </FilterPill>
+
+              <FilterPill
+                active={quickFilters.tournamentRoster}
+                onClick={() => toggleQuickFilter('tournamentRoster')}
+                variant="default"
+              >
+                Tournament Roster
+              </FilterPill>
+
+              {/* Clear Filters */}
+              {hasActiveFilters && (
+                <button
+                  onClick={clearFilters}
+                  className="flex items-center gap-1 px-2 py-1.5 rounded-lg text-xs text-stone-500 hover:text-stone-700 hover:bg-stone-100 transition-colors ml-2"
+                >
+                  <X className="w-3 h-3" />
+                  Clear all
+                </button>
+              )}
             </div>
           </div>
 
@@ -869,18 +953,24 @@ export default function AdminPlayersPage() {
                     </th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className="divide-y divide-stone-100">
                   {filteredPlayers.map((player) => {
                     const age = calculateAge(player.date_of_birth);
+                    const isUnassigned = !player.teams || player.teams.length === 0;
+                    const isSelected = selectedPlayer?.id === player.id;
+
                     return (
                       <tr
                         key={player.id}
                         onClick={() => handleRowClick(player)}
-                        className={`border-b border-stone-100 cursor-pointer transition-colors ${
-                          selectedPlayer?.id === player.id
-                            ? 'bg-tne-red/5'
-                            : 'hover:bg-stone-50'
+                        className={`cursor-pointer transition-colors ${
+                          isSelected
+                            ? 'bg-red-50'
+                            : isUnassigned
+                              ? 'bg-red-50/30 hover:bg-red-50/50'
+                              : 'hover:bg-stone-50'
                         }`}
+                        data-testid={`player-row-${player.id}`}
                       >
                         <td className="px-4 py-3">
                           <input
@@ -893,7 +983,7 @@ export default function AdminPlayersPage() {
                         </td>
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-tne-maroon to-tne-red flex items-center justify-center text-white text-xs font-bold">
+                            <div className="w-9 h-9 rounded-full bg-tne-red flex items-center justify-center text-white text-xs font-semibold">
                               {player.first_name[0]}{player.last_name[0]}
                             </div>
                             <div>
@@ -901,17 +991,13 @@ export default function AdminPlayersPage() {
                                 {player.first_name} {player.last_name}
                               </p>
                               <p className="text-xs text-stone-500">
-                                {player.jersey_number && `#${player.jersey_number}`}
-                                {player.jersey_number && player.position && ' \u2022 '}
-                                {player.position}
-                                {(player.jersey_number || player.position) && age && ' \u2022 '}
                                 {age && `${age} yrs`}
                               </p>
                             </div>
                           </div>
                         </td>
-                        <td className="px-4 py-3 text-sm text-stone-600">
-                          {player.current_grade || '-'}
+                        <td className="px-4 py-3">
+                          <GradeBadge grade={player.current_grade} />
                         </td>
                         <td className="px-4 py-3">
                           {player.teams?.length > 0 ? (
@@ -921,7 +1007,7 @@ export default function AdminPlayersPage() {
                               ))}
                             </div>
                           ) : (
-                            <span className="text-sm text-stone-400">Unassigned</span>
+                            <span className="text-sm text-stone-500">Unassigned</span>
                           )}
                         </td>
                         <td className="px-4 py-3 text-sm text-stone-600">
@@ -931,8 +1017,15 @@ export default function AdminPlayersPage() {
                             <span className="text-stone-400">-</span>
                           )}
                         </td>
-                        <td className="px-4 py-3 text-sm text-stone-600">
-                          {player.primary_parent?.phone || <span className="text-stone-400">-</span>}
+                        <td className="px-4 py-3">
+                          {player.primary_parent?.phone ? (
+                            <div className="flex items-center gap-1.5 text-sm text-stone-600">
+                              <Phone className="w-3.5 h-3.5 text-stone-400" />
+                              {player.primary_parent.phone}
+                            </div>
+                          ) : (
+                            <span className="text-sm text-stone-400">-</span>
+                          )}
                         </td>
                         <td className="px-4 py-3">
                           {player.payment_status ? (
