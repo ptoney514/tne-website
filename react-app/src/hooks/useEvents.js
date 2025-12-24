@@ -1,35 +1,101 @@
-import { useState, useEffect, useCallback } from 'react';
-import { supabase } from '../lib/supabase';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { supabase, withTimeout } from '../lib/supabase';
 import { useSeason } from '../contexts/SeasonContext';
 
 // Set to true to skip Supabase and use sample data (faster for development)
 const USE_SAMPLE_DATA = false;
 
+// Cache configuration
+const CACHE_KEY = 'tne_schedule_cache';
+const CACHE_TTL = 60 * 60 * 1000; // 1 hour in milliseconds
+
+/**
+ * Get the latest updated_at timestamp from the games table
+ * Used for cache invalidation when admin makes changes
+ */
+async function getScheduleVersion() {
+  try {
+    const { data, error } = await withTimeout(
+      supabase
+        .from('games')
+        .select('updated_at')
+        .order('updated_at', { ascending: false })
+        .limit(1)
+        .single(),
+      5000,
+      'Version check timed out'
+    );
+
+    if (error || !data) return null;
+    return data.updated_at;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Load cached data from localStorage
+ */
+function loadFromCache() {
+  try {
+    const cached = localStorage.getItem(CACHE_KEY);
+    if (!cached) return null;
+
+    const { data, timestamp, version } = JSON.parse(cached);
+    const age = Date.now() - timestamp;
+
+    // Return cache info including whether it's expired
+    return {
+      data,
+      version,
+      isExpired: age > CACHE_TTL,
+      age,
+    };
+  } catch {
+    localStorage.removeItem(CACHE_KEY);
+    return null;
+  }
+}
+
+/**
+ * Save data to localStorage cache
+ */
+function saveToCache(data, version) {
+  try {
+    localStorage.setItem(CACHE_KEY, JSON.stringify({
+      data,
+      timestamp: Date.now(),
+      version,
+    }));
+  } catch (err) {
+    console.warn('[useEvents] Failed to save cache:', err.message);
+  }
+}
+
 /**
  * Hook for fetching and displaying events on the public schedule page
  * Fetches from both 'events' table (practices/tryouts) and 'games' table (games/tournaments)
+ *
+ * Features:
+ * - Shows cached data immediately for instant load
+ * - Refreshes in background if cache is stale or version changed
+ * - 1 hour cache TTL with smart invalidation on admin changes
  */
 export function useEvents() {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const isBackgroundRefresh = useRef(false);
 
-  const fetchEvents = useCallback(async () => {
-    setLoading(true);
-    setError(null);
+  /**
+   * Fetch fresh data from Supabase
+   */
+  const fetchFromSupabase = useCallback(async () => {
+    const today = new Date().toISOString().split('T')[0];
 
-    // Use sample data for development (instant load)
-    if (USE_SAMPLE_DATA) {
-      setEvents(getSampleEvents());
-      setLoading(false);
-      return;
-    }
-
-    try {
-      const today = new Date().toISOString().split('T')[0];
-
-      // Fetch from both tables in parallel
-      const [eventsResult, gamesResult] = await Promise.all([
+    // Fetch from both tables in parallel (with 10s timeout to prevent infinite loading)
+    const [eventsResult, gamesResult] = await withTimeout(
+      Promise.all([
         // Fetch practices/tryouts from events table
         supabase
           .from('events')
@@ -41,7 +107,7 @@ export function useEvents() {
           .order('date', { ascending: true })
           .order('start_time', { ascending: true }),
 
-        // Fetch games/tournaments from games table
+        // Fetch tournaments only from games table (exclude league games)
         supabase
           .from('games')
           .select(`
@@ -55,64 +121,128 @@ export function useEvents() {
               team:teams(id, name, grade_level, gender)
             )
           `)
+          .eq('game_type', 'tournament') // Only fetch tournaments, not league games
           .gte('date', today)
           .order('date', { ascending: true })
           .order('start_time', { ascending: true }),
-      ]);
+      ]),
+      10000,
+      'Schedule data request timed out'
+    );
 
-      if (eventsResult.error) {
-        console.error('Error fetching events:', eventsResult.error);
+    if (eventsResult.error) {
+      console.error('Error fetching events:', eventsResult.error);
+    }
+    if (gamesResult.error) {
+      console.error('Error fetching games:', gamesResult.error);
+    }
+
+    // Convert games to event-like format for unified display
+    const eventsData = eventsResult.data || [];
+    const gamesData = (gamesResult.data || []).map(game => ({
+      id: game.id,
+      event_type: game.game_type, // 'game' or 'tournament'
+      date: game.date,
+      start_time: game.start_time,
+      end_time: game.end_time,
+      location: game.location,
+      address: game.address,
+      notes: game.notes,
+      is_featured: game.is_featured,
+      external_url: game.external_url,
+      // For games, use the first team's info or show as multi-team event
+      team: game.game_teams?.[0]?.team || null,
+      opponent: game.game_teams?.[0]?.opponent || null,
+      // Keep original game data for tournaments display
+      game_teams: game.game_teams,
+      name: game.name,
+      tournament_name: game.game_type === 'tournament' ? game.name : null,
+    }));
+
+    // Combine and sort by date/time
+    const allEvents = [...eventsData, ...gamesData].sort((a, b) => {
+      const dateCompare = a.date.localeCompare(b.date);
+      if (dateCompare !== 0) return dateCompare;
+      return (a.start_time || '').localeCompare(b.start_time || '');
+    });
+
+    return { events: allEvents, eventsCount: eventsData.length, gamesCount: gamesData.length };
+  }, []);
+
+  /**
+   * Main fetch function with caching
+   */
+  const fetchEvents = useCallback(async (forceRefresh = false) => {
+    // Use sample data for development (instant load)
+    if (USE_SAMPLE_DATA) {
+      setEvents(getSampleEvents());
+      setLoading(false);
+      return;
+    }
+
+    // Check cache first (unless forcing refresh)
+    const cached = !forceRefresh ? loadFromCache() : null;
+
+    if (cached?.data && cached.data.length > 0) {
+      // Show cached data immediately
+      setEvents(cached.data);
+      setLoading(false);
+      console.log(`[useEvents] Loaded ${cached.data.length} events from cache (age: ${Math.round(cached.age / 1000)}s)`);
+
+      // If cache isn't expired, check version in background
+      if (!cached.isExpired) {
+        isBackgroundRefresh.current = true;
+
+        // Check if version changed (admin made updates)
+        const currentVersion = await getScheduleVersion();
+        if (currentVersion && currentVersion !== cached.version) {
+          console.log('[useEvents] Version changed, refreshing data...');
+        } else {
+          // Cache is still valid
+          console.log('[useEvents] Cache is valid, no refresh needed');
+          isBackgroundRefresh.current = false;
+          return;
+        }
+      } else {
+        console.log('[useEvents] Cache expired, refreshing in background...');
+        isBackgroundRefresh.current = true;
       }
-      if (gamesResult.error) {
-        console.error('Error fetching games:', gamesResult.error);
-      }
+    } else {
+      // No cache, show loading
+      setLoading(true);
+    }
 
-      // Convert games to event-like format for unified display
-      const eventsData = eventsResult.data || [];
-      const gamesData = (gamesResult.data || []).map(game => ({
-        id: game.id,
-        event_type: game.game_type, // 'game' or 'tournament'
-        date: game.date,
-        start_time: game.start_time,
-        end_time: game.end_time,
-        location: game.location,
-        address: game.address,
-        notes: game.notes,
-        is_featured: game.is_featured,
-        external_url: game.external_url,
-        // For games, use the first team's info or show as multi-team event
-        team: game.game_teams?.[0]?.team || null,
-        opponent: game.game_teams?.[0]?.opponent || null,
-        // Keep original game data for tournaments display
-        game_teams: game.game_teams,
-        name: game.name,
-        tournament_name: game.game_type === 'tournament' ? game.name : null,
-      }));
+    setError(null);
 
-      // Combine and sort by date/time
-      const allEvents = [...eventsData, ...gamesData].sort((a, b) => {
-        const dateCompare = a.date.localeCompare(b.date);
-        if (dateCompare !== 0) return dateCompare;
-        return (a.start_time || '').localeCompare(b.start_time || '');
-      });
+    try {
+      const { events: freshEvents, eventsCount, gamesCount } = await fetchFromSupabase();
+      const version = await getScheduleVersion();
 
       // If no data returned, use sample data
-      if (allEvents.length === 0) {
+      if (freshEvents.length === 0) {
         console.log('[useEvents] No events in database, using sample data');
         setEvents(getSampleEvents());
       } else {
-        console.log(`[useEvents] Loaded ${eventsData.length} events + ${gamesData.length} games`);
-        setEvents(allEvents);
+        console.log(`[useEvents] Loaded ${eventsCount} events + ${gamesCount} tournaments from Supabase`);
+        setEvents(freshEvents);
+
+        // Save to cache
+        saveToCache(freshEvents, version);
       }
     } catch (err) {
       console.error('Error fetching events:', err);
       setError(err.message || 'Failed to fetch events');
-      // Return sample data for now if Supabase fetch fails
-      setEvents(getSampleEvents());
+
+      // If we don't have cached data, use sample data as fallback
+      if (!cached?.data || cached.data.length === 0) {
+        setEvents(getSampleEvents());
+      }
+      // Otherwise keep showing cached data
     } finally {
       setLoading(false);
+      isBackgroundRefresh.current = false;
     }
-  }, []);
+  }, [fetchFromSupabase]);
 
   useEffect(() => {
     fetchEvents();

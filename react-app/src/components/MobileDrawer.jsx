@@ -72,7 +72,7 @@ export default function MobileDrawer({ isOpen, onClose }) {
               key={link.path}
               to={link.path}
               onClick={onClose}
-              className={`block px-4 py-3 text-sm font-medium rounded-xl transition-colors ${
+              className={`block px-4 py-3 text-sm font-semibold uppercase tracking-wider rounded-xl transition-colors ${
                 isActive(link.path)
                   ? 'text-white bg-white/10'
                   : 'text-white/80 hover:text-white hover:bg-white/5'
@@ -84,20 +84,20 @@ export default function MobileDrawer({ isOpen, onClose }) {
         </nav>
 
         {/* Bottom Actions */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-white/10 space-y-2">
-          <Link
-            to="/login"
-            onClick={onClose}
-            className="block w-full text-center px-4 py-2.5 text-sm font-medium rounded-xl border border-white/15 text-white/80 hover:text-white hover:border-white/40 transition-colors"
-          >
-            Login
-          </Link>
+        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-white/10 space-y-3">
           <Link
             to="/tryouts"
             onClick={onClose}
-            className="block w-full text-center px-4 py-2.5 text-sm font-medium rounded-xl bg-tne-red text-white hover:bg-tne-red-dark transition-colors"
+            className="block w-full text-center px-4 py-3 text-sm font-semibold uppercase tracking-wider rounded-xl bg-tne-red text-white hover:bg-tne-red-dark transition-colors shadow-lg shadow-tne-red/25"
           >
             Register
+          </Link>
+          <Link
+            to="/login"
+            onClick={onClose}
+            className="block w-full text-center px-4 py-3 text-sm font-medium uppercase tracking-wider rounded-xl border border-white/20 text-white/80 hover:text-white hover:border-white/40 transition-colors"
+          >
+            Login
           </Link>
         </div>
       </div>

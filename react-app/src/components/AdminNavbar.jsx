@@ -235,7 +235,7 @@ export default function AdminNavbar() {
               <AdminNavLink to="/admin/registrations" badge={stats.pendingRegistrations}>
                 Registrations
               </AdminNavLink>
-              <AdminNavLink to="/admin/games">Games & Tournaments</AdminNavLink>
+              <AdminNavLink to="/admin/games">Tournament Schedule</AdminNavLink>
             </div>
           </div>
 
@@ -339,7 +339,7 @@ export default function AdminNavbar() {
                 }`
               }
             >
-              Games & Tournaments
+              Tournament Schedule
             </NavLink>
             <NavLink
               to="/admin/settings"

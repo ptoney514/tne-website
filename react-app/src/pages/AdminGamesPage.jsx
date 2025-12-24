@@ -122,7 +122,7 @@ function GameModal({ isOpen, onClose, game, onSave, isSaving }) {
       <div className="bg-white rounded-2xl w-full max-w-xl max-h-[90vh] overflow-y-auto shadow-xl">
         <div className="flex items-center justify-between px-6 py-4 border-b border-stone-200">
           <h2 className="text-lg font-semibold text-stone-900">
-            {game ? 'Edit Game/Tournament' : 'Create Game/Tournament'}
+            {game ? 'Edit Tournament' : 'Create Tournament'}
           </h2>
           <button onClick={onClose} className="p-1 hover:bg-stone-100 rounded-lg transition-colors text-stone-500">
             <XIcon />
@@ -130,39 +130,13 @@ function GameModal({ isOpen, onClose, game, onSave, isSaving }) {
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          {/* Type Toggle */}
-          <div>
-            <label className="block text-sm font-medium text-stone-700 mb-2">Type</label>
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={() => handleChange('game_type', 'game')}
-                className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  formData.game_type === 'game'
-                    ? 'bg-tne-red text-white'
-                    : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
-                }`}
-              >
-                Single Game
-              </button>
-              <button
-                type="button"
-                onClick={() => handleChange('game_type', 'tournament')}
-                className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  formData.game_type === 'tournament'
-                    ? 'bg-amber-500 text-white'
-                    : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
-                }`}
-              >
-                Tournament
-              </button>
-            </div>
-          </div>
+          {/* Type is always tournament now - hidden input to maintain data structure */}
+          <input type="hidden" value="tournament" />
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="md:col-span-2">
               <label className="block text-sm font-medium text-stone-700 mb-1">
-                {formData.game_type === 'tournament' ? 'Tournament Name *' : 'Game Name *'}
+                Tournament Name *
               </label>
               <input
                 type="text"
@@ -170,7 +144,7 @@ function GameModal({ isOpen, onClose, game, onSave, isSaving }) {
                 value={formData.name}
                 onChange={(e) => handleChange('name', e.target.value)}
                 className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
-                placeholder={formData.game_type === 'tournament' ? 'e.g., MLK Weekend Classic' : 'e.g., vs Metro Elite'}
+                placeholder="e.g., MLK Weekend Classic"
               />
             </div>
 
@@ -228,18 +202,16 @@ function GameModal({ isOpen, onClose, game, onSave, isSaving }) {
               />
             </div>
 
-            {formData.game_type === 'tournament' && (
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-stone-700 mb-1">Tournament Website</label>
-                <input
-                  type="url"
-                  value={formData.external_url || ''}
-                  onChange={(e) => handleChange('external_url', e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
-                  placeholder="https://..."
-                />
-              </div>
-            )}
+            <div className="md:col-span-2">
+              <label className="block text-sm font-medium text-stone-700 mb-1">Tournament Website</label>
+              <input
+                type="url"
+                value={formData.external_url || ''}
+                onChange={(e) => handleChange('external_url', e.target.value)}
+                className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+                placeholder="https://..."
+              />
+            </div>
 
             <div className="md:col-span-2">
               <label className="block text-sm font-medium text-stone-700 mb-1">Notes</label>
@@ -252,20 +224,18 @@ function GameModal({ isOpen, onClose, game, onSave, isSaving }) {
               />
             </div>
 
-            {formData.game_type === 'tournament' && (
-              <div className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  id="is_featured"
-                  checked={formData.is_featured || false}
-                  onChange={(e) => handleChange('is_featured', e.target.checked)}
-                  className="rounded border-stone-300"
-                />
-                <label htmlFor="is_featured" className="text-sm text-stone-700">
-                  Featured tournament (highlight on public schedule)
-                </label>
-              </div>
-            )}
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                id="is_featured"
+                checked={formData.is_featured || false}
+                onChange={(e) => handleChange('is_featured', e.target.checked)}
+                className="rounded border-stone-300"
+              />
+              <label htmlFor="is_featured" className="text-sm text-stone-700">
+                Featured tournament (highlight on public schedule)
+              </label>
+            </div>
           </div>
 
           <div className="flex justify-end gap-3 pt-4 border-t border-stone-200">
@@ -327,7 +297,7 @@ function TeamAssignmentModal({ isOpen, onClose, game, teams, onSave, isSaving })
 
         <div className="p-6">
           <p className="text-sm text-stone-600 mb-4">
-            Select the teams participating in this {game.game_type}:
+            Select the teams participating in this tournament:
           </p>
 
           <div className="space-y-2 max-h-80 overflow-y-auto">
@@ -389,21 +359,20 @@ function TeamAssignmentModal({ isOpen, onClose, game, teams, onSave, isSaving })
   );
 }
 
-// Game Card
+// Tournament Card
 function GameCard({ game, onEdit, onDelete, onAssignTeams }) {
   const daysUntil = Math.ceil(
     (new Date(game.date) - new Date()) / (1000 * 60 * 60 * 24)
   );
   const isPast = daysUntil < 0;
-  const isTournament = game.game_type === 'tournament';
 
   return (
     <div className={`rounded-2xl bg-white border border-stone-200 shadow-sm overflow-hidden hover:shadow-md transition-shadow ${isPast ? 'opacity-60' : ''}`}>
       {/* Header */}
-      <div className={`px-4 py-3 ${isTournament ? (game.is_featured ? 'bg-amber-500' : 'bg-amber-600') : 'bg-tne-red'} text-white`}>
+      <div className={`px-4 py-3 ${game.is_featured ? 'bg-amber-500' : 'bg-amber-600'} text-white`}>
         <div className="flex items-center justify-between">
           <span className="text-xs font-medium uppercase tracking-wide">
-            {isTournament ? 'Tournament' : 'Game'}
+            Tournament
           </span>
           {game.is_featured && (
             <span className="flex items-center gap-1 text-xs font-semibold">
@@ -518,7 +487,7 @@ function CreateGameCard({ onClick }) {
       <div className="w-12 h-12 rounded-full bg-stone-100 flex items-center justify-center">
         <PlusIcon />
       </div>
-      <span className="text-sm font-medium text-stone-600">Add Game or Tournament</span>
+      <span className="text-sm font-medium text-stone-600">Add Tournament</span>
     </button>
   );
 }
@@ -592,9 +561,8 @@ export default function AdminGamesPage() {
     }
   };
 
-  // Separate games and tournaments
+  // Only show tournaments (filter out any legacy game entries)
   const tournaments = games.filter(g => g.game_type === 'tournament');
-  const singleGames = games.filter(g => g.game_type === 'game');
 
   return (
     <div className="bg-stone-100 text-stone-900 antialiased min-h-screen">
@@ -607,10 +575,10 @@ export default function AdminGamesPage() {
             <div>
               <h1 className="text-3xl font-bold text-stone-900 flex items-center gap-3">
                 <TrophyIcon />
-                Games & Tournaments
+                Tournament Schedule
               </h1>
               <p className="text-stone-500 mt-1">
-                Manage games and tournaments, then assign teams
+                Manage tournaments and assign teams
               </p>
             </div>
             <button
@@ -618,7 +586,7 @@ export default function AdminGamesPage() {
               className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-tne-red hover:bg-tne-red-dark text-white font-medium transition-colors"
             >
               <PlusIcon />
-              Add Game/Tournament
+              Add Tournament
             </button>
           </div>
         </div>
@@ -640,69 +608,34 @@ export default function AdminGamesPage() {
               <div key={i} className="rounded-2xl bg-white border border-stone-200 h-52 animate-pulse" />
             ))}
           </div>
-        ) : games.length === 0 ? (
+        ) : tournaments.length === 0 ? (
           <div className="text-center py-16">
             <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-stone-100 flex items-center justify-center">
               <TrophyIcon />
             </div>
-            <h3 className="text-lg font-medium text-stone-900 mb-2">No games or tournaments yet</h3>
-            <p className="text-stone-500 mb-6">Create a game or tournament, then assign teams to it</p>
+            <h3 className="text-lg font-medium text-stone-900 mb-2">No tournaments yet</h3>
+            <p className="text-stone-500 mb-6">Create a tournament, then assign teams to it</p>
             <button
               onClick={handleCreate}
               className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-tne-red hover:bg-tne-red-dark text-white font-medium transition-colors"
             >
               <PlusIcon />
-              Add Game/Tournament
+              Add Tournament
             </button>
           </div>
         ) : (
-          <div className="space-y-8">
-            {/* Tournaments Section */}
-            {tournaments.length > 0 && (
-              <div>
-                <h2 className="text-lg font-semibold text-stone-900 mb-4 flex items-center gap-2">
-                  <span className="w-3 h-3 rounded-full bg-amber-500" />
-                  Tournaments
-                  <span className="text-sm font-normal text-stone-500">({tournaments.length})</span>
-                </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {tournaments.map((game) => (
-                    <GameCard
-                      key={game.id}
-                      game={game}
-                      onEdit={handleEdit}
-                      onDelete={handleDelete}
-                      onAssignTeams={handleAssignTeams}
-                    />
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Games Section */}
-            {singleGames.length > 0 && (
-              <div>
-                <h2 className="text-lg font-semibold text-stone-900 mb-4 flex items-center gap-2">
-                  <span className="w-3 h-3 rounded-full bg-tne-red" />
-                  Games
-                  <span className="text-sm font-normal text-stone-500">({singleGames.length})</span>
-                </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {singleGames.map((game) => (
-                    <GameCard
-                      key={game.id}
-                      game={game}
-                      onEdit={handleEdit}
-                      onDelete={handleDelete}
-                      onAssignTeams={handleAssignTeams}
-                    />
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Add New Card */}
+          <div className="space-y-6">
+            {/* Tournaments Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {tournaments.map((tournament) => (
+                <GameCard
+                  key={tournament.id}
+                  game={tournament}
+                  onEdit={handleEdit}
+                  onDelete={handleDelete}
+                  onAssignTeams={handleAssignTeams}
+                />
+              ))}
               <CreateGameCard onClick={handleCreate} />
             </div>
           </div>
@@ -743,7 +676,7 @@ export default function AdminGamesPage() {
       {deleteConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div className="bg-white rounded-2xl w-full max-w-md p-6 shadow-xl">
-            <h3 className="text-lg font-semibold text-stone-900 mb-2">Delete {deleteConfirm.game_type === 'tournament' ? 'Tournament' : 'Game'}?</h3>
+            <h3 className="text-lg font-semibold text-stone-900 mb-2">Delete Tournament?</h3>
             <p className="text-stone-600 mb-6">
               Are you sure you want to delete <strong>{deleteConfirm.name}</strong>? This will also remove all team assignments.
             </p>

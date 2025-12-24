@@ -1,16 +1,14 @@
-// Shared navigation links used across MobileDrawer and PublicLayout
+// Main navigation links (no Tryouts or Login - those are seasonal/admin actions)
 export const navLinks = [
-  { path: '/', label: 'Home' },
   { path: '/teams', label: 'Teams' },
   { path: '/schedule', label: 'Schedule' },
-  { path: '/tryouts', label: 'Tryouts' },
   { path: '/about', label: 'About' },
   { path: '/contact', label: 'Contact' },
 ];
 
-// Shared navbar link styles
+// Shared navbar link styles (increased font size)
 export const navLinkStyles = {
-  base: 'text-[11px] font-medium font-mono uppercase tracking-wider',
+  base: 'text-[13px] font-semibold font-mono uppercase tracking-wider',
   active: 'text-white',
-  inactive: 'text-stone-300 hover:text-white transition-colors',
+  inactive: 'text-white/70 hover:text-white transition-colors',
 };

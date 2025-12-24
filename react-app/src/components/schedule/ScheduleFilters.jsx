@@ -3,7 +3,6 @@ import { Search } from 'lucide-react';
 const filterOptions = [
   { value: 'all', label: 'All Events' },
   { value: 'practice', label: 'Practices' },
-  { value: 'game', label: 'Games' },
   { value: 'tournament', label: 'Tournaments' },
 ];
 
