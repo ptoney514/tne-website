@@ -1,4 +1,4 @@
-import { createContext, useState, useEffect, useCallback } from 'react';
+import { createContext, useState, useEffect, useCallback, useRef } from 'react';
 import { supabase, withTimeout } from '../lib/supabase';
 
 // eslint-disable-next-line react-refresh/only-export-components
@@ -6,6 +6,8 @@ export const AuthContext = createContext(null);
 
 // Sign in timeout (can be overridden via env vars)
 const SIGN_IN_TIMEOUT = parseInt(import.meta.env.VITE_SIGN_IN_TIMEOUT || '30000', 10);
+// Session check timeout (15s default - generous for slow networks, can be overridden)
+const SESSION_CHECK_TIMEOUT = parseInt(import.meta.env.VITE_SESSION_CHECK_TIMEOUT || '15000', 10);
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
@@ -14,19 +16,44 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Fetch user profile with role
-  const fetchProfile = useCallback(async (userId) => {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', userId)
-      .single();
+  // Track if we've received valid auth state from onAuthStateChange
+  // This prevents the timeout from clearing valid state
+  const hasReceivedAuthState = useRef(false);
 
-    if (error) {
-      console.error('Profile fetch error:', error);
+  // Track active profile fetch to prevent concurrent requests
+  const activeProfileFetch = useRef(null);
+
+  // Track loading state in ref to avoid useEffect dependency issues
+  const loadingRef = useRef(loading);
+
+  // Fetch user profile with role (with debouncing)
+  const fetchProfile = useCallback(async (userId) => {
+    // Skip if already fetching for this user
+    if (activeProfileFetch.current === userId) {
+      console.log('[Auth] Profile fetch already in progress for:', userId);
       return null;
     }
-    return data;
+
+    activeProfileFetch.current = userId;
+
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+
+      if (error) {
+        console.error('[Auth] Profile fetch error:', error);
+        return null;
+      }
+      return data;
+    } finally {
+      // Clear the active fetch tracker
+      if (activeProfileFetch.current === userId) {
+        activeProfileFetch.current = null;
+      }
+    }
   }, []);
 
   // Initialize auth state
@@ -40,7 +67,7 @@ export function AuthProvider({ children }) {
         // Use timeout to prevent hanging forever
         const { data: { session }, error: sessionError } = await withTimeout(
           supabase.auth.getSession(),
-          8000,
+          SESSION_CHECK_TIMEOUT,
           'Session check timed out - Supabase may be slow or unreachable'
         );
 
@@ -52,42 +79,56 @@ export function AuthProvider({ children }) {
           console.error('[Auth] Session error:', sessionError);
           setError(sessionError.message);
           setLoading(false);
+          loadingRef.current = false;
           return;
         }
 
-        setUser(session?.user ?? null);
+        // Only update state if we haven't already received auth state from onAuthStateChange
+        if (!hasReceivedAuthState.current) {
+          setUser(session?.user ?? null);
 
-        if (session?.user) {
-          console.log('[Auth] Fetching profile for:', session.user.id);
-          setProfileLoading(true);
-          const profileData = await fetchProfile(session.user.id);
-          if (isMounted) {
-            console.log('[Auth] Profile result:', profileData?.email || 'no profile');
-            setProfile(profileData);
-            setProfileLoading(false);
+          if (session?.user) {
+            console.log('[Auth] Fetching profile for:', session.user.id);
+            setProfileLoading(true);
+            const profileData = await fetchProfile(session.user.id);
+            if (isMounted) {
+              console.log('[Auth] Profile result:', profileData?.email || 'no profile');
+              setProfile(profileData);
+              setProfileLoading(false);
+            }
           }
+        } else {
+          console.log('[Auth] Skipping getSession update - already have auth state from listener');
         }
       } catch (err) {
         if (!isMounted) return;
 
         console.error('[Auth] Initialization error:', err);
-        // Always clear auth state on error - don't leave stale state
         initTimedOut = true;
-        setUser(null);
-        setProfile(null);
-        // Don't set error for timeout - just proceed without auth (allow login page to render)
+
+        // CRITICAL FIX: Only clear auth state if we haven't received valid state from onAuthStateChange
+        // This prevents the timeout from logging out users who are actually signed in
         const isTimeout = err.message?.includes('timed out') ||
                           err.name === 'TimeoutError' ||
                           err.name === 'AbortError';
-        if (!isTimeout) {
-          setError(err.message);
+
+        if (hasReceivedAuthState.current) {
+          console.log('[Auth] Session check timed out but already have valid auth state - keeping user signed in');
         } else {
-          console.log('[Auth] Session check timed out - proceeding without auth');
+          // No auth state received yet, safe to clear
+          setUser(null);
+          setProfile(null);
+          if (!isTimeout) {
+            setError(err.message);
+          } else {
+            console.log('[Auth] Session check timed out - proceeding without auth');
+          }
         }
       } finally {
         if (isMounted) {
           console.log('[Auth] Initialization complete');
           setLoading(false);
+          loadingRef.current = false;
         }
       }
     };
@@ -102,11 +143,22 @@ export function AuthProvider({ children }) {
 
       console.log('[Auth] Auth state changed:', event, session?.user?.email || 'no user');
 
-      // If init timed out and this is the INITIAL_SESSION event, ignore it
-      // (we already cleared auth state due to timeout)
+      // Track that we've received auth state
+      if (session?.user && (event === 'SIGNED_IN' || event === 'INITIAL_SESSION' || event === 'TOKEN_REFRESHED')) {
+        hasReceivedAuthState.current = true;
+        console.log('[Auth] Received valid auth state from listener:', event);
+      }
+
+      // If init timed out and this is the INITIAL_SESSION event with a user, process it
+      // (the user is actually signed in, even though getSession timed out)
       if (initTimedOut && event === 'INITIAL_SESSION') {
-        console.log('[Auth] Ignoring INITIAL_SESSION after timeout');
-        return;
+        if (session?.user) {
+          console.log('[Auth] Processing INITIAL_SESSION after timeout - user is signed in');
+          // Continue processing - don't return
+        } else {
+          console.log('[Auth] Ignoring INITIAL_SESSION after timeout - no user');
+          return;
+        }
       }
 
       // Clear any previous errors when auth state changes successfully
@@ -114,6 +166,7 @@ export function AuthProvider({ children }) {
 
       // Handle sign out
       if (event === 'SIGNED_OUT') {
+        hasReceivedAuthState.current = false;
         setUser(null);
         setProfile(null);
         return;
@@ -129,6 +182,12 @@ export function AuthProvider({ children }) {
         }
       } else {
         setProfile(null);
+      }
+
+      // Mark loading as complete if we receive auth state before getSession completes
+      if (loadingRef.current) {
+        setLoading(false);
+        loadingRef.current = false;
       }
     });
 
