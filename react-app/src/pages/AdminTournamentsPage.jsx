@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useTournaments } from '../hooks/useTournaments';
+import { useTournamentEvents } from '../hooks/useEvents';
 import { useTeams } from '../hooks/useTeams';
 import AdminNavbar from '../components/AdminNavbar';
 
@@ -29,9 +29,9 @@ const MapPinIcon = () => (
   </svg>
 );
 
-const UsersIcon = () => (
+const LinkIcon = () => (
   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
   </svg>
 );
 
@@ -60,52 +60,40 @@ const LoaderIcon = () => (
   </svg>
 );
 
-const DollarIcon = () => (
-  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+const StarIcon = () => (
+  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
   </svg>
 );
-
-// Status badge colors
-const statusColors = {
-  upcoming: 'bg-blue-100 text-blue-700',
-  in_progress: 'bg-green-100 text-green-700',
-  completed: 'bg-stone-100 text-stone-700',
-  cancelled: 'bg-red-100 text-red-700',
-};
 
 // Format date for display
 const formatDate = (dateStr) => {
   if (!dateStr) return '';
   return new Date(dateStr).toLocaleDateString('en-US', {
+    weekday: 'short',
     month: 'short',
     day: 'numeric',
     year: 'numeric',
   });
 };
 
-// Tournament Modal
-function TournamentModal({ isOpen, onClose, tournament, onSave, isSaving }) {
+// Tournament Event Modal
+function TournamentModal({ isOpen, onClose, event, teams, onSave, isSaving }) {
   const [formData, setFormData] = useState(
-    tournament || {
-      name: '',
-      description: '',
+    event || {
+      title: '',
+      tournament_name: '',
+      team_id: '',
+      date: '',
+      start_time: '08:00',
+      end_time: '18:00',
       location: '',
       address: '',
-      start_date: '',
-      end_date: '',
-      registration_deadline: '',
-      entry_fee: '',
-      max_teams: '',
-      age_groups: [],
-      is_featured: false,
-      status: 'upcoming',
       external_url: '',
+      is_featured: false,
       notes: '',
     }
   );
-
-  const ageGroupOptions = ['3rd', '4th', '5th', '6th', '7th', '8th', 'HS'];
 
   if (!isOpen) return null;
 
@@ -118,21 +106,12 @@ function TournamentModal({ isOpen, onClose, tournament, onSave, isSaving }) {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const toggleAgeGroup = (grade) => {
-    setFormData((prev) => ({
-      ...prev,
-      age_groups: prev.age_groups?.includes(grade)
-        ? prev.age_groups.filter((g) => g !== grade)
-        : [...(prev.age_groups || []), grade],
-    }));
-  };
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-xl">
+      <div className="bg-white rounded-2xl w-full max-w-xl max-h-[90vh] overflow-y-auto shadow-xl">
         <div className="flex items-center justify-between px-6 py-4 border-b border-stone-200">
           <h2 className="text-lg font-semibold text-stone-900">
-            {tournament ? 'Edit Tournament' : 'Create Tournament'}
+            {event ? 'Edit Tournament' : 'Add Tournament to Schedule'}
           </h2>
           <button onClick={onClose} className="p-1 hover:bg-stone-100 rounded-lg transition-colors text-stone-500">
             <XIcon />
@@ -146,22 +125,61 @@ function TournamentModal({ isOpen, onClose, tournament, onSave, isSaving }) {
               <input
                 type="text"
                 required
-                value={formData.name}
-                onChange={(e) => handleChange('name', e.target.value)}
+                value={formData.tournament_name}
+                onChange={(e) => handleChange('tournament_name', e.target.value)}
                 className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
                 placeholder="e.g., MLK Weekend Classic"
               />
+              <p className="text-xs text-stone-500 mt-1">Use the same name for all teams in this tournament</p>
             </div>
 
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-stone-700 mb-1">Description</label>
-              <textarea
-                value={formData.description || ''}
-                onChange={(e) => handleChange('description', e.target.value)}
-                rows={2}
+              <label className="block text-sm font-medium text-stone-700 mb-1">Team *</label>
+              <select
+                required
+                value={formData.team_id || ''}
+                onChange={(e) => handleChange('team_id', e.target.value)}
                 className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
-                placeholder="Tournament details..."
+              >
+                <option value="">Select a team...</option>
+                {teams.map((team) => (
+                  <option key={team.id} value={team.id}>
+                    {team.name} ({team.grade_level} - {team.gender === 'male' ? 'Boys' : 'Girls'})
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-stone-700 mb-1">Date *</label>
+              <input
+                type="date"
+                required
+                value={formData.date || ''}
+                onChange={(e) => handleChange('date', e.target.value)}
+                className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
               />
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="block text-sm font-medium text-stone-700 mb-1">Start Time</label>
+                <input
+                  type="time"
+                  value={formData.start_time || ''}
+                  onChange={(e) => handleChange('start_time', e.target.value)}
+                  className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-stone-700 mb-1">End Time</label>
+                <input
+                  type="time"
+                  value={formData.end_time || ''}
+                  onChange={(e) => handleChange('end_time', e.target.value)}
+                  className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+                />
+              </div>
             </div>
 
             <div>
@@ -187,96 +205,8 @@ function TournamentModal({ isOpen, onClose, tournament, onSave, isSaving }) {
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-stone-700 mb-1">Start Date *</label>
-              <input
-                type="date"
-                required
-                value={formData.start_date || ''}
-                onChange={(e) => handleChange('start_date', e.target.value)}
-                className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-stone-700 mb-1">End Date</label>
-              <input
-                type="date"
-                value={formData.end_date || ''}
-                onChange={(e) => handleChange('end_date', e.target.value)}
-                className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-stone-700 mb-1">Registration Deadline</label>
-              <input
-                type="date"
-                value={formData.registration_deadline || ''}
-                onChange={(e) => handleChange('registration_deadline', e.target.value)}
-                className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-stone-700 mb-1">Entry Fee ($)</label>
-              <input
-                type="number"
-                step="0.01"
-                value={formData.entry_fee || ''}
-                onChange={(e) => handleChange('entry_fee', e.target.value)}
-                className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
-                placeholder="350.00"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-stone-700 mb-1">Max Teams</label>
-              <input
-                type="number"
-                value={formData.max_teams || ''}
-                onChange={(e) => handleChange('max_teams', e.target.value)}
-                className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
-                placeholder="16"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-stone-700 mb-1">Status</label>
-              <select
-                value={formData.status}
-                onChange={(e) => handleChange('status', e.target.value)}
-                className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
-              >
-                <option value="upcoming">Upcoming</option>
-                <option value="in_progress">In Progress</option>
-                <option value="completed">Completed</option>
-                <option value="cancelled">Cancelled</option>
-              </select>
-            </div>
-
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-stone-700 mb-2">Age Groups</label>
-              <div className="flex flex-wrap gap-2">
-                {ageGroupOptions.map((grade) => (
-                  <button
-                    key={grade}
-                    type="button"
-                    onClick={() => toggleAgeGroup(grade)}
-                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                      formData.age_groups?.includes(grade)
-                        ? 'bg-tne-red text-white'
-                        : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
-                    }`}
-                  >
-                    {grade === 'HS' ? 'High School' : `${grade} Grade`}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-stone-700 mb-1">Tournament Website URL</label>
+              <label className="block text-sm font-medium text-stone-700 mb-1">Tournament Website</label>
               <input
                 type="url"
                 value={formData.external_url || ''}
@@ -284,6 +214,7 @@ function TournamentModal({ isOpen, onClose, tournament, onSave, isSaving }) {
                 className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
                 placeholder="https://..."
               />
+              <p className="text-xs text-stone-500 mt-1">Link to tournament details, schedule, and registration</p>
             </div>
 
             <div className="md:col-span-2">
@@ -301,12 +232,12 @@ function TournamentModal({ isOpen, onClose, tournament, onSave, isSaving }) {
               <input
                 type="checkbox"
                 id="is_featured"
-                checked={formData.is_featured}
+                checked={formData.is_featured || false}
                 onChange={(e) => handleChange('is_featured', e.target.checked)}
                 className="rounded border-stone-300"
               />
               <label htmlFor="is_featured" className="text-sm text-stone-700">
-                Featured tournament (show prominently on public site)
+                Featured tournament (highlight on public schedule)
               </label>
             </div>
           </div>
@@ -325,7 +256,7 @@ function TournamentModal({ isOpen, onClose, tournament, onSave, isSaving }) {
               className="px-4 py-2 rounded-lg bg-tne-red hover:bg-tne-red-dark text-white font-medium transition-colors disabled:opacity-50 flex items-center gap-2"
             >
               {isSaving && <LoaderIcon />}
-              {tournament ? 'Update Tournament' : 'Create Tournament'}
+              {event ? 'Update' : 'Add to Schedule'}
             </button>
           </div>
         </form>
@@ -334,148 +265,25 @@ function TournamentModal({ isOpen, onClose, tournament, onSave, isSaving }) {
   );
 }
 
-// Registrations Modal
-function RegistrationsModal({ isOpen, onClose, tournament, teams, onRegister, onUpdateRegistration, onRemoveRegistration }) {
-  const [selectedTeamId, setSelectedTeamId] = useState('');
-  const [isAdding, setIsAdding] = useState(false);
-
-  if (!isOpen || !tournament) return null;
-
-  const registeredTeamIds = tournament.registrations?.map((r) => r.team_id) || [];
-  const availableTeams = teams.filter((t) => !registeredTeamIds.includes(t.id));
-
-  const handleAddTeam = async () => {
-    if (!selectedTeamId) return;
-    setIsAdding(true);
-    try {
-      await onRegister(tournament.id, selectedTeamId);
-      setSelectedTeamId('');
-    } catch (err) {
-      alert(`Error: ${err.message}`);
-    } finally {
-      setIsAdding(false);
-    }
-  };
-
-  const paymentStatusColors = {
-    pending: 'bg-amber-100 text-amber-700',
-    paid: 'bg-green-100 text-green-700',
-    waived: 'bg-blue-100 text-blue-700',
-    refunded: 'bg-stone-100 text-stone-700',
-  };
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="bg-white rounded-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto shadow-xl">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-stone-200">
-          <div>
-            <h2 className="text-lg font-semibold text-stone-900">{tournament.name}</h2>
-            <p className="text-sm text-stone-500">
-              {tournament.registrations?.length || 0} teams registered
-              {tournament.max_teams && ` / ${tournament.max_teams} max`}
-            </p>
-          </div>
-          <button onClick={onClose} className="p-1 hover:bg-stone-100 rounded-lg transition-colors text-stone-500">
-            <XIcon />
-          </button>
-        </div>
-
-        <div className="p-6">
-          {/* Add Team */}
-          <div className="flex gap-2 mb-6">
-            <select
-              value={selectedTeamId}
-              onChange={(e) => setSelectedTeamId(e.target.value)}
-              className="flex-1 px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
-            >
-              <option value="">Select a team to register...</option>
-              {availableTeams.map((team) => (
-                <option key={team.id} value={team.id}>
-                  {team.name} ({team.grade_level} - {team.gender === 'male' ? 'Boys' : 'Girls'})
-                </option>
-              ))}
-            </select>
-            <button
-              onClick={handleAddTeam}
-              disabled={!selectedTeamId || isAdding}
-              className="px-4 py-2 rounded-lg bg-tne-red hover:bg-tne-red-dark text-white font-medium transition-colors disabled:opacity-50 flex items-center gap-2"
-            >
-              {isAdding ? <LoaderIcon /> : <PlusIcon />}
-              Register
-            </button>
-          </div>
-
-          {/* Registered Teams */}
-          {tournament.registrations?.length > 0 ? (
-            <div className="space-y-2">
-              {tournament.registrations.map((reg) => (
-                <div
-                  key={reg.id}
-                  className="flex items-center justify-between p-3 rounded-xl bg-stone-50 border border-stone-200"
-                >
-                  <div>
-                    <p className="font-medium text-stone-900">{reg.team?.name || 'Unknown Team'}</p>
-                    <p className="text-sm text-stone-500">
-                      {reg.team?.grade_level} - {reg.team?.gender === 'male' ? 'Boys' : 'Girls'}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <select
-                      value={reg.payment_status}
-                      onChange={(e) => onUpdateRegistration(reg.id, { payment_status: e.target.value })}
-                      className={`px-2 py-1 rounded text-xs font-medium border-0 ${paymentStatusColors[reg.payment_status]}`}
-                    >
-                      <option value="pending">Pending</option>
-                      <option value="paid">Paid</option>
-                      <option value="waived">Waived</option>
-                      <option value="refunded">Refunded</option>
-                    </select>
-                    <input
-                      type="text"
-                      placeholder="Placement"
-                      value={reg.placement || ''}
-                      onChange={(e) => onUpdateRegistration(reg.id, { placement: e.target.value })}
-                      className="w-28 px-2 py-1 rounded-lg border border-stone-300 text-sm text-stone-900"
-                    />
-                    <button
-                      onClick={() => onRemoveRegistration(reg.id)}
-                      className="p-1.5 rounded-lg hover:bg-red-50 transition-colors text-stone-400 hover:text-red-500"
-                      title="Remove registration"
-                    >
-                      <TrashIcon />
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-8 text-stone-500">
-              No teams registered yet. Select a team above to register.
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// Tournament Card
-function TournamentCard({ tournament, onEdit, onDelete, onManageRegistrations }) {
+// Tournament Event Card
+function TournamentEventCard({ event, onEdit, onDelete }) {
   const daysUntil = Math.ceil(
-    (new Date(tournament.start_date) - new Date()) / (1000 * 60 * 60 * 24)
+    (new Date(event.date) - new Date()) / (1000 * 60 * 60 * 24)
   );
+  const isPast = daysUntil < 0;
 
   return (
-    <div className="rounded-2xl bg-white border border-stone-200 shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+    <div className={`rounded-2xl bg-white border border-stone-200 shadow-sm overflow-hidden hover:shadow-md transition-shadow ${isPast ? 'opacity-60' : ''}`}>
       {/* Header */}
-      <div className="px-4 py-3 bg-stone-900 text-white">
+      <div className={`px-4 py-3 ${event.is_featured ? 'bg-amber-500' : 'bg-stone-900'} text-white`}>
         <div className="flex items-center justify-between">
-          <span className={`px-2 py-0.5 rounded text-[10px] font-semibold uppercase ${statusColors[tournament.status]}`}>
-            {tournament.status.replace('_', ' ')}
+          <span className="text-xs font-medium uppercase tracking-wide">
+            {event.team?.name || 'No team assigned'}
           </span>
-          {tournament.is_featured && (
-            <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-amber-500 text-white">
-              FEATURED
+          {event.is_featured && (
+            <span className="flex items-center gap-1 text-xs font-semibold">
+              <StarIcon />
+              Featured
             </span>
           )}
         </div>
@@ -483,86 +291,61 @@ function TournamentCard({ tournament, onEdit, onDelete, onManageRegistrations })
 
       {/* Body */}
       <div className="p-4">
-        <h3 className="font-semibold text-lg text-stone-900">{tournament.name}</h3>
+        <h3 className="font-semibold text-lg text-stone-900">
+          {event.tournament_name || event.title}
+        </h3>
 
         <div className="mt-3 space-y-2 text-sm text-stone-600">
           <div className="flex items-center gap-2">
             <CalendarIcon />
-            <span>
-              {formatDate(tournament.start_date)}
-              {tournament.end_date && tournament.end_date !== tournament.start_date && (
-                <> - {formatDate(tournament.end_date)}</>
-              )}
-            </span>
+            <span>{formatDate(event.date)}</span>
           </div>
 
-          {tournament.location && (
+          {event.location && (
             <div className="flex items-center gap-2">
               <MapPinIcon />
-              <span>{tournament.location}</span>
+              <span>{event.location}</span>
             </div>
           )}
 
-          <div className="flex items-center gap-2">
-            <UsersIcon />
-            <span>
-              {tournament.registered_teams_count} teams registered
-              {tournament.max_teams && ` / ${tournament.max_teams}`}
-            </span>
-          </div>
-
-          {tournament.entry_fee && (
+          {event.external_url && (
             <div className="flex items-center gap-2">
-              <DollarIcon />
-              <span>${parseFloat(tournament.entry_fee).toFixed(2)} entry fee</span>
+              <LinkIcon />
+              <a
+                href={event.external_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-tne-red hover:text-tne-red-dark hover:underline"
+              >
+                Tournament Website
+              </a>
             </div>
           )}
         </div>
 
-        {tournament.age_groups?.length > 0 && (
-          <div className="mt-3 flex flex-wrap gap-1">
-            {tournament.age_groups.map((grade) => (
-              <span
-                key={grade}
-                className="px-2 py-0.5 rounded bg-stone-100 text-stone-600 text-xs font-medium"
-              >
-                {grade}
-              </span>
-            ))}
-          </div>
-        )}
-
-        {tournament.status === 'upcoming' && daysUntil > 0 && (
+        {!isPast && daysUntil <= 14 && (
           <p className="mt-3 text-xs text-tne-red font-medium">
-            {daysUntil} days until tournament
+            {daysUntil === 0 ? 'Today!' : daysUntil === 1 ? 'Tomorrow' : `${daysUntil} days away`}
           </p>
         )}
       </div>
 
       {/* Footer */}
-      <div className="px-4 py-3 border-t border-stone-100 flex items-center justify-between">
+      <div className="px-4 py-3 border-t border-stone-100 flex items-center justify-end gap-1">
         <button
-          onClick={() => onManageRegistrations(tournament)}
-          className="text-sm text-tne-red hover:text-tne-red-dark font-medium transition-colors"
+          onClick={() => onEdit(event)}
+          className="p-1.5 rounded-lg hover:bg-stone-100 transition-colors text-stone-400 hover:text-stone-600"
+          title="Edit tournament"
         >
-          Manage Teams
+          <EditIcon />
         </button>
-        <div className="flex items-center gap-1">
-          <button
-            onClick={() => onEdit(tournament)}
-            className="p-1.5 rounded-lg hover:bg-stone-100 transition-colors text-stone-400 hover:text-stone-600"
-            title="Edit tournament"
-          >
-            <EditIcon />
-          </button>
-          <button
-            onClick={() => onDelete(tournament)}
-            className="p-1.5 rounded-lg hover:bg-red-50 transition-colors text-stone-400 hover:text-red-500"
-            title="Delete tournament"
-          >
-            <TrashIcon />
-          </button>
-        </div>
+        <button
+          onClick={() => onDelete(event)}
+          className="p-1.5 rounded-lg hover:bg-red-50 transition-colors text-stone-400 hover:text-red-500"
+          title="Delete tournament"
+        >
+          <TrashIcon />
+        </button>
       </div>
     </div>
   );
@@ -573,7 +356,7 @@ function CreateTournamentCard({ onClick }) {
   return (
     <button
       onClick={onClick}
-      className="rounded-2xl border-2 border-dashed border-stone-300 bg-white/50 p-8 flex flex-col items-center justify-center gap-3 hover:border-stone-400 hover:bg-white transition-all min-h-[280px]"
+      className="rounded-2xl border-2 border-dashed border-stone-300 bg-white/50 p-8 flex flex-col items-center justify-center gap-3 hover:border-stone-400 hover:bg-white transition-all min-h-[220px]"
     >
       <div className="w-12 h-12 rounded-full bg-stone-100 flex items-center justify-center">
         <PlusIcon />
@@ -584,41 +367,39 @@ function CreateTournamentCard({ onClick }) {
 }
 
 export default function AdminTournamentsPage() {
-  const { tournaments, loading, error, createTournament, updateTournament, deleteTournament, registerTeam, updateRegistration, removeRegistration } = useTournaments();
+  const { tournaments, loading, error, createTournament, updateEvent, deleteEvent } = useTournamentEvents();
   const { teams } = useTeams();
   const [modalOpen, setModalOpen] = useState(false);
-  const [editingTournament, setEditingTournament] = useState(null);
-  const [registrationsModalOpen, setRegistrationsModalOpen] = useState(false);
-  const [selectedTournament, setSelectedTournament] = useState(null);
+  const [editingEvent, setEditingEvent] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
 
   const handleCreate = () => {
-    setEditingTournament(null);
+    setEditingEvent(null);
     setModalOpen(true);
   };
 
-  const handleEdit = (tournament) => {
-    setEditingTournament(tournament);
+  const handleEdit = (event) => {
+    setEditingEvent(event);
     setModalOpen(true);
   };
 
   const handleSave = async (formData) => {
     setIsSaving(true);
     try {
-      const cleanData = { ...formData };
-      if (!cleanData.entry_fee) cleanData.entry_fee = null;
-      if (!cleanData.max_teams) cleanData.max_teams = null;
-      if (!cleanData.end_date) cleanData.end_date = null;
-      if (!cleanData.registration_deadline) cleanData.registration_deadline = null;
+      // Build title from tournament name if not provided
+      const eventData = {
+        ...formData,
+        title: formData.title || formData.tournament_name,
+      };
 
-      if (editingTournament) {
-        await updateTournament(editingTournament.id, cleanData);
+      if (editingEvent) {
+        await updateEvent(editingEvent.id, eventData);
       } else {
-        await createTournament(cleanData);
+        await createTournament(eventData);
       }
       setModalOpen(false);
-      setEditingTournament(null);
+      setEditingEvent(null);
     } catch (err) {
       console.error('Error saving tournament:', err);
       alert(`Error: ${err.message}`);
@@ -627,13 +408,13 @@ export default function AdminTournamentsPage() {
     }
   };
 
-  const handleDelete = (tournament) => {
-    setDeleteConfirm(tournament);
+  const handleDelete = (event) => {
+    setDeleteConfirm(event);
   };
 
   const confirmDelete = async () => {
     try {
-      await deleteTournament(deleteConfirm.id);
+      await deleteEvent(deleteConfirm.id);
       setDeleteConfirm(null);
     } catch (err) {
       console.error('Error deleting tournament:', err);
@@ -641,15 +422,21 @@ export default function AdminTournamentsPage() {
     }
   };
 
-  const handleManageRegistrations = (tournament) => {
-    setSelectedTournament(tournament);
-    setRegistrationsModalOpen(true);
-  };
+  // Group tournaments by tournament_name for display
+  const tournamentsByName = tournaments.reduce((groups, event) => {
+    const name = event.tournament_name || event.title;
+    if (!groups[name]) {
+      groups[name] = [];
+    }
+    groups[name].push(event);
+    return groups;
+  }, {});
 
-  // Refresh selected tournament data when tournaments change
-  const currentSelectedTournament = selectedTournament
-    ? tournaments.find((t) => t.id === selectedTournament.id)
-    : null;
+  const tournamentNames = Object.keys(tournamentsByName).sort((a, b) => {
+    const aDate = new Date(tournamentsByName[a][0].date);
+    const bDate = new Date(tournamentsByName[b][0].date);
+    return aDate - bDate;
+  });
 
   return (
     <div className="bg-stone-100 text-stone-900 antialiased min-h-screen">
@@ -665,7 +452,7 @@ export default function AdminTournamentsPage() {
                 Tournaments
               </h1>
               <p className="text-stone-500 mt-1">
-                Manage tournament registrations and track results
+                Add tournaments to team schedules
               </p>
             </div>
             <button
@@ -692,7 +479,7 @@ export default function AdminTournamentsPage() {
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {[...Array(6)].map((_, i) => (
-              <div key={i} className="rounded-2xl bg-white border border-stone-200 h-72 animate-pulse" />
+              <div key={i} className="rounded-2xl bg-white border border-stone-200 h-52 animate-pulse" />
             ))}
           </div>
         ) : tournaments.length === 0 ? (
@@ -700,8 +487,8 @@ export default function AdminTournamentsPage() {
             <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-stone-100 flex items-center justify-center">
               <TrophyIcon />
             </div>
-            <h3 className="text-lg font-medium text-stone-900 mb-2">No tournaments yet</h3>
-            <p className="text-stone-500 mb-6">Add your first tournament to get started</p>
+            <h3 className="text-lg font-medium text-stone-900 mb-2">No tournaments on schedule</h3>
+            <p className="text-stone-500 mb-6">Add tournaments to team schedules to track upcoming events</p>
             <button
               onClick={handleCreate}
               className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-tne-red hover:bg-tne-red-dark text-white font-medium transition-colors"
@@ -711,17 +498,30 @@ export default function AdminTournamentsPage() {
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {tournaments.map((tournament) => (
-              <TournamentCard
-                key={tournament.id}
-                tournament={tournament}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-                onManageRegistrations={handleManageRegistrations}
-              />
+          <div className="space-y-8">
+            {tournamentNames.map((name) => (
+              <div key={name}>
+                <h2 className="text-lg font-semibold text-stone-900 mb-4 flex items-center gap-2">
+                  {name}
+                  <span className="text-sm font-normal text-stone-500">
+                    ({tournamentsByName[name].length} team{tournamentsByName[name].length !== 1 ? 's' : ''})
+                  </span>
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {tournamentsByName[name].map((event) => (
+                    <TournamentEventCard
+                      key={event.id}
+                      event={event}
+                      onEdit={handleEdit}
+                      onDelete={handleDelete}
+                    />
+                  ))}
+                </div>
+              </div>
             ))}
-            <CreateTournamentCard onClick={handleCreate} />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <CreateTournamentCard onClick={handleCreate} />
+            </div>
           </div>
         )}
       </main>
@@ -729,31 +529,16 @@ export default function AdminTournamentsPage() {
       {/* Create/Edit Modal */}
       {modalOpen && (
         <TournamentModal
-          key={editingTournament?.id || 'new'}
+          key={editingEvent?.id || 'new'}
           isOpen={modalOpen}
           onClose={() => {
             setModalOpen(false);
-            setEditingTournament(null);
+            setEditingEvent(null);
           }}
-          tournament={editingTournament}
+          event={editingEvent}
+          teams={teams}
           onSave={handleSave}
           isSaving={isSaving}
-        />
-      )}
-
-      {/* Registrations Modal */}
-      {registrationsModalOpen && currentSelectedTournament && (
-        <RegistrationsModal
-          isOpen={registrationsModalOpen}
-          onClose={() => {
-            setRegistrationsModalOpen(false);
-            setSelectedTournament(null);
-          }}
-          tournament={currentSelectedTournament}
-          teams={teams}
-          onRegister={registerTeam}
-          onUpdateRegistration={updateRegistration}
-          onRemoveRegistration={removeRegistration}
         />
       )}
 
@@ -761,9 +546,10 @@ export default function AdminTournamentsPage() {
       {deleteConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div className="bg-white rounded-2xl w-full max-w-md p-6 shadow-xl">
-            <h3 className="text-lg font-semibold text-stone-900 mb-2">Delete Tournament?</h3>
+            <h3 className="text-lg font-semibold text-stone-900 mb-2">Remove from Schedule?</h3>
             <p className="text-stone-600 mb-6">
-              Are you sure you want to delete <strong>{deleteConfirm.name}</strong>? This will also remove all team registrations.
+              Remove <strong>{deleteConfirm.tournament_name || deleteConfirm.title}</strong> for{' '}
+              <strong>{deleteConfirm.team?.name || 'this team'}</strong> from the schedule?
             </p>
             <div className="flex justify-end gap-3">
               <button
@@ -776,7 +562,7 @@ export default function AdminTournamentsPage() {
                 onClick={confirmDelete}
                 className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white font-medium transition-colors"
               >
-                Delete
+                Remove
               </button>
             </div>
           </div>
