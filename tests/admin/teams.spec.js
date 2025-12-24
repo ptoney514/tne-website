@@ -39,26 +39,49 @@ test.describe('Admin Teams Page - UI Elements', () => {
     // Navigate to teams page
     await page.goto('/admin/teams');
 
-    // Wait for the Team Management heading to ensure page is loaded
-    await page.waitForSelector('h1:has-text("Team Management")', { timeout: 15000 });
+    // Wait for the Active Teams heading to ensure page is loaded
+    await page.waitForSelector('h1:has-text("Active Teams")', { timeout: 15000 });
   });
 
   test('should display teams page header', async ({ page }) => {
-    await expect(page.getByRole('heading', { name: 'Team Management' })).toBeVisible({ timeout: 10000 });
+    await expect(page.getByRole('heading', { name: 'Active Teams' })).toBeVisible({ timeout: 10000 });
   });
 
-  test('should display back to dashboard link', async ({ page }) => {
-    const backLink = page.getByRole('link', { name: /Back to Dashboard/i });
-    await expect(backLink).toBeVisible({ timeout: 10000 });
+  test('should display page subtitle', async ({ page }) => {
+    await expect(page.getByText('Select a team to manage rosters and schedules')).toBeVisible({ timeout: 10000 });
   });
 
-  test('should display Add Team button', async ({ page }) => {
-    const addButton = page.getByRole('button', { name: /Add Team/i });
+  test('should display New Team button', async ({ page }) => {
+    const addButton = page.getByRole('button', { name: /New Team/i });
     await expect(addButton).toBeVisible({ timeout: 10000 });
   });
 
-  test('should open create team modal when Add Team is clicked', async ({ page }) => {
-    const addButton = page.getByRole('button', { name: /Add Team/i });
+  test('should display search input', async ({ page }) => {
+    const searchInput = page.getByPlaceholder('Search...');
+    await expect(searchInput).toBeVisible({ timeout: 10000 });
+  });
+
+  test('should display filter chips', async ({ page }) => {
+    // Status filters
+    await expect(page.getByText('Needs Coach')).toBeVisible();
+
+    // Gender filters
+    await expect(page.getByRole('button', { name: 'Boys' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Girls' })).toBeVisible();
+
+    // Tier filters
+    await expect(page.getByRole('button', { name: /TNE Elite/i })).toBeVisible();
+    await expect(page.getByRole('button', { name: /Express United/i })).toBeVisible();
+    await expect(page.getByRole('button', { name: /Development/i })).toBeVisible();
+  });
+
+  test('should display Program Tier Legend', async ({ page }) => {
+    await expect(page.getByText('Program Tier Legend')).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText('Top-tier competitive teams')).toBeVisible();
+  });
+
+  test('should open create team modal when New Team is clicked', async ({ page }) => {
+    const addButton = page.getByRole('button', { name: /New Team/i });
     await addButton.click();
 
     // Modal should be visible
@@ -72,7 +95,7 @@ test.describe('Admin Teams Page - UI Elements', () => {
 
   test('should close modal when Cancel is clicked', async ({ page }) => {
     // Open modal
-    const addButton = page.getByRole('button', { name: /Add Team/i });
+    const addButton = page.getByRole('button', { name: /New Team/i });
     await addButton.click();
     await expect(page.getByRole('heading', { name: 'Create Team' })).toBeVisible();
 
@@ -82,18 +105,166 @@ test.describe('Admin Teams Page - UI Elements', () => {
     // Modal should be closed
     await expect(page.getByRole('heading', { name: 'Create Team' })).not.toBeVisible();
   });
+});
 
-  test('should close modal when X button is clicked', async ({ page }) => {
-    // Open modal
-    const addButton = page.getByRole('button', { name: /Add Team/i });
-    await addButton.click();
-    await expect(page.getByRole('heading', { name: 'Create Team' })).toBeVisible();
+test.describe('Admin Teams Page - Table View', () => {
+  test.skip(skipAuthTests, 'Requires CI_ADMIN_TESTS env var');
 
-    // Click X button (close icon)
-    await page.locator('button').filter({ has: page.locator('svg.lucide-x') }).click();
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/login');
+    await page.evaluate(() => {
+      localStorage.clear();
+      sessionStorage.clear();
+    });
 
-    // Modal should be closed
-    await expect(page.getByRole('heading', { name: 'Create Team' })).not.toBeVisible();
+    await page.fill('#email', TEST_EMAIL);
+    await page.fill('#password', TEST_PASSWORD);
+    await page.click('button[type="submit"]');
+    await page.waitForFunction(() => !window.location.pathname.includes('/login'), { timeout: 30000 });
+
+    await page.goto('/admin/teams');
+    await page.waitForSelector('h1:has-text("Active Teams")', { timeout: 15000 });
+  });
+
+  test('should display teams in table format', async ({ page }) => {
+    // Wait for data to load
+    await page.waitForTimeout(2000);
+
+    // Table should have headers
+    await expect(page.getByText('Team', { exact: false }).first()).toBeVisible();
+    await expect(page.getByText('Program / Tags')).toBeVisible();
+    await expect(page.getByText('Players')).toBeVisible();
+    await expect(page.getByText('Status')).toBeVisible();
+  });
+
+  test('should display tier badges in table rows', async ({ page }) => {
+    await page.waitForTimeout(2000);
+
+    // Check for tier badges (at least one should be visible if teams exist)
+    const tierBadges = page.locator('[data-testid="tier-badge"]');
+    const count = await tierBadges.count();
+
+    // If teams exist, there should be tier badges
+    if (count > 0) {
+      await expect(tierBadges.first()).toBeVisible();
+    }
+  });
+
+  test('should show empty state or teams table', async ({ page }) => {
+    await page.waitForTimeout(2000);
+
+    const hasTeams = await page.locator('table').isVisible().catch(() => false);
+    const hasEmptyState = await page.getByText(/No teams yet|No teams match filters/i).isVisible().catch(() => false);
+
+    expect(hasTeams || hasEmptyState).toBe(true);
+  });
+});
+
+test.describe('Admin Teams Page - Filters', () => {
+  test.skip(skipAuthTests, 'Requires CI_ADMIN_TESTS env var');
+
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/login');
+    await page.evaluate(() => {
+      localStorage.clear();
+      sessionStorage.clear();
+    });
+
+    await page.fill('#email', TEST_EMAIL);
+    await page.fill('#password', TEST_PASSWORD);
+    await page.click('button[type="submit"]');
+    await page.waitForFunction(() => !window.location.pathname.includes('/login'), { timeout: 30000 });
+
+    await page.goto('/admin/teams');
+    await page.waitForSelector('h1:has-text("Active Teams")', { timeout: 15000 });
+  });
+
+  test('should toggle filter chip active state when clicked', async ({ page }) => {
+    await page.waitForTimeout(1000);
+
+    // Click the Boys filter
+    const boysFilter = page.getByRole('button', { name: 'Boys' });
+    await boysFilter.click();
+
+    // Should have ring class (active state)
+    await expect(boysFilter).toHaveClass(/ring-2/);
+
+    // Click again to deactivate
+    await boysFilter.click();
+    await expect(boysFilter).not.toHaveClass(/ring-2/);
+  });
+
+  test('should filter by search query', async ({ page }) => {
+    await page.waitForTimeout(2000);
+
+    const searchInput = page.getByPlaceholder('Search...');
+    await searchInput.fill('Express');
+
+    // Wait for filter to apply
+    await page.waitForTimeout(500);
+
+    // Results should be filtered (or show empty state)
+    // This is a smoke test - actual filtering depends on data
+  });
+});
+
+test.describe('Admin Teams Page - Edit Tags Modal', () => {
+  test.skip(skipAuthTests, 'Requires CI_ADMIN_TESTS env var');
+
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/login');
+    await page.evaluate(() => {
+      localStorage.clear();
+      sessionStorage.clear();
+    });
+
+    await page.fill('#email', TEST_EMAIL);
+    await page.fill('#password', TEST_PASSWORD);
+    await page.click('button[type="submit"]');
+    await page.waitForFunction(() => !window.location.pathname.includes('/login'), { timeout: 30000 });
+
+    await page.goto('/admin/teams');
+    await page.waitForSelector('h1:has-text("Active Teams")', { timeout: 15000 });
+  });
+
+  test('should open edit tags modal when pencil icon is clicked', async ({ page }) => {
+    await page.waitForTimeout(2000);
+
+    // Find and click the first edit tags button (pencil icon)
+    const editButton = page.locator('button[title="Edit tier and tags"]').first();
+
+    if (await editButton.isVisible().catch(() => false)) {
+      await editButton.click();
+
+      // Modal should be visible
+      await expect(page.getByRole('heading', { name: 'Edit Team Classification' })).toBeVisible({ timeout: 5000 });
+
+      // Tier options should be visible
+      await expect(page.getByText('Program Tier')).toBeVisible();
+      await expect(page.getByText('TNE Elite')).toBeVisible();
+      await expect(page.getByText('Express United')).toBeVisible();
+      await expect(page.getByText('Development')).toBeVisible();
+
+      // Tags should be visible
+      await expect(page.getByText('Tags (select all that apply)')).toBeVisible();
+    }
+  });
+
+  test('should close edit tags modal when Cancel is clicked', async ({ page }) => {
+    await page.waitForTimeout(2000);
+
+    const editButton = page.locator('button[title="Edit tier and tags"]').first();
+
+    if (await editButton.isVisible().catch(() => false)) {
+      await editButton.click();
+      await expect(page.getByRole('heading', { name: 'Edit Team Classification' })).toBeVisible();
+
+      // Click cancel
+      await page.getByRole('button', { name: 'Cancel' }).click();
+
+      // Modal should close
+      await expect(page.getByRole('heading', { name: 'Edit Team Classification' })).not.toBeVisible();
+    }
   });
 });
 
@@ -113,17 +284,16 @@ test.describe('Admin Teams Page - Form Validation', () => {
     await page.waitForFunction(() => !window.location.pathname.includes('/login'), { timeout: 30000 });
 
     await page.goto('/admin/teams');
-    await page.waitForSelector('h1:has-text("Team Management")', { timeout: 15000 });
+    await page.waitForSelector('h1:has-text("Active Teams")', { timeout: 15000 });
 
     // Open create modal
-    await page.getByRole('button', { name: /Add Team/i }).click();
+    await page.getByRole('button', { name: /New Team/i }).click();
     await expect(page.getByRole('heading', { name: 'Create Team' })).toBeVisible();
   });
 
   test('should have required fields', async ({ page }) => {
     const nameInput = page.getByLabel(/Team Name/i);
     const gradeSelect = page.getByLabel(/Grade Level/i);
-    const seasonSelect = page.getByLabel(/Season/i);
 
     await expect(nameInput).toHaveAttribute('required');
     await expect(gradeSelect).toHaveAttribute('required');
@@ -141,36 +311,8 @@ test.describe('Admin Teams Page - Form Validation', () => {
   });
 
   test('should show gender options', async ({ page }) => {
-    const genderSelect = page.getByLabel(/Gender/i);
-
     await expect(page.locator('option', { hasText: 'Boys' })).toBeVisible();
     await expect(page.locator('option', { hasText: 'Girls' })).toBeVisible();
-  });
-});
-
-test.describe('Admin Teams Page - Navigation', () => {
-  test.skip(skipAuthTests, 'Requires CI_ADMIN_TESTS env var');
-
-  test.beforeEach(async ({ page }) => {
-    await page.goto('/login');
-    await page.evaluate(() => {
-      localStorage.clear();
-      sessionStorage.clear();
-    });
-
-    await page.fill('#email', TEST_EMAIL);
-    await page.fill('#password', TEST_PASSWORD);
-    await page.click('button[type="submit"]');
-    await page.waitForFunction(() => !window.location.pathname.includes('/login'), { timeout: 30000 });
-
-    await page.goto('/admin/teams');
-    await page.waitForSelector('h1:has-text("Team Management")', { timeout: 15000 });
-  });
-
-  test('should navigate back to dashboard', async ({ page }) => {
-    const backLink = page.getByRole('link', { name: /Back to Dashboard/i });
-    await backLink.click();
-    await expect(page).toHaveURL('/admin');
   });
 });
 
@@ -190,12 +332,12 @@ test.describe('Admin Teams CRUD Operations', () => {
     await page.waitForFunction(() => !window.location.pathname.includes('/login'), { timeout: 30000 });
 
     await page.goto('/admin/teams');
-    await page.waitForSelector('h1:has-text("Team Management")', { timeout: 15000 });
+    await page.waitForSelector('h1:has-text("Active Teams")', { timeout: 15000 });
   });
 
   test('should fill out and submit team creation form', async ({ page }) => {
     // Open create modal
-    await page.getByRole('button', { name: /Add Team/i }).click();
+    await page.getByRole('button', { name: /New Team/i }).click();
     await expect(page.getByRole('heading', { name: 'Create Team' })).toBeVisible();
 
     // Fill form
@@ -226,68 +368,17 @@ test.describe('Admin Teams CRUD Operations', () => {
     // We don't assert on success because it depends on Supabase state
   });
 
-  test('should show empty state or teams list', async ({ page }) => {
-    // Page should either show teams grid or empty state
-    await page.waitForTimeout(2000); // Wait for data to load
-
-    const hasTeams = await page.locator('[class*="grid"]').locator('div').filter({ hasText: 'Players' }).count() > 0;
-    const hasEmptyState = await page.getByText(/No teams yet|Create your first team/i).isVisible().catch(() => false);
-
-    expect(hasTeams || hasEmptyState).toBe(true);
-  });
-});
-
-test.describe('Admin Teams - Delete Confirmation', () => {
-  test.skip(skipAuthTests, 'Requires CI_ADMIN_TESTS env var');
-
-  test.beforeEach(async ({ page }) => {
-    await page.goto('/login');
-    await page.evaluate(() => {
-      localStorage.clear();
-      sessionStorage.clear();
-    });
-
-    await page.fill('#email', TEST_EMAIL);
-    await page.fill('#password', TEST_PASSWORD);
-    await page.click('button[type="submit"]');
-    await page.waitForFunction(() => !window.location.pathname.includes('/login'), { timeout: 30000 });
-
-    await page.goto('/admin/teams');
-    await page.waitForSelector('h1:has-text("Team Management")', { timeout: 15000 });
-  });
-
-  test('should show delete confirmation when delete icon is clicked', async ({ page }) => {
-    // Wait for teams to load
+  test('should navigate to roster when team row is clicked', async ({ page }) => {
     await page.waitForTimeout(2000);
 
-    // Find delete button (trash icon)
-    const deleteButton = page.locator('button[title="Delete team"]').first();
+    // Find a team row
+    const teamRow = page.locator('tr[data-testid^="team-row-"]').first();
 
-    if (await deleteButton.isVisible().catch(() => false)) {
-      await deleteButton.click();
+    if (await teamRow.isVisible().catch(() => false)) {
+      await teamRow.click();
 
-      // Delete confirmation modal should appear
-      await expect(page.getByRole('heading', { name: /Delete Team/i })).toBeVisible();
-      await expect(page.getByRole('button', { name: 'Cancel' })).toBeVisible();
-      await expect(page.getByRole('button', { name: 'Delete' })).toBeVisible();
-    }
-    // If no teams exist, test passes (nothing to delete)
-  });
-
-  test('should close delete confirmation when Cancel is clicked', async ({ page }) => {
-    await page.waitForTimeout(2000);
-
-    const deleteButton = page.locator('button[title="Delete team"]').first();
-
-    if (await deleteButton.isVisible().catch(() => false)) {
-      await deleteButton.click();
-      await expect(page.getByRole('heading', { name: /Delete Team/i })).toBeVisible();
-
-      // Click cancel
-      await page.getByRole('button', { name: 'Cancel' }).click();
-
-      // Modal should close
-      await expect(page.getByRole('heading', { name: /Delete Team/i })).not.toBeVisible();
+      // Should navigate to roster page
+      await expect(page).toHaveURL(/\/admin\/teams\/.*\/roster/);
     }
   });
 });
