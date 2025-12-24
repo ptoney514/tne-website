@@ -18,7 +18,7 @@ import AdminTeamDetailPage from './pages/AdminTeamDetailPage';
 import AdminCoachesPage from './pages/AdminCoachesPage';
 import AdminSettingsLayout from './pages/AdminSettingsLayout';
 import AdminUsersPage from './pages/AdminUsersPage';
-import AdminTournamentsPage from './pages/AdminTournamentsPage';
+import AdminGamesPage from './pages/AdminGamesPage';
 
 function App() {
   return (
@@ -88,15 +88,17 @@ function App() {
             }
           />
           <Route
-            path="/admin/tournaments"
+            path="/admin/games"
             element={
               <ProtectedRoute allowedRoles={['admin']}>
                 <SeasonProvider>
-                  <AdminTournamentsPage />
+                  <AdminGamesPage />
                 </SeasonProvider>
               </ProtectedRoute>
             }
           />
+          {/* Redirect old tournaments route to games */}
+          <Route path="/admin/tournaments" element={<Navigate to="/admin/games" replace />} />
 
           {/* Settings routes - redirect /admin/settings to /admin/settings/users */}
           <Route

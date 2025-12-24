@@ -1,48 +1,23 @@
-import { Link } from 'react-router-dom';
-import { MapPin, Users, Ticket, ArrowRight, Trophy, Medal } from 'lucide-react';
+import { MapPin, Users, ArrowRight, Trophy, Medal, ExternalLink, CalendarDays } from 'lucide-react';
+import { usePublicGames } from '../../hooks/useGames';
 
-// Sample tournament data - will be replaced with Supabase data
-const upcomingTournaments = [
+// Fallback sample data when no tournaments in database
+const sampleTournaments = [
   {
-    id: '1',
+    id: 'sample-1',
     name: 'New Year Classic Invitational',
-    dates: 'Jan 4-5, 2026',
+    date: '2026-01-04',
     location: 'Gateway Sports Complex',
-    price: '$250 per team',
-    status: 'open',
-    featured: true,
-    deadline: 'Dec 28',
-    description:
-      'Kick off 2026 with one of the premier youth basketball tournaments in the region. Multiple TNE teams competing across all age divisions with full bracket play.',
-    teamsRegistered: 4,
-    participatingTeams: [
-      '4th Grade - Foster',
-      '5th Grade - Perry',
-      '6th Grade - Todd',
-      '7th Grade - Mitchell',
-    ],
+    is_featured: true,
+    game_teams: [],
   },
   {
-    id: '2',
+    id: 'sample-2',
     name: 'MLK Weekend Showcase',
-    dates: 'Jan 18-19, 2026',
+    date: '2026-01-18',
     location: 'Central Sports Arena',
-    price: '$200 per team',
-    status: 'open',
-    deadline: 'Jan 10',
-    description: '8-team bracket format with guaranteed 3 games',
-    divisions: ['4th', '5th', '6th', '7th', '8th'],
-  },
-  {
-    id: '3',
-    name: 'Presidents Day Classic',
-    dates: 'Feb 15-16, 2026',
-    location: 'Metro Convention Center',
-    price: '$275 per team',
-    status: 'coming_soon',
-    opens: 'Jan 15',
-    description: 'Premier regional tournament with top programs',
-    divisions: ['5th', '6th', '7th', '8th'],
+    is_featured: false,
+    game_teams: [],
   },
 ];
 
@@ -75,21 +50,16 @@ const pastResults = [
     team: '4th Grade - Foster',
     result: '3rd',
   },
-  {
-    id: '5',
-    tournament: 'Labor Day Shootout',
-    date: 'Aug 31 - Sep 1',
-    team: '8th Grade - Johnson',
-    result: 'champions',
-  },
 ];
 
-const seasonStats = {
-  tournaments: 12,
-  championships: 5,
-  wins: 38,
-  winRate: '76%',
-};
+function formatDate(dateStr) {
+  if (!dateStr) return '';
+  return new Date(dateStr).toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
+}
 
 function ResultBadge({ result }) {
   if (result === 'champions') {
@@ -115,7 +85,194 @@ function ResultBadge({ result }) {
   );
 }
 
+function FeaturedTournamentCard({ tournament }) {
+  const teams = tournament.game_teams || [];
+
+  return (
+    <div className="rounded-3xl bg-gradient-to-br from-neutral-900 via-neutral-900 to-neutral-800 text-white border border-neutral-700/50 shadow-xl overflow-hidden relative">
+      <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-tne-red/5 to-transparent pointer-events-none" />
+
+      <div className="px-5 py-6 sm:px-8 sm:py-8 relative">
+        <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
+          <div className="space-y-4 flex-1">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="inline-flex items-center rounded-full bg-amber-500/20 text-amber-400 px-2.5 py-0.5 text-[0.65rem] font-medium uppercase tracking-wide border border-amber-500/20">
+                Featured
+              </span>
+              <span className="text-[0.7rem] font-mono text-white/50">
+                {formatDate(tournament.date)}
+              </span>
+            </div>
+
+            <h3 className="text-2xl sm:text-3xl font-semibold tracking-tight">
+              {tournament.name}
+            </h3>
+
+            {tournament.notes && (
+              <p className="text-sm text-white/60 max-w-xl leading-relaxed">
+                {tournament.notes}
+              </p>
+            )}
+
+            <div className="flex flex-wrap gap-4 pt-1">
+              {tournament.location && (
+                <div className="flex items-center gap-2 text-sm text-white/70">
+                  <MapPin className="w-4 h-4 text-white/40" />
+                  <span>{tournament.location}</span>
+                </div>
+              )}
+              <div className="flex items-center gap-2 text-sm text-white/70">
+                <Users className="w-4 h-4 text-white/40" />
+                <span>{teams.length} TNE Teams Registered</span>
+              </div>
+            </div>
+
+            {teams.length > 0 && (
+              <div className="pt-4 border-t border-white/10 mt-2">
+                <p className="text-xs font-medium text-white/40 uppercase tracking-wider mb-2">
+                  TNE Teams Participating
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {teams.map((gt) => (
+                    <span
+                      key={gt.id}
+                      className="inline-flex items-center rounded-full bg-white/5 border border-white/10 px-3 py-1.5 text-xs text-white/80 hover:bg-white/10 transition-colors"
+                    >
+                      {gt.team?.name || 'Team'}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="flex flex-col gap-4 lg:items-end lg:min-w-[180px]">
+            {tournament.external_url && (
+              <a
+                href={tournament.external_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-tne-red text-white text-sm font-medium hover:bg-tne-red-dark transition-all hover:scale-[1.02] shadow-lg shadow-tne-red/20"
+              >
+                Tournament Details
+                <ExternalLink className="w-4 h-4" />
+              </a>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function TournamentCard({ tournament }) {
+  const teams = tournament.game_teams || [];
+
+  return (
+    <article className="rounded-3xl bg-white border border-neutral-200 shadow-sm overflow-hidden flex flex-col hover:shadow-md hover:border-neutral-300 transition-all">
+      <div className="bg-neutral-900 text-white px-5 py-4">
+        <div className="flex items-center justify-between gap-3 mb-2">
+          <span className="inline-flex items-center rounded-full bg-emerald-500/20 text-emerald-400 px-2 py-0.5 text-[0.65rem] font-medium uppercase tracking-wide">
+            Tournament
+          </span>
+          <span className="text-[0.7rem] font-mono text-white/50">
+            {formatDate(tournament.date)}
+          </span>
+        </div>
+        <h3 className="text-xl font-semibold tracking-tight">
+          {tournament.name}
+        </h3>
+      </div>
+
+      <div className="px-5 py-4 space-y-3 flex-1">
+        <div className="flex flex-wrap gap-3 text-sm text-neutral-600">
+          {tournament.location && (
+            <span className="inline-flex items-center gap-1.5">
+              <MapPin className="w-4 h-4 text-neutral-400" />
+              {tournament.location}
+            </span>
+          )}
+          <span className="inline-flex items-center gap-1.5">
+            <Users className="w-4 h-4 text-neutral-400" />
+            {teams.length} team{teams.length !== 1 ? 's' : ''}
+          </span>
+        </div>
+
+        {teams.length > 0 && (
+          <div className="space-y-1.5">
+            <p className="text-xs font-medium text-neutral-500 uppercase tracking-wider">
+              Participating Teams
+            </p>
+            <div className="flex flex-wrap gap-1.5">
+              {teams.map((gt) => (
+                <span
+                  key={gt.id}
+                  className="inline-flex items-center rounded-full bg-neutral-100 border border-neutral-200 px-2 py-0.5 text-[0.65rem] font-mono text-neutral-600"
+                >
+                  {gt.team?.name?.split(' ').slice(-1)[0] || 'Team'}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className="px-5 py-3 border-t border-neutral-200 bg-neutral-50 flex items-center justify-between">
+        <span className="text-[0.7rem] sm:text-xs text-neutral-500">
+          {tournament.start_time && `Starts at ${tournament.start_time}`}
+        </span>
+        {tournament.external_url ? (
+          <a
+            href={tournament.external_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-tne-red text-white text-xs font-medium hover:bg-tne-red-dark transition-colors"
+          >
+            Details
+            <ArrowRight className="w-3.5 h-3.5" />
+          </a>
+        ) : (
+          <span className="text-xs text-neutral-400">
+            More info coming soon
+          </span>
+        )}
+      </div>
+    </article>
+  );
+}
+
 export default function TournamentsTab() {
+  const { games, loading, error } = usePublicGames();
+
+  // Filter to only show tournaments
+  const tournaments = games.filter(g => g.game_type === 'tournament');
+
+  // Use sample data if no tournaments in database
+  const displayTournaments = tournaments.length > 0 ? tournaments : sampleTournaments;
+  const featuredTournament = displayTournaments.find(t => t.is_featured);
+  const otherTournaments = displayTournaments.filter(t => !t.is_featured);
+
+  if (loading) {
+    return (
+      <div className="rounded-3xl bg-white border border-neutral-200 p-8 text-center">
+        <div className="animate-spin w-8 h-8 border-2 border-neutral-200 border-t-tne-red rounded-full mx-auto mb-4" />
+        <p className="text-neutral-500">Loading tournaments...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="rounded-3xl bg-white border border-neutral-200 p-8 text-center">
+        <CalendarDays className="w-12 h-12 text-neutral-300 mx-auto mb-4" />
+        <h3 className="text-lg font-semibold text-neutral-900 mb-2">
+          Unable to load tournaments
+        </h3>
+        <p className="text-neutral-500">Please try again later</p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -124,184 +281,36 @@ export default function TournamentsTab() {
           Upcoming Tournaments
         </h2>
         <span className="inline-flex items-center rounded-full bg-amber-100 text-amber-700 px-2.5 py-0.5 text-[0.65rem] font-medium uppercase tracking-wide">
-          {upcomingTournaments.length} Events
+          {displayTournaments.length} Events
         </span>
       </div>
 
       {/* Featured Tournament */}
-      {upcomingTournaments
-        .filter((t) => t.featured)
-        .map((tournament) => (
-          <div
-            key={tournament.id}
-            className="rounded-3xl bg-gradient-to-br from-neutral-900 via-neutral-900 to-neutral-800 text-white border border-neutral-700/50 shadow-xl overflow-hidden relative"
-          >
-            <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-tne-red/5 to-transparent pointer-events-none" />
-
-            <div className="px-5 py-6 sm:px-8 sm:py-8 relative">
-              <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
-                <div className="space-y-4 flex-1">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="inline-flex items-center rounded-full bg-amber-500/20 text-amber-400 px-2.5 py-0.5 text-[0.65rem] font-medium uppercase tracking-wide border border-amber-500/20">
-                      Featured
-                    </span>
-                    <span className="inline-flex items-center rounded-full bg-emerald-500/20 text-emerald-400 px-2.5 py-0.5 text-[0.65rem] font-medium uppercase tracking-wide border border-emerald-500/20">
-                      Registration Open
-                    </span>
-                    <span className="text-[0.7rem] font-mono text-white/50">
-                      {tournament.dates}
-                    </span>
-                  </div>
-
-                  <h3 className="text-2xl sm:text-3xl font-semibold tracking-tight">
-                    {tournament.name}
-                  </h3>
-
-                  <p className="text-sm text-white/60 max-w-xl leading-relaxed">
-                    {tournament.description}
-                  </p>
-
-                  <div className="flex flex-wrap gap-4 pt-1">
-                    <div className="flex items-center gap-2 text-sm text-white/70">
-                      <MapPin className="w-4 h-4 text-white/40" />
-                      <span>{tournament.location}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm text-white/70">
-                      <Users className="w-4 h-4 text-white/40" />
-                      <span>
-                        {tournament.teamsRegistered} TNE Teams Registered
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm text-white/70">
-                      <Ticket className="w-4 h-4 text-white/40" />
-                      <span>{tournament.price}</span>
-                    </div>
-                  </div>
-
-                  {tournament.participatingTeams && (
-                    <div className="pt-4 border-t border-white/10 mt-2">
-                      <p className="text-xs font-medium text-white/40 uppercase tracking-wider mb-2">
-                        TNE Teams Participating
-                      </p>
-                      <div className="flex flex-wrap gap-2">
-                        {tournament.participatingTeams.map((team) => (
-                          <span
-                            key={team}
-                            className="inline-flex items-center rounded-full bg-white/5 border border-white/10 px-3 py-1.5 text-xs text-white/80 hover:bg-white/10 transition-colors"
-                          >
-                            {team}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                <div className="flex flex-col gap-4 lg:items-end lg:min-w-[180px]">
-                  <div className="px-5 py-4 rounded-2xl bg-white/5 border border-white/10 text-center">
-                    <span className="block text-[0.65rem] text-white/40 uppercase tracking-wider mb-1">
-                      Registration Deadline
-                    </span>
-                    <span className="font-bebas text-3xl text-white tracking-wide">
-                      {tournament.deadline}
-                    </span>
-                  </div>
-                  <button className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-tne-red text-white text-sm font-medium hover:bg-tne-red-dark transition-all hover:scale-[1.02] shadow-lg shadow-tne-red/20">
-                    Register Now
-                    <ArrowRight className="w-4 h-4" />
-                  </button>
-                  <button className="text-xs text-white/50 hover:text-white transition-colors text-center">
-                    View tournament details
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        ))}
+      {featuredTournament && (
+        <FeaturedTournamentCard tournament={featuredTournament} />
+      )}
 
       {/* Tournament Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        {upcomingTournaments
-          .filter((t) => !t.featured)
-          .map((tournament) => (
-            <article
-              key={tournament.id}
-              className="rounded-3xl bg-white border border-neutral-200 shadow-sm overflow-hidden flex flex-col hover:shadow-md hover:border-neutral-300 transition-all"
-            >
-              <div className="bg-neutral-900 text-white px-5 py-4">
-                <div className="flex items-center justify-between gap-3 mb-2">
-                  <span
-                    className={`inline-flex items-center rounded-full px-2 py-0.5 text-[0.65rem] font-medium uppercase tracking-wide ${
-                      tournament.status === 'open'
-                        ? 'bg-emerald-500/20 text-emerald-400'
-                        : 'bg-amber-500/20 text-amber-400'
-                    }`}
-                  >
-                    {tournament.status === 'open' ? 'Open' : 'Coming Soon'}
-                  </span>
-                  <span className="text-[0.7rem] font-mono text-white/50">
-                    {tournament.dates}
-                  </span>
-                </div>
-                <h3 className="text-xl font-semibold tracking-tight">
-                  {tournament.name}
-                </h3>
-                <p className="text-sm text-white/60 mt-1">
-                  {tournament.description}
-                </p>
-              </div>
-
-              <div className="px-5 py-4 space-y-3 flex-1">
-                <div className="flex flex-wrap gap-3 text-sm text-neutral-600">
-                  <span className="inline-flex items-center gap-1.5">
-                    <MapPin className="w-4 h-4 text-neutral-400" />
-                    {tournament.location}
-                  </span>
-                  <span className="inline-flex items-center gap-1.5">
-                    <Ticket className="w-4 h-4 text-neutral-400" />
-                    {tournament.price}
-                  </span>
-                </div>
-
-                {tournament.divisions && (
-                  <div className="space-y-1.5">
-                    <p className="text-xs font-medium text-neutral-500 uppercase tracking-wider">
-                      Age Divisions
-                    </p>
-                    <div className="flex flex-wrap gap-1.5">
-                      {tournament.divisions.map((div) => (
-                        <span
-                          key={div}
-                          className="inline-flex items-center rounded-full bg-neutral-100 border border-neutral-200 px-2 py-0.5 text-[0.65rem] font-mono text-neutral-600"
-                        >
-                          {div} Grade
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              <div className="px-5 py-3 border-t border-neutral-200 bg-neutral-50 flex items-center justify-between">
-                <span className="text-[0.7rem] sm:text-xs text-neutral-500">
-                  {tournament.status === 'open'
-                    ? `Deadline: ${tournament.deadline}`
-                    : `Opens: ${tournament.opens}`}
-                </span>
-                {tournament.status === 'open' ? (
-                  <button className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-tne-red text-white text-xs font-medium hover:bg-tne-red-dark transition-colors">
-                    Register
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </button>
-                ) : (
-                  <span className="text-xs text-neutral-400">
-                    Registration opens soon
-                  </span>
-                )}
-              </div>
-            </article>
+      {otherTournaments.length > 0 && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          {otherTournaments.map((tournament) => (
+            <TournamentCard key={tournament.id} tournament={tournament} />
           ))}
-      </div>
+        </div>
+      )}
+
+      {/* Empty State */}
+      {displayTournaments.length === 0 && (
+        <div className="rounded-3xl bg-white border border-neutral-200 p-8 text-center">
+          <CalendarDays className="w-12 h-12 text-neutral-300 mx-auto mb-4" />
+          <h3 className="text-lg font-semibold text-neutral-900 mb-2">
+            No upcoming tournaments
+          </h3>
+          <p className="text-neutral-500">
+            Check back later for tournament announcements
+          </p>
+        </div>
+      )}
 
       {/* Past Results */}
       <div className="space-y-4 pt-4">
@@ -368,49 +377,6 @@ export default function TournamentsTab() {
             <button className="text-sm font-medium text-tne-red hover:text-tne-red-dark">
               View all past results
             </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Season Stats */}
-      <div className="rounded-3xl bg-gradient-to-br from-neutral-900 via-neutral-900 to-neutral-800 text-white border border-neutral-700/50 shadow-xl overflow-hidden">
-        <div className="px-5 py-6 sm:px-8 sm:py-8">
-          <h3 className="text-lg font-semibold mb-5">
-            2024-25 Season Highlights
-          </h3>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            <div className="px-4 py-4 rounded-2xl bg-white/5 border border-white/10 text-center hover:bg-white/10 transition-colors">
-              <span className="font-bebas text-4xl text-white tracking-wide">
-                {seasonStats.tournaments}
-              </span>
-              <span className="block text-[0.65rem] text-white/50 uppercase tracking-wider mt-1">
-                Tournaments
-              </span>
-            </div>
-            <div className="px-4 py-4 rounded-2xl bg-white/5 border border-white/10 text-center hover:bg-white/10 transition-colors">
-              <span className="font-bebas text-4xl text-amber-400 tracking-wide">
-                {seasonStats.championships}
-              </span>
-              <span className="block text-[0.65rem] text-white/50 uppercase tracking-wider mt-1">
-                Championships
-              </span>
-            </div>
-            <div className="px-4 py-4 rounded-2xl bg-white/5 border border-white/10 text-center hover:bg-white/10 transition-colors">
-              <span className="font-bebas text-4xl text-white tracking-wide">
-                {seasonStats.wins}
-              </span>
-              <span className="block text-[0.65rem] text-white/50 uppercase tracking-wider mt-1">
-                Wins
-              </span>
-            </div>
-            <div className="px-4 py-4 rounded-2xl bg-white/5 border border-white/10 text-center hover:bg-white/10 transition-colors">
-              <span className="font-bebas text-4xl text-white tracking-wide">
-                {seasonStats.winRate}
-              </span>
-              <span className="block text-[0.65rem] text-white/50 uppercase tracking-wider mt-1">
-                Win Rate
-              </span>
-            </div>
           </div>
         </div>
       </div>
