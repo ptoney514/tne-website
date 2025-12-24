@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { usePlayers } from '../hooks/usePlayers';
 import { getGradeColor, formatGradeShort } from '../utils/gradeColors';
 import AdminNavbar from '../components/AdminNavbar';
@@ -38,9 +38,16 @@ const EMPTY_PLAYER_FORM = {
 const GRADES = ['3rd', '4th', '5th', '6th', '7th', '8th'];
 
 // Player Modal for Add/Edit
-function PlayerModal({ isOpen, onClose, player, onSave, isSaving }) {
+function PlayerModal({ isOpen, onClose, player, teams, onSave, onAssignTeam, onRemoveTeam, isSaving }) {
   const initialData = player || EMPTY_PLAYER_FORM;
   const [formData, setFormData] = useState(initialData);
+  const [selectedTeamToAdd, setSelectedTeamToAdd] = useState('');
+  const [isAssigning, setIsAssigning] = useState(false);
+
+  // Get teams the player is NOT already on
+  const availableTeams = (teams || []).filter(
+    (team) => !player?.teams?.some((t) => t.id === team.id)
+  );
 
   if (!isOpen) return null;
 
@@ -51,6 +58,31 @@ function PlayerModal({ isOpen, onClose, player, onSave, isSaving }) {
 
   const handleChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleAssignTeam = async () => {
+    if (!selectedTeamToAdd || !player?.id) return;
+    setIsAssigning(true);
+    try {
+      await onAssignTeam(player.id, selectedTeamToAdd);
+      setSelectedTeamToAdd('');
+    } catch (err) {
+      alert(`Error: ${err.message}`);
+    } finally {
+      setIsAssigning(false);
+    }
+  };
+
+  const handleRemoveTeam = async (teamId) => {
+    if (!player?.id) return;
+    setIsAssigning(true);
+    try {
+      await onRemoveTeam(player.id, teamId);
+    } catch (err) {
+      alert(`Error: ${err.message}`);
+    } finally {
+      setIsAssigning(false);
+    }
   };
 
   const currentYear = new Date().getFullYear();
@@ -274,6 +306,72 @@ function PlayerModal({ isOpen, onClose, player, onSave, isSaving }) {
             </div>
           </div>
 
+          {/* Team Assignment (only show when editing existing player) */}
+          {player?.id && (
+            <div className="border-t border-stone-200 pt-4 mt-4">
+              <h3 className="text-sm font-medium text-stone-900 mb-3">Team Assignment</h3>
+
+              {/* Current Teams */}
+              {player.teams?.length > 0 ? (
+                <div className="mb-3">
+                  <p className="text-xs text-stone-500 mb-2">Current Teams:</p>
+                  <div className="flex flex-wrap gap-2">
+                    {player.teams.map((team) => (
+                      <span
+                        key={team.id}
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-stone-100 text-sm text-stone-700"
+                      >
+                        {team.name}
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveTeam(team.id)}
+                          disabled={isAssigning}
+                          className="text-stone-400 hover:text-red-500 transition-colors disabled:opacity-50"
+                          title="Remove from team"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <p className="text-sm text-stone-500 mb-3">Not assigned to any team</p>
+              )}
+
+              {/* Add to Team */}
+              {availableTeams.length > 0 && (
+                <div className="flex items-center gap-2">
+                  <select
+                    value={selectedTeamToAdd}
+                    onChange={(e) => setSelectedTeamToAdd(e.target.value)}
+                    className="flex-1 px-3 py-2 rounded-lg border border-stone-300 text-stone-900 text-sm focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+                  >
+                    <option value="">Select a team to add...</option>
+                    {availableTeams.map((team) => (
+                      <option key={team.id} value={team.id}>
+                        {team.name} ({team.grade_level})
+                      </option>
+                    ))}
+                  </select>
+                  <button
+                    type="button"
+                    onClick={handleAssignTeam}
+                    disabled={!selectedTeamToAdd || isAssigning}
+                    className="px-3 py-2 rounded-lg bg-stone-800 text-white text-sm font-medium hover:bg-stone-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
+                  >
+                    {isAssigning ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Plus className="w-4 h-4" />
+                    )}
+                    Add
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Notes */}
           <div className="border-t border-stone-200 pt-4 mt-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -387,7 +485,7 @@ function calculateAge(dob) {
 }
 
 export default function AdminPlayersPage() {
-  const { players, teams, loading, error, refetch, createPlayer, updatePlayer, deletePlayer } = usePlayers();
+  const { players, teams, loading, error, refetch, createPlayer, updatePlayer, deletePlayer, assignPlayerToTeam, removePlayerFromTeam } = usePlayers();
 
   // UI State
   const [modalOpen, setModalOpen] = useState(false);
@@ -403,6 +501,16 @@ export default function AdminPlayersPage() {
   const [teamFilter, setTeamFilter] = useState('all');
   const [gradeFilter, setGradeFilter] = useState('all');
   const [paymentFilter, setPaymentFilter] = useState('all');
+
+  // Keep editingPlayer in sync with players list (for team assignment updates)
+  useEffect(() => {
+    if (editingPlayer?.id) {
+      const updated = players.find((p) => p.id === editingPlayer.id);
+      if (updated) {
+        setEditingPlayer(updated);
+      }
+    }
+  }, [players, editingPlayer?.id]);
 
   // Build team options for filter
   const teamOptions = useMemo(() => {
@@ -873,7 +981,10 @@ export default function AdminPlayersPage() {
           setEditingPlayer(null);
         }}
         player={editingPlayer}
+        teams={teams}
         onSave={handleSave}
+        onAssignTeam={assignPlayerToTeam}
+        onRemoveTeam={removePlayerFromTeam}
         isSaving={isSaving}
       />
 

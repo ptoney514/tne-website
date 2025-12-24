@@ -31,6 +31,9 @@ export function AuthProvider({ children }) {
 
   // Initialize auth state
   useEffect(() => {
+    let isMounted = true;
+    let initTimedOut = false;
+
     const initAuth = async () => {
       console.log('[Auth] Starting initialization...');
       try {
@@ -40,6 +43,8 @@ export function AuthProvider({ children }) {
           8000,
           'Session check timed out - Supabase may be slow or unreachable'
         );
+
+        if (!isMounted) return;
 
         console.log('[Auth] Session result:', session?.user?.email || 'no session', sessionError?.message || 'no error');
 
@@ -56,12 +61,18 @@ export function AuthProvider({ children }) {
           console.log('[Auth] Fetching profile for:', session.user.id);
           setProfileLoading(true);
           const profileData = await fetchProfile(session.user.id);
-          console.log('[Auth] Profile result:', profileData?.email || 'no profile');
-          setProfile(profileData);
-          setProfileLoading(false);
+          if (isMounted) {
+            console.log('[Auth] Profile result:', profileData?.email || 'no profile');
+            setProfile(profileData);
+            setProfileLoading(false);
+          }
         }
       } catch (err) {
+        if (!isMounted) return;
+
         console.error('[Auth] Initialization error:', err);
+        // Always clear auth state on error - don't leave stale state
+        initTimedOut = true;
         setUser(null);
         setProfile(null);
         // Don't set error for timeout - just proceed without auth (allow login page to render)
@@ -70,10 +81,14 @@ export function AuthProvider({ children }) {
                           err.name === 'AbortError';
         if (!isTimeout) {
           setError(err.message);
+        } else {
+          console.log('[Auth] Session check timed out - proceeding without auth');
         }
       } finally {
-        console.log('[Auth] Initialization complete');
-        setLoading(false);
+        if (isMounted) {
+          console.log('[Auth] Initialization complete');
+          setLoading(false);
+        }
       }
     };
 
@@ -82,21 +97,45 @@ export function AuthProvider({ children }) {
     // Listen for auth changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (!isMounted) return;
+
+      console.log('[Auth] Auth state changed:', event, session?.user?.email || 'no user');
+
+      // If init timed out and this is the INITIAL_SESSION event, ignore it
+      // (we already cleared auth state due to timeout)
+      if (initTimedOut && event === 'INITIAL_SESSION') {
+        console.log('[Auth] Ignoring INITIAL_SESSION after timeout');
+        return;
+      }
+
       // Clear any previous errors when auth state changes successfully
       setError(null);
+
+      // Handle sign out
+      if (event === 'SIGNED_OUT') {
+        setUser(null);
+        setProfile(null);
+        return;
+      }
+
       setUser(session?.user ?? null);
       if (session?.user) {
         setProfileLoading(true);
         const profileData = await fetchProfile(session.user.id);
-        setProfile(profileData);
-        setProfileLoading(false);
+        if (isMounted) {
+          setProfile(profileData);
+          setProfileLoading(false);
+        }
       } else {
         setProfile(null);
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+    };
   }, [fetchProfile]);
 
   // Sign in with email/password

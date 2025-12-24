@@ -167,6 +167,67 @@ export function usePlayers() {
     }));
   }, []);
 
+  /**
+   * Assign a player to a team
+   * @param {string} playerId
+   * @param {string} teamId
+   * @returns {Promise<Object>} The new roster entry
+   */
+  const assignPlayerToTeam = async (playerId, teamId) => {
+    // Check if already on this team
+    const { data: existing } = await supabase
+      .from('team_roster')
+      .select('id, is_active')
+      .eq('player_id', playerId)
+      .eq('team_id', teamId)
+      .single();
+
+    if (existing && existing.is_active) {
+      throw new Error('Player is already on this team');
+    }
+
+    // If there's an inactive entry, reactivate it
+    if (existing && !existing.is_active) {
+      const { error } = await supabase
+        .from('team_roster')
+        .update({ is_active: true, joined_date: new Date().toISOString().split('T')[0] })
+        .eq('id', existing.id);
+
+      if (error) throw error;
+    } else {
+      // Create new roster entry (payment_status defaults to 'pending' in DB)
+      const { error } = await supabase
+        .from('team_roster')
+        .insert([{
+          team_id: teamId,
+          player_id: playerId,
+          joined_date: new Date().toISOString().split('T')[0],
+          is_active: true,
+        }]);
+
+      if (error) throw error;
+    }
+
+    await fetchPlayers();
+  };
+
+  /**
+   * Remove a player from a team
+   * @param {string} playerId
+   * @param {string} teamId
+   */
+  const removePlayerFromTeam = async (playerId, teamId) => {
+    const { error } = await supabase
+      .from('team_roster')
+      .update({ is_active: false })
+      .eq('player_id', playerId)
+      .eq('team_id', teamId);
+
+    if (error) throw error;
+
+    await fetchPlayers();
+  };
+
   return {
     players,
     teams,
@@ -177,6 +238,8 @@ export function usePlayers() {
     updatePlayer,
     deletePlayer,
     getPlayerHistory,
+    assignPlayerToTeam,
+    removePlayerFromTeam,
   };
 }
 
@@ -246,6 +309,7 @@ export function useTeamRoster(teamId) {
   }, [fetchRoster]);
 
   const addToRoster = async (playerId, rosterData = {}) => {
+    // payment_status defaults to 'pending' in DB
     const { error } = await supabase
       .from('team_roster')
       .insert([{
@@ -253,7 +317,6 @@ export function useTeamRoster(teamId) {
         player_id: playerId,
         joined_date: new Date().toISOString().split('T')[0],
         is_active: true,
-        payment_status: 'pending',
         ...rosterData,
       }]);
 
@@ -323,7 +386,7 @@ export function useTeamRoster(teamId) {
 
         if (playerError) throw playerError;
 
-        // Add to roster
+        // Add to roster (payment_status defaults to 'pending' in DB)
         const { error: rosterError } = await supabase
           .from('team_roster')
           .insert([{
@@ -333,7 +396,6 @@ export function useTeamRoster(teamId) {
             position: player.position || null,
             joined_date: new Date().toISOString().split('T')[0],
             is_active: true,
-            payment_status: 'pending',
           }]);
 
         if (rosterError) throw rosterError;

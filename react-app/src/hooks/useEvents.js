@@ -7,6 +7,7 @@ const USE_SAMPLE_DATA = false;
 
 /**
  * Hook for fetching and displaying events on the public schedule page
+ * Fetches from both 'events' table (practices/tryouts) and 'games' table (games/tournaments)
  */
 export function useEvents() {
   const [events, setEvents] = useState([]);
@@ -25,24 +26,83 @@ export function useEvents() {
     }
 
     try {
-      const { data, error: fetchError } = await supabase
-        .from('events')
-        .select(`
-          *,
-          team:teams(id, name, grade_level)
-        `)
-        .gte('date', new Date().toISOString().split('T')[0])
-        .order('date', { ascending: true })
-        .order('start_time', { ascending: true });
+      const today = new Date().toISOString().split('T')[0];
 
-      if (fetchError) throw fetchError;
+      // Fetch from both tables in parallel
+      const [eventsResult, gamesResult] = await Promise.all([
+        // Fetch practices/tryouts from events table
+        supabase
+          .from('events')
+          .select(`
+            *,
+            team:teams(id, name, grade_level)
+          `)
+          .gte('date', today)
+          .order('date', { ascending: true })
+          .order('start_time', { ascending: true }),
+
+        // Fetch games/tournaments from games table
+        supabase
+          .from('games')
+          .select(`
+            *,
+            game_teams(
+              id,
+              team_id,
+              opponent,
+              is_home_game,
+              result,
+              team:teams(id, name, grade_level, gender)
+            )
+          `)
+          .gte('date', today)
+          .order('date', { ascending: true })
+          .order('start_time', { ascending: true }),
+      ]);
+
+      if (eventsResult.error) {
+        console.error('Error fetching events:', eventsResult.error);
+      }
+      if (gamesResult.error) {
+        console.error('Error fetching games:', gamesResult.error);
+      }
+
+      // Convert games to event-like format for unified display
+      const eventsData = eventsResult.data || [];
+      const gamesData = (gamesResult.data || []).map(game => ({
+        id: game.id,
+        event_type: game.game_type, // 'game' or 'tournament'
+        date: game.date,
+        start_time: game.start_time,
+        end_time: game.end_time,
+        location: game.location,
+        address: game.address,
+        notes: game.notes,
+        is_featured: game.is_featured,
+        external_url: game.external_url,
+        // For games, use the first team's info or show as multi-team event
+        team: game.game_teams?.[0]?.team || null,
+        opponent: game.game_teams?.[0]?.opponent || null,
+        // Keep original game data for tournaments display
+        game_teams: game.game_teams,
+        name: game.name,
+        tournament_name: game.game_type === 'tournament' ? game.name : null,
+      }));
+
+      // Combine and sort by date/time
+      const allEvents = [...eventsData, ...gamesData].sort((a, b) => {
+        const dateCompare = a.date.localeCompare(b.date);
+        if (dateCompare !== 0) return dateCompare;
+        return (a.start_time || '').localeCompare(b.start_time || '');
+      });
 
       // If no data returned, use sample data
-      if (!data || data.length === 0) {
+      if (allEvents.length === 0) {
         console.log('[useEvents] No events in database, using sample data');
         setEvents(getSampleEvents());
       } else {
-        setEvents(data);
+        console.log(`[useEvents] Loaded ${eventsData.length} events + ${gamesData.length} games`);
+        setEvents(allEvents);
       }
     } catch (err) {
       console.error('Error fetching events:', err);
