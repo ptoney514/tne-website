@@ -1,7 +1,8 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import { SeasonProvider } from './contexts/SeasonContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
+import { ChatWidget } from './components/chat';
 import HomePage from './pages/HomePage';
 import TeamsPage from './pages/TeamsPage';
 import TeamDetailPage from './pages/TeamDetailPage';
@@ -21,10 +22,25 @@ import AdminSettingsLayout from './pages/AdminSettingsLayout';
 import AdminUsersPage from './pages/AdminUsersPage';
 import AdminGamesPage from './pages/AdminGamesPage';
 
+// Wrapper component to conditionally show chat widget on public pages
+function ChatWidgetWrapper() {
+  const location = useLocation();
+  const isAdminPage = location.pathname.startsWith('/admin');
+  const isLoginPage = location.pathname === '/login';
+
+  // Only show chat widget on public pages
+  if (isAdminPage || isLoginPage) {
+    return null;
+  }
+
+  return <ChatWidget />;
+}
+
 function App() {
   return (
     <Router>
       <AuthProvider>
+        <ChatWidgetWrapper />
         <Routes>
           {/* Public routes */}
           <Route path="/" element={<HomePage />} />
