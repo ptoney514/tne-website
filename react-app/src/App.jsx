@@ -21,6 +21,7 @@ import AdminCoachesPage from './pages/AdminCoachesPage';
 import AdminSettingsLayout from './pages/AdminSettingsLayout';
 import AdminUsersPage from './pages/AdminUsersPage';
 import AdminGamesPage from './pages/AdminGamesPage';
+import AdminChatAnalyticsPage from './pages/AdminChatAnalyticsPage';
 
 // Wrapper component to conditionally show chat widget on public pages
 function ChatWidgetWrapper() {
@@ -117,6 +118,16 @@ function App() {
           />
           {/* Redirect old tournaments route to games */}
           <Route path="/admin/tournaments" element={<Navigate to="/admin/games" replace />} />
+          <Route
+            path="/admin/chat-analytics"
+            element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <SeasonProvider>
+                  <AdminChatAnalyticsPage />
+                </SeasonProvider>
+              </ProtectedRoute>
+            }
+          />
 
           {/* Settings routes - redirect /admin/settings to /admin/settings/users */}
           <Route

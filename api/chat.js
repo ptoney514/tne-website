@@ -1,8 +1,83 @@
 import Anthropic from '@anthropic-ai/sdk';
+import { createClient } from '@supabase/supabase-js';
+import crypto from 'crypto';
 
 // Validation constants
 const MAX_MESSAGE_LENGTH = 500;
 const MAX_MESSAGES_COUNT = 20;
+
+// Initialize Supabase client for logging (requires service role key)
+// Service role bypasses RLS - we use restrictive RLS policies that block anon access
+const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const supabase = supabaseUrl && supabaseServiceKey ? createClient(supabaseUrl, supabaseServiceKey) : null;
+
+// Hash IP for privacy
+function hashIP(ip) {
+  if (!ip) return null;
+  return crypto.createHash('sha256').update(ip).digest('hex').substring(0, 16);
+}
+
+// Generate a simple unique ID for messages
+function generateMessageId() {
+  return `${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
+}
+
+// Async logging - doesn't block response
+async function logChatMessage(sessionId, role, content, pageUrl, userAgent, ipHash, clientMessageId = null) {
+  if (!supabase) return null;
+
+  try {
+    // Get or create session
+    let { data: session } = await supabase
+      .from('chat_sessions')
+      .select('id')
+      .eq('session_id', sessionId)
+      .single();
+
+    if (!session) {
+      // Create new session
+      const { data: newSession, error: sessionError } = await supabase
+        .from('chat_sessions')
+        .insert({
+          session_id: sessionId,
+          page_url: pageUrl,
+          user_agent: userAgent,
+          ip_hash: ipHash,
+        })
+        .select('id')
+        .single();
+
+      if (sessionError) {
+        console.error('Error creating chat session:', sessionError);
+        return null;
+      }
+      session = newSession;
+    }
+
+    // Insert message with optional client_message_id
+    const { data: message, error: messageError } = await supabase
+      .from('chat_messages')
+      .insert({
+        session_id: session.id,
+        role,
+        content,
+        client_message_id: clientMessageId,
+      })
+      .select('id')
+      .single();
+
+    if (messageError) {
+      console.error('Error logging chat message:', messageError);
+      return null;
+    }
+
+    return message.id;
+  } catch (error) {
+    console.error('Error in chat logging:', error);
+    return null;
+  }
+}
 
 // TNE United Express context for the AI assistant
 const SYSTEM_PROMPT = `You are a friendly and helpful AI assistant for TNE United Express, a premier youth basketball program in Omaha, Nebraska. You help parents, players, and community members with questions about the program.
@@ -61,7 +136,10 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { messages } = req.body;
+    const { messages, sessionId, pageUrl } = req.body;
+    const userAgent = req.headers['user-agent'] || null;
+    const clientIP = req.headers['x-forwarded-for']?.split(',')[0] || req.headers['x-real-ip'] || null;
+    const ipHash = hashIP(clientIP);
 
     if (!messages || !Array.isArray(messages)) {
       return res.status(400).json({ error: 'Messages array is required' });
@@ -110,7 +188,21 @@ export default async function handler(req, res) {
       .map((block) => block.text)
       .join('\n');
 
-    return res.status(200).json({ message: content });
+    // Generate message ID for the assistant response (used for feedback)
+    const messageId = generateMessageId();
+
+    // Log messages asynchronously (don't block response)
+    if (sessionId) {
+      // Log the latest user message (last one in array)
+      const lastUserMessage = messages.filter(m => m.role === 'user').pop();
+      if (lastUserMessage) {
+        logChatMessage(sessionId, 'user', lastUserMessage.content, pageUrl, userAgent, ipHash).catch(() => {});
+      }
+      // Log assistant response with message ID
+      logChatMessage(sessionId, 'assistant', content, pageUrl, userAgent, ipHash, messageId).catch(() => {});
+    }
+
+    return res.status(200).json({ message: content, messageId });
   } catch (error) {
     console.error('Chat API error:', error);
 

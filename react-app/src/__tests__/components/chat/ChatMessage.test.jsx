@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { describe, it, expect, vi } from 'vitest';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import ChatMessage from '../../../components/chat/ChatMessage';
 
 describe('ChatMessage', () => {
@@ -68,5 +68,91 @@ describe('ChatMessage', () => {
 
     const text = screen.getByText(/Line 1/);
     expect(text).toHaveClass('whitespace-pre-wrap');
+  });
+
+  it('should show feedback buttons for assistant messages', () => {
+    const message = {
+      role: 'assistant',
+      content: 'Test response',
+    };
+
+    render(<ChatMessage message={message} messageIndex={1} isWelcome={false} />);
+
+    expect(screen.getByTestId('feedback-buttons')).toBeInTheDocument();
+    expect(screen.getByTestId('feedback-positive')).toBeInTheDocument();
+    expect(screen.getByTestId('feedback-negative')).toBeInTheDocument();
+  });
+
+  it('should not show feedback buttons for user messages', () => {
+    const message = {
+      role: 'user',
+      content: 'Test question',
+    };
+
+    render(<ChatMessage message={message} messageIndex={1} />);
+
+    expect(screen.queryByTestId('feedback-buttons')).not.toBeInTheDocument();
+  });
+
+  it('should not show feedback buttons for welcome message', () => {
+    const message = {
+      role: 'assistant',
+      content: 'Welcome message',
+    };
+
+    render(<ChatMessage message={message} messageIndex={0} isWelcome={true} />);
+
+    expect(screen.queryByTestId('feedback-buttons')).not.toBeInTheDocument();
+  });
+
+  it('should call onFeedback when thumbs up is clicked', async () => {
+    const onFeedback = vi.fn().mockResolvedValue(undefined);
+    const message = {
+      role: 'assistant',
+      content: 'Test response',
+    };
+
+    render(<ChatMessage message={message} messageIndex={2} isWelcome={false} onFeedback={onFeedback} />);
+
+    const thumbsUp = screen.getByTestId('feedback-positive');
+    fireEvent.click(thumbsUp);
+
+    await waitFor(() => {
+      expect(onFeedback).toHaveBeenCalledWith(2, 'positive');
+    });
+  });
+
+  it('should call onFeedback when thumbs down is clicked', async () => {
+    const onFeedback = vi.fn().mockResolvedValue(undefined);
+    const message = {
+      role: 'assistant',
+      content: 'Test response',
+    };
+
+    render(<ChatMessage message={message} messageIndex={3} isWelcome={false} onFeedback={onFeedback} />);
+
+    const thumbsDown = screen.getByTestId('feedback-negative');
+    fireEvent.click(thumbsDown);
+
+    await waitFor(() => {
+      expect(onFeedback).toHaveBeenCalledWith(3, 'negative');
+    });
+  });
+
+  it('should show thank you message after feedback is given', async () => {
+    const onFeedback = vi.fn().mockResolvedValue(undefined);
+    const message = {
+      role: 'assistant',
+      content: 'Test response',
+    };
+
+    render(<ChatMessage message={message} messageIndex={2} isWelcome={false} onFeedback={onFeedback} />);
+
+    const thumbsUp = screen.getByTestId('feedback-positive');
+    fireEvent.click(thumbsUp);
+
+    await waitFor(() => {
+      expect(screen.getByText(/Thanks for your feedback/)).toBeInTheDocument();
+    });
   });
 });
