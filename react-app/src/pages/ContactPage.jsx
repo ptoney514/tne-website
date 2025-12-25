@@ -7,32 +7,33 @@ import {
   Facebook,
   Twitter,
   Instagram,
-  ChevronRight,
   Send,
   Clock,
   CheckCircle,
   AlertCircle,
+  MessageCircle,
+  Bot,
 } from 'lucide-react';
 import PublicLayout from '../components/layouts/PublicLayout';
 import { useContactForm } from '../hooks/useContactForm';
 
+// Simplified subject options for formal inquiries only
+// Common questions (schedules, teams, registration) handled by AI chat widget
 const subjectOptions = [
   { value: '', label: 'Select a topic...' },
-  { value: 'general', label: 'General Inquiry' },
-  { value: 'registration', label: 'Registration Question' },
-  { value: 'tryouts', label: 'Tryouts Information' },
-  { value: 'schedule', label: 'Schedule Question' },
   { value: 'sponsorship', label: 'Sponsorship Inquiry' },
-  { value: 'coaching', label: 'Coaching / Employment' },
+  { value: 'coaching', label: 'Employment / Coaching' },
   { value: 'media', label: 'Media / Press' },
+  { value: 'partnership', label: 'Partnership' },
   { value: 'other', label: 'Other' },
 ];
 
-const quickLinks = [
-  { path: '/tryouts', label: 'Tryouts & Registration' },
-  { path: '/schedule', label: 'Practice & Game Schedule' },
-  { path: '/teams', label: 'Team Rosters & Coaches' },
-  { path: '/schedule#tournaments', label: 'Tournament Information' },
+// Quick answers that the AI assistant can handle
+const aiAssistantTopics = [
+  'Team schedules & practice times',
+  'Tournament information',
+  'Registration & tryout details',
+  'Program information',
 ];
 
 const socialLinks = [
@@ -56,10 +57,8 @@ const socialLinks = [
 export default function ContactPage() {
   const { submitInquiry, loading, error, success, reset } = useContactForm();
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
+    name: '',
     email: '',
-    phone: '',
     subject: '',
     message: '',
   });
@@ -71,13 +70,23 @@ export default function ContactPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const result = await submitInquiry(formData);
+    // Split name into first/last for database compatibility
+    const nameParts = formData.name.trim().split(' ');
+    const firstName = nameParts[0] || '';
+    const lastName = nameParts.slice(1).join(' ') || '';
+
+    const result = await submitInquiry({
+      firstName,
+      lastName,
+      email: formData.email,
+      phone: null,
+      subject: formData.subject,
+      message: formData.message,
+    });
     if (result.success) {
       setFormData({
-        firstName: '',
-        lastName: '',
+        name: '',
         email: '',
-        phone: '',
         subject: '',
         message: '',
       });
@@ -116,8 +125,8 @@ export default function ContactPage() {
                 Get in Touch
               </h1>
               <p className="mt-2 text-base sm:text-lg text-white/70 max-w-2xl">
-                Have questions about our program? We'd love to hear from you.
-                Reach out and our team will get back to you within 24 hours.
+                For sponsorship, media inquiries, or partnership opportunities,
+                reach out below. Our team will get back to you within 24 hours.
               </p>
             </div>
 
@@ -184,44 +193,24 @@ export default function ContactPage() {
                       </div>
                     )}
 
-                    {/* Name Fields */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="space-y-1.5">
-                        <label
-                          htmlFor="firstName"
-                          className="block text-sm font-medium text-neutral-700"
-                        >
-                          First Name <span className="text-tne-red">*</span>
-                        </label>
-                        <input
-                          type="text"
-                          id="firstName"
-                          name="firstName"
-                          value={formData.firstName}
-                          onChange={handleChange}
-                          required
-                          className="block w-full rounded-xl border border-neutral-300 bg-neutral-50 px-4 py-2.5 text-sm text-neutral-900 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-tne-red/50 focus:border-tne-red/50 transition-colors"
-                          placeholder="John"
-                        />
-                      </div>
-                      <div className="space-y-1.5">
-                        <label
-                          htmlFor="lastName"
-                          className="block text-sm font-medium text-neutral-700"
-                        >
-                          Last Name <span className="text-tne-red">*</span>
-                        </label>
-                        <input
-                          type="text"
-                          id="lastName"
-                          name="lastName"
-                          value={formData.lastName}
-                          onChange={handleChange}
-                          required
-                          className="block w-full rounded-xl border border-neutral-300 bg-neutral-50 px-4 py-2.5 text-sm text-neutral-900 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-tne-red/50 focus:border-tne-red/50 transition-colors"
-                          placeholder="Smith"
-                        />
-                      </div>
+                    {/* Name Field */}
+                    <div className="space-y-1.5">
+                      <label
+                        htmlFor="name"
+                        className="block text-sm font-medium text-neutral-700"
+                      >
+                        Name <span className="text-tne-red">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        id="name"
+                        name="name"
+                        value={formData.name}
+                        onChange={handleChange}
+                        required
+                        className="block w-full rounded-xl border border-neutral-300 bg-neutral-50 px-4 py-2.5 text-sm text-neutral-900 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-tne-red/50 focus:border-tne-red/50 transition-colors"
+                        placeholder="John Smith"
+                      />
                     </div>
 
                     {/* Email */}
@@ -241,26 +230,6 @@ export default function ContactPage() {
                         required
                         className="block w-full rounded-xl border border-neutral-300 bg-neutral-50 px-4 py-2.5 text-sm text-neutral-900 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-tne-red/50 focus:border-tne-red/50 transition-colors"
                         placeholder="john.smith@example.com"
-                      />
-                    </div>
-
-                    {/* Phone (Optional) */}
-                    <div className="space-y-1.5">
-                      <label
-                        htmlFor="phone"
-                        className="block text-sm font-medium text-neutral-700"
-                      >
-                        Phone Number{' '}
-                        <span className="text-neutral-400">(Optional)</span>
-                      </label>
-                      <input
-                        type="tel"
-                        id="phone"
-                        name="phone"
-                        value={formData.phone}
-                        onChange={handleChange}
-                        className="block w-full rounded-xl border border-neutral-300 bg-neutral-50 px-4 py-2.5 text-sm text-neutral-900 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-tne-red/50 focus:border-tne-red/50 transition-colors"
-                        placeholder="(402) 555-0123"
                       />
                     </div>
 
@@ -421,28 +390,55 @@ export default function ContactPage() {
                 </div>
               </div>
 
-              {/* Quick Links Card */}
-              <div className="rounded-3xl bg-gradient-to-br from-neutral-900 to-neutral-800 text-white border border-neutral-700 shadow-lg overflow-hidden">
+              {/* AI Assistant CTA Card */}
+              <div
+                className="rounded-3xl bg-gradient-to-br from-neutral-900 to-neutral-800 text-white border border-neutral-700 shadow-lg overflow-hidden"
+                data-testid="ai-assistant-cta"
+              >
                 <div className="px-5 py-5 sm:px-6">
-                  <h3 className="text-lg font-semibold mb-3">
-                    Looking for something specific?
-                  </h3>
-                  <p className="text-sm text-white/60 mb-4">
-                    These pages might have what you need:
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-tne-red to-tne-maroon flex items-center justify-center">
+                      <Bot className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold">
+                        Need Quick Answers?
+                      </h3>
+                      <p className="text-xs text-white/50 font-mono uppercase tracking-wider">
+                        AI Assistant
+                      </p>
+                    </div>
+                  </div>
+
+                  <p className="text-sm text-white/70 mb-4">
+                    For questions about schedules, teams, or registration, try our AI assistant for instant answers.
                   </p>
 
-                  <div className="space-y-2">
-                    {quickLinks.map((link) => (
-                      <Link
-                        key={link.path}
-                        to={link.path}
-                        className="flex items-center gap-2 text-sm text-white/80 hover:text-white transition-colors"
+                  <ul className="space-y-2 mb-5">
+                    {aiAssistantTopics.map((topic) => (
+                      <li
+                        key={topic}
+                        className="flex items-center gap-2 text-sm text-white/60"
                       >
-                        <ChevronRight className="w-4 h-4 text-tne-red" />
-                        {link.label}
-                      </Link>
+                        <span className="w-1.5 h-1.5 rounded-full bg-tne-red" />
+                        {topic}
+                      </li>
                     ))}
-                  </div>
+                  </ul>
+
+                  <button
+                    type="button"
+                    className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-tne-red text-white font-medium hover:bg-tne-red-dark transition-colors"
+                    data-testid="open-chat-button"
+                    onClick={() => {
+                      // TODO: Open chat widget when implemented
+                      // For now, this is a placeholder
+                      window.dispatchEvent(new CustomEvent('open-chat-widget'));
+                    }}
+                  >
+                    <MessageCircle className="w-4 h-4" />
+                    Chat with AI Assistant
+                  </button>
                 </div>
               </div>
             </div>
