@@ -14,7 +14,18 @@ const QUICK_ACTIONS = [
 
 // Constants
 const STORAGE_KEY = 'tne-chat-messages';
+const SESSION_KEY = 'tne-chat-session-id';
 const MIN_REQUEST_INTERVAL = 1000; // 1 second between requests
+
+// Generate or retrieve session ID
+const getSessionId = () => {
+  let sessionId = localStorage.getItem(SESSION_KEY);
+  if (!sessionId) {
+    sessionId = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+    localStorage.setItem(SESSION_KEY, sessionId);
+  }
+  return sessionId;
+};
 
 // Initial welcome message
 const WELCOME_MESSAGE = {
@@ -110,6 +121,8 @@ export default function ChatPanel({ isOpen, onClose }) {
             role: m.role,
             content: m.content,
           })),
+          sessionId: getSessionId(),
+          pageUrl: window.location.pathname,
         }),
       });
 
@@ -143,6 +156,40 @@ export default function ChatPanel({ isOpen, onClose }) {
     sendMessage(action.query);
   }, [sendMessage]);
 
+  // Handle feedback submission
+  const handleFeedback = useCallback(async (messageIndex, feedbackType) => {
+    try {
+      const response = await fetch('/api/chat-feedback', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          sessionId: getSessionId(),
+          messageIndex,
+          feedback: feedbackType,
+          messageContent: messages[messageIndex]?.content,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to submit feedback');
+      }
+
+      // Update message with feedback
+      setMessages((prev) => {
+        const updated = [...prev];
+        if (updated[messageIndex]) {
+          updated[messageIndex] = { ...updated[messageIndex], feedback: feedbackType };
+        }
+        return updated;
+      });
+    } catch (error) {
+      console.error('Failed to submit feedback:', error);
+      throw error; // Re-throw so ChatMessage can revert
+    }
+  }, [messages]);
+
   // Reset chat and clear localStorage
   const handleReset = useCallback(() => {
     const freshWelcome = {
@@ -152,6 +199,7 @@ export default function ChatPanel({ isOpen, onClose }) {
     setMessages([freshWelcome]);
     setShowQuickActions(true);
     localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(SESSION_KEY); // Start fresh session on reset
   }, []);
 
   if (!isOpen) return null;
@@ -197,7 +245,13 @@ export default function ChatPanel({ isOpen, onClose }) {
       {/* Messages */}
       <div className="flex-1 overflow-y-auto py-4 space-y-2">
         {messages.map((message, index) => (
-          <ChatMessage key={index} message={message} />
+          <ChatMessage
+            key={index}
+            message={message}
+            messageIndex={index}
+            isWelcome={index === 0 && message.role === 'assistant'}
+            onFeedback={handleFeedback}
+          />
         ))}
         {isLoading && <TypingIndicator />}
         <div ref={messagesEndRef} />
