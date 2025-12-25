@@ -19,58 +19,31 @@ export function useChatAnalytics(days = 30) {
     setError(null);
 
     try {
-      const startDate = new Date();
-      startDate.setDate(startDate.getDate() - days);
+      // Get current session for auth token
+      const { data: { session } } = await supabase.auth.getSession();
 
-      // Single query: Fetch sessions with nested messages using Supabase relations
-      const { data: sessions, error: sessionsError } = await supabase
-        .from('chat_sessions')
-        .select(`
-          *,
-          chat_messages (
-            id,
-            role,
-            content,
-            created_at,
-            feedback,
-            feedback_at
-          )
-        `)
-        .gte('started_at', startDate.toISOString())
-        .order('started_at', { ascending: false });
+      if (!session?.access_token) {
+        throw new Error('Not authenticated');
+      }
 
-      if (sessionsError) throw sessionsError;
-
-      // Calculate stats from sessions
-      const totalChats = sessions?.length || 0;
-      const totalMessages = sessions?.reduce((sum, s) => sum + (s.message_count || 0), 0) || 0;
-      const positiveCount = sessions?.reduce((sum, s) => sum + (s.positive_feedback_count || 0), 0) || 0;
-      const negativeCount = sessions?.reduce((sum, s) => sum + (s.negative_feedback_count || 0), 0) || 0;
-      const totalFeedback = positiveCount + negativeCount;
-      const satisfactionRate = totalFeedback > 0 ? Math.round((positiveCount / totalFeedback) * 100) : 0;
-      const avgMessagesPerChat = totalChats > 0 ? (totalMessages / totalChats).toFixed(1) : 0;
-
-      setStats({
-        totalChats,
-        totalMessages,
-        positiveCount,
-        negativeCount,
-        satisfactionRate,
-        avgMessagesPerChat,
+      // Call API endpoint with auth token
+      const response = await fetch(`/api/chat-analytics?days=${days}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
       });
 
-      // Extract recent conversations with sorted messages
-      const recentWithMessages = sessions?.slice(0, 10).map(session => {
-        // Sort messages by created_at ascending and rename to 'messages'
-        const messages = (session.chat_messages || []).sort(
-          (a, b) => new Date(a.created_at) - new Date(b.created_at)
-        );
-        // Remove chat_messages key and use messages instead
-        const { chat_messages: _chat_messages, ...sessionData } = session;
-        return { ...sessionData, messages };
-      }) || [];
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `HTTP ${response.status}`);
+      }
 
-      setRecentConversations(recentWithMessages);
+      const data = await response.json();
+
+      setStats(data.stats);
+      setRecentConversations(data.recentConversations);
     } catch (err) {
       console.error('Failed to fetch chat analytics:', err);
       setError(err.message);
