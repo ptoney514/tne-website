@@ -22,16 +22,26 @@ export function useChatAnalytics(days = 30) {
       const startDate = new Date();
       startDate.setDate(startDate.getDate() - days);
 
-      // Fetch sessions with stats
+      // Single query: Fetch sessions with nested messages using Supabase relations
       const { data: sessions, error: sessionsError } = await supabase
         .from('chat_sessions')
-        .select('*')
+        .select(`
+          *,
+          chat_messages (
+            id,
+            role,
+            content,
+            created_at,
+            feedback,
+            feedback_at
+          )
+        `)
         .gte('started_at', startDate.toISOString())
         .order('started_at', { ascending: false });
 
       if (sessionsError) throw sessionsError;
 
-      // Calculate stats
+      // Calculate stats from sessions
       const totalChats = sessions?.length || 0;
       const totalMessages = sessions?.reduce((sum, s) => sum + (s.message_count || 0), 0) || 0;
       const positiveCount = sessions?.reduce((sum, s) => sum + (s.positive_feedback_count || 0), 0) || 0;
@@ -49,37 +59,18 @@ export function useChatAnalytics(days = 30) {
         avgMessagesPerChat,
       });
 
-      // Fetch recent conversations with their messages
-      const recentSessionIds = sessions?.slice(0, 10).map(s => s.id) || [];
+      // Extract recent conversations with sorted messages
+      const recentWithMessages = sessions?.slice(0, 10).map(session => {
+        // Sort messages by created_at ascending and rename to 'messages'
+        const messages = (session.chat_messages || []).sort(
+          (a, b) => new Date(a.created_at) - new Date(b.created_at)
+        );
+        // Remove chat_messages key and use messages instead
+        const { chat_messages: _chat_messages, ...sessionData } = session;
+        return { ...sessionData, messages };
+      }) || [];
 
-      if (recentSessionIds.length > 0) {
-        const { data: messages, error: messagesError } = await supabase
-          .from('chat_messages')
-          .select('*')
-          .in('session_id', recentSessionIds)
-          .order('created_at', { ascending: true });
-
-        if (messagesError) throw messagesError;
-
-        // Group messages by session
-        const sessionMessages = {};
-        messages?.forEach(msg => {
-          if (!sessionMessages[msg.session_id]) {
-            sessionMessages[msg.session_id] = [];
-          }
-          sessionMessages[msg.session_id].push(msg);
-        });
-
-        // Combine sessions with their messages
-        const conversationsWithMessages = sessions?.slice(0, 10).map(session => ({
-          ...session,
-          messages: sessionMessages[session.id] || [],
-        })) || [];
-
-        setRecentConversations(conversationsWithMessages);
-      } else {
-        setRecentConversations([]);
-      }
+      setRecentConversations(recentWithMessages);
     } catch (err) {
       console.error('Failed to fetch chat analytics:', err);
       setError(err.message);
