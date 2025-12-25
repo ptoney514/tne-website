@@ -4,7 +4,7 @@ import { X } from 'lucide-react';
 import tneLogoWhite from '../assets/tne-logo-white-transparent.png';
 import { navLinks } from '../constants/navigation';
 
-export default function MobileDrawer({ isOpen, onClose }) {
+export default function MobileDrawer({ isOpen, onClose, showPayLink = false }) {
   const location = useLocation();
 
   // Prevent body scroll when drawer is open
@@ -81,6 +81,19 @@ export default function MobileDrawer({ isOpen, onClose }) {
               {link.label}
             </Link>
           ))}
+          {showPayLink && (
+            <Link
+              to="/payments"
+              onClick={onClose}
+              className={`block px-4 py-3 text-sm font-semibold uppercase tracking-wider rounded-xl transition-colors ${
+                isActive('/payments')
+                  ? 'text-white bg-white/10'
+                  : 'text-white/80 hover:text-white hover:bg-white/5'
+              }`}
+            >
+              Payments
+            </Link>
+          )}
         </nav>
 
         {/* Bottom Actions */}
