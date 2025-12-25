@@ -1,6 +1,9 @@
 import { useState, useRef, useEffect } from 'react';
 import { Send } from 'lucide-react';
 
+// Maximum message length
+const MAX_MESSAGE_LENGTH = 500;
+
 /**
  * ChatInput - Message input field with send button
  *
@@ -8,11 +11,13 @@ import { Send } from 'lucide-react';
  * @param {Function} props.onSend - Callback when message is sent
  * @param {boolean} [props.disabled=false] - Whether input is disabled
  * @param {string} [props.placeholder='Type a message...'] - Placeholder text
+ * @param {number} [props.maxLength=500] - Maximum message length
  */
 export default function ChatInput({
   onSend,
   disabled = false,
   placeholder = 'Type a message...',
+  maxLength = MAX_MESSAGE_LENGTH,
 }) {
   const [message, setMessage] = useState('');
   const inputRef = useRef(null);
@@ -54,6 +59,7 @@ export default function ChatInput({
         onKeyDown={handleKeyDown}
         placeholder={placeholder}
         disabled={disabled}
+        maxLength={maxLength}
         className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/40 focus:outline-none focus:border-tne-red/50 focus:ring-1 focus:ring-tne-red/30 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         data-testid="chat-input"
         aria-label="Chat message input"

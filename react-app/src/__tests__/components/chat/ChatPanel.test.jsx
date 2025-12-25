@@ -9,9 +9,28 @@ globalThis.fetch = mockFetch;
 // Mock scrollIntoView which is not available in jsdom
 Element.prototype.scrollIntoView = vi.fn();
 
+// Mock localStorage
+const localStorageMock = (() => {
+  let store = {};
+  return {
+    getItem: vi.fn((key) => store[key] || null),
+    setItem: vi.fn((key, value) => {
+      store[key] = value;
+    }),
+    removeItem: vi.fn((key) => {
+      delete store[key];
+    }),
+    clear: vi.fn(() => {
+      store = {};
+    }),
+  };
+})();
+Object.defineProperty(window, 'localStorage', { value: localStorageMock });
+
 describe('ChatPanel', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    localStorageMock.clear();
     mockFetch.mockResolvedValue({
       ok: true,
       json: () => Promise.resolve({ message: 'Mock response from AI' }),
@@ -221,5 +240,55 @@ describe('ChatPanel', () => {
     const panel = screen.getByTestId('chat-panel');
     expect(panel).toHaveAttribute('role', 'dialog');
     expect(panel).toHaveAttribute('aria-label', 'Chat with TNE Assistant');
+  });
+
+  it('should save messages to localStorage', async () => {
+    render(<ChatPanel isOpen={true} onClose={() => {}} />);
+
+    const input = screen.getByTestId('chat-input');
+    const form = screen.getByTestId('chat-input-form');
+
+    fireEvent.change(input, { target: { value: 'Hello' } });
+    fireEvent.submit(form);
+
+    await waitFor(() => {
+      expect(localStorageMock.setItem).toHaveBeenCalledWith(
+        'tne-chat-messages',
+        expect.any(String)
+      );
+    });
+  });
+
+  it('should load messages from localStorage on mount', () => {
+    const savedMessages = [
+      { role: 'assistant', content: 'Welcome!', timestamp: '2025-01-01T00:00:00Z' },
+      { role: 'user', content: 'Previous message', timestamp: '2025-01-01T00:01:00Z' },
+    ];
+    localStorageMock.getItem.mockReturnValueOnce(JSON.stringify(savedMessages));
+
+    render(<ChatPanel isOpen={true} onClose={() => {}} />);
+
+    expect(screen.getByText('Previous message')).toBeInTheDocument();
+  });
+
+  it('should clear localStorage when reset button is clicked', async () => {
+    render(<ChatPanel isOpen={true} onClose={() => {}} />);
+
+    // Send a message first
+    const input = screen.getByTestId('chat-input');
+    const form = screen.getByTestId('chat-input-form');
+
+    fireEvent.change(input, { target: { value: 'Hello' } });
+    fireEvent.submit(form);
+
+    await waitFor(() => {
+      expect(screen.getByText('Hello')).toBeInTheDocument();
+    });
+
+    // Click reset
+    const resetButton = screen.getByTestId('chat-reset-button');
+    fireEvent.click(resetButton);
+
+    expect(localStorageMock.removeItem).toHaveBeenCalledWith('tne-chat-messages');
   });
 });

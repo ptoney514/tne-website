@@ -12,11 +12,41 @@ const QUICK_ACTIONS = [
   { id: 'contact', label: 'Contact info', query: 'How can I contact the coaches?' },
 ];
 
+// Constants
+const STORAGE_KEY = 'tne-chat-messages';
+const MIN_REQUEST_INTERVAL = 1000; // 1 second between requests
+
 // Initial welcome message
 const WELCOME_MESSAGE = {
   role: 'assistant',
   content: "Hi! I'm the TNE United Express assistant. I can help you with questions about our teams, schedules, registration, and more. What would you like to know?",
   timestamp: new Date().toISOString(),
+};
+
+// Load messages from localStorage
+const loadMessages = () => {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      // Validate structure
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed;
+      }
+    }
+  } catch {
+    // Invalid data, use default
+  }
+  return [WELCOME_MESSAGE];
+};
+
+// Save messages to localStorage
+const saveMessages = (messages) => {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
+  } catch {
+    // Storage full or unavailable, ignore
+  }
 };
 
 /**
@@ -27,10 +57,19 @@ const WELCOME_MESSAGE = {
  * @param {Function} props.onClose - Callback to close panel
  */
 export default function ChatPanel({ isOpen, onClose }) {
-  const [messages, setMessages] = useState([WELCOME_MESSAGE]);
+  const [messages, setMessages] = useState(loadMessages);
   const [isLoading, setIsLoading] = useState(false);
-  const [showQuickActions, setShowQuickActions] = useState(true);
+  const [showQuickActions, setShowQuickActions] = useState(() => {
+    const saved = loadMessages();
+    return saved.length === 1;
+  });
   const messagesEndRef = useRef(null);
+  const lastRequestTimeRef = useRef(0);
+
+  // Persist messages to localStorage
+  useEffect(() => {
+    saveMessages(messages);
+  }, [messages]);
 
   // Scroll to bottom when new messages arrive
   const scrollToBottom = useCallback(() => {
@@ -41,8 +80,15 @@ export default function ChatPanel({ isOpen, onClose }) {
     scrollToBottom();
   }, [messages, isLoading, scrollToBottom]);
 
-  // Send message to API
+  // Send message to API with rate limiting
   const sendMessage = useCallback(async (content) => {
+    // Rate limiting - prevent rapid submissions
+    const now = Date.now();
+    if (now - lastRequestTimeRef.current < MIN_REQUEST_INTERVAL) {
+      return; // Ignore rapid requests
+    }
+    lastRequestTimeRef.current = now;
+
     const userMessage = {
       role: 'user',
       content,
@@ -97,10 +143,15 @@ export default function ChatPanel({ isOpen, onClose }) {
     sendMessage(action.query);
   }, [sendMessage]);
 
-  // Reset chat
+  // Reset chat and clear localStorage
   const handleReset = useCallback(() => {
-    setMessages([WELCOME_MESSAGE]);
+    const freshWelcome = {
+      ...WELCOME_MESSAGE,
+      timestamp: new Date().toISOString(),
+    };
+    setMessages([freshWelcome]);
     setShowQuickActions(true);
+    localStorage.removeItem(STORAGE_KEY);
   }, []);
 
   if (!isOpen) return null;

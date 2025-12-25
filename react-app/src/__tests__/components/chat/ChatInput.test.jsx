@@ -132,4 +132,18 @@ describe('ChatInput', () => {
 
     expect(handleSend).not.toHaveBeenCalled();
   });
+
+  it('should have maxLength attribute with default value', () => {
+    render(<ChatInput onSend={() => {}} />);
+
+    const input = screen.getByTestId('chat-input');
+    expect(input).toHaveAttribute('maxLength', '500');
+  });
+
+  it('should respect custom maxLength prop', () => {
+    render(<ChatInput onSend={() => {}} maxLength={100} />);
+
+    const input = screen.getByTestId('chat-input');
+    expect(input).toHaveAttribute('maxLength', '100');
+  });
 });

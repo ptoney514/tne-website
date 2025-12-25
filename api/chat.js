@@ -1,5 +1,9 @@
 import Anthropic from '@anthropic-ai/sdk';
 
+// Validation constants
+const MAX_MESSAGE_LENGTH = 500;
+const MAX_MESSAGES_COUNT = 20;
+
 // TNE United Express context for the AI assistant
 const SYSTEM_PROMPT = `You are a friendly and helpful AI assistant for TNE United Express, a premier youth basketball program in Omaha, Nebraska. You help parents, players, and community members with questions about the program.
 
@@ -61,6 +65,27 @@ export default async function handler(req, res) {
 
     if (!messages || !Array.isArray(messages)) {
       return res.status(400).json({ error: 'Messages array is required' });
+    }
+
+    // Validate message count (prevent conversation abuse)
+    if (messages.length > MAX_MESSAGES_COUNT) {
+      return res.status(400).json({
+        error: 'Too many messages',
+        message: 'Conversation is too long. Please start a new chat.',
+      });
+    }
+
+    // Validate individual message lengths
+    for (const msg of messages) {
+      if (!msg.content || typeof msg.content !== 'string') {
+        return res.status(400).json({ error: 'Invalid message format' });
+      }
+      if (msg.content.length > MAX_MESSAGE_LENGTH) {
+        return res.status(400).json({
+          error: 'Message too long',
+          message: `Messages must be ${MAX_MESSAGE_LENGTH} characters or less.`,
+        });
+      }
     }
 
     // Initialize Anthropic client
