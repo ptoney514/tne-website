@@ -19,10 +19,15 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { sessionId, messageContent, feedback } = req.body;
+    const { sessionId, messageId, messageContent, feedback } = req.body;
 
-    if (!sessionId || !messageContent || !feedback) {
+    // Require sessionId and feedback, but messageId or messageContent for lookup
+    if (!sessionId || !feedback) {
       return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    if (!messageId && !messageContent) {
+      return res.status(400).json({ error: 'Either messageId or messageContent is required' });
     }
 
     // Validate feedback type
@@ -42,16 +47,33 @@ export default async function handler(req, res) {
       return res.status(200).json({ success: true, logged: false });
     }
 
-    // Find the message by content (most recent match in session)
-    const { data: message } = await supabase
-      .from('chat_messages')
-      .select('id')
-      .eq('session_id', session.id)
-      .eq('content', messageContent)
-      .eq('role', 'assistant')
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .single();
+    let message = null;
+
+    // Prefer messageId lookup (more reliable)
+    if (messageId) {
+      const { data } = await supabase
+        .from('chat_messages')
+        .select('id')
+        .eq('session_id', session.id)
+        .eq('client_message_id', messageId)
+        .eq('role', 'assistant')
+        .single();
+      message = data;
+    }
+
+    // Fall back to content matching for older messages without messageId
+    if (!message && messageContent) {
+      const { data } = await supabase
+        .from('chat_messages')
+        .select('id')
+        .eq('session_id', session.id)
+        .eq('content', messageContent)
+        .eq('role', 'assistant')
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
+      message = data;
+    }
 
     if (!message) {
       // Message not found - might not have logged yet, just acknowledge

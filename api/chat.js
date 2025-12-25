@@ -18,8 +18,13 @@ function hashIP(ip) {
   return crypto.createHash('sha256').update(ip).digest('hex').substring(0, 16);
 }
 
+// Generate a simple unique ID for messages
+function generateMessageId() {
+  return `${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
+}
+
 // Async logging - doesn't block response
-async function logChatMessage(sessionId, role, content, pageUrl, userAgent, ipHash) {
+async function logChatMessage(sessionId, role, content, pageUrl, userAgent, ipHash, clientMessageId = null) {
   if (!supabase) return null;
 
   try {
@@ -50,13 +55,14 @@ async function logChatMessage(sessionId, role, content, pageUrl, userAgent, ipHa
       session = newSession;
     }
 
-    // Insert message
+    // Insert message with optional client_message_id
     const { data: message, error: messageError } = await supabase
       .from('chat_messages')
       .insert({
         session_id: session.id,
         role,
         content,
+        client_message_id: clientMessageId,
       })
       .select('id')
       .single();
@@ -182,6 +188,9 @@ export default async function handler(req, res) {
       .map((block) => block.text)
       .join('\n');
 
+    // Generate message ID for the assistant response (used for feedback)
+    const messageId = generateMessageId();
+
     // Log messages asynchronously (don't block response)
     if (sessionId) {
       // Log the latest user message (last one in array)
@@ -189,11 +198,11 @@ export default async function handler(req, res) {
       if (lastUserMessage) {
         logChatMessage(sessionId, 'user', lastUserMessage.content, pageUrl, userAgent, ipHash).catch(() => {});
       }
-      // Log assistant response
-      logChatMessage(sessionId, 'assistant', content, pageUrl, userAgent, ipHash).catch(() => {});
+      // Log assistant response with message ID
+      logChatMessage(sessionId, 'assistant', content, pageUrl, userAgent, ipHash, messageId).catch(() => {});
     }
 
-    return res.status(200).json({ message: content });
+    return res.status(200).json({ message: content, messageId });
   } catch (error) {
     console.error('Chat API error:', error);
 

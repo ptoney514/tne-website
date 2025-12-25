@@ -135,6 +135,7 @@ export default function ChatPanel({ isOpen, onClose }) {
         role: 'assistant',
         content: data.message || data.content || "I'm sorry, I couldn't process that request. Please try again.",
         timestamp: new Date().toISOString(),
+        messageId: data.messageId, // Store server-generated ID for feedback
       };
 
       setMessages((prev) => [...prev, assistantMessage]);
@@ -158,6 +159,7 @@ export default function ChatPanel({ isOpen, onClose }) {
 
   // Handle feedback submission
   const handleFeedback = useCallback(async (messageIndex, feedbackType) => {
+    const message = messages[messageIndex];
     try {
       const response = await fetch('/api/chat-feedback', {
         method: 'POST',
@@ -166,9 +168,10 @@ export default function ChatPanel({ isOpen, onClose }) {
         },
         body: JSON.stringify({
           sessionId: getSessionId(),
-          messageIndex,
           feedback: feedbackType,
-          messageContent: messages[messageIndex]?.content,
+          // Prefer messageId for reliable lookup, fallback to content for older messages
+          messageId: message?.messageId,
+          messageContent: message?.content,
         }),
       });
 
