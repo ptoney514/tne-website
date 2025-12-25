@@ -6,10 +6,11 @@ import crypto from 'crypto';
 const MAX_MESSAGE_LENGTH = 500;
 const MAX_MESSAGES_COUNT = 20;
 
-// Initialize Supabase client for logging (only if configured)
+// Initialize Supabase client for logging (requires service role key)
+// Service role bypasses RLS - we use restrictive RLS policies that block anon access
 const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY;
-const supabase = supabaseUrl && supabaseKey ? createClient(supabaseUrl, supabaseKey) : null;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const supabase = supabaseUrl && supabaseServiceKey ? createClient(supabaseUrl, supabaseServiceKey) : null;
 
 // Hash IP for privacy
 function hashIP(ip) {
