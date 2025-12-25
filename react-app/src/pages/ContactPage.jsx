@@ -8,11 +8,10 @@ import {
   Twitter,
   Instagram,
   Send,
-  Clock,
   CheckCircle,
   AlertCircle,
   MessageCircle,
-  Bot,
+  Sparkles,
 } from 'lucide-react';
 import PublicLayout from '../components/layouts/PublicLayout';
 import { useContactForm } from '../hooks/useContactForm';
@@ -28,7 +27,7 @@ const subjectOptions = [
   { value: 'other', label: 'Other' },
 ];
 
-// Quick answers that the AI assistant can handle
+// Quick answers that the AI Assistant Coach can handle
 const aiAssistantTopics = [
   'Team schedules & practice times',
   'Tournament information',
@@ -104,8 +103,8 @@ export default function ContactPage() {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(227,24,55,0.2),transparent_60%),radial-gradient(circle_at_bottom_left,rgba(139,31,58,0.15),transparent_55%)]" />
         <div className="absolute inset-0 bg-gradient-to-b from-black via-black/90 to-black" />
 
-        <div className="sm:px-6 sm:pt-16 sm:pb-14 max-w-6xl mx-auto pt-12 px-4 pb-10 relative">
-          <div className="flex flex-col gap-6 animate-enter">
+        <div className="sm:px-6 sm:pt-16 sm:pb-12 max-w-6xl mx-auto pt-12 px-4 pb-8 relative">
+          <div className="flex flex-col gap-4 animate-enter">
             {/* Breadcrumb */}
             <div className="inline-flex items-center gap-2">
               <Link
@@ -126,21 +125,8 @@ export default function ContactPage() {
               </h1>
               <p className="mt-2 text-base sm:text-lg text-white/70 max-w-2xl">
                 For sponsorship, media inquiries, or partnership opportunities,
-                reach out below. Our team will get back to you within 24 hours.
+                reach out below.
               </p>
-            </div>
-
-            <div className="flex flex-wrap gap-4 items-center text-xs sm:text-sm text-white/70">
-              <div className="inline-flex items-center gap-2 rounded-md bg-white/5 border border-white/10 px-3 py-1.5">
-                <span className="inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.8)]" />
-                <span className="font-mono uppercase tracking-[0.22em] text-[0.7rem]">
-                  Quick Response
-                </span>
-              </div>
-              <div className="inline-flex items-center gap-2 text-white/60">
-                <Clock className="w-4 h-4" />
-                <span>Typically respond within 24 hours</span>
-              </div>
             </div>
           </div>
         </div>
@@ -148,17 +134,81 @@ export default function ContactPage() {
 
       {/* Main Content */}
       <main className="flex-1 w-full bg-neutral-50 text-neutral-900">
-        <section className="max-w-6xl mx-auto px-4 sm:px-6 -mt-6 pb-12 sm:pb-16">
+        <section className="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+          {/* AI Assistant Coach - Featured at Top */}
+          <div
+            className="relative rounded-3xl bg-gradient-to-br from-neutral-900 via-neutral-800 to-neutral-900 text-white border border-neutral-700/50 shadow-2xl overflow-hidden mb-8 sm:mb-10"
+            data-testid="ai-assistant-cta"
+          >
+            {/* Decorative elements */}
+            <div className="absolute top-0 right-0 w-64 h-64 bg-tne-red/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+            <div className="absolute bottom-0 left-0 w-48 h-48 bg-tne-maroon/20 rounded-full blur-3xl translate-y-1/2 -translate-x-1/4" />
+
+            <div className="relative px-6 py-8 sm:px-8 sm:py-10">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-10 items-center">
+                {/* Left Content */}
+                <div>
+                  <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-white/10 mb-4">
+                    <Sparkles className="w-3.5 h-3.5 text-tne-red" />
+                    <span className="text-xs font-mono uppercase tracking-wider text-white/70">
+                      Instant Answers
+                    </span>
+                  </div>
+
+                  <h2 className="text-2xl sm:text-3xl font-bold mb-3">
+                    Need Quick Answers?
+                  </h2>
+                  <p className="text-base text-white/70 mb-5 max-w-md">
+                    Our AI Assistant Coach can instantly help you with common questions about TNE United Express.
+                  </p>
+
+                  <button
+                    type="button"
+                    className="inline-flex items-center gap-2.5 px-6 py-3.5 rounded-xl bg-tne-red text-white font-semibold hover:bg-tne-red-dark transition-all hover:scale-[1.02] hover:shadow-lg hover:shadow-tne-red/25"
+                    data-testid="open-chat-button"
+                    onClick={() => {
+                      window.dispatchEvent(new CustomEvent('open-chat-widget'));
+                    }}
+                  >
+                    <MessageCircle className="w-5 h-5" />
+                    Chat with AI Assistant Coach
+                  </button>
+                </div>
+
+                {/* Right - Topics List */}
+                <div className="lg:pl-6 lg:border-l lg:border-white/10">
+                  <p className="text-xs font-mono uppercase tracking-wider text-white/40 mb-4">
+                    Get help with
+                  </p>
+                  <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-3">
+                    {aiAssistantTopics.map((topic) => (
+                      <li
+                        key={topic}
+                        className="flex items-center gap-3 text-sm text-white/80"
+                      >
+                        <span className="flex-shrink-0 w-6 h-6 rounded-full bg-tne-red/20 flex items-center justify-center">
+                          <span className="w-1.5 h-1.5 rounded-full bg-tne-red" />
+                        </span>
+                        {topic}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Contact Form Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 sm:gap-8">
             {/* Contact Form - 3 columns */}
             <div className="lg:col-span-3">
-              <div className="rounded-3xl bg-white border border-neutral-300 shadow-sm overflow-hidden">
+              <div className="rounded-3xl bg-white border border-neutral-200 shadow-sm overflow-hidden">
                 <div className="bg-neutral-900 text-white px-5 py-4 sm:px-6 sm:py-5">
                   <h2 className="text-xl sm:text-2xl font-semibold tracking-tight">
                     Send Us a Message
                   </h2>
                   <p className="text-sm text-white/60 mt-1">
-                    Fill out the form below and we'll get back to you soon.
+                    For formal inquiries and business opportunities.
                   </p>
                 </div>
 
@@ -171,8 +221,7 @@ export default function ContactPage() {
                       Message Sent!
                     </h3>
                     <p className="text-neutral-600 mb-6">
-                      Thank you for reaching out. We'll get back to you within
-                      24 hours.
+                      Thank you for reaching out. We'll be in touch soon.
                     </p>
                     <button
                       onClick={handleNewMessage}
@@ -305,7 +354,7 @@ export default function ContactPage() {
             {/* Contact Info Sidebar - 2 columns */}
             <div className="lg:col-span-2 space-y-5">
               {/* Direct Contact Card */}
-              <div className="rounded-3xl bg-white border border-neutral-300 shadow-sm overflow-hidden">
+              <div className="rounded-3xl bg-white border border-neutral-200 shadow-sm overflow-hidden">
                 <div className="px-5 py-5 sm:px-6">
                   <h3 className="text-lg font-semibold text-neutral-900 mb-4">
                     Contact Information
@@ -367,7 +416,7 @@ export default function ContactPage() {
               </div>
 
               {/* Social Links Card */}
-              <div className="rounded-3xl bg-white border border-neutral-300 shadow-sm overflow-hidden">
+              <div className="rounded-3xl bg-white border border-neutral-200 shadow-sm overflow-hidden">
                 <div className="px-5 py-5 sm:px-6">
                   <h3 className="text-lg font-semibold text-neutral-900 mb-4">
                     Follow Us
@@ -387,58 +436,6 @@ export default function ContactPage() {
                       </a>
                     ))}
                   </div>
-                </div>
-              </div>
-
-              {/* AI Assistant CTA Card */}
-              <div
-                className="rounded-3xl bg-gradient-to-br from-neutral-900 to-neutral-800 text-white border border-neutral-700 shadow-lg overflow-hidden"
-                data-testid="ai-assistant-cta"
-              >
-                <div className="px-5 py-5 sm:px-6">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-tne-red to-tne-maroon flex items-center justify-center">
-                      <Bot className="w-5 h-5 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-semibold">
-                        Need Quick Answers?
-                      </h3>
-                      <p className="text-xs text-white/50 font-mono uppercase tracking-wider">
-                        AI Assistant
-                      </p>
-                    </div>
-                  </div>
-
-                  <p className="text-sm text-white/70 mb-4">
-                    For questions about schedules, teams, or registration, try our AI assistant for instant answers.
-                  </p>
-
-                  <ul className="space-y-2 mb-5">
-                    {aiAssistantTopics.map((topic) => (
-                      <li
-                        key={topic}
-                        className="flex items-center gap-2 text-sm text-white/60"
-                      >
-                        <span className="w-1.5 h-1.5 rounded-full bg-tne-red" />
-                        {topic}
-                      </li>
-                    ))}
-                  </ul>
-
-                  <button
-                    type="button"
-                    className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-tne-red text-white font-medium hover:bg-tne-red-dark transition-colors"
-                    data-testid="open-chat-button"
-                    onClick={() => {
-                      // TODO: Open chat widget when implemented
-                      // For now, this is a placeholder
-                      window.dispatchEvent(new CustomEvent('open-chat-widget'));
-                    }}
-                  >
-                    <MessageCircle className="w-4 h-4" />
-                    Chat with AI Assistant
-                  </button>
                 </div>
               </div>
             </div>

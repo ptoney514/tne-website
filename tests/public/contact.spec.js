@@ -173,9 +173,9 @@ test.describe('Contact Page - AI Assistant CTA', () => {
     await expect(page.getByText(/Need Quick Answers/i)).toBeVisible();
   });
 
-  test('should display AI assistant description', async ({ page }) => {
+  test('should display AI Assistant Coach description', async ({ page }) => {
     await expect(
-      page.getByText(/questions about schedules, teams, or registration/i)
+      page.getByText(/AI Assistant Coach can instantly help/i)
     ).toBeVisible();
   });
 
@@ -192,10 +192,10 @@ test.describe('Contact Page - AI Assistant CTA', () => {
     await expect(ctaCard.getByText(/Program information/i)).toBeVisible();
   });
 
-  test('should display Chat with AI Assistant button', async ({ page }) => {
+  test('should display Chat with AI Assistant Coach button', async ({ page }) => {
     const chatButton = page.getByTestId('open-chat-button');
     await expect(chatButton).toBeVisible();
-    await expect(chatButton).toContainText('Chat with AI Assistant');
+    await expect(chatButton).toContainText('Chat with AI Assistant Coach');
   });
 
   test('should dispatch event when chat button is clicked', async ({ page }) => {
