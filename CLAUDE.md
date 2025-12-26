@@ -109,6 +109,17 @@ npm run test:headed   # Run tests with browser visible (debugging)
 npm run test:ui       # Interactive test UI
 ```
 
+## Development Pattern: Tests-as-You-Go
+
+When building features:
+1. Write tests alongside implementation
+2. E2E tests for user flows (Playwright)
+3. Unit tests for hooks and utilities (Vitest)
+
+Run before committing:
+- `/pre-commit` - Quick review of staged changes
+- `npm run pr-check` - Full validation (lint, build, test)
+
 ## Remaining Pages to Build
 
 See GitHub Issues for full tracking:

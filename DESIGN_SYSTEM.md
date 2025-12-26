@@ -1,13 +1,72 @@
-# TNE United Express - Design System
+# TNE United Express - Design System (V2)
 
-**Source of Truth:** `tne-v2-homepage-complete.html` and `tne-v2-teams.html`  
-**Last Updated:** December 21, 2025
+**Source of Truth:** Teams page screenshot (Image 2) and `tne-v2-teams.html`  
+**Last Updated:** December 21, 2025  
+**Version:** 2.0 - "Lighter Touch"
 
 ---
 
-## Quick Reference
+## ⚠️ CRITICAL: V2 Design Philosophy
 
-Before building any page, copy-paste the relevant component code from this document or the source HTML files. Do not improvise or "improve" the patterns.
+**V2 = "Just fix the brand color, add Bebas sparingly, trust the designer's UX decisions"**
+
+### What V2 Changed from Original Designer
+| Element | Original | V2 Adaptation |
+|---------|----------|---------------|
+| Accent color | Orange `#ea580c` | Red `#E31837` |
+| CTAs/Buttons | Orange | Red (rounded, not sharp) |
+| Icon badges on cards | White/neutral | Red background |
+| Links/hover states | Orange | Red |
+| Stat numbers only | System font | Bebas Neue |
+| Logo text only | System font | Bebas Neue |
+
+### What V2 Kept from Designer (DO NOT CHANGE)
+| Element | Why |
+|---------|-----|
+| **Inter for page titles** | Clean, modern readability |
+| **Inter for card headers** | Consistency with body text |
+| **Rounded pills/badges** | Better touch targets, softer UX |
+| **Rounded cards (`rounded-3xl`)** | Modern, approachable feel |
+| **Rounded inputs/buttons** | Standard form UX pattern |
+| **Light content background** | Easier to scan many cards |
+| **Subtle animations** | Polish and delight |
+
+---
+
+## 🚨 Typography Rules (READ THIS CAREFULLY)
+
+### When to Use Bebas Neue
+| Element | Use Bebas? | Example |
+|---------|------------|---------|
+| Homepage hero headline | ✅ YES | "To be the best, you have to play the best" |
+| Logo "TNE" in circle | ✅ YES | The small TNE in navbar logo |
+| Stat numbers (large) | ✅ YES | "7", "2X", "4" in stat boxes |
+| Footer brand "UNITED" | ✅ YES | "UNITED EXPRESS" in footer |
+
+### When to Use Inter (System Font)
+| Element | Use Bebas? | Example |
+|---------|------------|---------|
+| Page titles | ❌ NO | "Team Rosters & Schedules" |
+| Team names in cards | ❌ NO | "Express United" |
+| Team names in detail page | ❌ NO | "Express United" (NOT all-caps) |
+| Section headers | ❌ NO | "Roster", "Upcoming Schedule" |
+| Body text | ❌ NO | All descriptions, paragraphs |
+| Navigation links | ❌ NO | "HOME", "TEAMS", etc. |
+| Button text | ❌ NO | "Register", "Login" |
+
+### Visual Comparison
+
+**❌ WRONG (Old V1 Style):**
+```html
+<h1 class="font-bebas text-5xl uppercase">EXPRESS UNITED</h1>
+```
+Result: Heavy, aggressive, all-caps Bebas headline
+
+**✅ CORRECT (V2 Style):**
+```html
+<h1 class="text-4xl sm:text-5xl font-semibold tracking-tight">Express United</h1>
+```
+Result: Clean, modern Inter headline with normal case
 
 ---
 
@@ -52,70 +111,56 @@ Before building any page, copy-paste the relevant component code from this docum
 
 | Name | Hex | Tailwind Class | Usage |
 |------|-----|----------------|-------|
-| Maroon | `#8B1F3A` | `tne-maroon` | Gradients, accents |
-| Red | `#E31837` | `tne-red` | Primary CTA, highlights |
+| Maroon | `#8B1F3A` | `tne-maroon` | Gradients only (logo) |
+| Red | `#E31837` | `tne-red` | Primary CTA, highlights, badges |
 | Red Dark | `#C41230` | `tne-red-dark` | Hover states |
-| Black | `#050505` | `bg-[#050505]` | Page backgrounds |
-| Charcoal | `#08090A` | `bg-[#08090A]` | Section backgrounds |
+| Black | `#050505` | `bg-[#050505]` | Hero/header backgrounds |
+| Neutral 900 | - | `bg-neutral-900` | Card headers |
 | White | `#FFFFFF` | `text-white` | Text on dark |
 | Neutral 50 | - | `bg-neutral-50` | Light content areas |
 
 ---
 
-## 3. Typography
+## 3. Typography Scale
 
-### Font Families
-
-```css
-.font-bebas { font-family: 'Bebas Neue', sans-serif; }
-.font-mono { font-family: 'Space Mono', monospace; }
-/* Default sans = Inter via Tailwind */
-```
-
-### Usage Patterns
-
-| Element | Font | Classes |
-|---------|------|---------|
-| Hero Headlines | Bebas Neue | `font-bebas text-5xl sm:text-7xl lg:text-8xl uppercase tracking-tight` |
-| Page Titles | System/Inter | `text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tight` |
-| Section Headers | Bebas Neue | `font-bebas text-2xl uppercase tracking-wide` |
-| Labels/Badges | Space Mono | `font-mono text-[0.7rem] uppercase tracking-[0.2em]` |
-| Body Text | Inter | `text-sm` or `text-base` |
-
----
-
-## 4. Base Styles
-
-Add to every page `<style>` block:
-
-```css
-.font-bebas { font-family: 'Bebas Neue', sans-serif; }
-.font-mono { font-family: 'Space Mono', monospace; }
-
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: #050505; }
-::-webkit-scrollbar-thumb { background: #E31837; border-radius: 3px; }
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-.animate-enter { animation: fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-.delay-100 { animation-delay: 100ms; }
-.delay-200 { animation-delay: 200ms; }
-```
-
-### Body Element
-
+### Page Titles (Inter - NOT Bebas)
 ```html
-<body class="bg-[#050505] text-white antialiased min-h-screen flex flex-col font-sans selection:bg-tne-red/20 selection:text-red-100">
+<h1 class="text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tight text-white">
+    Team Rosters & Schedules
+</h1>
+```
+
+### Team Names in Cards (Inter - NOT Bebas)
+```html
+<h2 class="text-xl sm:text-2xl font-semibold tracking-tight">Express United</h2>
+```
+
+### Section Headers (Inter)
+```html
+<h2 class="text-lg font-semibold text-neutral-900">Roster</h2>
+```
+
+### Stat Numbers (Bebas - OK here)
+```html
+<span class="font-bebas text-2xl text-white">7</span>
+<span class="text-xs text-white/60 uppercase tracking-wider">Players</span>
+```
+
+### Labels/Badges (Space Mono)
+```html
+<span class="text-[0.7rem] font-mono uppercase tracking-[0.2em]">4TH GRADE</span>
+```
+
+### Body Text (Inter)
+```html
+<p class="text-sm text-neutral-600">Coach Foster</p>
 ```
 
 ---
 
-## 5. Component Patterns
+## 4. Component Patterns
 
-### 5.1 Navbar (Teams Page Style - USE THIS)
+### 4.1 Navbar
 
 ```html
 <nav class="sticky supports-[backdrop-filter]:bg-black/80 bg-black/90 w-full z-50 border-white/5 border-b top-0 backdrop-blur-md">
@@ -128,10 +173,10 @@ Add to every page `<style>` block:
             <span class="text-sm font-medium tracking-tight text-white/90">TNE United Express</span>
         </div>
 
-        <!-- Links -->
+        <!-- Links - Note: uppercase but NOT Bebas -->
         <div class="hidden md:flex items-center gap-6 text-xs font-medium uppercase tracking-[0.18em]">
             <a href="#" class="hover:text-white transition-colors text-stone-300">Home</a>
-            <a href="#" class="text-white">Teams</a> <!-- Active state -->
+            <a href="#" class="text-white">Teams</a>
             <a href="#" class="hover:text-white transition-colors text-stone-300">Schedule</a>
             <a href="#" class="text-stone-300 hover:text-white transition-colors">Tryouts</a>
             <a href="#" class="text-stone-300 hover:text-white transition-colors">About</a>
@@ -147,48 +192,59 @@ Add to every page `<style>` block:
                     Register
                 </a>
             </div>
-            <button class="md:hidden inline-flex items-center justify-center w-8 h-8 rounded-full border border-white/10 text-white/70 hover:text-white hover:border-white/40 transition-colors">
-                <i data-lucide="menu" class="w-5 h-5"></i>
-            </button>
         </div>
     </div>
 </nav>
 ```
 
-### 5.2 Page Hero Header
+### 4.2 Page Hero Header (V2 Style)
 
 ```html
-<header class="relative border-b border-white/5 overflow-hidden">
+<header class="relative border-b border-white/5 overflow-hidden bg-[#050505]">
     <!-- Gradient overlay -->
-    <div class="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(227,24,55,0.2),transparent_60%),radial-gradient(circle_at_bottom_left,rgba(139,31,58,0.15),transparent_55%)]"></div>
-    <!-- Background image -->
-    <div class="absolute inset-0 bg-[url('IMAGE_URL')] bg-cover bg-center opacity-20 mix-blend-screen"></div>
-    <!-- Dark gradient -->
-    <div class="absolute inset-0 bg-gradient-to-b from-black via-black/90 to-black"></div>
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(227,24,55,0.2),transparent_60%)]"></div>
 
     <div class="sm:px-6 sm:pt-16 sm:pb-14 max-w-6xl mx-auto pt-12 px-4 pb-10 relative">
-        <div class="flex flex-col gap-6 animate-enter">
-            <!-- Status Badge -->
-            <div class="inline-flex items-center gap-2 rounded-full border border-tne-red/30 bg-tne-red/10 px-3 py-1 w-fit">
-                <span class="h-1.5 w-1.5 rounded-full bg-tne-red shadow-[0_0_12px_rgba(227,24,55,0.9)]"></span>
-                <span class="text-[0.7rem] font-mono uppercase tracking-[0.22em] text-red-300">2025-26 Season</span>
+        <div class="flex flex-col gap-6">
+            <!-- Back link (for detail pages) -->
+            <a href="teams.html" class="inline-flex items-center gap-2 text-white/60 hover:text-white transition-colors text-sm w-fit">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                Back to Teams
+            </a>
+
+            <!-- Badges -->
+            <div class="flex flex-wrap gap-2">
+                <div class="inline-flex items-center rounded-full bg-white/10 border border-white/10 px-2.5 py-0.5">
+                    <span class="text-[0.7rem] font-mono uppercase tracking-[0.2em] text-white/80">4th Grade</span>
+                </div>
+                <div class="inline-flex items-center rounded-full bg-tne-red/20 border border-tne-red/30 px-2.5 py-0.5">
+                    <span class="text-[0.7rem] font-mono uppercase tracking-[0.2em] text-red-300">Boys Express</span>
+                </div>
             </div>
 
-            <!-- Title -->
+            <!-- Title - INTER, NOT BEBAS -->
             <div>
-                <h1 class="text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tight text-white">
-                    Page Title Here
+                <h1 class="text-4xl sm:text-5xl font-semibold tracking-tight text-white">
+                    Express United
                 </h1>
-                <p class="mt-2 text-base sm:text-lg text-white/70 max-w-2xl">
-                    Subtitle description text goes here.
+                <p class="mt-2 text-base text-white/60">
+                    Coach Foster · Monroe MS Gym · Mon/Wed 6:00 PM
                 </p>
             </div>
 
-            <!-- Meta info row -->
-            <div class="flex flex-wrap gap-4 items-center text-xs sm:text-sm text-white/70">
-                <div class="inline-flex items-center gap-2 rounded-md bg-white/5 border border-white/10 px-3 py-1.5">
-                    <span class="inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.8)]"></span>
-                    <span class="font-mono uppercase tracking-[0.22em] text-[0.7rem]">Season Active</span>
+            <!-- Stats Row -->
+            <div class="flex gap-4">
+                <div class="px-4 py-3 rounded-lg border border-white/10 bg-white/5">
+                    <span class="font-bebas text-2xl text-white">7</span>
+                    <span class="block text-[0.65rem] text-white/50 uppercase tracking-wider">Players</span>
+                </div>
+                <div class="px-4 py-3 rounded-lg border border-white/10 bg-white/5">
+                    <span class="font-bebas text-2xl text-white">2x</span>
+                    <span class="block text-[0.65rem] text-white/50 uppercase tracking-wider">Weekly</span>
+                </div>
+                <div class="px-4 py-3 rounded-lg border border-white/10 bg-white/5">
+                    <span class="font-bebas text-2xl text-white">4</span>
+                    <span class="block text-[0.65rem] text-white/50 uppercase tracking-wider">Upcoming</span>
                 </div>
             </div>
         </div>
@@ -196,34 +252,7 @@ Add to every page `<style>` block:
 </header>
 ```
 
-### 5.3 Filter Controls Bar
-
-```html
-<div class="animate-enter delay-100 rounded-2xl bg-white border border-neutral-200 shadow-sm px-3 py-2 sm:px-4 sm:py-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-    <!-- Filter Pills -->
-    <div class="flex items-center gap-2 w-full sm:w-auto overflow-x-auto">
-        <button class="px-3 py-1.5 rounded-full bg-neutral-900 text-white text-xs font-medium whitespace-nowrap">
-            All Teams
-        </button>
-        <button class="px-3 py-1.5 rounded-full border border-neutral-200 bg-white text-xs text-neutral-700 font-medium whitespace-nowrap hover:border-neutral-300 hover:bg-neutral-50 transition-colors">
-            Boys Express
-        </button>
-        <!-- More pills... -->
-    </div>
-
-    <!-- Search -->
-    <div class="flex items-center gap-2 w-full sm:w-auto">
-        <div class="relative w-full sm:w-64">
-            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-neutral-400">
-                <i data-lucide="search" class="w-4 h-4"></i>
-            </div>
-            <input type="text" placeholder="Search..." class="block w-full rounded-full border border-neutral-200 bg-neutral-50 pl-9 pr-3 py-1.5 text-xs text-neutral-900 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-tne-red/50 focus:border-tne-red/50">
-        </div>
-    </div>
-</div>
-```
-
-### 5.4 Team Card
+### 4.3 Team Card (from Teams Page)
 
 ```html
 <article class="rounded-3xl bg-white border border-neutral-300 shadow-sm overflow-hidden flex flex-col">
@@ -233,6 +262,7 @@ Add to every page `<style>` block:
             <div class="inline-flex items-center rounded-full bg-white/5 border border-white/10 px-2.5 py-0.5">
                 <span class="text-[0.7rem] font-mono uppercase tracking-[0.2em]">4th Grade</span>
             </div>
+            <!-- Team name - Inter, NOT Bebas -->
             <h2 class="text-xl sm:text-2xl font-semibold tracking-tight">Express United</h2>
             <p class="text-xs sm:text-sm text-white/60">
                 Foster · Express United 4th · Boys
@@ -262,17 +292,12 @@ Add to every page `<style>` block:
             </div>
 
             <div class="space-y-2">
-                <!-- Event Item -->
                 <div class="rounded-2xl border border-neutral-300 bg-neutral-50 px-3 py-2.5 text-xs sm:text-sm">
                     <p class="font-medium text-neutral-900 mb-1">Team Practice · Monroe MS Gym</p>
                     <div class="flex flex-wrap gap-x-3 gap-y-1 text-neutral-600">
                         <span class="inline-flex items-center gap-1">
                             <i data-lucide="clock" class="w-3.5 h-3.5"></i>
                             Mon · 6:00 PM
-                        </span>
-                        <span class="inline-flex items-center gap-1">
-                            <i data-lucide="map-pin" class="w-3.5 h-3.5"></i>
-                            Court 1
                         </span>
                     </div>
                 </div>
@@ -291,10 +316,58 @@ Add to every page `<style>` block:
 </article>
 ```
 
-### 5.5 Footer (Simple - Teams Page)
+### 4.4 Roster Player Row (for Team Detail)
 
 ```html
-<footer class="border-t border-white/10 bg-black py-8 sm:py-10 mt-4">
+<div class="flex items-center gap-4 px-5 py-4 border-b border-neutral-100 last:border-b-0 hover:bg-neutral-50 transition-colors">
+    <!-- Jersey Number -->
+    <div class="flex items-center justify-center w-12 h-12 rounded-full bg-tne-red text-white font-semibold text-lg">
+        #3
+    </div>
+    <!-- Player Info -->
+    <div class="flex-1">
+        <p class="font-medium text-neutral-900">Marcus Johnson</p>
+        <p class="text-sm text-neutral-500">Point Guard · 4th</p>
+    </div>
+</div>
+```
+
+### 4.5 Schedule Event Card (for Team Detail)
+
+```html
+<div class="rounded-xl border border-neutral-200 bg-white overflow-hidden">
+    <!-- Event type color bar -->
+    <div class="h-1 bg-emerald-500"></div> <!-- Practice = emerald, Game = blue, Tournament = tne-red -->
+    
+    <div class="px-4 py-3">
+        <!-- Date -->
+        <div class="flex items-center justify-between mb-2">
+            <span class="text-[0.7rem] font-mono uppercase tracking-wider text-neutral-500">Mon Dec 23</span>
+            <span class="text-[0.65rem] font-medium uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">Practice</span>
+        </div>
+        
+        <!-- Event Title -->
+        <p class="font-medium text-neutral-900 mb-1">Team Practice</p>
+        
+        <!-- Meta -->
+        <div class="flex flex-wrap gap-x-3 gap-y-1 text-sm text-neutral-600">
+            <span class="inline-flex items-center gap-1">
+                <i data-lucide="clock" class="w-3.5 h-3.5"></i>
+                6:00 PM
+            </span>
+            <span class="inline-flex items-center gap-1">
+                <i data-lucide="map-pin" class="w-3.5 h-3.5"></i>
+                Monroe MS Gym
+            </span>
+        </div>
+    </div>
+</div>
+```
+
+### 4.6 Footer
+
+```html
+<footer class="border-t border-white/10 bg-black py-8 sm:py-10">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col gap-6 sm:gap-4 sm:flex-row sm:items-center sm:justify-between text-xs sm:text-sm text-white/45">
         <div class="flex items-center gap-3">
             <div class="w-6 h-6 rounded-full bg-gradient-to-tr from-tne-maroon to-tne-red flex items-center justify-center">
@@ -328,133 +401,61 @@ Add to every page `<style>` block:
 
 ---
 
-## 6. Layout Patterns
+## 5. Event Type Colors
 
-### Main Content Area (Light Background)
-
-```html
-<main class="flex-1 w-full bg-neutral-50 text-neutral-900">
-    <section class="max-w-6xl mx-auto px-4 sm:px-6 -mt-6 pb-12 sm:pb-16 space-y-6 sm:space-y-8">
-        <!-- Content here -->
-    </section>
-</main>
-```
-
-### Grid Layouts
-
-```html
-<!-- 2-column grid -->
-<div class="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
-
-<!-- 3-column grid (homepage) -->
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-0">
-```
+| Event Type | Color Bar | Badge Background | Badge Text |
+|------------|-----------|------------------|------------|
+| Practice | `bg-emerald-500` | `bg-emerald-100` | `text-emerald-700` |
+| Game | `bg-blue-500` | `bg-blue-100` | `text-blue-700` |
+| Tournament | `bg-tne-red` | `bg-red-100` | `text-red-700` |
+| Off/Holiday | `bg-neutral-300` | `bg-neutral-100` | `text-neutral-600` |
 
 ---
 
-## 7. Status Indicators
+## 6. Quick Reference: Font Usage
 
-### Active/Live Badge
-```html
-<span class="inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.8)]"></span>
 ```
+BEBAS NEUE (font-bebas):
+├── Logo "TNE" in circle ✓
+├── Stat numbers (7, 2X, 4) ✓
+├── Footer "UNITED" ✓
+└── Homepage hero only ✓
 
-### Season Badge
-```html
-<div class="inline-flex items-center gap-2 rounded-full border border-tne-red/30 bg-tne-red/10 px-3 py-1 w-fit">
-    <span class="h-1.5 w-1.5 rounded-full bg-tne-red shadow-[0_0_12px_rgba(227,24,55,0.9)]"></span>
-    <span class="text-[0.7rem] font-mono uppercase tracking-[0.22em] text-red-300">2025-26 Season</span>
-</div>
+INTER (default, no class needed):
+├── Page titles ✓
+├── Team names ✓
+├── Card headers ✓
+├── Section headers ✓
+├── Body text ✓
+├── Navigation ✓
+└── Buttons ✓
+
+SPACE MONO (font-mono):
+├── Badges (4TH GRADE) ✓
+├── Date labels (MON DEC 23) ✓
+└── Status indicators ✓
 ```
 
 ---
 
-## 8. Icons
+## 7. Do's and Don'ts
 
-Use Lucide icons with `strokeWidth: 1.5`:
+### ✅ DO:
+- Use Inter for page titles and team names
+- Keep rounded corners on cards (`rounded-3xl`)
+- Keep rounded buttons and badges
+- Use red (`#E31837`) for accents
+- Copy component code exactly from this doc
+- Match the Teams page screenshot
 
-```html
-<script>
-    lucide.createIcons({ attrs: { strokeWidth: 1.5 } });
-</script>
-```
-
-Common icons used:
-- `zap`, `rocket`, `trophy`, `flame`, `target`, `medal` - Team icons
-- `calendar`, `clock`, `map-pin` - Schedule info
-- `menu`, `search`, `instagram`, `twitter` - UI
-- `chevron-right`, `arrow-right` - Navigation
-
----
-
-## 9. Responsive Breakpoints
-
-| Breakpoint | Prefix | Usage |
-|------------|--------|-------|
-| Mobile | (default) | Single column, stacked |
-| Tablet | `sm:` (640px) | 2-column grids |
-| Desktop | `md:` (768px) | Show desktop nav |
-| Large | `lg:` (1024px) | 3-column grids |
+### ❌ DON'T:
+- Use Bebas for page titles or team names
+- Use all-caps for team names
+- Use sharp corners (except on homepage hero CTAs)
+- Use maroon for buttons (use red)
+- Improvise new patterns
+- "Improve" the design
 
 ---
 
-## 10. Do's and Don'ts
-
-### DO:
-- Copy component code exactly from source files
-- Use the Teams page navbar style (sticky, backdrop blur)
-- Keep dark hero sections with light content areas
-- Use `rounded-3xl` for cards, `rounded-2xl` for inner elements
-- Use `font-mono` for labels and badges
-- Use `animate-enter` for page load animations
-
-### DON'T:
-- Improvise new component styles
-- Use different fonts
-- Change the color palette
-- Add extra spacing or padding
-- Create new button styles
-- Use different border-radius values
-
----
-
-## 11. Page Template
-
-```html
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <title>TNE United Express | Page Name</title>
-    <!-- [Copy full head from Section 1] -->
-    <style>
-        /* [Copy base styles from Section 4] */
-    </style>
-</head>
-<body class="bg-[#050505] text-white antialiased min-h-screen flex flex-col font-sans selection:bg-tne-red/20 selection:text-red-100">
-
-    <!-- Navbar -->
-    <!-- [Copy from Section 5.1] -->
-
-    <!-- Hero Header -->
-    <!-- [Copy from Section 5.2, customize title/subtitle] -->
-
-    <!-- Main Content -->
-    <main class="flex-1 w-full bg-neutral-50 text-neutral-900">
-        <section class="max-w-6xl mx-auto px-4 sm:px-6 -mt-6 pb-12 sm:pb-16 space-y-6 sm:space-y-8">
-            <!-- Page-specific content -->
-        </section>
-    </main>
-
-    <!-- Footer -->
-    <!-- [Copy from Section 5.5] -->
-
-    <script>
-        lucide.createIcons({ attrs: { strokeWidth: 1.5 } });
-    </script>
-</body>
-</html>
-```
-
----
-
-*Reference the source HTML files for complete, working implementations.*
+*When in doubt, match Image 2 (Teams page screenshot) exactly.*
