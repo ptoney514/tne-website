@@ -8,11 +8,13 @@ import {
   MapPin,
   CreditCard,
   Mail,
+  ClipboardCheck,
 } from 'lucide-react';
 
 // Sidebar navigation items
 const SETTINGS_NAV = [
   { to: '/admin/settings/users', icon: Users, label: 'User Management' },
+  { to: '/admin/settings/registration', icon: ClipboardCheck, label: 'Registration' },
   { to: '/admin/settings/roles', icon: Shield, label: 'Roles & Permissions', disabled: true },
   { to: '/admin/settings/organization', icon: Building2, label: 'Organization', disabled: true },
   { to: '/admin/settings/seasons', icon: Calendar, label: 'Seasons', disabled: true },

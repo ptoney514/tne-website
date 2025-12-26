@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import {
   ArrowRight,
   Activity,
@@ -22,8 +23,11 @@ import {
 } from 'lucide-react';
 import HomeNavbar from '../components/HomeNavbar';
 import HomeFooter from '../components/HomeFooter';
+import { useRegistrationStatus } from '../hooks/useRegistrationStatus';
 
 export default function HomePage() {
+  const { isOpen: registrationOpen, label: registrationLabel } = useRegistrationStatus();
+
   useEffect(() => {
     const handleScroll = () => {
       const bg = document.getElementById('parallax-bg');
@@ -100,13 +104,15 @@ export default function HomePage() {
         {/* Hero Content */}
         <div className="absolute inset-0 z-20 flex flex-col items-center justify-center pointer-events-none px-4 mt-10">
           <div className="flex flex-col items-center text-center space-y-8">
-            {/* Status Badge */}
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-tne-red/30 bg-tne-red/10 backdrop-blur-md pointer-events-auto">
-              <div className="w-1.5 h-1.5 rounded-full bg-tne-red animate-pulse"></div>
-              <span className="text-[10px] font-mono font-medium text-red-300 uppercase tracking-widest">
-                Fall/Winter '25-26 Reg Open
-              </span>
-            </div>
+            {/* Status Badge - Only show when registration is open */}
+            {registrationOpen && (
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-tne-red/30 bg-tne-red/10 backdrop-blur-md pointer-events-auto">
+                <div className="w-1.5 h-1.5 rounded-full bg-tne-red animate-pulse"></div>
+                <span className="text-[10px] font-mono font-medium text-red-300 uppercase tracking-widest">
+                  {registrationLabel} Reg Open
+                </span>
+              </div>
+            )}
 
             {/* Hero Title */}
             <h1 className="text-5xl sm:text-7xl lg:text-8xl font-bold text-transparent bg-clip-text bg-gradient-to-b from-white to-white/50 tracking-tight leading-[0.95] font-bebas uppercase">
@@ -120,15 +126,21 @@ export default function HomePage() {
 
             {/* CTAs */}
             <div className="flex flex-col sm:flex-row gap-4 pt-4 pointer-events-auto">
-              <a href="#" className="group relative px-8 py-3 bg-tne-red text-white text-sm font-semibold uppercase tracking-wider overflow-hidden transition-all hover:bg-tne-red-dark shadow-lg shadow-tne-red/25">
-                <span className="relative z-10 flex items-center gap-2">
-                  Register For Tryouts
-                  <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+              {registrationOpen ? (
+                <Link to="/tryouts" className="group relative px-8 py-3 bg-tne-red text-white text-sm font-semibold uppercase tracking-wider overflow-hidden transition-all hover:bg-tne-red-dark shadow-lg shadow-tne-red/25">
+                  <span className="relative z-10 flex items-center gap-2">
+                    Register For Tryouts
+                    <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                  </span>
+                </Link>
+              ) : (
+                <span className="px-8 py-3 bg-stone-600 text-stone-400 text-sm font-semibold uppercase tracking-wider cursor-not-allowed">
+                  Registration Coming Soon
                 </span>
-              </a>
-              <a href="#" className="px-8 py-3 border border-white/20 text-white text-sm font-semibold uppercase tracking-wider rounded hover:bg-white/10 transition-all backdrop-blur-sm">
+              )}
+              <Link to="/teams" className="px-8 py-3 border border-white/20 text-white text-sm font-semibold uppercase tracking-wider rounded hover:bg-white/10 transition-all backdrop-blur-sm">
                 View 2025 Rosters
-              </a>
+              </Link>
             </div>
           </div>
         </div>
@@ -646,13 +658,19 @@ export default function HomePage() {
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <button className="h-12 px-8 bg-tne-red text-white font-medium hover:bg-tne-red-dark transition-all shadow-xl shadow-tne-red/20 flex items-center gap-2 hover:scale-105 active:scale-95 duration-200">
-                <span>Register for Tryouts</span>
-                <ChevronRight className="w-4 h-4" />
-              </button>
-              <button className="h-12 px-8 rounded border border-stone-300 text-stone-600 font-medium hover:bg-white hover:text-stone-900 transition-all bg-white/50 backdrop-blur-sm">
+              {registrationOpen ? (
+                <Link to="/tryouts" className="h-12 px-8 bg-tne-red text-white font-medium hover:bg-tne-red-dark transition-all shadow-xl shadow-tne-red/20 flex items-center gap-2 hover:scale-105 active:scale-95 duration-200">
+                  <span>Register for Tryouts</span>
+                  <ChevronRight className="w-4 h-4" />
+                </Link>
+              ) : (
+                <span className="h-12 px-8 bg-stone-400 text-stone-200 font-medium flex items-center gap-2 cursor-not-allowed">
+                  <span>Registration Coming Soon</span>
+                </span>
+              )}
+              <Link to="/contact" className="h-12 px-8 rounded border border-stone-300 text-stone-600 font-medium hover:bg-white hover:text-stone-900 transition-all bg-white/50 backdrop-blur-sm flex items-center">
                 Contact Coaches
-              </button>
+              </Link>
             </div>
           </div>
         </section>

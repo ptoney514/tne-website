@@ -21,6 +21,7 @@ import AdminTeamDetailPage from './pages/AdminTeamDetailPage';
 import AdminCoachesPage from './pages/AdminCoachesPage';
 import AdminSettingsLayout from './pages/AdminSettingsLayout';
 import AdminUsersPage from './pages/AdminUsersPage';
+import AdminRegistrationSettings from './pages/AdminRegistrationSettings';
 import AdminGamesPage from './pages/AdminGamesPage';
 // AI Chat disabled for MVP - re-enable post-MVP (see issue #59)
 // import AdminChatAnalyticsPage from './pages/AdminChatAnalyticsPage';
@@ -147,6 +148,7 @@ function App() {
             }
           >
             <Route path="users" element={<AdminUsersPage />} />
+            <Route path="registration" element={<AdminRegistrationSettings />} />
           </Route>
         </Routes>
       </AuthProvider>

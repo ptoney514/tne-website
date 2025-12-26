@@ -47,19 +47,19 @@ export default function HomeNavbar() {
             <div className="w-28" />
           </div>
 
-          {/* Right Links - About, Payments & Register */}
+          {/* Right Links - Payments, About & Register */}
           <div className="hidden md:flex items-center gap-2 pr-2">
-            <Link
-              to="/about"
-              className="text-[13px] hover:text-white uppercase hover:bg-white/10 transition-all font-semibold text-white/90 tracking-wider font-mono rounded-full px-4 py-2"
-            >
-              About
-            </Link>
             <Link
               to="/payments"
               className="text-[13px] hover:text-white uppercase hover:bg-white/10 transition-all font-semibold text-white/90 tracking-wider font-mono rounded-full px-4 py-2"
             >
               Payments
+            </Link>
+            <Link
+              to="/about"
+              className="text-[13px] hover:text-white uppercase hover:bg-white/10 transition-all font-semibold text-white/90 tracking-wider font-mono rounded-full px-4 py-2"
+            >
+              About
             </Link>
             <Link
               to="/tryouts"
