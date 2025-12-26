@@ -567,45 +567,32 @@ export default function HomePage() {
               </a>
             </div>
 
-            {/* Instagram Grid */}
-            <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
-              <a href="#" className="aspect-square bg-stone-800 relative overflow-hidden group">
-                <img src="https://images.unsplash.com/photo-1546519638-68e109498ffc?q=80&w=400&auto=format&fit=crop" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" alt="" />
-                <div className="absolute inset-0 bg-tne-red/0 group-hover:bg-tne-red/30 transition-colors flex items-center justify-center">
-                  <Heart className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
-                </div>
-              </a>
-              <a href="#" className="aspect-square bg-stone-800 relative overflow-hidden group">
-                <img src="https://images.unsplash.com/photo-1574629810360-7efbbe195018?q=80&w=400&auto=format&fit=crop" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" alt="" />
-                <div className="absolute inset-0 bg-tne-red/0 group-hover:bg-tne-red/30 transition-colors flex items-center justify-center">
-                  <Heart className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
-                </div>
-              </a>
-              <a href="#" className="aspect-square bg-stone-800 relative overflow-hidden group">
-                <img src="https://images.unsplash.com/photo-1519861531473-920026393112?q=80&w=400&auto=format&fit=crop" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" alt="" />
-                <div className="absolute inset-0 bg-tne-red/0 group-hover:bg-tne-red/30 transition-colors flex items-center justify-center">
-                  <Heart className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
-                </div>
-              </a>
-              <a href="#" className="aspect-square bg-stone-800 relative overflow-hidden group hidden md:block">
-                <img src="https://images.unsplash.com/photo-1544919982-b61976f0ba43?q=80&w=400&auto=format&fit=crop" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" alt="" />
-                <div className="absolute inset-0 bg-tne-red/0 group-hover:bg-tne-red/30 transition-colors flex items-center justify-center">
-                  <Heart className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
-                </div>
-              </a>
-              <a href="#" className="aspect-square bg-stone-800 relative overflow-hidden group hidden md:block">
-                <img src="https://images.unsplash.com/photo-1505666287802-931dc83948e9?q=80&w=400&auto=format&fit=crop" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" alt="" />
-                <div className="absolute inset-0 bg-tne-red/0 group-hover:bg-tne-red/30 transition-colors flex items-center justify-center">
-                  <Heart className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
-                </div>
-              </a>
-              <a href="#" className="aspect-square bg-stone-800 relative overflow-hidden group hidden md:block">
-                <img src="https://images.unsplash.com/photo-1628779238951-be2c9f255915?q=80&w=400&auto=format&fit=crop" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" alt="" />
-                <div className="absolute inset-0 bg-tne-red/0 group-hover:bg-tne-red/30 transition-colors flex items-center justify-center">
-                  <Heart className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
-                </div>
-              </a>
+            {/* Instagram Embed - Using Behold.so widget */}
+            {/* To set up: 1) Create free account at behold.so 2) Connect Instagram 3) Replace feed ID below */}
+            <div className="min-h-[300px] rounded-2xl overflow-hidden bg-stone-900/50">
+              <iframe
+                src="https://widget.behold.so/FwHlIQ8cFiOOhnZXBNsH"
+                className="w-full min-h-[400px] border-0"
+                title="TNE Express Instagram Feed"
+                loading="lazy"
+                allowTransparency="true"
+              />
             </div>
+
+            {/* Fallback CTA if embed doesn't load */}
+            <noscript>
+              <div className="text-center py-12">
+                <a
+                  href="https://instagram.com/taborneexpress"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 text-white font-semibold rounded-full hover:opacity-90 transition-opacity"
+                >
+                  <Instagram className="w-5 h-5" />
+                  Follow @taborneexpress
+                </a>
+              </div>
+            </noscript>
           </div>
         </section>
 
