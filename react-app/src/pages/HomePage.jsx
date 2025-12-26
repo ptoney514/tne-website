@@ -36,6 +36,19 @@ export default function HomePage() {
     const scrollLeftBtn = document.getElementById('scrollLeft');
     const scrollRightBtn = document.getElementById('scrollRight');
 
+    // Load Instagram embed script
+    const loadInstagramEmbed = () => {
+      if (window.instgrm) {
+        window.instgrm.Embeds.process();
+      } else {
+        const script = document.createElement('script');
+        script.src = '//www.instagram.com/embed.js';
+        script.async = true;
+        document.body.appendChild(script);
+      }
+    };
+    loadInstagramEmbed();
+
     if (carousel && scrollLeftBtn && scrollRightBtn) {
       const handleScrollLeft = () => {
         carousel.scrollBy({ left: -420, behavior: 'smooth' });
@@ -567,32 +580,48 @@ export default function HomePage() {
               </a>
             </div>
 
-            {/* Instagram Embed - Using Behold.so widget */}
-            {/* To set up: 1) Create free account at behold.so 2) Connect Instagram 3) Replace feed ID below */}
-            <div className="min-h-[300px] rounded-2xl overflow-hidden bg-stone-900/50">
-              <iframe
-                src="https://widget.behold.so/FwHlIQ8cFiOOhnZXBNsH"
-                className="w-full min-h-[400px] border-0"
-                title="TNE Express Instagram Feed"
-                loading="lazy"
-                allowTransparency="true"
-              />
-            </div>
-
-            {/* Fallback CTA if embed doesn't load */}
-            <noscript>
-              <div className="text-center py-12">
+            {/* Instagram Native Embed */}
+            <div className="flex justify-center">
+              <blockquote
+                className="instagram-media"
+                data-instgrm-captioned
+                data-instgrm-permalink="https://www.instagram.com/p/DSTHrhDj4od/"
+                data-instgrm-version="14"
+                style={{
+                  background: '#FFF',
+                  border: 0,
+                  borderRadius: '12px',
+                  boxShadow: '0 0 1px 0 rgba(0,0,0,0.5), 0 1px 10px 0 rgba(0,0,0,0.15)',
+                  margin: '1px',
+                  maxWidth: '540px',
+                  minWidth: '326px',
+                  padding: 0,
+                  width: 'calc(100% - 2px)',
+                }}
+              >
                 <a
-                  href="https://instagram.com/taborneexpress"
+                  href="https://www.instagram.com/p/DSTHrhDj4od/"
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 text-white font-semibold rounded-full hover:opacity-90 transition-opacity"
+                  className="block p-8 text-center"
                 >
-                  <Instagram className="w-5 h-5" />
-                  Follow @taborneexpress
+                  <p className="text-stone-600">View this post on Instagram</p>
                 </a>
-              </div>
-            </noscript>
+              </blockquote>
+            </div>
+
+            {/* Follow CTA */}
+            <div className="text-center mt-8">
+              <a
+                href="https://instagram.com/taborneexpress"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 text-white font-semibold rounded-full hover:opacity-90 transition-opacity"
+              >
+                <Instagram className="w-5 h-5" />
+                Follow @taborneexpress
+              </a>
+            </div>
           </div>
         </section>
 
