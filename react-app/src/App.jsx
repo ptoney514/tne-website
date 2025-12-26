@@ -1,8 +1,9 @@
-import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import { SeasonProvider } from './contexts/SeasonContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
-import { ChatWidget } from './components/chat';
+// AI Chat disabled for MVP - re-enable post-MVP (see issue #59)
+// import { ChatWidget } from './components/chat';
 import HomePage from './pages/HomePage';
 import TeamsPage from './pages/TeamsPage';
 import TeamDetailPage from './pages/TeamDetailPage';
@@ -21,27 +22,26 @@ import AdminCoachesPage from './pages/AdminCoachesPage';
 import AdminSettingsLayout from './pages/AdminSettingsLayout';
 import AdminUsersPage from './pages/AdminUsersPage';
 import AdminGamesPage from './pages/AdminGamesPage';
-import AdminChatAnalyticsPage from './pages/AdminChatAnalyticsPage';
+// AI Chat disabled for MVP - re-enable post-MVP (see issue #59)
+// import AdminChatAnalyticsPage from './pages/AdminChatAnalyticsPage';
 
-// Wrapper component to conditionally show chat widget on public pages
-function ChatWidgetWrapper() {
-  const location = useLocation();
-  const isAdminPage = location.pathname.startsWith('/admin');
-  const isLoginPage = location.pathname === '/login';
-
-  // Only show chat widget on public pages
-  if (isAdminPage || isLoginPage) {
-    return null;
-  }
-
-  return <ChatWidget />;
-}
+// AI Chat disabled for MVP - re-enable post-MVP (see issue #59)
+// function ChatWidgetWrapper() {
+//   const location = useLocation();
+//   const isAdminPage = location.pathname.startsWith('/admin');
+//   const isLoginPage = location.pathname === '/login';
+//   if (isAdminPage || isLoginPage) {
+//     return null;
+//   }
+//   return <ChatWidget />;
+// }
 
 function App() {
   return (
     <Router>
       <AuthProvider>
-        <ChatWidgetWrapper />
+        {/* AI Chat disabled for MVP - re-enable post-MVP (see issue #59) */}
+        {/* <ChatWidgetWrapper /> */}
         <Routes>
           {/* Public routes */}
           <Route path="/" element={<HomePage />} />
@@ -118,6 +118,7 @@ function App() {
           />
           {/* Redirect old tournaments route to games */}
           <Route path="/admin/tournaments" element={<Navigate to="/admin/games" replace />} />
+          {/* AI Chat disabled for MVP - re-enable post-MVP (see issue #59)
           <Route
             path="/admin/chat-analytics"
             element={
@@ -128,6 +129,7 @@ function App() {
               </ProtectedRoute>
             }
           />
+          */}
 
           {/* Settings routes - redirect /admin/settings to /admin/settings/users */}
           <Route
