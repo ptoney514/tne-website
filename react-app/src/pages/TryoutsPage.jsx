@@ -16,6 +16,8 @@ import {
   Quote,
   Mail,
   MapPin,
+  Video,
+  PlayCircle,
 } from 'lucide-react';
 import InteriorLayout from '../components/layouts/InteriorLayout';
 import TryoutSessionCard from '../components/tryouts/TryoutSessionCard';
@@ -81,10 +83,10 @@ const gradeData = {
       { title: 'Ball Control Basics', desc: 'Dribbling with control, catching, throwing' },
     ],
     skills: [
-      { title: 'Dribbling Basics', desc: 'Practice dribbling with eyes up, staying low. Circle the ball around waist and legs to build hand-eye coordination.' },
-      { title: 'Catching & Throwing', desc: 'Throw ball in air and clap before catching. Practice chest passes against a wall or with a partner.' },
-      { title: 'Simple Layups', desc: 'Dribble to the basket and shoot a layup without defense. Focus on proper footwork (right-left-up for right side).' },
-      { title: 'Fun Drill: Stuck in the Mud', desc: 'Dribble while playing tag. If tagged, freeze until a teammate dribbles between your legs to free you!' },
+      { title: 'Dribbling Basics', desc: 'Practice dribbling with eyes up, staying low. Circle the ball around waist and legs to build hand-eye coordination.', videoUrl: 'https://www.youtube.com/watch?v=eVARa4uspCc' },
+      { title: 'Catching & Throwing', desc: 'Throw ball in air and clap before catching. Practice chest passes against a wall or with a partner.', videoUrl: 'https://www.youtube.com/watch?v=3IqYOM3AQuE' },
+      { title: 'Simple Layups', desc: 'Dribble to the basket and shoot a layup without defense. Focus on proper footwork (right-left-up for right side).', videoUrl: 'https://www.youtube.com/watch?v=WEYNV1Bv7fE' },
+      { title: 'Fun Drill: Stuck in the Mud', desc: 'Dribble while playing tag. If tagged, freeze until a teammate dribbles between your legs to free you!', videoUrl: 'https://www.youtube.com/watch?v=xt5nwxRMVxY' },
     ],
     proTip: 'Keep practice sessions short (5-10 minutes) and fun. At this age, building love for the game is more important than perfect technique.',
   },
@@ -98,10 +100,10 @@ const gradeData = {
       { title: 'Teamwork Basics', desc: 'Passing to open teammates, communication' },
     ],
     skills: [
-      { title: 'Cone Dribbling', desc: 'Set up 5-6 cones and weave through them with crossovers. Focus on control over speed, eyes up.' },
-      { title: 'Form Shooting', desc: 'Start close to the basket. Focus on form, not distance. Make 10 in a row before stepping back.' },
-      { title: 'Monkey in the Middle', desc: 'Practice chest and bounce passes with a defender in the middle. Teaches passing under pressure.' },
-      { title: '1v1 with Chaser', desc: 'Dribble full court while a defender chases from behind. Finish with a layup. Builds game-speed skills.' },
+      { title: 'Cone Dribbling', desc: 'Set up 5-6 cones and weave through them with crossovers. Focus on control over speed, eyes up.', videoUrl: 'https://www.youtube.com/watch?v=tqjLjGhJZqI' },
+      { title: 'Form Shooting', desc: 'Start close to the basket. Focus on form, not distance. Make 10 in a row before stepping back.', videoUrl: 'https://www.youtube.com/watch?v=fJmWP-866Kg' },
+      { title: 'Monkey in the Middle', desc: 'Practice chest and bounce passes with a defender in the middle. Teaches passing under pressure.', videoUrl: 'https://www.youtube.com/watch?v=8cPbx1Y4CB8' },
+      { title: '1v1 with Chaser', desc: 'Dribble full court while a defender chases from behind. Finish with a layup. Builds game-speed skills.', videoUrl: 'https://www.youtube.com/watch?v=L2tTq52v4SI' },
     ],
     proTip: 'Start adding light defense to drills (20-30%). This age is when fundamentals become habits—good or bad.',
   },
@@ -115,10 +117,10 @@ const gradeData = {
       { title: 'Competitive Fire', desc: 'Hustle, intensity in 1v1 and 3v3 situations' },
     ],
     skills: [
-      { title: 'Contested Layups', desc: 'Practice finishing with a trailing defender. Eyes on rim, use your body to shield the ball.' },
-      { title: 'Fill Cut 1v1', desc: "Catch on the move, read the defender's position, attack the rim or pull up. Decision-making under pressure." },
-      { title: '3v2 Passing', desc: 'Three offensive players vs. two defenders. Find passing windows, move without the ball, finish.' },
-      { title: 'Spot Shooting', desc: 'Shoot from 5 spots around the key. Add movement—catch off a cut, shoot. 40-60% of drills with defenders.' },
+      { title: 'Contested Layups', desc: 'Practice finishing with a trailing defender. Eyes on rim, use your body to shield the ball.', videoUrl: 'https://www.youtube.com/watch?v=vFCVMZnU2p0' },
+      { title: 'Fill Cut 1v1', desc: "Catch on the move, read the defender's position, attack the rim or pull up. Decision-making under pressure.", videoUrl: 'https://www.youtube.com/watch?v=KsPvesq8HOk' },
+      { title: '3v2 Passing', desc: 'Three offensive players vs. two defenders. Find passing windows, move without the ball, finish.', videoUrl: 'https://www.youtube.com/watch?v=MWsH2v7qj7Q' },
+      { title: 'Spot Shooting', desc: 'Shoot from 5 spots around the key. Add movement—catch off a cut, shoot. 40-60% of drills with defenders.', videoUrl: 'https://www.youtube.com/watch?v=8KpRxJM9yVI' },
     ],
     proTip: 'At this level, competitive drills matter. Practice 1v1, 2v2, 3v3 regularly. Game-like situations separate good players from great ones.',
   },
@@ -132,10 +134,10 @@ const gradeData = {
       { title: 'Live Game Performance', desc: 'How skills translate in 5v5 scrimmage situations' },
     ],
     skills: [
-      { title: 'Pivot Shooting', desc: 'Catch, jump stop, square up, score. Practice both directions. Add live defender for game speed.' },
-      { title: '1v2 Full Court', desc: 'Handle pressure from two defenders. Builds composure, decision-making, and finishing under duress.' },
-      { title: '4v4 Limited Dribbles', desc: 'Only 2 dribbles allowed. Forces passing, cutting, movement, and team offense concepts.' },
-      { title: 'Give & Go / Pick & Roll', desc: 'Two-man game execution. Read the defense, make the right play. Essential for high school prep.' },
+      { title: 'Pivot Shooting', desc: 'Catch, jump stop, square up, score. Practice both directions. Add live defender for game speed.', videoUrl: 'https://www.youtube.com/watch?v=_pVmH4YBnQ8' },
+      { title: '1v2 Full Court', desc: 'Handle pressure from two defenders. Builds composure, decision-making, and finishing under duress.', videoUrl: 'https://www.youtube.com/watch?v=GFQyx7pVbKw' },
+      { title: '4v4 Limited Dribbles', desc: 'Only 2 dribbles allowed. Forces passing, cutting, movement, and team offense concepts.', videoUrl: 'https://www.youtube.com/watch?v=kKZx-8VD5_M' },
+      { title: 'Give & Go / Pick & Roll', desc: 'Two-man game execution. Read the defense, make the right play. Essential for high school prep.', videoUrl: 'https://www.youtube.com/watch?v=z9I0pZMaWKs' },
     ],
     proTip: "70-90% of your practice should include live defenders. At this level, you're preparing for high school basketball. Every drill should translate to game situations.",
   },
@@ -212,7 +214,18 @@ function GradePanel({ data }) {
                 <Target className="w-4 h-4 text-tne-red" />
                 <span className="text-sm font-semibold text-neutral-900">{skill.title}</span>
               </div>
-              <p className="text-xs text-neutral-600 leading-relaxed">{skill.desc}</p>
+              <p className="text-xs text-neutral-600 leading-relaxed mb-3">{skill.desc}</p>
+              {skill.videoUrl && (
+                <a
+                  href={skill.videoUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-xs font-medium text-tne-red hover:text-tne-red-dark transition-colors"
+                >
+                  <PlayCircle className="w-3.5 h-3.5" />
+                  Watch Tutorial
+                </a>
+              )}
             </div>
           ))}
         </div>
@@ -377,10 +390,27 @@ export default function TryoutsPage() {
             <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight text-white mb-3">
               Prepare Like the Best
             </h2>
-            <p className="text-base text-white/60 max-w-2xl mb-10">
+            <p className="text-base text-white/60 max-w-2xl mb-6">
               Age-appropriate skills and drills to help your player stand out at tryouts. Select
               your grade level to see what coaches evaluate and how to practice.
             </p>
+
+            {/* Video Tutorials Callout */}
+            <div className="mb-8 rounded-xl bg-gradient-to-r from-tne-red/20 to-tne-maroon/20 border border-tne-red/30 p-4 backdrop-blur-sm">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-tne-red/30 flex items-center justify-center flex-shrink-0">
+                  <Video className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-semibold text-white mb-0.5">
+                    Video Tutorials Now Available
+                  </h3>
+                  <p className="text-xs text-white/70">
+                    Each skill drill now includes a video demonstration. Click "Watch Tutorial" on any drill below.
+                  </p>
+                </div>
+              </div>
+            </div>
 
             {/* Grade Level Tabs */}
             <div className="flex flex-wrap gap-2 mb-8">
