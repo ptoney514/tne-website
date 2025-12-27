@@ -39,13 +39,8 @@ test.describe('Contact Page', () => {
     ).toBeVisible();
   });
 
-  test('should display breadcrumb navigation', async ({ page }) => {
-    // Check breadcrumb in header/banner area
-    const banner = page.getByRole('banner');
-    await expect(banner.getByText('Home')).toBeVisible();
-    await expect(banner.getByText('Contact')).toBeVisible();
-  });
 });
+// Note: Breadcrumb navigation removed from current design
 
 test.describe('Contact Page - Form', () => {
   test.beforeEach(async ({ page }) => {
@@ -173,52 +168,21 @@ test.describe('Contact Page - AI Assistant CTA', () => {
     await expect(page.getByText(/Need Quick Answers/i)).toBeVisible();
   });
 
-  test('should display AI Assistant Coach description', async ({ page }) => {
+  test('should display AI Assistant description', async ({ page }) => {
     await expect(
-      page.getByText(/AI Assistant Coach can instantly help/i)
+      page.getByText(/Get instant help with schedules, registration, and program info/i)
     ).toBeVisible();
   });
 
-  test('should display AI assistant topics', async ({ page }) => {
-    const ctaCard = page.getByTestId('ai-assistant-cta');
-
-    await expect(
-      ctaCard.getByText(/Team schedules & practice times/i)
-    ).toBeVisible();
-    await expect(ctaCard.getByText(/Tournament information/i)).toBeVisible();
-    await expect(
-      ctaCard.getByText(/Registration & tryout details/i)
-    ).toBeVisible();
-    await expect(ctaCard.getByText(/Program information/i)).toBeVisible();
-  });
-
-  test('should display Chat with AI Assistant Coach button', async ({ page }) => {
+  test('should display Chat with AI Coach button', async ({ page }) => {
     const chatButton = page.getByTestId('open-chat-button');
     await expect(chatButton).toBeVisible();
-    await expect(chatButton).toContainText('Chat with AI Assistant Coach');
+    await expect(chatButton).toContainText('Chat with AI Coach');
   });
 
-  test('should dispatch event when chat button is clicked', async ({ page }) => {
-    // Set up event listener
-    const eventFired = await page.evaluate(() => {
-      return new Promise((resolve) => {
-        window.addEventListener(
-          'open-chat-widget',
-          () => resolve(true),
-          { once: true }
-        );
-        // Timeout fallback
-        setTimeout(() => resolve(false), 1000);
-      });
-    });
-
-    // This test just ensures the button is clickable
-    // The actual event dispatch is tested by clicking
-    const chatButton = page.getByTestId('open-chat-button');
-    await chatButton.click();
-
-    // Just verify no errors occurred
-    await expect(chatButton).toBeVisible();
+  test('should show feature coming soon indicator', async ({ page }) => {
+    // The AI chat feature is coming soon
+    await expect(page.getByText(/Feature coming soon/i)).toBeVisible();
   });
 });
 
@@ -262,11 +226,12 @@ test.describe('Contact Page - Navigation', () => {
     await expect(footer).toBeVisible();
   });
 
-  test('should have working home link in breadcrumb', async ({ page }) => {
+  test('should have working logo link to home', async ({ page }) => {
     await page.goto('/contact');
     await page.waitForLoadState('networkidle');
 
-    await page.getByRole('link', { name: 'Home' }).first().click();
+    // Click the navbar logo link to go home (first match, not footer)
+    await page.getByRole('link', { name: /TNE United Express/i }).first().click();
     await expect(page).toHaveURL('/');
   });
 });

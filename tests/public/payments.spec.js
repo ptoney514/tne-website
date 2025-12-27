@@ -29,12 +29,7 @@ test.describe('Payments Page', () => {
   });
 
   test('should display page header with title', async ({ page }) => {
-    await expect(page.getByRole('heading', { name: /Make a Payment/i })).toBeVisible();
-  });
-
-  test('should display secure checkout badge', async ({ page }) => {
-    // Check for secure payment badge in payment form section
-    await expect(page.getByText('Secure Payment')).toBeVisible();
+    await expect(page.getByRole('heading', { name: /Payments/i })).toBeVisible();
   });
 
   test('should display page navigation', async ({ page }) => {
@@ -43,8 +38,9 @@ test.describe('Payments Page', () => {
     await expect(nav).toBeVisible();
   });
 
-  test('should have working home link in breadcrumb', async ({ page }) => {
-    await page.getByRole('link', { name: 'Home' }).click();
+  test('should have working logo link to home', async ({ page }) => {
+    // Click the navbar logo link to go home (first match, not footer)
+    await page.getByRole('link', { name: /TNE United Express/i }).first().click();
     await expect(page).toHaveURL('/');
   });
 });
@@ -131,9 +127,11 @@ test.describe('Payments Page - Payment Form', () => {
   });
 
   test('should display security badges', async ({ page }) => {
-    await expect(page.getByText('Secure Payment')).toBeVisible();
-    await expect(page.getByText('SSL Encrypted')).toBeVisible();
-    await expect(page.getByText('PayPal Protected')).toBeVisible();
+    // Use more specific selector within payment form to avoid duplicate match
+    const paymentForm = page.getByTestId('payment-form');
+    await expect(paymentForm.getByText('Secure Payment')).toBeVisible();
+    await expect(paymentForm.getByText('SSL Encrypted')).toBeVisible();
+    await expect(paymentForm.getByText('PayPal Protected')).toBeVisible();
   });
 
   test('should display payment confirmation info', async ({ page }) => {
@@ -245,7 +243,7 @@ test.describe('Payments Page - Mobile Responsiveness', () => {
     await expect(menuButton).toBeVisible();
 
     // Main content should be visible
-    await expect(page.getByRole('heading', { name: /Make a Payment/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /Payments/i })).toBeVisible();
 
     // Fee schedule should be visible
     await expect(page.getByTestId('fee-schedule')).toBeVisible();

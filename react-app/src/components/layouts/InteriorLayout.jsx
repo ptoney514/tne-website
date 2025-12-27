@@ -238,6 +238,7 @@ function InteriorNavbar() {
           {/* Mobile Menu Button */}
           <button
             onClick={() => setIsMobileMenuOpen(true)}
+            aria-label="Open menu"
             className="md:hidden inline-flex items-center justify-center w-10 h-10 rounded-full border border-white/10 text-white/70 hover:text-white hover:border-white/40 transition-colors"
           >
             <Menu className="w-5 h-5" />
