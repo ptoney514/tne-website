@@ -3,8 +3,6 @@ import { Link } from 'react-router-dom';
 import {
   ArrowRight,
   Activity,
-  Medal,
-  TrendingUp,
   Users,
   GraduationCap,
   Award,
@@ -23,6 +21,7 @@ import {
 import HomeNavbar from '../components/HomeNavbar';
 import HomeFooter from '../components/HomeFooter';
 import mitchHeadshot from '../assets/mitch-headshot.png';
+import heroVideo from '../assets/tne-hero-2025-v2.mp4';
 import { useRegistrationStatus } from '../hooks/useRegistrationStatus';
 
 export default function HomePage() {
@@ -97,10 +96,19 @@ export default function HomePage() {
           </span>
         </div>
 
-        {/* Background */}
+        {/* Background Video */}
         <div className="w-full h-full absolute inset-0" id="parallax-bg">
-          <img src="https://images.unsplash.com/photo-1546519638-68e109498ffc?q=80&w=2980&auto=format&fit=crop" alt="Basketball Court" className="opacity-40 mix-blend-luminosity w-full h-full object-cover" />
-          <div className="bg-gradient-to-t from-stone-950 via-stone-950/60 to-transparent absolute inset-0"></div>
+          <video
+            autoPlay
+            muted
+            loop
+            playsInline
+            className="opacity-50 w-full h-full object-cover"
+            poster="https://images.unsplash.com/photo-1546519638-68e109498ffc?q=80&w=2980&auto=format&fit=crop"
+          >
+            <source src={heroVideo} type="video/mp4" />
+          </video>
+          <div className="bg-gradient-to-t from-stone-950 via-stone-950/70 to-stone-950/30 absolute inset-0"></div>
         </div>
 
         {/* Navbar */}
@@ -189,68 +197,101 @@ export default function HomePage() {
         </div>
 
         {/* ============================================
-             SECTION 03: INTRO GRID (3 Columns)
+             SECTION 03: DREAM CLASSIC TOURNAMENT
              ============================================ */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 w-full max-w-[1400px] mx-auto relative z-10">
-          {/* Col 1: Hook */}
-          <div className="lg:col-span-4 border-b lg:border-b-0 lg:border-r border-stone-200 p-8 lg:p-12 flex flex-col justify-between group h-full min-h-[400px] relative">
-            <div className="absolute top-6 left-6 font-mono text-[10px] text-stone-400 opacity-50">02</div>
-            <div className="h-full flex flex-col justify-center">
-              <h2 className="font-bebas uppercase text-3xl sm:text-4xl text-stone-400 leading-none tracking-tight group-hover:text-stone-900 transition-colors duration-500">
-                Not a rec league.
-                <span className="text-tne-red"> A Pipeline.</span>
-              </h2>
-            </div>
-            <div className="hidden lg:block mt-12 opacity-50 group-hover:opacity-100 transition-opacity">
-              <Activity className="w-6 h-6 text-tne-red" />
-            </div>
-          </div>
+        <section className="bg-white w-full relative overflow-hidden">
+          <div className="max-w-6xl mx-auto">
+            <div className="grid grid-cols-1 lg:grid-cols-2 min-h-[480px]">
 
-          {/* Col 2: Stat Card */}
-          <div className="lg:col-span-4 border-b lg:border-b-0 lg:border-r border-stone-200 p-8 lg:p-12 flex flex-col items-center justify-center bg-stone-50/50 relative">
-            <div className="relative w-full max-w-xs aspect-[3/4] bg-stone-950 rounded-lg p-6 flex flex-col justify-between shadow-2xl hover:-translate-y-1 transition-transform duration-500 border border-stone-800 overflow-hidden group">
-              {/* Top accent bar */}
-              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-tne-maroon to-tne-red"></div>
+              {/* Left: MLK Image with Quote */}
+              <div className="relative h-[350px] lg:h-auto">
+                <img
+                  src="https://upload.wikimedia.org/wikipedia/commons/0/05/Martin_Luther_King%2C_Jr..jpg"
+                  alt="Dr. Martin Luther King Jr."
+                  className="w-full h-full object-cover object-top"
+                />
 
-              <div className="flex justify-between items-start z-10 relative">
-                <div className="text-white font-bebas uppercase text-2xl tracking-wider">TNE ELITE</div>
-                <Medal className="text-tne-red w-6 h-6" />
-              </div>
+                {/* Gradient Overlays */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-white hidden lg:block"></div>
 
-              <div className="z-10 relative">
-                <div className="text-[10px] font-mono text-stone-400 uppercase tracking-widest mb-1">D1 Commitments</div>
-                <div className="text-6xl font-bebas text-white font-bold tracking-tighter">37</div>
-                <div className="h-px w-full bg-white/10 my-4"></div>
-                <div className="flex justify-between items-end">
-                  <div>
-                    <div className="text-[10px] font-mono text-stone-400 uppercase tracking-widest">Scholarships</div>
-                    <div className="text-xl text-white font-medium">$5M+</div>
-                  </div>
-                  <TrendingUp className="text-green-500 w-5 h-5" />
+                {/* Quote Overlay */}
+                <div className="absolute bottom-0 left-0 right-0 p-8 lg:p-10 lg:pr-24">
+                  <blockquote className="text-white text-xl lg:text-2xl font-light italic leading-relaxed mb-3 drop-shadow-lg">
+                    "The time is always right to do what is right."
+                  </blockquote>
+                  <cite className="text-white/70 text-sm not-italic">— Dr. Martin Luther King Jr.</cite>
                 </div>
               </div>
 
-              <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20"></div>
+              {/* Right: Event Info */}
+              <div className="relative p-8 lg:p-12 flex flex-col justify-center bg-white">
+                <div className="relative z-10">
+                  {/* Badge */}
+                  <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-tne-red text-white text-xs font-bold uppercase tracking-wider mb-6">
+                    11th Annual
+                  </div>
+
+                  {/* Title */}
+                  <h2 className="font-bebas text-5xl lg:text-6xl text-stone-900 uppercase tracking-tight leading-[0.9] mb-1">
+                    I Have A Dream
+                  </h2>
+                  <h3 className="font-bebas text-4xl lg:text-5xl text-tne-red uppercase tracking-tight leading-[0.9] mb-8">
+                    Classic
+                  </h3>
+
+                  {/* Date & Location */}
+                  <div className="space-y-3 mb-8">
+                    <div className="flex items-center gap-3 text-stone-900">
+                      <Calendar className="w-5 h-5 text-tne-red" />
+                      <span className="text-lg font-medium">January 2-4, 2026</span>
+                    </div>
+                    <div className="flex items-center gap-3 text-stone-600">
+                      <Activity className="w-5 h-5 text-tne-red" />
+                      <span>Council Bluffs, IA • Omaha, NE</span>
+                    </div>
+                  </div>
+
+                  {/* Quick Stats */}
+                  <div className="flex gap-8 mb-8 pb-8 border-b border-stone-200">
+                    <div>
+                      <div className="font-bebas text-3xl text-stone-900">118</div>
+                      <div className="text-xs text-stone-500 uppercase tracking-wider">Teams</div>
+                    </div>
+                    <div>
+                      <div className="font-bebas text-3xl text-stone-900">6</div>
+                      <div className="text-xs text-stone-500 uppercase tracking-wider">Divisions</div>
+                    </div>
+                    <div>
+                      <div className="font-bebas text-3xl text-stone-900">3</div>
+                      <div className="text-xs text-stone-500 uppercase tracking-wider">Venues</div>
+                    </div>
+                  </div>
+
+                  {/* CTA Buttons */}
+                  <div className="flex flex-wrap gap-4">
+                    <a
+                      href="https://tourneymachine.com/Public/Results/Tournament.aspx?IDTournament=h202508121637369103139b0b9bac248"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-6 py-3 bg-tne-red text-white text-sm font-semibold uppercase tracking-wider hover:bg-tne-red-dark transition-all flex items-center gap-2"
+                    >
+                      View Schedule
+                      <ArrowRight className="w-4 h-4" />
+                    </a>
+                    <Link
+                      to="/schedule"
+                      className="px-6 py-3 border border-stone-300 text-stone-700 text-sm font-semibold uppercase tracking-wider hover:bg-stone-50 transition-all rounded"
+                    >
+                      All Events
+                    </Link>
+                  </div>
+                </div>
+              </div>
+
             </div>
           </div>
-
-          {/* Col 3: Narrative */}
-          <div className="lg:col-span-4 p-8 lg:p-12 flex flex-col justify-center space-y-8 relative">
-            <div className="absolute top-6 right-6 font-mono text-[10px] text-stone-300">#OMAHA</div>
-            <p className="font-mono text-xs sm:text-sm text-stone-600 leading-7">
-              We are a competitive program for dedicated athletes. We don't just roll the ball out; we teach the game. From fundamental skills to advanced read-and-react offensive concepts.
-            </p>
-            <p className="font-mono text-xs sm:text-sm text-stone-400 leading-7">
-              Our rigorous schedule puts players in front of collegiate scouts and challenges them against the nation's best competition.
-            </p>
-
-            <div className="pt-6 border-t border-stone-100 flex items-center gap-6 opacity-40 grayscale hover:grayscale-0 transition-all duration-300">
-              <div className="font-bold text-xl tracking-tighter">adidas</div>
-              <div className="font-bold text-sm tracking-tight">PREP HOOPS</div>
-              <div className="font-bold text-sm tracking-tight">NY2LA</div>
-            </div>
-          </div>
-        </div>
+        </section>
 
         {/* ============================================
              SECTION 04: STATS (Dark)
