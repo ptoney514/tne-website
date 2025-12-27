@@ -81,34 +81,29 @@ export default function RegistrationPage() {
                     </p>
                   ) : (
                     <div className="divide-y divide-neutral-100">
-                      {teams.map((team) => {
-                        const totalFee = (team.team_fee || 0) + (team.uniform_fee || 0);
-                        return (
-                          <div key={team.id} className="py-3 first:pt-0 last:pb-0">
-                            <div className="flex items-center justify-between gap-3">
-                              <div className="min-w-0">
-                                <p className="font-medium text-neutral-900 text-sm truncate">
-                                  {team.name}
-                                </p>
-                                {team.uniform_fee > 0 && (
-                                  <p className="text-xs text-neutral-500">
-                                    Includes ${team.uniform_fee} uniform fee
-                                  </p>
-                                )}
-                              </div>
-                              <div className="flex-shrink-0 text-right">
-                                <span className="text-lg font-semibold text-neutral-900">
-                                  ${totalFee}
-                                </span>
-                              </div>
+                      {teams.map((team) => (
+                        <div key={team.id} className="py-3 first:pt-0 last:pb-0">
+                          <div className="flex items-center justify-between gap-3">
+                            <div className="min-w-0">
+                              <p className="font-medium text-neutral-900 text-sm truncate">
+                                {team.name}
+                              </p>
+                            </div>
+                            <div className="flex-shrink-0 text-right">
+                              <span className="text-lg font-semibold text-neutral-900">
+                                ${team.team_fee || 0}
+                              </span>
                             </div>
                           </div>
-                        );
-                      })}
+                        </div>
+                      ))}
                     </div>
                   )}
                 </div>
-                <div className="px-5 py-3 bg-neutral-50 border-t border-neutral-200">
+                <div className="px-5 py-3 bg-neutral-50 border-t border-neutral-200 space-y-1">
+                  <p className="text-xs text-neutral-500">
+                    Uniform fee is $75 if needed (returning players may already have one).
+                  </p>
                   <p className="text-xs text-neutral-500">
                     Payment plans and financial assistance available.{' '}
                     <Link to="/contact" className="text-tne-red hover:underline">
