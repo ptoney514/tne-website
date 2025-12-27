@@ -21,8 +21,10 @@ import {
 import HomeNavbar from '../components/HomeNavbar';
 import HomeFooter from '../components/HomeFooter';
 import mitchHeadshot from '../assets/mitch-headshot.png';
-import heroVideo from '../assets/tne-hero-2025-v2.mp4';
 import { useRegistrationStatus } from '../hooks/useRegistrationStatus';
+
+// External video hosted on Cloudflare R2
+const HERO_VIDEO_URL = 'https://tnebasketball.com/videos/tne-hero-2025-v2.mp4';
 
 export default function HomePage() {
   const {
@@ -106,7 +108,7 @@ export default function HomePage() {
             className="opacity-50 w-full h-full object-cover"
             poster="https://images.unsplash.com/photo-1546519638-68e109498ffc?q=80&w=2980&auto=format&fit=crop"
           >
-            <source src={heroVideo} type="video/mp4" />
+            <source src={HERO_VIDEO_URL} type="video/mp4" />
           </video>
           <div className="bg-gradient-to-t from-stone-950 via-stone-950/70 to-stone-950/30 absolute inset-0"></div>
         </div>
