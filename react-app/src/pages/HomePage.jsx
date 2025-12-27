@@ -15,7 +15,6 @@ import {
   ArrowLeft,
   Play,
   Heart,
-  Shirt,
   Instagram,
   ExternalLink,
   Calendar,
@@ -23,6 +22,7 @@ import {
 } from 'lucide-react';
 import HomeNavbar from '../components/HomeNavbar';
 import HomeFooter from '../components/HomeFooter';
+import mitchHeadshot from '../assets/mitch-headshot.png';
 import { useRegistrationStatus } from '../hooks/useRegistrationStatus';
 
 export default function HomePage() {
@@ -543,10 +543,15 @@ export default function HomePage() {
               <div className="lg:col-span-7 h-[500px] bg-[#0A0A0A] border border-white/5 rounded-xl relative overflow-hidden flex items-center justify-center group">
                 <div className="absolute inset-0 opacity-20" style={{ backgroundSize: '40px 40px', backgroundImage: 'linear-gradient(to right, rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.03) 1px, transparent 1px)' }}></div>
 
-                <div className="relative z-10 text-center">
-                  <Shirt className="w-32 h-32 text-white/10 mx-auto mb-4 stroke-1" />
-                  <div className="text-9xl font-bebas font-bold text-white/5 group-hover:text-white/10 transition-colors duration-700 select-none">
-                    23
+                {/* Mitch Photo */}
+                <div className="relative z-10 flex flex-col items-center">
+                  <div className="relative">
+                    <div className="absolute -inset-4 bg-gradient-to-b from-tne-red/20 to-transparent rounded-3xl blur-xl opacity-60" />
+                    <img
+                      src={mitchHeadshot}
+                      alt="Mitch"
+                      className="relative w-56 h-72 sm:w-72 sm:h-96 lg:w-80 lg:h-[420px] rounded-2xl object-cover object-top border-4 border-white/10 shadow-2xl grayscale group-hover:grayscale-0 transition-all duration-700"
+                    />
                   </div>
                 </div>
 

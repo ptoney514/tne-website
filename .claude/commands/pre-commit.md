@@ -1,4 +1,8 @@
-Review staged changes before commit. Run `git diff --cached`.
+Stage and review changes before commit.
+
+1. First, run `git add .` to stage all changes
+2. Then run `git diff --cached --stat` to see what's staged
+3. Run `git diff --cached` to review the actual changes
 
 Check against CLAUDE.md patterns:
 - Code in correct directories (pages in src/pages/, components in src/components/, hooks in src/hooks/)
