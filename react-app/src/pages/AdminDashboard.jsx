@@ -27,6 +27,187 @@ import {
 // CONTROL PANEL COMPONENTS
 // ============================================
 
+function TryoutsControl({ season, onUpdate }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [label, setLabel] = useState('');
+  const [isEditingLabel, setIsEditingLabel] = useState(false);
+  const [tempLabel, setTempLabel] = useState('');
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (season) {
+      setIsOpen(season.tryouts_open || false);
+      setLabel(season.tryouts_label || '');
+    }
+  }, [season]);
+
+  const handleToggle = async () => {
+    if (!season) return;
+    setSaving(true);
+    const newState = !isOpen;
+
+    try {
+      const { error } = await supabase
+        .from('seasons')
+        .update({ tryouts_open: newState })
+        .eq('id', season.id);
+
+      if (error) throw error;
+      setIsOpen(newState);
+      onUpdate?.();
+    } catch (err) {
+      console.error('Failed to update tryouts:', err);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleLabelSave = async () => {
+    if (!season) return;
+    setSaving(true);
+
+    try {
+      const { error } = await supabase
+        .from('seasons')
+        .update({ tryouts_label: tempLabel })
+        .eq('id', season.id);
+
+      if (error) throw error;
+      setLabel(tempLabel);
+      setIsEditingLabel(false);
+      onUpdate?.();
+    } catch (err) {
+      console.error('Failed to update label:', err);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const startEditingLabel = () => {
+    setTempLabel(label);
+    setIsEditingLabel(true);
+  };
+
+  return (
+    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-stone-900 via-stone-900 to-stone-800 border border-stone-700/50 p-6">
+      {/* Background pattern */}
+      <div className="absolute inset-0 opacity-5">
+        <div className="absolute inset-0" style={{
+          backgroundImage: `radial-gradient(circle at 1px 1px, white 1px, transparent 0)`,
+          backgroundSize: '24px 24px'
+        }} />
+      </div>
+
+      {/* Live indicator */}
+      <div className="absolute top-4 right-4">
+        <div className={`flex items-center gap-2 px-2 py-1 rounded-full text-[10px] font-mono uppercase tracking-widest ${
+          isOpen
+            ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+            : 'bg-stone-700/50 text-stone-500 border border-stone-600/30'
+        }`}>
+          <div className={`w-1.5 h-1.5 rounded-full ${isOpen ? 'bg-blue-400 animate-pulse' : 'bg-stone-500'}`} />
+          {isOpen ? 'Live' : 'Off'}
+        </div>
+      </div>
+
+      <div className="relative z-10">
+        {/* Header */}
+        <div className="flex items-center gap-3 mb-6">
+          <div className={`p-2 rounded-lg ${isOpen ? 'bg-blue-500/20' : 'bg-stone-700/50'}`}>
+            <CalendarCheck className={`w-5 h-5 ${isOpen ? 'text-blue-400' : 'text-stone-500'}`} />
+          </div>
+          <div>
+            <h3 className="text-white font-semibold">Tryouts</h3>
+            <p className="text-stone-500 text-xs">Control tryout signup access</p>
+          </div>
+        </div>
+
+        {/* Toggle Switch */}
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handleToggle}
+              disabled={saving || !season}
+              className={`relative w-14 h-8 rounded-full transition-all duration-300 ${
+                isOpen
+                  ? 'bg-blue-500 shadow-lg shadow-blue-500/30'
+                  : 'bg-stone-700'
+              } ${saving ? 'opacity-50 cursor-wait' : 'cursor-pointer'}`}
+            >
+              <div className={`absolute top-1 w-6 h-6 rounded-full bg-white shadow-md transition-all duration-300 flex items-center justify-center ${
+                isOpen ? 'left-7' : 'left-1'
+              }`}>
+                <Power className={`w-3 h-3 ${isOpen ? 'text-blue-500' : 'text-stone-400'}`} />
+              </div>
+            </button>
+            <span className={`text-sm font-medium ${isOpen ? 'text-blue-400' : 'text-stone-500'}`}>
+              {isOpen ? 'Tryouts Open' : 'Tryouts Closed'}
+            </span>
+          </div>
+        </div>
+
+        {/* Label Editor */}
+        <div className="bg-stone-800/50 rounded-xl p-4 border border-stone-700/50">
+          <label className="text-[10px] font-mono text-stone-500 uppercase tracking-widest mb-2 block">
+            Tryout Label
+          </label>
+
+          {isEditingLabel ? (
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                value={tempLabel}
+                onChange={(e) => setTempLabel(e.target.value)}
+                placeholder="e.g., Winter '25-26 Tryouts"
+                className="flex-1 bg-stone-900 border border-stone-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-blue-500"
+                autoFocus
+              />
+              <button
+                onClick={handleLabelSave}
+                disabled={saving}
+                className="p-2 rounded-lg bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 transition-colors"
+              >
+                <Check className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => setIsEditingLabel(false)}
+                className="p-2 rounded-lg bg-stone-700 text-stone-400 hover:bg-stone-600 transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center justify-between">
+              <span className={`text-sm ${label ? 'text-white' : 'text-stone-600 italic'}`}>
+                {label || 'No label set'}
+              </span>
+              <button
+                onClick={startEditingLabel}
+                disabled={!season}
+                className="p-1.5 rounded-lg text-stone-500 hover:text-white hover:bg-stone-700 transition-colors"
+              >
+                <Pencil className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Preview Link */}
+        {isOpen && (
+          <Link
+            to="/tryouts"
+            target="_blank"
+            className="mt-4 flex items-center justify-center gap-2 text-xs text-stone-500 hover:text-blue-400 transition-colors"
+          >
+            <span>View tryouts page</span>
+            <ExternalLink className="w-3 h-3" />
+          </Link>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function RegistrationControl({ season, onUpdate }) {
   const [isOpen, setIsOpen] = useState(false);
   const [label, setLabel] = useState('');
@@ -212,6 +393,7 @@ function RegistrationControl({ season, onUpdate }) {
 // STAT COMPONENTS
 // ============================================
 
+// eslint-disable-next-line no-unused-vars -- Icon is used in JSX
 function StatCard({ label, value, loading, icon: Icon, trend, href }) {
   const content = (
     <div className="group relative rounded-xl bg-white border border-stone-200 p-5 hover:border-stone-300 hover:shadow-sm transition-all">
@@ -441,19 +623,25 @@ export default function AdminDashboard() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-8">
 
             {/* Control Panel */}
-            <div className="lg:col-span-4">
+            <div className="lg:col-span-5">
               <div className="flex items-center gap-2 mb-3">
                 <Zap className="w-4 h-4 text-tne-red" />
                 <h2 className="text-xs font-mono text-stone-500 uppercase tracking-widest">Control Panel</h2>
               </div>
-              <RegistrationControl
-                season={selectedSeason}
-                onUpdate={handleControlUpdate}
-              />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <TryoutsControl
+                  season={selectedSeason}
+                  onUpdate={handleControlUpdate}
+                />
+                <RegistrationControl
+                  season={selectedSeason}
+                  onUpdate={handleControlUpdate}
+                />
+              </div>
             </div>
 
             {/* Stats Grid */}
-            <div className="lg:col-span-8">
+            <div className="lg:col-span-7">
               <div className="flex items-center gap-2 mb-3">
                 <Activity className="w-4 h-4 text-stone-400" />
                 <h2 className="text-xs font-mono text-stone-500 uppercase tracking-widest">Overview</h2>

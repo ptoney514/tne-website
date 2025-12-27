@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Instagram, Youtube, Twitter, LogIn, Calendar } from 'lucide-react';
+import tneLogoWhite from '../assets/tne-logo-white-transparent.png';
 
 export default function HomeFooter() {
   return (
@@ -7,8 +8,12 @@ export default function HomeFooter() {
       <div className="max-w-[1400px] mx-auto px-6 lg:px-12 relative z-10">
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-12 mb-20">
           <div className="col-span-2 lg:col-span-2 pr-8">
-            <Link to="/" className="inline-block text-white font-bebas font-bold text-2xl tracking-tight mb-6">
-              TNE <span className="text-tne-red">UNITED</span>
+            <Link to="/" className="inline-block mb-6">
+              <img
+                src={tneLogoWhite}
+                alt="TNE United Express"
+                className="h-16 w-16 object-contain"
+              />
             </Link>
             <p className="text-sm leading-7 text-[#8A8F98] max-w-xs mb-8">
               Developing elite players and building character in Omaha's youth. The road to the next level starts here.

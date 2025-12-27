@@ -1,14 +1,16 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, LogOut, User, ChevronDown, Settings, X } from 'lucide-react';
-import { useAuth } from '../hooks/useAuth';
-import tneLogoWhite from '../assets/tne-logo-white-transparent.png';
+import { useAuth } from '../../hooks/useAuth';
+import { useRegistrationStatus } from '../../hooks/useRegistrationStatus';
+import tneLogoWhite from '../../assets/tne-logo-white-transparent.png';
+import { navLinks } from '../../constants/navigation';
+import HomeFooter from '../HomeFooter';
 
 function UserDropdown({ profile, onSignOut }) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     function handleClickOutside(event) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -37,7 +39,6 @@ function UserDropdown({ profile, onSignOut }) {
 
       {isOpen && (
         <div className="absolute right-0 mt-2 w-52 rounded-xl bg-[#0a0a0a] border border-white/10 shadow-xl overflow-hidden z-50">
-          {/* User Info Header */}
           <div className="px-4 py-3 border-b border-white/10">
             <p className="text-sm font-medium truncate">{profile?.first_name} {profile?.last_name}</p>
             <p className="text-xs text-white/50 truncate">{profile?.email}</p>
@@ -46,7 +47,6 @@ function UserDropdown({ profile, onSignOut }) {
             </span>
           </div>
 
-          {/* Menu Items */}
           <div className="py-1">
             <Link
               to="/profile"
@@ -68,7 +68,6 @@ function UserDropdown({ profile, onSignOut }) {
             )}
           </div>
 
-          {/* Sign Out */}
           <div className="border-t border-white/10 py-1">
             <button
               onClick={() => {
@@ -89,6 +88,7 @@ function UserDropdown({ profile, onSignOut }) {
 
 function MobileMenu({ isOpen, onClose }) {
   const location = useLocation();
+  const { isTryoutsOpen, isRegistrationOpen } = useRegistrationStatus();
 
   if (!isOpen) return null;
 
@@ -96,13 +96,11 @@ function MobileMenu({ isOpen, onClose }) {
 
   return (
     <div className="fixed inset-0 z-50 md:hidden">
-      {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/80 backdrop-blur-sm"
         onClick={onClose}
       />
 
-      {/* Drawer */}
       <div className="absolute right-0 top-0 bottom-0 w-72 bg-[#0a0a0a] border-l border-white/10 shadow-2xl animate-slide-in-right">
         <div className="flex items-center justify-between p-4 border-b border-white/10">
           <span className="text-sm font-semibold text-white uppercase tracking-wider">Menu</span>
@@ -115,61 +113,38 @@ function MobileMenu({ isOpen, onClose }) {
         </div>
 
         <nav className="p-4 space-y-1">
-          <Link
-            to="/teams"
-            onClick={onClose}
-            className={`block px-4 py-3 rounded-lg text-sm font-medium uppercase tracking-wider transition-colors ${
-              isActive('/teams') ? 'bg-tne-red/20 text-tne-red' : 'text-white/80 hover:bg-white/5 hover:text-white'
-            }`}
-          >
-            Teams
-          </Link>
-          <Link
-            to="/schedule"
-            onClick={onClose}
-            className={`block px-4 py-3 rounded-lg text-sm font-medium uppercase tracking-wider transition-colors ${
-              isActive('/schedule') ? 'bg-tne-red/20 text-tne-red' : 'text-white/80 hover:bg-white/5 hover:text-white'
-            }`}
-          >
-            Schedule
-          </Link>
-          <Link
-            to="/payments"
-            onClick={onClose}
-            className={`block px-4 py-3 rounded-lg text-sm font-medium uppercase tracking-wider transition-colors ${
-              isActive('/payments') ? 'bg-tne-red/20 text-tne-red' : 'text-white/80 hover:bg-white/5 hover:text-white'
-            }`}
-          >
-            Payments
-          </Link>
-          <Link
-            to="/about"
-            onClick={onClose}
-            className={`block px-4 py-3 rounded-lg text-sm font-medium uppercase tracking-wider transition-colors ${
-              isActive('/about') ? 'bg-tne-red/20 text-tne-red' : 'text-white/80 hover:bg-white/5 hover:text-white'
-            }`}
-          >
-            About
-          </Link>
-          <Link
-            to="/contact"
-            onClick={onClose}
-            className={`block px-4 py-3 rounded-lg text-sm font-medium uppercase tracking-wider transition-colors ${
-              isActive('/contact') ? 'bg-tne-red/20 text-tne-red' : 'text-white/80 hover:bg-white/5 hover:text-white'
-            }`}
-          >
-            Contact
-          </Link>
+          {navLinks.map((link) => (
+            <Link
+              key={link.path}
+              to={link.path}
+              onClick={onClose}
+              className={`block px-4 py-3 rounded-lg text-sm font-medium uppercase tracking-wider transition-colors ${
+                isActive(link.path) ? 'bg-tne-red/20 text-tne-red' : 'text-white/80 hover:bg-white/5 hover:text-white'
+              }`}
+            >
+              {link.label}
+            </Link>
+          ))}
         </nav>
 
         <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-white/10 space-y-3">
-          <Link
-            to="/tryouts"
-            onClick={onClose}
-            className="block w-full py-3 text-center text-sm font-semibold uppercase tracking-wider rounded-lg bg-tne-red text-white hover:bg-tne-red-dark transition-colors"
-          >
-            Register
-          </Link>
+          {isTryoutsOpen ? (
+            <Link
+              to="/tryouts"
+              onClick={onClose}
+              className="block w-full py-3 text-center text-sm font-semibold uppercase tracking-wider rounded-lg bg-tne-red text-white hover:bg-tne-red-dark transition-colors"
+            >
+              Tryouts
+            </Link>
+          ) : isRegistrationOpen ? (
+            <Link
+              to="/register"
+              onClick={onClose}
+              className="block w-full py-3 text-center text-sm font-semibold uppercase tracking-wider rounded-lg bg-tne-red text-white hover:bg-tne-red-dark transition-colors"
+            >
+              Register
+            </Link>
+          ) : null}
           <Link
             to="/login"
             onClick={onClose}
@@ -183,8 +158,9 @@ function MobileMenu({ isOpen, onClose }) {
   );
 }
 
-export default function TeamsNavbar() {
+function InteriorNavbar() {
   const { user, profile, signOut } = useAuth();
+  const { isTryoutsOpen, isRegistrationOpen } = useRegistrationStatus();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
 
@@ -213,56 +189,19 @@ export default function TeamsNavbar() {
 
           {/* Nav Links - Centered */}
           <div className="hidden md:flex items-center gap-1 absolute left-1/2 -translate-x-1/2">
-            <Link
-              to="/teams"
-              className={`text-[13px] font-semibold font-mono uppercase tracking-wider px-4 py-2 rounded-full transition-all ${
-                isActive('/teams')
-                  ? 'text-white bg-white/10'
-                  : 'text-white/70 hover:text-white hover:bg-white/5'
-              }`}
-            >
-              Teams
-            </Link>
-            <Link
-              to="/schedule"
-              className={`text-[13px] font-semibold font-mono uppercase tracking-wider px-4 py-2 rounded-full transition-all ${
-                isActive('/schedule')
-                  ? 'text-white bg-white/10'
-                  : 'text-white/70 hover:text-white hover:bg-white/5'
-              }`}
-            >
-              Schedule
-            </Link>
-            <Link
-              to="/payments"
-              className={`text-[13px] font-semibold font-mono uppercase tracking-wider px-4 py-2 rounded-full transition-all ${
-                isActive('/payments')
-                  ? 'text-white bg-white/10'
-                  : 'text-white/70 hover:text-white hover:bg-white/5'
-              }`}
-            >
-              Payments
-            </Link>
-            <Link
-              to="/about"
-              className={`text-[13px] font-semibold font-mono uppercase tracking-wider px-4 py-2 rounded-full transition-all ${
-                isActive('/about')
-                  ? 'text-white bg-white/10'
-                  : 'text-white/70 hover:text-white hover:bg-white/5'
-              }`}
-            >
-              About
-            </Link>
-            <Link
-              to="/contact"
-              className={`text-[13px] font-semibold font-mono uppercase tracking-wider px-4 py-2 rounded-full transition-all ${
-                isActive('/contact')
-                  ? 'text-white bg-white/10'
-                  : 'text-white/70 hover:text-white hover:bg-white/5'
-              }`}
-            >
-              Contact
-            </Link>
+            {navLinks.map((link) => (
+              <Link
+                key={link.path}
+                to={link.path}
+                className={`text-[13px] font-semibold font-mono uppercase tracking-wider px-4 py-2 rounded-full transition-all ${
+                  isActive(link.path)
+                    ? 'text-white bg-white/10'
+                    : 'text-white/70 hover:text-white hover:bg-white/5'
+                }`}
+              >
+                {link.label}
+              </Link>
+            ))}
           </div>
 
           {/* Right: Auth Buttons */}
@@ -277,12 +216,21 @@ export default function TeamsNavbar() {
                 >
                   Login
                 </Link>
-                <Link
-                  to="/tryouts"
-                  className="text-[13px] font-semibold font-mono uppercase tracking-wider px-5 py-2 rounded-full bg-tne-red text-white hover:bg-tne-red-dark transition-colors shadow-lg shadow-tne-red/25"
-                >
-                  Register
-                </Link>
+                {isTryoutsOpen ? (
+                  <Link
+                    to="/tryouts"
+                    className="text-[13px] font-semibold font-mono uppercase tracking-wider px-5 py-2 rounded-full bg-tne-red text-white hover:bg-tne-red-dark transition-colors shadow-lg shadow-tne-red/25"
+                  >
+                    Tryouts
+                  </Link>
+                ) : isRegistrationOpen ? (
+                  <Link
+                    to="/register"
+                    className="text-[13px] font-semibold font-mono uppercase tracking-wider px-5 py-2 rounded-full bg-tne-red text-white hover:bg-tne-red-dark transition-colors shadow-lg shadow-tne-red/25"
+                  >
+                    Register
+                  </Link>
+                ) : null}
               </>
             )}
           </div>
@@ -299,5 +247,15 @@ export default function TeamsNavbar() {
 
       <MobileMenu isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
     </>
+  );
+}
+
+export default function InteriorLayout({ children }) {
+  return (
+    <div className="bg-[#050505] text-white antialiased min-h-screen flex flex-col font-sans selection:bg-tne-red/20 selection:text-red-100">
+      <InteriorNavbar />
+      {children}
+      <HomeFooter />
+    </div>
   );
 }

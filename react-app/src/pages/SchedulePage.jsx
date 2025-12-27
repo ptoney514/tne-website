@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { CalendarDays } from 'lucide-react';
-import PublicLayout from '../components/layouts/PublicLayout';
+import InteriorLayout from '../components/layouts/InteriorLayout';
 import ScheduleFilters from '../components/schedule/ScheduleFilters';
 import ScheduleDayGroup from '../components/schedule/ScheduleDayGroup';
 import TournamentsTab from '../components/schedule/TournamentsTab';
@@ -133,7 +133,7 @@ export default function SchedulePage() {
   };
 
   return (
-    <PublicLayout>
+    <InteriorLayout>
       {/* Hero Header */}
       <header className="relative border-b border-white/5 overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(227,24,55,0.2),transparent_60%),radial-gradient(circle_at_bottom_left,rgba(139,31,58,0.15),transparent_55%)]" />
@@ -149,10 +149,10 @@ export default function SchedulePage() {
 
         <div className="sm:px-6 sm:pt-16 sm:pb-14 max-w-6xl mx-auto pt-12 px-4 pb-10 relative">
           <div className="flex flex-col gap-6 animate-enter">
-            <div className="inline-flex items-center gap-2 rounded-full border border-tne-red/30 bg-tne-red/10 px-3 py-1 w-fit">
-              <span className="h-1.5 w-1.5 rounded-full bg-tne-red shadow-[0_0_12px_rgba(227,24,55,0.9)]" />
-              <span className="text-[0.7rem] font-mono uppercase tracking-[0.22em] text-red-300">
-                2025-26 Season
+            <div className="inline-flex items-center gap-2 rounded-md bg-white/5 border border-white/10 px-3 py-1.5 w-fit">
+              <span className="inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.8)]" />
+              <span className="font-mono uppercase tracking-[0.22em] text-[0.7rem] text-white/80">
+                2025-2026 Fall/Winter Season
               </span>
             </div>
 
@@ -164,19 +164,6 @@ export default function SchedulePage() {
                 Find your team's practices, games, and tournaments all in one
                 place. Filter by team or date to see what's coming up.
               </p>
-            </div>
-
-            <div className="flex flex-wrap gap-4 items-center text-xs sm:text-sm text-white/70">
-              <div className="inline-flex items-center gap-2 rounded-md bg-white/5 border border-white/10 px-3 py-1.5">
-                <span className="inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.8)]" />
-                <span className="font-mono uppercase tracking-[0.22em] text-[0.7rem]">
-                  Season Active
-                </span>
-              </div>
-              <div className="inline-flex items-center gap-2 text-white/60">
-                <CalendarDays className="w-4 h-4" />
-                <span>Updated weekly with practices and game times</span>
-              </div>
             </div>
           </div>
         </div>
@@ -255,6 +242,6 @@ export default function SchedulePage() {
           )}
         </section>
       </main>
-    </PublicLayout>
+    </InteriorLayout>
   );
 }

@@ -12,8 +12,7 @@ import {
   Clock,
   MapPin
 } from 'lucide-react';
-import TeamsNavbar from '../components/TeamsNavbar';
-import TeamsFooter from '../components/TeamsFooter';
+import InteriorLayout from '../components/layouts/InteriorLayout';
 
 const teamData = [
   {
@@ -162,10 +161,7 @@ function TeamCard({ team }) {
 
 export default function TeamsPage() {
   return (
-    <div className="bg-[#050505] text-white antialiased min-h-screen flex flex-col font-sans selection:bg-tne-red/20 selection:text-red-100">
-      {/* Navbar */}
-      <TeamsNavbar />
-
+    <InteriorLayout>
       {/* Hero Header */}
       <header className="relative border-b border-white/5 overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(227,24,55,0.2),transparent_60%),radial-gradient(circle_at_bottom_left,rgba(139,31,58,0.15),transparent_55%)]"></div>
@@ -174,9 +170,9 @@ export default function TeamsPage() {
 
         <div className="sm:px-6 sm:pt-16 sm:pb-14 max-w-6xl mx-auto pt-12 px-4 pb-10 relative">
           <div className="flex flex-col gap-6 animate-enter">
-            <div className="inline-flex items-center gap-2 rounded-full border border-tne-red/30 bg-tne-red/10 px-3 py-1 w-fit">
-              <span className="h-1.5 w-1.5 rounded-full bg-tne-red shadow-[0_0_12px_rgba(227,24,55,0.9)]"></span>
-              <span className="text-[0.7rem] font-mono uppercase tracking-[0.22em] text-red-300">2025-26 Season</span>
+            <div className="inline-flex items-center gap-2 rounded-md bg-white/5 border border-white/10 px-3 py-1.5 w-fit">
+              <span className="inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.8)]"></span>
+              <span className="font-mono uppercase tracking-[0.22em] text-[0.7rem] text-white/80">2025-2026 Fall/Winter Season</span>
             </div>
 
             <div>
@@ -186,17 +182,6 @@ export default function TeamsPage() {
               <p className="mt-2 text-base sm:text-lg text-white/70 max-w-2xl">
                 Browse every team's coach information, practice details, and upcoming games for the 2025‑26 season.
               </p>
-            </div>
-
-            <div className="flex flex-wrap gap-4 items-center text-xs sm:text-sm text-white/70">
-              <div className="inline-flex items-center gap-2 rounded-md bg-white/5 border border-white/10 px-3 py-1.5">
-                <span className="inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.8)]"></span>
-                <span className="font-mono uppercase tracking-[0.22em] text-[0.7rem]">Season Active</span>
-              </div>
-              <div className="inline-flex items-center gap-2 text-white/60">
-                <CalendarDays className="w-4 h-4" />
-                <span>Filter by grade level or coach to jump to your team.</span>
-              </div>
             </div>
           </div>
         </div>
@@ -282,9 +267,6 @@ export default function TeamsPage() {
           </div>
         </section>
       </main>
-
-      {/* Footer */}
-      <TeamsFooter />
-    </div>
+    </InteriorLayout>
   );
 }

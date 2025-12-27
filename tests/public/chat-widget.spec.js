@@ -1,7 +1,8 @@
 // @ts-check
 import { test, expect } from '@playwright/test';
 
-test.describe('Chat Widget', () => {
+// AI Chat disabled for MVP - re-enable post-MVP (see issue #59)
+test.describe.skip('Chat Widget', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
     await page.waitForLoadState('networkidle');
@@ -112,7 +113,7 @@ test.describe('Chat Widget', () => {
   });
 });
 
-test.describe('Chat Widget - Different Pages', () => {
+test.describe.skip('Chat Widget - Different Pages', () => {
   test('should be visible on teams page', async ({ page }) => {
     await page.goto('/teams');
     await page.waitForLoadState('networkidle');
@@ -162,7 +163,7 @@ test.describe('Chat Widget - Different Pages', () => {
   });
 });
 
-test.describe('Chat Widget - Contact Page Integration', () => {
+test.describe.skip('Chat Widget - Contact Page Integration', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/contact');
     await page.waitForLoadState('networkidle');
@@ -182,7 +183,7 @@ test.describe('Chat Widget - Contact Page Integration', () => {
   });
 });
 
-test.describe('Chat Widget - Mobile Responsiveness', () => {
+test.describe.skip('Chat Widget - Mobile Responsiveness', () => {
   test.use({ viewport: { width: 375, height: 667 } });
 
   test('should be visible on mobile', async ({ page }) => {
@@ -219,7 +220,7 @@ test.describe('Chat Widget - Mobile Responsiveness', () => {
   });
 });
 
-test.describe('Chat Widget - Tooltip', () => {
+test.describe.skip('Chat Widget - Tooltip', () => {
   test('should show tooltip after delay on first visit', async ({ page }) => {
     // Clear localStorage to simulate first visit
     await page.goto('/');

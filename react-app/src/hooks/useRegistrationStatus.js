@@ -4,46 +4,51 @@ import { supabase } from '../lib/supabase';
 // Set to false to use real Supabase data
 const USE_SAMPLE_DATA = false;
 
-const SAMPLE_REGISTRATION_STATUS = {
-  isOpen: true,
-  label: "Fall/Winter '25-26",
+const SAMPLE_STATUS = {
+  isTryoutsOpen: true,
+  tryoutsLabel: "Winter '25-26 Tryouts",
+  isRegistrationOpen: false,
+  registrationLabel: "Fall/Winter '25-26",
   seasonId: 'sample-season-id',
 };
 
 export function useRegistrationStatus() {
-  const [registrationStatus, setRegistrationStatus] = useState({
-    isOpen: false,
-    label: null,
+  const [status, setStatus] = useState({
+    isTryoutsOpen: false,
+    tryoutsLabel: null,
+    isRegistrationOpen: false,
+    registrationLabel: null,
     seasonId: null,
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const fetchRegistrationStatus = useCallback(async () => {
+  const fetchStatus = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
 
       if (USE_SAMPLE_DATA) {
-        // Simulate network delay
         await new Promise((resolve) => setTimeout(resolve, 100));
-        setRegistrationStatus(SAMPLE_REGISTRATION_STATUS);
+        setStatus(SAMPLE_STATUS);
         return;
       }
 
-      // Fetch the active season with registration status
+      // Fetch the active season with both tryouts and registration status
       const { data, error: fetchError } = await supabase
         .from('seasons')
-        .select('id, name, registration_open, registration_label')
+        .select('id, name, tryouts_open, tryouts_label, registration_open, registration_label')
         .eq('is_active', true)
         .single();
 
       if (fetchError) {
-        // If no active season found, registration is closed
+        // If no active season found, both are closed
         if (fetchError.code === 'PGRST116') {
-          setRegistrationStatus({
-            isOpen: false,
-            label: null,
+          setStatus({
+            isTryoutsOpen: false,
+            tryoutsLabel: null,
+            isRegistrationOpen: false,
+            registrationLabel: null,
             seasonId: null,
           });
           return;
@@ -53,26 +58,32 @@ export function useRegistrationStatus() {
 
       // Handle case where no data returned (no active season)
       if (!data) {
-        setRegistrationStatus({
-          isOpen: false,
-          label: null,
+        setStatus({
+          isTryoutsOpen: false,
+          tryoutsLabel: null,
+          isRegistrationOpen: false,
+          registrationLabel: null,
           seasonId: null,
         });
         return;
       }
 
-      setRegistrationStatus({
-        isOpen: data.registration_open || false,
-        label: data.registration_label || data.name,
+      setStatus({
+        isTryoutsOpen: data.tryouts_open || false,
+        tryoutsLabel: data.tryouts_label || data.name,
+        isRegistrationOpen: data.registration_open || false,
+        registrationLabel: data.registration_label || data.name,
         seasonId: data.id,
       });
     } catch (err) {
-      console.error('Registration status error:', err);
+      console.error('Status fetch error:', err);
       setError(err.message);
       // Default to closed on error
-      setRegistrationStatus({
-        isOpen: false,
-        label: null,
+      setStatus({
+        isTryoutsOpen: false,
+        tryoutsLabel: null,
+        isRegistrationOpen: false,
+        registrationLabel: null,
         seasonId: null,
       });
     } finally {
@@ -81,13 +92,16 @@ export function useRegistrationStatus() {
   }, []);
 
   useEffect(() => {
-    fetchRegistrationStatus();
-  }, [fetchRegistrationStatus]);
+    fetchStatus();
+  }, [fetchStatus]);
 
   return {
-    ...registrationStatus,
+    ...status,
+    // Backward compatibility aliases
+    isOpen: status.isRegistrationOpen,
+    label: status.registrationLabel,
     loading,
     error,
-    refetch: fetchRegistrationStatus,
+    refetch: fetchStatus,
   };
 }

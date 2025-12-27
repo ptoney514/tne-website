@@ -1,44 +1,34 @@
-import { Link } from 'react-router-dom';
 import { Phone, Mail } from 'lucide-react';
-import PublicLayout from '../components/layouts/PublicLayout';
+import InteriorLayout from '../components/layouts/InteriorLayout';
 import FeeSchedule from '../components/payments/FeeSchedule';
 import PaymentForm from '../components/payments/PaymentForm';
 import PaymentFAQ from '../components/payments/PaymentFAQ';
 
 export default function PaymentsPage() {
   return (
-    <PublicLayout>
-      {/* Compact Header (Task-oriented page) */}
+    <InteriorLayout>
+      {/* Hero Header */}
       <header className="relative border-b border-white/5 overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(227,24,55,0.2),transparent_60%),radial-gradient(circle_at_bottom_left,rgba(139,31,58,0.15),transparent_55%)]" />
         <div className="absolute inset-0 bg-gradient-to-b from-black via-black/90 to-black" />
 
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-6 pb-10 relative">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-              {/* Breadcrumb */}
-              <div className="inline-flex items-center gap-2 mb-2">
-                <Link
-                  to="/"
-                  className="text-[0.7rem] font-mono text-white/50 uppercase tracking-[0.2em] hover:text-white transition-colors"
-                >
-                  Home
-                </Link>
-                <span className="text-white/30">/</span>
-                <span className="text-[0.7rem] font-mono text-tne-red uppercase tracking-[0.2em]">
-                  Payments
-                </span>
-              </div>
-              <h1 className="text-3xl sm:text-4xl font-bold text-white tracking-tight font-bebas uppercase">
-                Make a Payment
-              </h1>
-            </div>
-            {/* Status Badge */}
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-green-500/10 border border-green-500/20 rounded-full self-start sm:self-auto">
-              <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-              <span className="text-xs font-medium text-green-400">
-                Secure Checkout
+        <div className="sm:px-6 sm:pt-16 sm:pb-14 max-w-6xl mx-auto pt-12 px-4 pb-10 relative">
+          <div className="flex flex-col gap-6 animate-enter">
+            <div className="inline-flex items-center gap-2 rounded-md bg-white/5 border border-white/10 px-3 py-1.5 w-fit">
+              <span className="inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.8)]" />
+              <span className="font-mono uppercase tracking-[0.22em] text-[0.7rem] text-white/80">
+                2025-2026 Fall/Winter Season
               </span>
+            </div>
+
+            <div>
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tight text-white">
+                Payments
+              </h1>
+              <p className="mt-2 text-base sm:text-lg text-white/70 max-w-2xl">
+                View fee schedules and make secure payments for registration,
+                team fees, and tournament costs.
+              </p>
             </div>
           </div>
         </div>
@@ -98,6 +88,6 @@ export default function PaymentsPage() {
           </div>
         </section>
       </main>
-    </PublicLayout>
+    </InteriorLayout>
   );
 }

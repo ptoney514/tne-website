@@ -1,10 +1,6 @@
-import { Link } from 'react-router-dom';
-
 export default function PageHero({
   title,
   subtitle,
-  badgeText,
-  breadcrumb,
   backgroundImage,
 }) {
   return (
@@ -25,31 +21,13 @@ export default function PageHero({
 
       <div className="sm:px-6 sm:pt-16 sm:pb-14 max-w-6xl mx-auto pt-12 px-4 pb-10 relative">
         <div className="flex flex-col gap-6 animate-enter">
-          {/* Breadcrumb */}
-          {breadcrumb && (
-            <div className="inline-flex items-center gap-2">
-              <Link
-                to="/"
-                className="text-[0.7rem] font-mono text-white/50 uppercase tracking-[0.2em] hover:text-white transition-colors"
-              >
-                Home
-              </Link>
-              <span className="text-white/30">/</span>
-              <span className="text-[0.7rem] font-mono text-tne-red uppercase tracking-[0.2em]">
-                {breadcrumb}
-              </span>
-            </div>
-          )}
-
-          {/* Badge */}
-          {badgeText && (
-            <div className="inline-flex items-center gap-2 rounded-full border border-tne-red/30 bg-tne-red/10 px-3 py-1 w-fit">
-              <span className="h-1.5 w-1.5 rounded-full bg-tne-red shadow-[0_0_12px_rgba(227,24,55,0.9)]" />
-              <span className="text-[0.7rem] font-mono uppercase tracking-[0.22em] text-red-300">
-                {badgeText}
-              </span>
-            </div>
-          )}
+          {/* Season Badge */}
+          <div className="inline-flex items-center gap-2 rounded-md bg-white/5 border border-white/10 px-3 py-1.5 w-fit">
+            <span className="inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.8)]" />
+            <span className="font-mono uppercase tracking-[0.22em] text-[0.7rem] text-white/80">
+              2025-2026 Fall/Winter Season
+            </span>
+          </div>
 
           {/* Title & Subtitle */}
           <div>

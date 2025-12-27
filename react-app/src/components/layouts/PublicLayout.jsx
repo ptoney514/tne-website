@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, Facebook, Twitter } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
+import { useRegistrationStatus } from '../../hooks/useRegistrationStatus';
 import MobileDrawer from '../MobileDrawer';
 import tneLogoWhite from '../../assets/tne-logo-white-transparent.png';
 import { navLinks, navLinkStyles } from '../../constants/navigation';
@@ -10,27 +11,28 @@ function PublicNavbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
   const { user } = useAuth();
+  const { isTryoutsOpen, isRegistrationOpen } = useRegistrationStatus();
 
   const isActive = (path) => location.pathname === path;
 
   return (
     <>
       <nav className="sticky supports-[backdrop-filter]:bg-black/80 bg-black/90 w-full z-50 border-white/5 border-b top-0 backdrop-blur-md">
-        <div className="sm:px-6 flex h-14 max-w-6xl mx-auto px-4 items-center justify-between">
+        <div className="sm:px-6 flex h-14 max-w-6xl mx-auto px-4 items-center justify-between relative">
           {/* Brand */}
-          <Link to="/" className="flex items-center gap-3 hover:opacity-90 transition-opacity">
+          <Link to="/" className="flex items-center gap-3 hover:opacity-90 transition-opacity z-10">
             <img
               src={tneLogoWhite}
               alt="TNE United Express"
               className="h-12 w-12 object-contain"
             />
-            <span className="text-sm font-medium tracking-tight text-white/90 hidden sm:inline">
-              TNE United Express
+            <span className="text-white font-bebas text-xl tracking-wide hidden sm:inline">
+              TNE <span className="text-tne-red">United</span> Express
             </span>
           </Link>
 
-          {/* Desktop Links */}
-          <div className={`hidden md:flex items-center gap-6 ${navLinkStyles.base}`}>
+          {/* Desktop Links - Centered */}
+          <div className={`hidden md:flex items-center gap-6 ${navLinkStyles.base} absolute left-1/2 -translate-x-1/2`}>
             {navLinks.map((link) => (
               <Link
                 key={link.path}
@@ -43,7 +45,7 @@ function PublicNavbar() {
           </div>
 
           {/* Right Side */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 z-10">
             <div className="hidden md:flex items-center gap-2">
               {user ? (
                 <Link
@@ -60,12 +62,21 @@ function PublicNavbar() {
                   >
                     Login
                   </Link>
-                  <Link
-                    to="/tryouts"
-                    className={`px-4 py-1.5 ${navLinkStyles.base} rounded-full bg-tne-red text-white hover:bg-tne-red-dark transition-colors`}
-                  >
-                    Register
-                  </Link>
+                  {isTryoutsOpen ? (
+                    <Link
+                      to="/tryouts"
+                      className={`px-4 py-1.5 ${navLinkStyles.base} rounded-full bg-tne-red text-white hover:bg-tne-red-dark transition-colors`}
+                    >
+                      Tryouts
+                    </Link>
+                  ) : isRegistrationOpen ? (
+                    <Link
+                      to="/register"
+                      className={`px-4 py-1.5 ${navLinkStyles.base} rounded-full bg-tne-red text-white hover:bg-tne-red-dark transition-colors`}
+                    >
+                      Register
+                    </Link>
+                  ) : null}
                 </>
               )}
             </div>

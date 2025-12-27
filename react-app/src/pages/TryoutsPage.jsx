@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import {
   CalendarCheck,
   ClipboardCheck,
@@ -6,12 +7,14 @@ import {
   Heart,
   Check,
   Info,
+  Bell,
 } from 'lucide-react';
 import PublicLayout from '../components/layouts/PublicLayout';
 import TryoutSessionCard from '../components/tryouts/TryoutSessionCard';
 import TryoutRegistrationForm from '../components/tryouts/TryoutRegistrationForm';
 import FAQAccordion from '../components/tryouts/FAQAccordion';
 import { useTryoutSessions } from '../hooks/useTryoutSessions';
+import { useRegistrationStatus } from '../hooks/useRegistrationStatus';
 
 const whatToExpect = [
   {
@@ -50,6 +53,7 @@ export default function TryoutsPage() {
     resetSubmitState,
   } = useTryoutSessions();
 
+  const { isTryoutsOpen, tryoutsLabel } = useRegistrationStatus();
   const [selectedSession, setSelectedSession] = useState(null);
 
   const handleRegisterClick = (session) => {
@@ -96,12 +100,21 @@ export default function TryoutsPage() {
             </div>
 
             <div className="flex flex-wrap gap-4 items-center text-xs sm:text-sm text-white/70">
-              <div className="inline-flex items-center gap-2 rounded-md bg-white/5 border border-white/10 px-3 py-1.5">
-                <span className="inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.8)]" />
-                <span className="font-mono uppercase tracking-[0.22em] text-[0.7rem]">
-                  Registration Open
-                </span>
-              </div>
+              {isTryoutsOpen ? (
+                <div className="inline-flex items-center gap-2 rounded-md bg-white/5 border border-white/10 px-3 py-1.5">
+                  <span className="inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.8)]" />
+                  <span className="font-mono uppercase tracking-[0.22em] text-[0.7rem]">
+                    {tryoutsLabel || 'Tryouts'} Open
+                  </span>
+                </div>
+              ) : (
+                <div className="inline-flex items-center gap-2 rounded-md bg-white/5 border border-white/10 px-3 py-1.5">
+                  <span className="inline-flex h-1.5 w-1.5 rounded-full bg-stone-400" />
+                  <span className="font-mono uppercase tracking-[0.22em] text-[0.7rem]">
+                    Tryouts Closed
+                  </span>
+                </div>
+              )}
               {sessions.length > 0 && (
                 <div className="inline-flex items-center gap-2 text-white/60">
                   <CalendarCheck className="w-4 h-4" />
@@ -242,15 +255,43 @@ export default function TryoutsPage() {
 
             {/* Registration Form */}
             <div className="lg:col-span-3">
-              <TryoutRegistrationForm
-                sessions={sessions}
-                selectedSession={selectedSession}
-                onSubmit={submitSignup}
-                submitting={submitting}
-                submitSuccess={submitSuccess}
-                submitError={submitError}
-                onReset={resetSubmitState}
-              />
+              {isTryoutsOpen ? (
+                <TryoutRegistrationForm
+                  sessions={sessions}
+                  selectedSession={selectedSession}
+                  onSubmit={submitSignup}
+                  submitting={submitting}
+                  submitSuccess={submitSuccess}
+                  submitError={submitError}
+                  onReset={resetSubmitState}
+                />
+              ) : (
+                <div id="registration" className="rounded-3xl bg-white border border-neutral-300 shadow-sm overflow-hidden">
+                  <div className="px-5 py-4 border-b border-neutral-200 bg-neutral-50">
+                    <h2 className="text-lg font-semibold text-neutral-900">
+                      Tryout Registration
+                    </h2>
+                  </div>
+                  <div className="px-6 py-12 text-center">
+                    <div className="w-16 h-16 rounded-full bg-stone-100 flex items-center justify-center mx-auto mb-4">
+                      <Bell className="w-8 h-8 text-stone-400" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-neutral-900 mb-2">
+                      Tryouts Are Currently Closed
+                    </h3>
+                    <p className="text-neutral-600 mb-6 max-w-md mx-auto">
+                      Tryout registration is not available at this time. Sign up to be notified when the next tryout period opens.
+                    </p>
+                    <Link
+                      to="/contact"
+                      className="inline-flex items-center gap-2 px-6 py-3 bg-tne-red text-white font-medium rounded-lg hover:bg-tne-red-dark transition-colors"
+                    >
+                      <Bell className="w-4 h-4" />
+                      Get Notified
+                    </Link>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 

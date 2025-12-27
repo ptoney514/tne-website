@@ -3,9 +3,11 @@ import { Link } from 'react-router-dom';
 import { Menu } from 'lucide-react';
 import tneLogoWhite from '../assets/tne-logo-white-transparent.png';
 import MobileDrawer from './MobileDrawer';
+import { useRegistrationStatus } from '../hooks/useRegistrationStatus';
 
 export default function HomeNavbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { isTryoutsOpen, isRegistrationOpen } = useRegistrationStatus();
 
   return (
     <>
@@ -61,12 +63,21 @@ export default function HomeNavbar() {
             >
               About
             </Link>
-            <Link
-              to="/tryouts"
-              className="text-[13px] uppercase transition-all font-semibold text-white tracking-wider font-mono bg-tne-red hover:bg-tne-red-dark rounded-full px-5 py-2 shadow-lg shadow-tne-red/25"
-            >
-              Register
-            </Link>
+            {isTryoutsOpen ? (
+              <Link
+                to="/tryouts"
+                className="text-[13px] uppercase transition-all font-semibold text-white tracking-wider font-mono bg-tne-red hover:bg-tne-red-dark rounded-full px-5 py-2 shadow-lg shadow-tne-red/25"
+              >
+                Register for Tryouts
+              </Link>
+            ) : isRegistrationOpen ? (
+              <Link
+                to="/register"
+                className="text-[13px] uppercase transition-all font-semibold text-white tracking-wider font-mono bg-tne-red hover:bg-tne-red-dark rounded-full px-5 py-2 shadow-lg shadow-tne-red/25"
+              >
+                Register
+              </Link>
+            ) : null}
           </div>
 
           {/* Mobile Menu */}

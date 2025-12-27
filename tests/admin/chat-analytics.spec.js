@@ -8,14 +8,15 @@ const TEST_PASSWORD = process.env.TEST_ADMIN_PASSWORD || 'TneAdmin2025!@#$';
 // Skip authenticated tests by default - require explicit CI setup
 const skipAuthTests = !process.env.CI_ADMIN_TESTS;
 
-test.describe('Admin Chat Analytics - Unauthenticated', () => {
+// AI Chat disabled for MVP - re-enable post-MVP (see issue #59)
+test.describe.skip('Admin Chat Analytics - Unauthenticated', () => {
   test('should redirect to login when accessing /admin/chat-analytics without auth', async ({ page }) => {
     await page.goto('/admin/chat-analytics');
     await expect(page).toHaveURL('/login');
   });
 });
 
-test.describe('Admin Chat Analytics - UI Elements', () => {
+test.describe.skip('Admin Chat Analytics - UI Elements', () => {
   test.skip(skipAuthTests, 'Requires CI_ADMIN_TESTS env var');
 
   test.beforeEach(async ({ page }) => {
@@ -88,7 +89,7 @@ test.describe('Admin Chat Analytics - UI Elements', () => {
   });
 });
 
-test.describe('Admin Chat Analytics - Stats Loading', () => {
+test.describe.skip('Admin Chat Analytics - Stats Loading', () => {
   test.skip(skipAuthTests, 'Requires CI_ADMIN_TESTS env var');
 
   test.beforeEach(async ({ page }) => {
@@ -129,7 +130,7 @@ test.describe('Admin Chat Analytics - Stats Loading', () => {
   });
 });
 
-test.describe('Admin Chat Analytics - Navigation', () => {
+test.describe.skip('Admin Chat Analytics - Navigation', () => {
   test.skip(skipAuthTests, 'Requires CI_ADMIN_TESTS env var');
 
   test.beforeEach(async ({ page }) => {

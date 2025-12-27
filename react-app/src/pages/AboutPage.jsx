@@ -8,7 +8,7 @@ import {
   User,
   MessageCircle,
 } from 'lucide-react';
-import PublicLayout from '../components/layouts/PublicLayout';
+import InteriorLayout from '../components/layouts/InteriorLayout';
 import PageHero from '../components/PageHero';
 import mitchHeadshot from '../assets/mitch-headshot.png';
 
@@ -44,12 +44,10 @@ const directors = [
 
 export default function AboutPage() {
   return (
-    <PublicLayout>
+    <InteriorLayout>
       <PageHero
         title="About TNE United"
         subtitle="To be the best, you have to play the best."
-        badgeText="Est. 2012"
-        breadcrumb="About Us"
         backgroundImage="https://images.unsplash.com/photo-1574629810360-7efbbe195018?q=80&w=2980&auto=format&fit=crop"
       />
 
@@ -389,6 +387,6 @@ export default function AboutPage() {
           </div>
         </section>
       </main>
-    </PublicLayout>
+    </InteriorLayout>
   );
 }

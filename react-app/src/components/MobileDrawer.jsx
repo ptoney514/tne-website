@@ -3,9 +3,11 @@ import { Link, useLocation } from 'react-router-dom';
 import { X } from 'lucide-react';
 import tneLogoWhite from '../assets/tne-logo-white-transparent.png';
 import { navLinks } from '../constants/navigation';
+import { useRegistrationStatus } from '../hooks/useRegistrationStatus';
 
 export default function MobileDrawer({ isOpen, onClose, showPayLink = false }) {
   const location = useLocation();
+  const { isTryoutsOpen, isRegistrationOpen } = useRegistrationStatus();
 
   // Prevent body scroll when drawer is open
   useEffect(() => {
@@ -98,13 +100,23 @@ export default function MobileDrawer({ isOpen, onClose, showPayLink = false }) {
 
         {/* Bottom Actions */}
         <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-white/10 space-y-3">
-          <Link
-            to="/tryouts"
-            onClick={onClose}
-            className="block w-full text-center px-4 py-3 text-sm font-semibold uppercase tracking-wider rounded-xl bg-tne-red text-white hover:bg-tne-red-dark transition-colors shadow-lg shadow-tne-red/25"
-          >
-            Register
-          </Link>
+          {isTryoutsOpen ? (
+            <Link
+              to="/tryouts"
+              onClick={onClose}
+              className="block w-full text-center px-4 py-3 text-sm font-semibold uppercase tracking-wider rounded-xl bg-tne-red text-white hover:bg-tne-red-dark transition-colors shadow-lg shadow-tne-red/25"
+            >
+              Register for Tryouts
+            </Link>
+          ) : isRegistrationOpen ? (
+            <Link
+              to="/register"
+              onClick={onClose}
+              className="block w-full text-center px-4 py-3 text-sm font-semibold uppercase tracking-wider rounded-xl bg-tne-red text-white hover:bg-tne-red-dark transition-colors shadow-lg shadow-tne-red/25"
+            >
+              Register
+            </Link>
+          ) : null}
           <Link
             to="/login"
             onClick={onClose}

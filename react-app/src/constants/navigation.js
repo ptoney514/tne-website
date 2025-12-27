@@ -2,6 +2,7 @@
 export const navLinks = [
   { path: '/teams', label: 'Teams' },
   { path: '/schedule', label: 'Schedule' },
+  { path: '/payments', label: 'Payments' },
   { path: '/about', label: 'About' },
   { path: '/contact', label: 'Contact' },
 ];

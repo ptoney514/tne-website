@@ -24,16 +24,18 @@ describe('useRegistrationStatus', () => {
     vi.clearAllMocks();
   });
 
-  it('should initialize with loading state and closed registration', () => {
+  it('should initialize with loading state and closed status', () => {
     const { result } = renderHook(() => useRegistrationStatus());
 
     expect(result.current.loading).toBe(true);
-    expect(result.current.isOpen).toBe(false);
-    expect(result.current.label).toBeNull();
+    expect(result.current.isTryoutsOpen).toBe(false);
+    expect(result.current.isRegistrationOpen).toBe(false);
+    expect(result.current.tryoutsLabel).toBeNull();
+    expect(result.current.registrationLabel).toBeNull();
     expect(result.current.seasonId).toBeNull();
   });
 
-  it('should return registration status after loading', async () => {
+  it('should return status after loading', async () => {
     const { result } = renderHook(() => useRegistrationStatus());
 
     await waitFor(() => {
@@ -62,23 +64,29 @@ describe('useRegistrationStatus', () => {
     });
 
     // Check that all expected properties exist
-    expect(result.current).toHaveProperty('isOpen');
-    expect(result.current).toHaveProperty('label');
+    expect(result.current).toHaveProperty('isTryoutsOpen');
+    expect(result.current).toHaveProperty('tryoutsLabel');
+    expect(result.current).toHaveProperty('isRegistrationOpen');
+    expect(result.current).toHaveProperty('registrationLabel');
     expect(result.current).toHaveProperty('seasonId');
     expect(result.current).toHaveProperty('loading');
     expect(result.current).toHaveProperty('error');
     expect(result.current).toHaveProperty('refetch');
+    // Backward compatibility
+    expect(result.current).toHaveProperty('isOpen');
+    expect(result.current).toHaveProperty('label');
   });
 
-  it('should default to closed registration when no active season found', async () => {
+  it('should default to closed when no active season found', async () => {
     const { result } = renderHook(() => useRegistrationStatus());
 
     await waitFor(() => {
       expect(result.current.loading).toBe(false);
     });
 
-    // When no season is found, registration should be closed
-    expect(result.current.isOpen).toBe(false);
+    // When no season is found, both should be closed
+    expect(result.current.isTryoutsOpen).toBe(false);
+    expect(result.current.isRegistrationOpen).toBe(false);
   });
 });
 
@@ -87,39 +95,12 @@ describe('useRegistrationStatus - with mocked data', () => {
     vi.clearAllMocks();
   });
 
-  it('should return open registration when season has registration_open true', async () => {
+  it('should return tryouts open when season has tryouts_open true', async () => {
     const mockSeasonData = {
       id: 'test-season-id',
       name: '2025-26 Winter',
-      registration_open: true,
-      registration_label: "Fall/Winter '25-26",
-    };
-
-    // Override the mock for this specific test
-    const { supabase } = await import('../../lib/supabase');
-    supabase.from.mockReturnValue({
-      select: vi.fn().mockReturnValue({
-        eq: vi.fn().mockReturnValue({
-          single: vi.fn().mockResolvedValue({ data: mockSeasonData, error: null }),
-        }),
-      }),
-    });
-
-    const { result } = renderHook(() => useRegistrationStatus());
-
-    await waitFor(() => {
-      expect(result.current.loading).toBe(false);
-    });
-
-    expect(result.current.isOpen).toBe(true);
-    expect(result.current.label).toBe("Fall/Winter '25-26");
-    expect(result.current.seasonId).toBe('test-season-id');
-  });
-
-  it('should return closed registration when season has registration_open false', async () => {
-    const mockSeasonData = {
-      id: 'test-season-id',
-      name: '2025-26 Winter',
+      tryouts_open: true,
+      tryouts_label: "Winter '25-26 Tryouts",
       registration_open: false,
       registration_label: null,
     };
@@ -139,7 +120,69 @@ describe('useRegistrationStatus - with mocked data', () => {
       expect(result.current.loading).toBe(false);
     });
 
-    expect(result.current.isOpen).toBe(false);
+    expect(result.current.isTryoutsOpen).toBe(true);
+    expect(result.current.tryoutsLabel).toBe("Winter '25-26 Tryouts");
+    expect(result.current.isRegistrationOpen).toBe(false);
+    expect(result.current.seasonId).toBe('test-season-id');
+  });
+
+  it('should return registration open when season has registration_open true', async () => {
+    const mockSeasonData = {
+      id: 'test-season-id',
+      name: '2025-26 Winter',
+      tryouts_open: false,
+      tryouts_label: null,
+      registration_open: true,
+      registration_label: "Fall/Winter '25-26",
+    };
+
+    const { supabase } = await import('../../lib/supabase');
+    supabase.from.mockReturnValue({
+      select: vi.fn().mockReturnValue({
+        eq: vi.fn().mockReturnValue({
+          single: vi.fn().mockResolvedValue({ data: mockSeasonData, error: null }),
+        }),
+      }),
+    });
+
+    const { result } = renderHook(() => useRegistrationStatus());
+
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
+
+    expect(result.current.isTryoutsOpen).toBe(false);
+    expect(result.current.isRegistrationOpen).toBe(true);
+    expect(result.current.registrationLabel).toBe("Fall/Winter '25-26");
+  });
+
+  it('should return both open when both are true', async () => {
+    const mockSeasonData = {
+      id: 'test-season-id',
+      name: '2025-26 Winter',
+      tryouts_open: true,
+      tryouts_label: "Winter Tryouts",
+      registration_open: true,
+      registration_label: "Fall/Winter '25-26",
+    };
+
+    const { supabase } = await import('../../lib/supabase');
+    supabase.from.mockReturnValue({
+      select: vi.fn().mockReturnValue({
+        eq: vi.fn().mockReturnValue({
+          single: vi.fn().mockResolvedValue({ data: mockSeasonData, error: null }),
+        }),
+      }),
+    });
+
+    const { result } = renderHook(() => useRegistrationStatus());
+
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
+
+    expect(result.current.isTryoutsOpen).toBe(true);
+    expect(result.current.isRegistrationOpen).toBe(true);
   });
 
   it('should handle errors gracefully', async () => {
@@ -162,13 +205,16 @@ describe('useRegistrationStatus - with mocked data', () => {
     });
 
     // Should default to closed on error
-    expect(result.current.isOpen).toBe(false);
+    expect(result.current.isTryoutsOpen).toBe(false);
+    expect(result.current.isRegistrationOpen).toBe(false);
   });
 
-  it('should use season name as fallback when registration_label is empty', async () => {
+  it('should use season name as fallback when labels are empty', async () => {
     const mockSeasonData = {
       id: 'test-season-id',
       name: '2025-26 Winter',
+      tryouts_open: true,
+      tryouts_label: null,
       registration_open: true,
       registration_label: null,
     };
@@ -188,6 +234,38 @@ describe('useRegistrationStatus - with mocked data', () => {
       expect(result.current.loading).toBe(false);
     });
 
-    expect(result.current.label).toBe('2025-26 Winter');
+    expect(result.current.tryoutsLabel).toBe('2025-26 Winter');
+    expect(result.current.registrationLabel).toBe('2025-26 Winter');
+  });
+
+  it('should maintain backward compatibility with isOpen and label aliases', async () => {
+    const mockSeasonData = {
+      id: 'test-season-id',
+      name: '2025-26 Winter',
+      tryouts_open: false,
+      tryouts_label: null,
+      registration_open: true,
+      registration_label: "Fall/Winter '25-26",
+    };
+
+    const { supabase } = await import('../../lib/supabase');
+    supabase.from.mockReturnValue({
+      select: vi.fn().mockReturnValue({
+        eq: vi.fn().mockReturnValue({
+          single: vi.fn().mockResolvedValue({ data: mockSeasonData, error: null }),
+        }),
+      }),
+    });
+
+    const { result } = renderHook(() => useRegistrationStatus());
+
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
+
+    // isOpen should alias isRegistrationOpen
+    expect(result.current.isOpen).toBe(result.current.isRegistrationOpen);
+    // label should alias registrationLabel
+    expect(result.current.label).toBe(result.current.registrationLabel);
   });
 });
