@@ -16,3 +16,9 @@ test-results/
 .env
 .env.local
 .vercel
+
+# Large media files (stored on Cloudflare R2)
+src/assets/images/media/videos/
+
+# Supabase CLI temp files
+supabase/.temp/
