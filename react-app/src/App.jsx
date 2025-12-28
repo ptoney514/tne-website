@@ -24,6 +24,7 @@ import AdminCoachesPage from './pages/AdminCoachesPage';
 import AdminSettingsLayout from './pages/AdminSettingsLayout';
 import AdminUsersPage from './pages/AdminUsersPage';
 import AdminRegistrationSettings from './pages/AdminRegistrationSettings';
+import AdminRegistrationsPage from './pages/AdminRegistrationsPage';
 import AdminGamesPage from './pages/AdminGamesPage';
 import AdminTournamentDetailPage from './pages/AdminTournamentDetailPage';
 import AdminVenuesPage from './pages/AdminVenuesPage';
@@ -110,6 +111,16 @@ function App() {
               <ProtectedRoute allowedRoles={['admin']}>
                 <SeasonProvider>
                   <AdminCoachesPage />
+                </SeasonProvider>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/registrations"
+            element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <SeasonProvider>
+                  <AdminRegistrationsPage />
                 </SeasonProvider>
               </ProtectedRoute>
             }

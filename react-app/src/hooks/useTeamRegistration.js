@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 
 // Set to true to skip Supabase and use sample data (faster for development)
-const USE_SAMPLE_DATA = true;
+const USE_SAMPLE_DATA = false;
 
 export function useTeamRegistration() {
   const [teams, setTeams] = useState([]);
