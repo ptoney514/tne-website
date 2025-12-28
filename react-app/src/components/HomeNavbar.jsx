@@ -40,7 +40,7 @@ export default function HomeNavbar() {
               to="/schedule"
               className="text-[13px] hover:text-white uppercase hover:bg-white/10 transition-all font-semibold text-white/90 tracking-wider font-mono rounded-full px-4 py-2"
             >
-              Schedule
+              Tournaments
             </Link>
           </div>
 

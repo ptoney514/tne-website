@@ -24,6 +24,8 @@ export default defineConfig([
     },
     rules: {
       'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]', argsIgnorePattern: '^_', ignoreRestSiblings: true }],
+      // Allow setState in effects for syncing state with fetched data (common in admin pages)
+      'react-hooks/set-state-in-effect': 'warn',
     },
   },
 ])

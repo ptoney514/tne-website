@@ -35,7 +35,7 @@ export default function HomeFooter() {
             <h4 className="font-mono text-xs text-white uppercase tracking-widest mb-6">Program</h4>
             <ul className="space-y-4 text-sm">
               <li><Link to="/teams" className="hover:text-white transition-colors">Teams</Link></li>
-              <li><Link to="/schedule" className="hover:text-white transition-colors">Schedule</Link></li>
+              <li><Link to="/schedule" className="hover:text-white transition-colors">Tournaments</Link></li>
               <li><a href="#" className="hover:text-white transition-colors">Skills Academy</a></li>
             </ul>
           </div>

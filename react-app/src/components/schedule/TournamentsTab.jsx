@@ -1,4 +1,5 @@
-import { MapPin, Users, ArrowRight, Trophy, Medal, ExternalLink, CalendarDays } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { MapPin, Users, ArrowRight, Trophy, Medal, ExternalLink, CalendarDays, Info } from 'lucide-react';
 import { usePublicGames } from '../../hooks/useGames';
 
 // Fallback sample data when no tournaments in database
@@ -146,15 +147,22 @@ function FeaturedTournamentCard({ tournament }) {
             )}
           </div>
 
-          <div className="flex flex-col gap-4 lg:items-end lg:min-w-[180px]">
+          <div className="flex flex-col gap-3 lg:items-end lg:min-w-[180px]">
+            <Link
+              to={`/tournaments/${tournament.id}`}
+              className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-tne-red text-white text-sm font-medium hover:bg-tne-red-dark transition-all hover:scale-[1.02] shadow-lg shadow-tne-red/20"
+            >
+              View Details
+              <ArrowRight className="w-4 h-4" />
+            </Link>
             {tournament.external_url && (
               <a
                 href={tournament.external_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-tne-red text-white text-sm font-medium hover:bg-tne-red-dark transition-all hover:scale-[1.02] shadow-lg shadow-tne-red/20"
+                className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-full bg-white/10 text-white/80 text-sm font-medium hover:bg-white/20 transition-all"
               >
-                Tournament Details
+                Tournament Site
                 <ExternalLink className="w-4 h-4" />
               </a>
             )}
@@ -221,21 +229,26 @@ function TournamentCard({ tournament }) {
         <span className="text-[0.7rem] sm:text-xs text-neutral-500">
           {tournament.start_time && `Starts at ${tournament.start_time}`}
         </span>
-        {tournament.external_url ? (
-          <a
-            href={tournament.external_url}
-            target="_blank"
-            rel="noopener noreferrer"
+        <div className="flex items-center gap-2">
+          <Link
+            to={`/tournaments/${tournament.id}`}
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-tne-red text-white text-xs font-medium hover:bg-tne-red-dark transition-colors"
           >
             Details
             <ArrowRight className="w-3.5 h-3.5" />
-          </a>
-        ) : (
-          <span className="text-xs text-neutral-400">
-            More info coming soon
-          </span>
-        )}
+          </Link>
+          {tournament.external_url && (
+            <a
+              href={tournament.external_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 p-1.5 rounded-full bg-neutral-200 text-neutral-600 hover:bg-neutral-300 transition-colors"
+              title="Tournament Website"
+            >
+              <ExternalLink className="w-3.5 h-3.5" />
+            </a>
+          )}
+        </div>
       </div>
     </article>
   );
