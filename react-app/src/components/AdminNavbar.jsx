@@ -243,6 +243,7 @@ export default function AdminNavbar() {
                 Registrations
               </AdminNavLink>
               <AdminNavLink to="/admin/games">Tournament Schedule</AdminNavLink>
+              <AdminNavLink to="/admin/practices">Practices</AdminNavLink>
               {/* AI Chat disabled for MVP - re-enable post-MVP (see issue #59)
               <AdminNavLink to="/admin/chat-analytics">
                 <span className="flex items-center gap-1.5">
@@ -355,6 +356,17 @@ export default function AdminNavbar() {
               }
             >
               Tournament Schedule
+            </NavLink>
+            <NavLink
+              to="/admin/practices"
+              onClick={() => setMobileMenuOpen(false)}
+              className={({ isActive }) =>
+                `block px-3 py-2 rounded-lg text-sm font-medium ${
+                  isActive ? 'bg-tne-red text-white' : 'text-stone-600 hover:bg-stone-100'
+                }`
+              }
+            >
+              Practices
             </NavLink>
             {/* AI Chat disabled for MVP - re-enable post-MVP (see issue #59)
             <NavLink

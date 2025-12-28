@@ -30,6 +30,7 @@ import AdminGamesPage from './pages/AdminGamesPage';
 import AdminTournamentDetailPage from './pages/AdminTournamentDetailPage';
 import AdminVenuesPage from './pages/AdminVenuesPage';
 import AdminHotelsPage from './pages/AdminHotelsPage';
+import AdminPracticeSchedulePage from './pages/AdminPracticeSchedulePage';
 // AI Chat disabled for MVP - re-enable post-MVP (see issue #59)
 // import AdminChatAnalyticsPage from './pages/AdminChatAnalyticsPage';
 
@@ -172,6 +173,16 @@ function App() {
               <ProtectedRoute allowedRoles={['admin']}>
                 <SeasonProvider>
                   <AdminHotelsPage />
+                </SeasonProvider>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/practices"
+            element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <SeasonProvider>
+                  <AdminPracticeSchedulePage />
                 </SeasonProvider>
               </ProtectedRoute>
             }

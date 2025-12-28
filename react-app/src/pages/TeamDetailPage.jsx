@@ -5,50 +5,56 @@ import {
   CalendarDays,
   Clock,
   MapPin,
-  Trophy,
   Award,
   ChevronRight,
-  Instagram,
-  Twitter
+  Loader2,
+  AlertCircle
 } from 'lucide-react';
 import InteriorLayout from '../components/layouts/InteriorLayout';
+import { usePublicTeamDetail } from '../hooks/usePublicTeamDetail';
+import { usePracticeSchedule, formatPracticeSession } from '../hooks/usePracticeSchedule';
 
-// Sample team data
-const teamsData = {
-  'foster-4th': {
-    id: 'foster-4th',
-    grade: '4th Grade',
-    program: 'Boys Express',
-    name: 'Express United',
-    coach: 'Coach Foster',
-    location: 'Monroe MS Gym',
-    practiceDays: 'Mon/Wed 6:00 PM',
-    coachInfo: {
-      name: 'Coach Foster',
-      experience: '10 years coaching youth basketball',
-      certifications: 'USA Basketball Gold License'
-    },
-    roster: [
-      { number: 3, name: 'Marcus Johnson', gradYear: 2033, instagram: 'marcusj_hoops', twitter: 'marcusj3' },
-      { number: 7, name: 'Tyler Smith', gradYear: 2033, instagram: 'tsmith_bball' },
-      { number: 12, name: 'David Williams', gradYear: 2033 },
-      { number: 21, name: 'Chris Brown', gradYear: 2033, twitter: 'cb21hoops' },
-      { number: 34, name: 'James Davis', gradYear: 2033, instagram: 'jdavis34' },
-      { number: 5, name: 'Michael Wilson', gradYear: 2033 },
-      { number: 10, name: 'Andre Taylor', gradYear: 2033, instagram: 'dretaylor10', twitter: 'andre_t10' }
-    ],
-    schedule: [
-      { date: 'Mon Dec 23', type: 'practice', title: 'Team Practice', time: '6:00 PM', location: 'Monroe MS Gym' },
-      { date: 'Wed Dec 25', type: 'off', title: 'No Practice (Holiday)', time: null, location: null },
-      { date: 'Sat Dec 28', type: 'game', title: 'League Game vs Metro Elite', time: '2:15 PM', location: 'Central Fieldhouse' },
-      { date: 'Mon Dec 30', type: 'practice', title: 'Team Practice', time: '6:00 PM', location: 'Monroe MS Gym' },
-      { date: 'Sat Jan 4', type: 'tournament', title: 'New Year Classic', time: '8:00 AM', location: 'Ralston Arena' }
-    ]
+// Format date for display (e.g., "Sat Dec 28")
+function formatDate(dateStr) {
+  if (!dateStr) return '';
+  const date = new Date(dateStr + 'T00:00:00');
+  return date.toLocaleDateString('en-US', {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric'
+  });
+}
+
+// Format time for display (e.g., "2:15 PM")
+function formatTime(timeStr) {
+  if (!timeStr) return '';
+  const [hours, minutes] = timeStr.split(':');
+  const h = parseInt(hours);
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  const hour12 = h % 12 || 12;
+  return `${hour12}:${minutes} ${ampm}`;
+}
+
+// Derive team type from tier + gender
+function getTeamType(team) {
+  if (team.gender === 'female') return 'Girls Program';
+  if (team.tier === 'tne') return 'Boys TNE';
+  return 'Boys Express';
+}
+
+// Format coach display name
+function formatCoachName(coach) {
+  if (!coach) return 'Coach TBD';
+  if (coach.first_name === 'Coach') {
+    return `Coach ${coach.last_name}`;
   }
-};
+  return `Coach ${coach.first_name} ${coach.last_name}`;
+}
 
-function PlayerRow({ player, index, isLast }) {
-  const hasSocial = player.instagram || player.twitter;
+function PlayerRow({ player, rosterEntry, index, isLast }) {
+  const jerseyNumber = rosterEntry.jersey_number || player.jersey_number || '—';
+  const playerName = `${player.first_name} ${player.last_name}`;
+  const gradYear = player.graduating_year;
 
   return (
     <div
@@ -57,52 +63,27 @@ function PlayerRow({ player, index, isLast }) {
     >
       {/* Jersey Number */}
       <div className="w-10 h-10 flex items-center justify-center bg-neutral-900 text-white font-bebas text-lg tracking-wide">
-        {player.number}
+        {jerseyNumber}
       </div>
 
       {/* Player Info */}
       <div className="flex-1 min-w-0">
         <h4 className="font-medium text-neutral-900 group-hover:text-tne-red transition-colors">
-          {player.name}
+          {playerName}
         </h4>
-        <p className="text-[0.7rem] font-mono text-neutral-400 uppercase tracking-wider">
-          Class of {player.gradYear}
-        </p>
-      </div>
-
-      {/* Social Links */}
-      <div className="flex items-center gap-1">
-        {player.instagram && (
-          <a
-            href={`https://instagram.com/${player.instagram}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="w-8 h-8 flex items-center justify-center rounded-full text-neutral-300 hover:text-pink-500 hover:bg-pink-50 transition-colors"
-            title={`@${player.instagram}`}
-          >
-            <Instagram className="w-4 h-4" />
-          </a>
-        )}
-        {player.twitter && (
-          <a
-            href={`https://twitter.com/${player.twitter}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="w-8 h-8 flex items-center justify-center rounded-full text-neutral-300 hover:text-sky-500 hover:bg-sky-50 transition-colors"
-            title={`@${player.twitter}`}
-          >
-            <Twitter className="w-4 h-4" />
-          </a>
-        )}
-        {!hasSocial && (
-          <div className="w-16" />
+        {gradYear && (
+          <p className="text-[0.7rem] font-mono text-neutral-400 uppercase tracking-wider">
+            Class of {gradYear}
+          </p>
         )}
       </div>
     </div>
   );
 }
 
-function ScheduleItem({ event, index, isLast }) {
+function ScheduleItem({ gameTeam, index, isLast }) {
+  const game = gameTeam.game;
+
   const typeConfig = {
     practice: {
       color: 'bg-emerald-500',
@@ -119,14 +100,20 @@ function ScheduleItem({ event, index, isLast }) {
       label: 'Tournament',
       labelColor: 'text-tne-red'
     },
-    off: {
-      color: 'bg-neutral-300',
-      label: 'Off',
-      labelColor: 'text-neutral-400'
+    league: {
+      color: 'bg-purple-500',
+      label: 'League',
+      labelColor: 'text-purple-600'
     }
   };
 
-  const config = typeConfig[event.type] || typeConfig.practice;
+  const config = typeConfig[game.game_type] || typeConfig.game;
+
+  // Build title
+  let title = game.name;
+  if (game.game_type === 'game' && gameTeam.opponent) {
+    title = `vs ${gameTeam.opponent}`;
+  }
 
   return (
     <div
@@ -143,7 +130,7 @@ function ScheduleItem({ event, index, isLast }) {
         {/* Date & Type */}
         <div className="flex items-center gap-3 mb-1.5">
           <span className="text-[0.7rem] font-mono font-semibold text-neutral-900 uppercase tracking-wider">
-            {event.date}
+            {formatDate(game.date)}
           </span>
           <span className={`text-[0.6rem] font-mono uppercase tracking-widest ${config.labelColor}`}>
             {config.label}
@@ -152,22 +139,22 @@ function ScheduleItem({ event, index, isLast }) {
 
         {/* Title */}
         <h4 className="font-medium text-neutral-800 mb-1.5 leading-snug">
-          {event.title}
+          {title}
         </h4>
 
         {/* Details */}
-        {(event.time || event.location) && (
+        {(game.start_time || game.location) && (
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[0.8rem] text-neutral-500">
-            {event.time && (
+            {game.start_time && (
               <span className="inline-flex items-center gap-1.5">
                 <Clock className="w-3 h-3" />
-                {event.time}
+                {formatTime(game.start_time)}
               </span>
             )}
-            {event.location && (
+            {game.location && (
               <span className="inline-flex items-center gap-1.5">
                 <MapPin className="w-3 h-3" />
-                {event.location}
+                {game.location}
               </span>
             )}
           </div>
@@ -177,10 +164,63 @@ function ScheduleItem({ event, index, isLast }) {
   );
 }
 
+function LoadingState() {
+  return (
+    <InteriorLayout>
+      <div className="flex flex-col items-center justify-center min-h-[60vh]">
+        <Loader2 className="w-8 h-8 text-tne-red animate-spin mb-4" />
+        <p className="text-neutral-500">Loading team...</p>
+      </div>
+    </InteriorLayout>
+  );
+}
+
+function NotFoundState() {
+  return (
+    <InteriorLayout>
+      <div className="flex flex-col items-center justify-center min-h-[60vh]">
+        <AlertCircle className="w-12 h-12 text-neutral-300 mb-4" />
+        <h2 className="text-xl font-semibold text-neutral-700 mb-2">Team Not Found</h2>
+        <p className="text-neutral-500 mb-6">The team you're looking for doesn't exist or has been removed.</p>
+        <Link
+          to="/teams"
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-tne-red text-white text-sm font-medium hover:bg-tne-red-dark transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back to Teams
+        </Link>
+      </div>
+    </InteriorLayout>
+  );
+}
+
 export default function TeamDetailPage() {
   const { teamId } = useParams();
-  const team = teamsData[teamId] || teamsData['foster-4th'];
-  const playerCount = team.roster.length;
+  const { team, roster, schedule, loading, error } = usePublicTeamDetail(teamId);
+  const { practices } = usePracticeSchedule(teamId);
+
+  if (loading) {
+    return <LoadingState />;
+  }
+
+  if (error || !team) {
+    return <NotFoundState />;
+  }
+
+  const playerCount = roster.length;
+  const teamType = getTeamType(team);
+  const coachName = formatCoachName(team.head_coach);
+
+  // Format grade for display
+  const gradeDisplay = team.grade_level.includes('th')
+    ? `${team.grade_level} Grade`
+    : team.grade_level;
+
+  // Practice info
+  const practiceInfo = [
+    team.practice_days,
+    team.practice_time
+  ].filter(Boolean).join(' ');
 
   return (
     <InteriorLayout>
@@ -203,10 +243,10 @@ export default function TeamDetailPage() {
             {/* Badges */}
             <div className="flex flex-wrap items-center gap-2">
               <div className="inline-flex items-center rounded-sm bg-white/5 border border-white/10 px-2.5 py-1">
-                <span className="text-[0.65rem] font-mono uppercase tracking-[0.2em] text-white/70">{team.grade}</span>
+                <span className="text-[0.65rem] font-mono uppercase tracking-[0.2em] text-white/70">{gradeDisplay}</span>
               </div>
               <div className="inline-flex items-center rounded-sm border border-tne-red/30 bg-tne-red/10 px-2.5 py-1">
-                <span className="text-[0.65rem] font-mono uppercase tracking-[0.2em] text-red-300">{team.program}</span>
+                <span className="text-[0.65rem] font-mono uppercase tracking-[0.2em] text-red-300">{teamType}</span>
               </div>
             </div>
 
@@ -216,11 +256,19 @@ export default function TeamDetailPage() {
                 {team.name}
               </h1>
               <p className="mt-3 text-base text-white/50 flex flex-wrap items-center gap-x-3 gap-y-1">
-                <span>{team.coach}</span>
-                <span className="text-white/20">·</span>
-                <span>{team.location}</span>
-                <span className="text-white/20">·</span>
-                <span>{team.practiceDays}</span>
+                <span>{coachName}</span>
+                {team.practice_location && (
+                  <>
+                    <span className="text-white/20">·</span>
+                    <span>{team.practice_location}</span>
+                  </>
+                )}
+                {practiceInfo && (
+                  <>
+                    <span className="text-white/20">·</span>
+                    <span>{practiceInfo}</span>
+                  </>
+                )}
               </p>
             </div>
           </div>
@@ -242,19 +290,20 @@ export default function TeamDetailPage() {
                     <h2 className="font-semibold text-neutral-900">Roster</h2>
                   </div>
                   <span className="text-xs font-mono text-neutral-400 uppercase tracking-wider">
-                    {playerCount} players
+                    {playerCount} player{playerCount !== 1 ? 's' : ''}
                   </span>
                 </div>
 
                 {/* Player List */}
                 <div className="px-5 py-2">
-                  {team.roster.length > 0 ? (
-                    team.roster.map((player, index) => (
+                  {roster.length > 0 ? (
+                    roster.map((entry, index) => (
                       <PlayerRow
-                        key={index}
-                        player={player}
+                        key={entry.id}
+                        player={entry.player}
+                        rosterEntry={entry}
                         index={index}
-                        isLast={index === team.roster.length - 1}
+                        isLast={index === roster.length - 1}
                       />
                     ))
                   ) : (
@@ -288,16 +337,51 @@ export default function TeamDetailPage() {
 
                 {/* Timeline */}
                 <div className="px-5 py-5">
-                  {team.schedule.map((event, index) => (
-                    <ScheduleItem
-                      key={index}
-                      event={event}
-                      index={index}
-                      isLast={index === team.schedule.length - 1}
-                    />
-                  ))}
+                  {schedule.length > 0 ? (
+                    schedule.map((gameTeam, index) => (
+                      <ScheduleItem
+                        key={gameTeam.id}
+                        gameTeam={gameTeam}
+                        index={index}
+                        isLast={index === schedule.length - 1}
+                      />
+                    ))
+                  ) : (
+                    <div className="py-8 text-center">
+                      <CalendarDays className="w-8 h-8 text-neutral-200 mx-auto mb-3" />
+                      <p className="text-neutral-400 text-sm">No upcoming events</p>
+                    </div>
+                  )}
                 </div>
               </div>
+
+              {/* Practice Schedule */}
+              {practices.length > 0 && (
+                <div className="bg-white border border-neutral-200/80 rounded-lg overflow-hidden">
+                  {/* Header */}
+                  <div className="px-5 py-4 border-b border-neutral-100 flex items-center gap-3">
+                    <Clock className="w-4 h-4 text-neutral-400" />
+                    <h2 className="font-semibold text-neutral-900">Practice Schedule</h2>
+                  </div>
+
+                  {/* Practice List */}
+                  <div className="px-5 py-4 space-y-3">
+                    {practices.map((practice) => (
+                      <div key={practice.id} className="flex items-start gap-3">
+                        <div className="w-2 h-2 rounded-full bg-emerald-500 mt-1.5 flex-shrink-0" />
+                        <div>
+                          <p className="text-sm font-medium text-neutral-800">
+                            {formatPracticeSession(practice)}
+                          </p>
+                          {practice.notes && (
+                            <p className="text-xs text-neutral-500 mt-0.5">{practice.notes}</p>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Coach Info */}
               <div className="bg-white border border-neutral-200/80 rounded-lg overflow-hidden">
@@ -310,18 +394,19 @@ export default function TeamDetailPage() {
                 {/* Content */}
                 <div className="px-5 py-5">
                   <h3 className="font-semibold text-neutral-900 text-lg mb-1">
-                    {team.coachInfo.name}
+                    {coachName}
                   </h3>
-                  <p className="text-sm text-neutral-500 mb-4">
-                    {team.coachInfo.experience}
-                  </p>
+                  {team.head_coach?.bio && (
+                    <p className="text-sm text-neutral-500 mb-4">
+                      {team.head_coach.bio}
+                    </p>
+                  )}
 
-                  <div className="pt-4 border-t border-neutral-100 flex items-start gap-3">
-                    <Trophy className="w-4 h-4 text-tne-red flex-shrink-0 mt-0.5" />
-                    <span className="text-sm text-neutral-600 leading-relaxed">
-                      {team.coachInfo.certifications}
-                    </span>
-                  </div>
+                  {!team.head_coach?.bio && (
+                    <p className="text-sm text-neutral-400 italic">
+                      Coach information coming soon
+                    </p>
+                  )}
                 </div>
               </div>
             </div>

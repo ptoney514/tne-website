@@ -1,62 +1,46 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { CalendarDays, Search, Trophy, ChevronRight } from 'lucide-react';
+import { CalendarDays, Search, Trophy, ChevronRight, Loader2, AlertCircle } from 'lucide-react';
 import InteriorLayout from '../components/layouts/InteriorLayout';
 import tneLogoWhite from '../assets/tne-logo-white-transparent.png';
+import { usePublicTeams } from '../hooks/usePublicTeams';
 
-// Team types determine logo styling
+// Team type display labels
 const TEAM_TYPES = {
   EXPRESS: 'Boys Express',
   TNE: 'Boys TNE',
   GIRLS: 'Girls Program'
 };
 
-const teamData = [
-  {
-    id: 'foster-4th',
-    grade: '4th Grade',
-    name: 'Express United',
-    coach: 'Coach Foster',
-    type: TEAM_TYPES.EXPRESS
-  },
-  {
-    id: 'grisby-evans-4th',
-    grade: '4th Grade',
-    name: 'Express United',
-    coach: 'Coaches Grisby & Evans',
-    type: TEAM_TYPES.EXPRESS
-  },
-  {
-    id: 'perry-5th',
-    grade: '5th Grade',
-    name: 'Express United',
-    coach: 'Coach Perry',
-    type: TEAM_TYPES.EXPRESS
-  },
-  {
-    id: 'todd-6th',
-    grade: '6th Grade',
-    name: 'Express United',
-    coach: 'Coach Todd',
-    type: TEAM_TYPES.EXPRESS
-  },
-  {
-    id: 'mitchell-7th',
-    grade: '7th Grade',
-    name: 'TNE United',
-    coach: 'Coach Mitchell',
-    type: TEAM_TYPES.TNE
-  },
-  {
-    id: 'johnson-8th',
-    grade: '8th Grade',
-    name: 'TNE United',
-    coach: 'Coach Johnson',
-    type: TEAM_TYPES.TNE
+// Derive team type from tier + gender
+function getTeamType(team) {
+  if (team.gender === 'female') return TEAM_TYPES.GIRLS;
+  if (team.tier === 'tne') return TEAM_TYPES.TNE;
+  return TEAM_TYPES.EXPRESS;
+}
+
+// Format coach name for display
+function formatCoachName(coach) {
+  if (!coach) return 'Coach TBD';
+  if (coach.first_name === 'Coach') {
+    return `Coach ${coach.last_name}`;
   }
-];
+  return `Coach ${coach.last_name}`;
+}
+
+// Transform Supabase team data for display
+function transformTeam(team) {
+  return {
+    id: team.id,
+    grade: team.grade_level.includes('th') ? `${team.grade_level} Grade` : team.grade_level,
+    name: team.name,
+    coach: formatCoachName(team.head_coach),
+    type: getTeamType(team),
+    playerCount: team.player_count || 0
+  };
+}
 
 function TeamCard({ team, index }) {
-  // Different logo styling based on team type
   const isTNE = team.type === TEAM_TYPES.TNE;
   const isGirls = team.type === TEAM_TYPES.GIRLS;
 
@@ -126,7 +110,67 @@ function TeamCard({ team, index }) {
   );
 }
 
+function LoadingState() {
+  return (
+    <div className="flex flex-col items-center justify-center py-20">
+      <Loader2 className="w-8 h-8 text-tne-red animate-spin mb-4" />
+      <p className="text-neutral-500">Loading teams...</p>
+    </div>
+  );
+}
+
+function ErrorState({ error }) {
+  return (
+    <div className="flex flex-col items-center justify-center py-20">
+      <AlertCircle className="w-8 h-8 text-red-500 mb-4" />
+      <p className="text-neutral-700 font-medium mb-2">Failed to load teams</p>
+      <p className="text-neutral-500 text-sm">{error}</p>
+    </div>
+  );
+}
+
+function EmptyState() {
+  return (
+    <div className="flex flex-col items-center justify-center py-20">
+      <p className="text-neutral-500">No teams found matching your criteria.</p>
+    </div>
+  );
+}
+
 export default function TeamsPage() {
+  const { teams, loading, error } = usePublicTeams();
+  const [filter, setFilter] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Transform and filter teams
+  const filteredTeams = teams
+    .map(transformTeam)
+    .filter(team => {
+      // Apply type filter
+      if (filter === 'all') return true;
+      if (filter === 'express') return team.type === TEAM_TYPES.EXPRESS;
+      if (filter === 'tne') return team.type === TEAM_TYPES.TNE;
+      if (filter === 'girls') return team.type === TEAM_TYPES.GIRLS;
+      return true;
+    })
+    .filter(team => {
+      // Apply search filter
+      if (!searchQuery.trim()) return true;
+      const q = searchQuery.toLowerCase();
+      return (
+        team.name.toLowerCase().includes(q) ||
+        team.coach.toLowerCase().includes(q) ||
+        team.grade.toLowerCase().includes(q)
+      );
+    });
+
+  const filterButtons = [
+    { key: 'all', label: 'All Teams' },
+    { key: 'express', label: 'Boys Express' },
+    { key: 'tne', label: 'Boys TNE' },
+    { key: 'girls', label: 'Girls Program' }
+  ];
+
   return (
     <InteriorLayout>
       {/* Hero Header */}
@@ -140,7 +184,7 @@ export default function TeamsPage() {
             <div className="inline-flex items-center gap-2 rounded-md bg-white/5 border border-white/10 px-3 py-1.5 w-fit">
               <span className="inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.8)]" />
               <span className="font-mono uppercase tracking-[0.22em] text-[0.7rem] text-white/80">
-                2025-2026 Fall/Winter Season
+                2024-25 Winter Season
               </span>
             </div>
 
@@ -164,18 +208,19 @@ export default function TeamsPage() {
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             {/* Filter Pills */}
             <div className="flex items-center gap-2 overflow-x-auto pb-2 sm:pb-0">
-              <button className="px-4 py-2 rounded-full bg-neutral-900 text-white text-xs font-medium whitespace-nowrap transition-colors">
-                All Teams
-              </button>
-              <button className="px-4 py-2 rounded-full border border-neutral-200 bg-white text-xs text-neutral-600 font-medium whitespace-nowrap hover:border-neutral-300 hover:bg-neutral-50 transition-colors">
-                Boys Express
-              </button>
-              <button className="px-4 py-2 rounded-full border border-neutral-200 bg-white text-xs text-neutral-600 font-medium whitespace-nowrap hover:border-neutral-300 hover:bg-neutral-50 transition-colors">
-                Boys TNE
-              </button>
-              <button className="px-4 py-2 rounded-full border border-neutral-200 bg-white text-xs text-neutral-600 font-medium whitespace-nowrap hover:border-neutral-300 hover:bg-neutral-50 transition-colors">
-                Girls Program
-              </button>
+              {filterButtons.map(btn => (
+                <button
+                  key={btn.key}
+                  onClick={() => setFilter(btn.key)}
+                  className={`px-4 py-2 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${
+                    filter === btn.key
+                      ? 'bg-neutral-900 text-white'
+                      : 'border border-neutral-200 bg-white text-neutral-600 hover:border-neutral-300 hover:bg-neutral-50'
+                  }`}
+                >
+                  {btn.label}
+                </button>
+              ))}
             </div>
 
             {/* Search */}
@@ -186,17 +231,26 @@ export default function TeamsPage() {
               <input
                 type="text"
                 placeholder="Search teams..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 className="block w-full rounded-lg border border-neutral-200 bg-white pl-10 pr-4 py-2 text-sm text-neutral-900 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-tne-red/30 focus:border-tne-red/50 transition-colors"
               />
             </div>
           </div>
 
+          {/* Content States */}
+          {loading && <LoadingState />}
+          {error && <ErrorState error={error} />}
+          {!loading && !error && filteredTeams.length === 0 && <EmptyState />}
+
           {/* Team Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {teamData.map((team, index) => (
-              <TeamCard key={team.id} team={team} index={index} />
-            ))}
-          </div>
+          {!loading && !error && filteredTeams.length > 0 && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              {filteredTeams.map((team, index) => (
+                <TeamCard key={team.id} team={team} index={index} />
+              ))}
+            </div>
+          )}
 
           {/* OSA League Info */}
           <div className="rounded-lg bg-white border border-neutral-200 overflow-hidden">
@@ -216,7 +270,7 @@ export default function TeamsPage() {
                   <span className="block text-[0.65rem] font-mono uppercase tracking-wider text-neutral-400 mb-1">
                     Season
                   </span>
-                  <span className="font-medium text-neutral-900">Jan 3 – Mar 1, 2026</span>
+                  <span className="font-medium text-neutral-900">Jan 3 – Mar 1, 2025</span>
                 </div>
                 <div>
                   <span className="block text-[0.65rem] font-mono uppercase tracking-wider text-neutral-400 mb-1">

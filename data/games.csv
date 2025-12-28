@@ -1,0 +1,8 @@
+game_type,name,date,start_time,end_time,location,notes,is_featured,gender
+tournament,New Year's Tip-Off,2024-12-27,,2024-12-28,Council Bluffs IA,IWFH,true,male
+tournament,I Have A Dream Classic,2025-01-02,,2025-01-04,Council Bluffs IA,IWFH,true,both
+tournament,Tri-State Showdown,2025-01-23,,2025-01-25,Council Bluffs IA,IWFH,false,male
+tournament,February Frenzy,2025-01-30,,2025-02-01,Elkhorn NE,UBT,false,both
+tournament,AMP IT UP,2025-02-20,,2025-02-22,Omaha NE,,false,both
+tournament,Midwest Regional Hoops Championship,2025-03-06,,2025-03-08,Elkhorn NE,UBT,true,both
+tournament,OSA League,2025-01-03,,,Various,See TourneyMachine for schedule,false,both
