@@ -131,7 +131,7 @@ function MobileMenu({ isOpen, onClose }) {
               isActive('/schedule') ? 'bg-tne-red/20 text-tne-red' : 'text-white/80 hover:bg-white/5 hover:text-white'
             }`}
           >
-            Schedule
+            Tournaments
           </Link>
           <Link
             to="/payments"
@@ -231,7 +231,7 @@ export default function TeamsNavbar() {
                   : 'text-white/70 hover:text-white hover:bg-white/5'
               }`}
             >
-              Schedule
+              Tournaments
             </Link>
             <Link
               to="/payments"

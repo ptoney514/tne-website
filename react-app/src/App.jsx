@@ -8,6 +8,7 @@ import HomePage from './pages/HomePage';
 import TeamsPage from './pages/TeamsPage';
 import TeamDetailPage from './pages/TeamDetailPage';
 import SchedulePage from './pages/SchedulePage';
+import TournamentDetailPage from './pages/TournamentDetailPage';
 import TryoutsPage from './pages/TryoutsPage';
 import AboutPage from './pages/AboutPage';
 import ContactPage from './pages/ContactPage';
@@ -24,6 +25,9 @@ import AdminSettingsLayout from './pages/AdminSettingsLayout';
 import AdminUsersPage from './pages/AdminUsersPage';
 import AdminRegistrationSettings from './pages/AdminRegistrationSettings';
 import AdminGamesPage from './pages/AdminGamesPage';
+import AdminTournamentDetailPage from './pages/AdminTournamentDetailPage';
+import AdminVenuesPage from './pages/AdminVenuesPage';
+import AdminHotelsPage from './pages/AdminHotelsPage';
 // AI Chat disabled for MVP - re-enable post-MVP (see issue #59)
 // import AdminChatAnalyticsPage from './pages/AdminChatAnalyticsPage';
 
@@ -50,6 +54,7 @@ function App() {
           <Route path="/teams" element={<TeamsPage />} />
           <Route path="/teams/:teamId" element={<TeamDetailPage />} />
           <Route path="/schedule" element={<SchedulePage />} />
+          <Route path="/tournaments/:tournamentId" element={<TournamentDetailPage />} />
           <Route path="/tryouts" element={<TryoutsPage />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/contact" element={<ContactPage />} />
@@ -115,6 +120,36 @@ function App() {
               <ProtectedRoute allowedRoles={['admin']}>
                 <SeasonProvider>
                   <AdminGamesPage />
+                </SeasonProvider>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/games/:tournamentId"
+            element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <SeasonProvider>
+                  <AdminTournamentDetailPage />
+                </SeasonProvider>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/venues"
+            element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <SeasonProvider>
+                  <AdminVenuesPage />
+                </SeasonProvider>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/hotels"
+            element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <SeasonProvider>
+                  <AdminHotelsPage />
                 </SeasonProvider>
               </ProtectedRoute>
             }

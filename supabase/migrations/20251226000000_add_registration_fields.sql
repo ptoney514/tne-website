@@ -9,6 +9,7 @@ COMMENT ON COLUMN seasons.registration_open IS 'Whether registration is currentl
 COMMENT ON COLUMN seasons.registration_label IS 'Display label for registration (e.g., "Fall/Winter ''25-26")';
 
 -- Update RLS policy to allow public read of registration status
+DROP POLICY IF EXISTS "Anyone can view season registration status" ON seasons;
 CREATE POLICY "Anyone can view season registration status"
 ON seasons FOR SELECT
 TO anon
