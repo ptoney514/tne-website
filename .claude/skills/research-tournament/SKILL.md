@@ -49,60 +49,85 @@ echo $GOOGLE_PLACES_API_KEY
 
 If not set, ask user to provide it or check `.env.local`.
 
-## Google Places API Calls
+## Google Places API Calls (New Places API v1)
 
-### 1. Geocode Address to Coordinates
+**IMPORTANT**: Use the new Places API v1 format, NOT the legacy API.
+
+### 1. Search for Hotels
 ```bash
-curl -s "https://maps.googleapis.com/maps/api/geocode/json?address=ENCODED_ADDRESS&key=$GOOGLE_PLACES_API_KEY"
+curl -s -X POST \
+  -H "Content-Type: application/json" \
+  -H "X-Goog-Api-Key: $GOOGLE_PLACES_API_KEY" \
+  -H "X-Goog-FieldMask: places.id,places.displayName,places.formattedAddress,places.location,places.rating,places.userRatingCount,places.websiteUri,places.nationalPhoneNumber" \
+  -d '{"textQuery": "hotels near LOCATION_NAME", "maxResultCount": 15}' \
+  "https://places.googleapis.com/v1/places:searchText"
 ```
 
-### 2. Nearby Search for Hotels
+### 2. Search for Restaurants
 ```bash
-curl -s "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=LAT,LNG&radius=8000&type=lodging&key=$GOOGLE_PLACES_API_KEY"
+curl -s -X POST \
+  -H "Content-Type: application/json" \
+  -H "X-Goog-Api-Key: $GOOGLE_PLACES_API_KEY" \
+  -H "X-Goog-FieldMask: places.id,places.displayName,places.formattedAddress,places.location,places.rating,places.userRatingCount,places.websiteUri,places.priceLevel" \
+  -d '{"textQuery": "family friendly restaurants near LOCATION_NAME", "maxResultCount": 20}' \
+  "https://places.googleapis.com/v1/places:searchText"
 ```
 
-### 3. Nearby Search for Restaurants
+### 3. Search for Attractions
 ```bash
-curl -s "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=LAT,LNG&radius=5000&type=restaurant&key=$GOOGLE_PLACES_API_KEY"
+curl -s -X POST \
+  -H "Content-Type: application/json" \
+  -H "X-Goog-Api-Key: $GOOGLE_PLACES_API_KEY" \
+  -H "X-Goog-FieldMask: places.id,places.displayName,places.formattedAddress,places.location,places.rating,places.userRatingCount,places.websiteUri" \
+  -d '{"textQuery": "zoo museum fun things to do LOCATION_NAME", "maxResultCount": 15}' \
+  "https://places.googleapis.com/v1/places:searchText"
 ```
 
-### 4. Nearby Search for Attractions
-```bash
-curl -s "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=LAT,LNG&radius=10000&type=tourist_attraction&key=$GOOGLE_PLACES_API_KEY"
+### Response Format
+```json
+{
+  "places": [
+    {
+      "id": "ChIJ1RFrGI6Fk4cRLprEr9wjyrg",
+      "displayName": { "text": "Hotel Name" },
+      "formattedAddress": "123 Main St, City, ST 12345, USA",
+      "location": { "latitude": 41.123, "longitude": -95.456 },
+      "rating": 4.1,
+      "userRatingCount": 234,
+      "websiteUri": "https://hotel.com",
+      "nationalPhoneNumber": "(555) 123-4567",
+      "priceLevel": "PRICE_LEVEL_MODERATE"
+    }
+  ]
+}
 ```
 
-### 5. Get Place Details (for each place)
-```bash
-curl -s "https://maps.googleapis.com/maps/api/place/details/json?place_id=PLACE_ID&fields=name,formatted_address,geometry,rating,user_ratings_total,price_level,website,formatted_phone_number,types&key=$GOOGLE_PLACES_API_KEY"
-```
-
-## Data Mapping
+## Data Mapping (New Places API v1)
 
 ### Google Places → Hotels Table
 | Google Field | Database Field |
 |--------------|----------------|
-| `place_id` | `google_place_id` |
-| `name` | `name` |
-| `formatted_address` | Parse to `street_address`, `city`, `state`, `zip_code` |
-| `geometry.location.lat` | `latitude` |
-| `geometry.location.lng` | `longitude` |
+| `id` | `google_place_id` |
+| `displayName.text` | `name` |
+| `formattedAddress` | Parse to `street_address`, `city`, `state`, `zip_code` |
+| `location.latitude` | `latitude` |
+| `location.longitude` | `longitude` |
 | `rating` | `star_rating` (round to int) |
-| `website` | `website_url` |
-| `formatted_phone_number` | `phone` |
+| `websiteUri` | `website_url` |
+| `nationalPhoneNumber` | `phone` |
 
 ### Google Places → Nearby Places Table
 | Google Field | Database Field |
 |--------------|----------------|
-| `place_id` | `google_place_id` |
-| `name` | `name` |
-| `formatted_address` | Parse to `street_address`, `city`, `state`, `zip_code` |
-| `geometry.location` | `latitude`, `longitude` |
+| `id` | `google_place_id` |
+| `displayName.text` | `name` |
+| `formattedAddress` | Parse to `street_address`, `city`, `state`, `zip_code` |
+| `location.latitude` | `latitude` |
+| `location.longitude` | `longitude` |
 | `rating` | `rating` |
-| `user_ratings_total` | `review_count` |
-| `price_level` | `price_range` (add 1, so 0→1, 4→5) |
-| `website` | `website_url` |
-| `formatted_phone_number` | `phone` |
-| `types[0]` | Determines `place_type` |
+| `userRatingCount` | `review_count` |
+| `priceLevel` | `price_range` (map PRICE_LEVEL_INEXPENSIVE=1, MODERATE=2, EXPENSIVE=3, VERY_EXPENSIVE=4) |
+| `websiteUri` | `website_url` |
 
 ### Place Type Mapping
 | Google Types | Database `place_type` |
