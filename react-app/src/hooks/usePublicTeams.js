@@ -17,6 +17,23 @@ export function usePublicTeams() {
       setError(null);
 
       try {
+        // First get active season
+        const { data: activeSeason, error: seasonError } = await supabase
+          .from('seasons')
+          .select('id, name')
+          .eq('is_active', true)
+          .single();
+
+        if (seasonError) {
+          throw seasonError;
+        }
+
+        if (!activeSeason) {
+          setTeams([]);
+          return;
+        }
+
+        // Then get teams for that season
         const { data, error: fetchError } = await supabase
           .from('teams')
           .select(`
@@ -28,11 +45,10 @@ export function usePublicTeams() {
             practice_location,
             practice_days,
             practice_time,
-            head_coach:coaches!teams_head_coach_id_fkey(id, first_name, last_name),
-            season:seasons!inner(id, name, is_active)
+            head_coach:coaches!teams_head_coach_id_fkey(id, first_name, last_name)
           `)
           .eq('is_active', true)
-          .eq('seasons.is_active', true)
+          .eq('season_id', activeSeason.id)
           .order('grade_level', { ascending: true });
 
         if (fetchError) {
