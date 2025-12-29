@@ -16,7 +16,7 @@ export function useTryoutSignups() {
         .from('tryout_signups')
         .select(`
           *,
-          session:tryout_sessions(id, session_date, start_time, end_time, location, grades, description)
+          session:tryout_sessions(id, date, start_time, end_time, location, gender, name, notes)
         `)
         .order('created_at', { ascending: false });
 
@@ -34,8 +34,8 @@ export function useTryoutSignups() {
   const fetchSessions = useCallback(async () => {
     const { data, error } = await supabase
       .from('tryout_sessions')
-      .select('id, session_date, start_time, end_time, location, grades, description, is_active')
-      .order('session_date', { ascending: true });
+      .select('id, date, start_time, end_time, location, gender, name, notes, is_active')
+      .order('date', { ascending: true });
 
     if (error) {
       console.error('Error fetching tryout sessions:', error);

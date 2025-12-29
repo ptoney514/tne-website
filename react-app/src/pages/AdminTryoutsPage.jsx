@@ -253,7 +253,7 @@ function SignupDetailPanel({
               <option value="">Change session...</option>
               {sessions.map((session) => (
                 <option key={session.id} value={session.id}>
-                  {session.description} - {session.session_date}
+                  {session.name} - {session.date}
                 </option>
               ))}
             </select>
@@ -272,11 +272,11 @@ function SignupDetailPanel({
           <div className="space-y-3">
             <h3 className="text-sm font-semibold text-stone-900 uppercase tracking-wide">Tryout Session</h3>
             <div className="bg-tne-red/5 border border-tne-red/20 rounded-xl p-4">
-              <p className="text-sm font-medium text-stone-900">{signup.session.description}</p>
+              <p className="text-sm font-medium text-stone-900">{signup.session.name}</p>
               <div className="mt-2 space-y-1">
                 <div className="flex items-center gap-2 text-xs text-stone-600">
                   <Calendar className="w-3.5 h-3.5" />
-                  {formatDate(signup.session.session_date)} at {formatTime(signup.session.start_time)} - {formatTime(signup.session.end_time)}
+                  {formatDate(signup.session.date)} at {formatTime(signup.session.start_time)} - {formatTime(signup.session.end_time)}
                 </div>
                 <div className="flex items-center gap-2 text-xs text-stone-600">
                   <MapPin className="w-3.5 h-3.5" />
@@ -284,7 +284,7 @@ function SignupDetailPanel({
                 </div>
                 <div className="flex items-center gap-2 text-xs text-stone-600">
                   <GraduationCap className="w-3.5 h-3.5" />
-                  Grades: {signup.session.grades}
+                  {signup.session.gender === 'boys' ? 'Boys' : signup.session.gender === 'girls' ? 'Girls' : 'All'}
                 </div>
               </div>
             </div>
@@ -481,8 +481,8 @@ export default function AdminTryoutsPage() {
       `${s.parent_first_name} ${s.parent_last_name}`,
       s.parent_email,
       s.parent_phone,
-      s.session?.description || '',
-      s.session?.session_date || '',
+      s.session?.name || '',
+      s.session?.date || '',
       s.status,
       s.created_at,
     ]);
@@ -509,7 +509,7 @@ export default function AdminTryoutsPage() {
   const sessionOptions = useMemo(() => {
     const opts = [{ value: 'all', label: 'All Sessions' }];
     sessions.forEach((session) => {
-      opts.push({ value: session.id, label: `${session.description} - ${session.session_date}` });
+      opts.push({ value: session.id, label: `${session.name} - ${session.date}` });
     });
     return opts;
   }, [sessions]);
@@ -737,8 +737,8 @@ export default function AdminTryoutsPage() {
                         <td className="px-4 py-3">
                           {signup.session ? (
                             <div>
-                              <span className="text-sm text-stone-700">{signup.session.description}</span>
-                              <p className="text-xs text-stone-500">{formatDate(signup.session.session_date)}</p>
+                              <span className="text-sm text-stone-700">{signup.session.name}</span>
+                              <p className="text-xs text-stone-500">{formatDate(signup.session.date)}</p>
                             </div>
                           ) : (
                             <span className="text-sm text-stone-400">No session</span>
