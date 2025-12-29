@@ -682,7 +682,7 @@ export default function AdminDashboard() {
           {/* ============================================
               ALERTS
               ============================================ */}
-          {(stats.pendingRegistrations > 0 || stats.pendingPayments > 0) && (
+          {stats.pendingRegistrations > 0 && (
             <div className="mb-8">
               <h2 className="text-xs font-mono text-stone-500 uppercase tracking-widest mb-3">
                 Requires Attention
@@ -692,12 +692,6 @@ export default function AdminDashboard() {
                   count={stats.pendingRegistrations}
                   label="Pending Registrations"
                   href="/admin/registrations?status=pending"
-                  type="warning"
-                />
-                <AlertCard
-                  count={stats.pendingPayments}
-                  label="Pending Payments"
-                  href="/admin/payments?status=pending"
                   type="warning"
                 />
               </div>
