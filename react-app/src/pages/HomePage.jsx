@@ -453,8 +453,9 @@ export default function HomePage() {
 
         {/* ============================================
              SECTION 06: ON THE COURT (Media Carousel)
+             Hidden until real content is available
              ============================================ */}
-        <section className="overflow-hidden bg-[#050505] w-full border-stone-800 border-t pt-24 pb-24 relative">
+        {false && <section className="overflow-hidden bg-[#050505] w-full border-stone-800 border-t pt-24 pb-24 relative">
           <div className="max-w-[1400px] mx-auto px-6 lg:px-12 relative z-10">
             {/* Header with Controls */}
             <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-8">
@@ -552,7 +553,7 @@ export default function HomePage() {
 
             </div>
           </div>
-        </section>
+        </section>}
 
         {/* ============================================
              SECTION 07: LEGACY (Mitch Memorial)
