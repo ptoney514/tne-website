@@ -234,16 +234,41 @@ export function AuthProvider({ children }) {
     }
   };
 
-  // Sign out
+  // Sign out with timeout to prevent hanging
   const signOut = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      setError(error.message);
-      return { error: error.message };
+    try {
+      const { error } = await withTimeout(
+        supabase.auth.signOut(),
+        10000, // 10 second timeout
+        'Sign out timed out - clearing local session'
+      );
+
+      if (error) {
+        console.error('[Auth] Sign out error:', error);
+        setError(error.message);
+        // Still clear local state even if Supabase returns an error
+        setUser(null);
+        setProfile(null);
+        hasReceivedAuthState.current = false;
+        return { error: error.message };
+      }
+
+      // Clear local state
+      setUser(null);
+      setProfile(null);
+      hasReceivedAuthState.current = false;
+      return { error: null };
+    } catch (err) {
+      console.error('[Auth] Sign out exception:', err);
+      // On timeout or network error, still clear local state
+      // This ensures user can "sign out" even if network is down
+      setUser(null);
+      setProfile(null);
+      hasReceivedAuthState.current = false;
+      localStorage.removeItem('tne_remember_me');
+      sessionStorage.removeItem('tne_session_only');
+      return { error: null }; // Don't return error - user wanted to sign out
     }
-    setUser(null);
-    setProfile(null);
-    return { error: null };
   };
 
   // Role checking utilities

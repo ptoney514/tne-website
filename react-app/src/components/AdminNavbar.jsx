@@ -207,10 +207,21 @@ export default function AdminNavbar() {
   const { stats } = useDashboardStats();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isSigningOut, setIsSigningOut] = useState(false);
 
   const handleSignOut = async () => {
-    await signOut();
-    navigate('/');
+    if (isSigningOut) return; // Prevent multiple clicks
+    setIsSigningOut(true);
+    try {
+      await signOut();
+      // Small delay to ensure state is cleared before redirect
+      setTimeout(() => {
+        window.location.href = '/';
+      }, 100);
+    } catch {
+      // If signOut fails, still redirect (local state is cleared)
+      window.location.href = '/';
+    }
   };
 
   return (
@@ -406,9 +417,10 @@ export default function AdminNavbar() {
             </div>
             <button
               onClick={handleSignOut}
-              className="px-3 py-1.5 rounded-lg text-sm text-red-600 hover:bg-red-50 transition-colors"
+              disabled={isSigningOut}
+              className="px-3 py-1.5 rounded-lg text-sm text-red-600 hover:bg-red-50 transition-colors disabled:opacity-50"
             >
-              Sign Out
+              {isSigningOut ? 'Signing out...' : 'Sign Out'}
             </button>
           </div>
         </div>

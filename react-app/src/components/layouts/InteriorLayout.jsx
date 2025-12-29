@@ -1,13 +1,13 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, LogOut, User, ChevronDown, Settings, X } from 'lucide-react';
+import { Menu, LogOut, User, ChevronDown, Settings, X, Loader2 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { useRegistrationStatus } from '../../hooks/useRegistrationStatus';
 import tneLogoWhite from '../../assets/tne-logo-white-transparent.png';
 import { navLinks } from '../../constants/navigation';
 import HomeFooter from '../HomeFooter';
 
-function UserDropdown({ profile, onSignOut }) {
+function UserDropdown({ profile, onSignOut, isSigningOut }) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
 
@@ -28,16 +28,23 @@ function UserDropdown({ profile, onSignOut }) {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3 py-2 rounded-full border border-white/15 text-white/80 hover:text-white hover:border-white/40 transition-colors"
+        disabled={isSigningOut}
+        className="flex items-center gap-2 px-3 py-2 rounded-full border border-white/15 text-white/80 hover:text-white hover:border-white/40 transition-colors disabled:opacity-50"
       >
-        <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-tne-maroon to-tne-red flex items-center justify-center text-xs font-bebas">
-          {initials}
-        </div>
-        <span className="text-sm font-medium max-w-[100px] truncate hidden sm:inline">{displayName}</span>
-        <ChevronDown className={`w-3.5 h-3.5 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+        {isSigningOut ? (
+          <Loader2 className="w-7 h-7 animate-spin text-white/60" />
+        ) : (
+          <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-tne-maroon to-tne-red flex items-center justify-center text-xs font-bebas">
+            {initials}
+          </div>
+        )}
+        <span className="text-sm font-medium max-w-[100px] truncate hidden sm:inline">
+          {isSigningOut ? 'Signing out...' : displayName}
+        </span>
+        {!isSigningOut && <ChevronDown className={`w-3.5 h-3.5 transition-transform ${isOpen ? 'rotate-180' : ''}`} />}
       </button>
 
-      {isOpen && (
+      {isOpen && !isSigningOut && (
         <div className="absolute right-0 mt-2 w-52 rounded-xl bg-[#0a0a0a] border border-white/10 shadow-xl overflow-hidden z-50">
           <div className="px-4 py-3 border-b border-white/10">
             <p className="text-sm font-medium truncate">{profile?.first_name} {profile?.last_name}</p>
@@ -162,11 +169,22 @@ function InteriorNavbar() {
   const { user, profile, signOut } = useAuth();
   const { isTryoutsOpen, isRegistrationOpen } = useRegistrationStatus();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isSigningOut, setIsSigningOut] = useState(false);
   const location = useLocation();
 
   const handleSignOut = async () => {
-    await signOut();
-    window.location.href = '/';
+    if (isSigningOut) return; // Prevent multiple clicks
+    setIsSigningOut(true);
+    try {
+      await signOut();
+      // Small delay to ensure state is cleared before redirect
+      setTimeout(() => {
+        window.location.href = '/';
+      }, 100);
+    } catch {
+      // If signOut fails, still redirect (local state is cleared)
+      window.location.href = '/';
+    }
   };
 
   const isActive = (path) => location.pathname === path;
@@ -207,7 +225,7 @@ function InteriorNavbar() {
           {/* Right: Auth Buttons */}
           <div className="hidden md:flex items-center gap-3 z-10">
             {user ? (
-              <UserDropdown profile={profile} onSignOut={handleSignOut} />
+              <UserDropdown profile={profile} onSignOut={handleSignOut} isSigningOut={isSigningOut} />
             ) : (
               <>
                 <Link
