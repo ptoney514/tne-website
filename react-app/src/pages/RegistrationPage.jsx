@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Bell, Shield } from 'lucide-react';
+import { Bell, CreditCard, Shirt, AlertCircle } from 'lucide-react';
 import InteriorLayout from '../components/layouts/InteriorLayout';
 import TeamRegistrationForm from '../components/registration/TeamRegistrationForm';
 import { useTeamRegistration } from '../hooks/useTeamRegistration';
@@ -8,7 +8,6 @@ import { useRegistrationStatus } from '../hooks/useRegistrationStatus';
 export default function RegistrationPage() {
   const {
     teams,
-    loading,
     submitRegistration,
     submitting,
     submitSuccess,
@@ -51,9 +50,18 @@ export default function RegistrationPage() {
       {/* Main Content */}
       <main className="flex-1 w-full bg-neutral-50 text-neutral-900">
         <section className="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12 space-y-6 sm:space-y-8">
+          {/* Important Notice */}
+          <div className="rounded-2xl bg-amber-50 border border-amber-200 p-4 flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+            <p className="text-sm text-amber-800">
+              <span className="font-semibold">All fall fees must be current before you can play in the winter session.</span>{' '}
+              Winter fee is now due.
+            </p>
+          </div>
+
           {/* Two Column Layout */}
           <div className="grid gap-8 lg:grid-cols-5">
-            {/* Registration Fees + Our Commitment */}
+            {/* Registration Fees + Payment + Uniforms */}
             <div className="lg:col-span-2 space-y-6">
               {/* Registration Fees */}
               <div className="rounded-3xl bg-white border border-neutral-300 shadow-sm overflow-hidden">
@@ -63,43 +71,63 @@ export default function RegistrationPage() {
                   </h2>
                 </div>
                 <div className="px-5 py-4">
-                  {loading ? (
-                    <div className="space-y-3">
-                      {[1, 2, 3].map((i) => (
-                        <div key={i} className="h-12 bg-neutral-100 rounded-lg animate-pulse" />
-                      ))}
+                  <div className="divide-y divide-neutral-100">
+                    <div className="py-3 first:pt-0">
+                      <div className="flex items-center justify-between gap-3">
+                        <p className="font-medium text-neutral-900 text-sm">3rd-8th Girls</p>
+                        <span className="text-lg font-semibold text-neutral-900">$450</span>
+                      </div>
                     </div>
-                  ) : teams.length === 0 ? (
-                    <p className="text-neutral-500 text-sm py-4 text-center">
-                      No teams available for registration.
-                    </p>
-                  ) : (
-                    <div className="divide-y divide-neutral-100">
-                      {teams.map((team) => (
-                        <div key={team.id} className="py-3 first:pt-0 last:pb-0">
-                          <div className="flex items-center justify-between gap-3">
-                            <div className="min-w-0">
-                              <p className="font-medium text-neutral-900 text-sm truncate">
-                                {team.name}
-                              </p>
-                            </div>
-                            <div className="flex-shrink-0 text-right">
-                              <span className="text-lg font-semibold text-neutral-900">
-                                ${team.team_fee || 0}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
+                    <div className="py-3">
+                      <div className="flex items-center justify-between gap-3">
+                        <p className="font-medium text-neutral-900 text-sm">3rd-8th Boys Winter</p>
+                        <span className="text-lg font-semibold text-neutral-900">$450</span>
+                      </div>
                     </div>
-                  )}
+                    <div className="py-3 last:pb-0">
+                      <div className="flex items-center justify-between gap-3">
+                        <p className="font-medium text-neutral-900 text-sm">5th-8th Boys TNE Jr 3SSB</p>
+                        <span className="text-lg font-semibold text-tne-red">$1,400</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <div className="px-5 py-3 bg-neutral-50 border-t border-neutral-200 space-y-1">
-                  <p className="text-xs text-neutral-500">
-                    Uniform fee is $75 if needed (returning players may already have one).
+                <div className="px-5 py-3 bg-neutral-50 border-t border-neutral-200">
+                  <p className="text-xs text-neutral-600 italic">
+                    If there is a situation and you need extended time, please communicate with us.
                   </p>
+                </div>
+              </div>
+
+              {/* Payment Methods */}
+              <div className="rounded-3xl bg-white border border-neutral-300 shadow-sm overflow-hidden">
+                <div className="px-5 py-4 border-b border-neutral-200">
+                  <div className="flex items-center gap-2">
+                    <CreditCard className="w-4 h-4 text-tne-red" />
+                    <h2 className="text-lg font-semibold text-neutral-900">
+                      Payment Methods
+                    </h2>
+                  </div>
+                </div>
+                <div className="px-5 py-4 space-y-3">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-neutral-600">PayPal</span>
+                    <a href="https://www.tnebasketball.com" target="_blank" rel="noopener noreferrer" className="text-tne-red hover:underline font-medium">
+                      tnebasketball.com
+                    </a>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-neutral-600">Venmo</span>
+                    <span className="font-mono text-neutral-900">@Alvin-Mitchell-TNE</span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-neutral-600">Cash App</span>
+                    <span className="font-mono text-neutral-900">$AMitch2am</span>
+                  </div>
+                </div>
+                <div className="px-5 py-3 bg-neutral-50 border-t border-neutral-200">
                   <p className="text-xs text-neutral-500">
-                    Payment plans and financial assistance available.{' '}
+                    Payment plans available.{' '}
                     <Link to="/contact" className="text-tne-red hover:underline">
                       Contact us
                     </Link>{' '}
@@ -108,27 +136,42 @@ export default function RegistrationPage() {
                 </div>
               </div>
 
-              {/* Commitment */}
+              {/* Uniforms */}
               <div className="rounded-3xl bg-white border border-neutral-300 shadow-sm overflow-hidden">
                 <div className="px-5 py-4 border-b border-neutral-200">
                   <div className="flex items-center gap-2">
-                    <Shield className="w-4 h-4 text-tne-red" />
+                    <Shirt className="w-4 h-4 text-tne-red" />
                     <h2 className="text-lg font-semibold text-neutral-900">
-                      Our Commitment
+                      Uniforms
                     </h2>
                   </div>
                 </div>
-                <div className="px-5 py-5 text-sm text-neutral-600 space-y-2">
-                  <p>
-                    At TNE United Express, we're committed to developing well-rounded
-                    athletes. Our program emphasizes:
+                <div className="px-5 py-4 space-y-4 text-sm text-neutral-600">
+                  <div>
+                    <p className="font-medium text-neutral-900 mb-1">Jr 3SSB</p>
+                    <p>Uniforms will be ordered through coaches.</p>
+                  </div>
+                  <div>
+                    <p className="font-medium text-neutral-900 mb-1">Express United Boys (3rd-8th)</p>
+                    <p>Reversible gray uniforms (same as last year).</p>
+                    <p className="mt-1">
+                      <span className="font-semibold text-neutral-900">Cost: $110</span>
+                    </p>
+                  </div>
+                  <div>
+                    <p className="font-medium text-neutral-900 mb-1">Girls</p>
+                    <p>Reversible uniforms (same as last year).</p>
+                    <p className="mt-1">
+                      <span className="font-semibold text-neutral-900">Cost: $75</span>
+                      <span className="text-neutral-500"> — Contact Rachelle Tucker: </span>
+                      <a href="tel:402-210-1568" className="text-tne-red hover:underline">402-210-1568</a>
+                    </p>
+                  </div>
+                </div>
+                <div className="px-5 py-3 bg-amber-50 border-t border-amber-200">
+                  <p className="text-xs text-amber-800 font-medium">
+                    If you haven't ordered your uniform yet, contact your coach ASAP.
                   </p>
-                  <ul className="list-disc list-inside space-y-1 pl-2">
-                    <li>Skill development over winning at all costs</li>
-                    <li>Equal playing time in non-tournament games</li>
-                    <li>Sportsmanship and respect for opponents</li>
-                    <li>Academic excellence alongside athletic growth</li>
-                  </ul>
                 </div>
               </div>
             </div>

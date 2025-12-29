@@ -454,7 +454,9 @@ export default function HomePage() {
         {/* ============================================
              SECTION 06: ON THE COURT (Media Carousel)
              Hidden until real content is available
+             To show: change SHOW_MEDIA_SECTION to true
              ============================================ */}
+        {/* eslint-disable-next-line no-constant-binary-expression */}
         {false && <section className="overflow-hidden bg-[#050505] w-full border-stone-800 border-t pt-24 pb-24 relative">
           <div className="max-w-[1400px] mx-auto px-6 lg:px-12 relative z-10">
             {/* Header with Controls */}
