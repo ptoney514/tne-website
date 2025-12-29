@@ -742,21 +742,61 @@ export default function AdminPlayersPage() {
   };
 
   return (
-    <div className="bg-stone-100 text-stone-900 antialiased min-h-screen flex flex-col font-sans">
+    <div className="bg-stone-100 text-stone-900 antialiased min-h-screen font-sans">
       <AdminNavbar />
 
-      <div className="flex-1 flex overflow-hidden">
-        {/* Main Table Panel */}
-        <div
-          className={`flex-1 flex flex-col transition-all duration-300 ${
-            selectedPlayer ? 'mr-[480px]' : ''
-          }`}
-        >
-          {/* Filter Bar */}
-          <div className="bg-white border-b border-stone-200 px-4 py-4">
-            {/* Search + Dropdowns + Actions Row */}
-            <div className="flex items-center gap-3 mb-4 flex-wrap">
-              {/* Sort dropdown */}
+      {/* Main Content */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
+        {/* Page Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+          <div>
+            <h1 className="text-2xl font-bold text-stone-900">Players</h1>
+            <p className="text-sm text-stone-500 mt-1">
+              {filteredPlayers.length} of {players.length} player{players.length !== 1 ? 's' : ''}
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={refetch}
+              className="p-2 text-stone-400 hover:text-stone-600 hover:bg-stone-100 rounded-lg transition-colors"
+              title="Refresh"
+            >
+              <RefreshCw className="w-4 h-4" />
+            </button>
+            <button
+              onClick={handleExport}
+              className="p-2 text-stone-400 hover:text-stone-600 hover:bg-stone-100 rounded-lg transition-colors"
+              title="Export"
+            >
+              <Download className="w-4 h-4" />
+            </button>
+            <button
+              onClick={handleCreate}
+              className="flex items-center gap-2 px-5 py-2.5 bg-tne-red text-white text-sm font-semibold rounded-xl hover:bg-tne-red-dark transition-colors shadow-lg shadow-tne-red/20"
+            >
+              <Plus className="w-4 h-4" />
+              Add Player
+            </button>
+          </div>
+        </div>
+
+        {/* Filter Card */}
+        <div className="bg-white rounded-2xl border border-stone-200 shadow-sm p-4 mb-4">
+          <div className="flex flex-col lg:flex-row lg:items-center gap-4">
+            {/* Search */}
+            <div className="relative flex-1 max-w-md">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400" />
+              <input
+                type="text"
+                placeholder="Search by name..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-tne-maroon/20 focus:border-tne-maroon/50 transition-all"
+              />
+            </div>
+
+            {/* Dropdowns */}
+            <div className="flex flex-wrap items-center gap-2">
               <FilterDropdown
                 value={sortBy}
                 options={[
@@ -766,27 +806,11 @@ export default function AdminPlayersPage() {
                 ]}
                 onChange={setSortBy}
               />
-
-              {/* Search */}
-              <div className="relative flex-1 max-w-sm">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400" />
-                <input
-                  type="text"
-                  placeholder="Search by name..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 rounded-lg border border-stone-200 text-sm text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
-                />
-              </div>
-
-              {/* Team Filter */}
               <FilterDropdown
                 value={teamFilter}
                 options={teamOptions}
                 onChange={setTeamFilter}
               />
-
-              {/* Grade Filter */}
               <FilterDropdown
                 value={gradeFilter}
                 options={[
@@ -795,8 +819,6 @@ export default function AdminPlayersPage() {
                 ]}
                 onChange={setGradeFilter}
               />
-
-              {/* Payment Filter */}
               <FilterDropdown
                 value={paymentFilter}
                 options={[
@@ -808,87 +830,62 @@ export default function AdminPlayersPage() {
                 ]}
                 onChange={setPaymentFilter}
               />
-
-              {/* Actions */}
-              <div className="flex items-center gap-2 ml-auto">
-                <button
-                  onClick={refetch}
-                  className="p-2 text-stone-400 hover:text-stone-600 hover:bg-stone-100 rounded-lg transition-colors"
-                  title="Refresh"
-                >
-                  <RefreshCw className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={handleExport}
-                  className="p-2 text-stone-400 hover:text-stone-600 hover:bg-stone-100 rounded-lg transition-colors"
-                  title="Export"
-                >
-                  <Download className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={handleCreate}
-                  className="flex items-center gap-2 px-4 py-2 bg-tne-red text-white text-sm font-medium rounded-lg hover:bg-tne-red-dark transition-colors shadow-sm"
-                >
-                  <Plus className="w-4 h-4" />
-                  Add Player
-                </button>
-              </div>
-            </div>
-
-            {/* Quick Filter Pills */}
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="text-xs font-medium text-stone-500 uppercase tracking-wide mr-1">Quick filters:</span>
-
-              <FilterPill
-                active={quickFilters.unassigned}
-                onClick={() => toggleQuickFilter('unassigned')}
-                variant="error"
-                icon={<AlertCircle className="w-3.5 h-3.5" />}
-                count={filterCounts.unassigned}
-              >
-                Unassigned
-              </FilterPill>
-
-              <FilterPill
-                active={quickFilters.unpaid}
-                onClick={() => toggleQuickFilter('unpaid')}
-                variant="error"
-                count={filterCounts.unpaid}
-              >
-                Unpaid
-              </FilterPill>
-
-              <FilterPill
-                active={quickFilters.newPlayers}
-                onClick={() => toggleQuickFilter('newPlayers')}
-                variant="warning"
-              >
-                New Players
-              </FilterPill>
-
-              <FilterPill
-                active={quickFilters.tournamentRoster}
-                onClick={() => toggleQuickFilter('tournamentRoster')}
-                variant="default"
-              >
-                Tournament Roster
-              </FilterPill>
-
-              {/* Clear Filters */}
-              {hasActiveFilters && (
-                <button
-                  onClick={clearFilters}
-                  className="flex items-center gap-1 px-2 py-1.5 rounded-lg text-xs text-stone-500 hover:text-stone-700 hover:bg-stone-100 transition-colors ml-2"
-                >
-                  <X className="w-3 h-3" />
-                  Clear all
-                </button>
-              )}
             </div>
           </div>
 
-          {/* Table */}
-          <div className="flex-1 overflow-auto bg-white">
+          {/* Quick Filter Pills */}
+          <div className="flex flex-wrap items-center gap-2 mt-4 pt-4 border-t border-stone-100">
+            <span className="text-xs text-stone-400 font-medium">Quick filters:</span>
+
+            <FilterPill
+              active={quickFilters.unassigned}
+              onClick={() => toggleQuickFilter('unassigned')}
+              variant="error"
+              icon={<AlertCircle className="w-3.5 h-3.5" />}
+              count={filterCounts.unassigned}
+            >
+              Unassigned
+            </FilterPill>
+
+            <FilterPill
+              active={quickFilters.unpaid}
+              onClick={() => toggleQuickFilter('unpaid')}
+              variant="error"
+              count={filterCounts.unpaid}
+            >
+              Unpaid
+            </FilterPill>
+
+            <FilterPill
+              active={quickFilters.newPlayers}
+              onClick={() => toggleQuickFilter('newPlayers')}
+              variant="warning"
+            >
+              New Players
+            </FilterPill>
+
+            <FilterPill
+              active={quickFilters.tournamentRoster}
+              onClick={() => toggleQuickFilter('tournamentRoster')}
+              variant="default"
+            >
+              Tournament Roster
+            </FilterPill>
+
+            {hasActiveFilters && (
+              <button
+                onClick={clearFilters}
+                className="flex items-center gap-1 px-2 py-1.5 rounded-lg text-xs text-stone-500 hover:text-stone-700 hover:bg-stone-100 transition-colors ml-2"
+              >
+                <X className="w-3 h-3" />
+                Clear all
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Players Table */}
+        <div className="bg-white rounded-2xl border border-stone-200 shadow-sm overflow-hidden">
             {error && (
               <div className="m-4 px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm flex items-center gap-2">
                 <AlertCircle className="w-4 h-4" />
@@ -922,6 +919,7 @@ export default function AdminPlayersPage() {
                 )}
               </div>
             ) : (
+              <div className="overflow-x-auto">
               <table className="w-full">
                 <thead className="bg-stone-50 sticky top-0">
                   <tr>
@@ -1039,31 +1037,27 @@ export default function AdminPlayersPage() {
                   })}
                 </tbody>
               </table>
+              </div>
             )}
-          </div>
-
-          {/* Footer */}
-          <div className="bg-white border-t border-stone-200 px-4 py-2">
-            <div className="flex items-center justify-between">
-              <p className="text-sm text-stone-500">
-                {selectedRows.size > 0
-                  ? `${selectedRows.size} selected`
-                  : `${filteredPlayers.length} of ${players.length} player${players.length !== 1 ? 's' : ''}`}
-              </p>
-            </div>
-          </div>
         </div>
 
-        {/* Detail Panel */}
-        {selectedPlayer && (
-          <PlayerDetailPanel
-            player={selectedPlayer}
-            onClose={() => setSelectedPlayer(null)}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-          />
+        {/* Footer info */}
+        {selectedRows.size > 0 && (
+          <div className="mt-4 text-sm text-stone-500">
+            {selectedRows.size} player{selectedRows.size !== 1 ? 's' : ''} selected
+          </div>
         )}
-      </div>
+      </main>
+
+      {/* Detail Panel */}
+      {selectedPlayer && (
+        <PlayerDetailPanel
+          player={selectedPlayer}
+          onClose={() => setSelectedPlayer(null)}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+        />
+      )}
 
       {/* Add/Edit Modal */}
       <PlayerModal

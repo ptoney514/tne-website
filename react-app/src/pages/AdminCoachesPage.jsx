@@ -581,33 +581,61 @@ export default function AdminCoachesPage() {
   };
 
   return (
-    <div className="bg-stone-100 text-stone-900 antialiased min-h-screen flex flex-col font-sans">
+    <div className="bg-stone-100 text-stone-900 antialiased min-h-screen font-sans">
       <AdminNavbar />
 
-      <div className="flex-1 flex overflow-hidden">
-        {/* Main Table Panel */}
-        <div
-          className={`flex-1 flex flex-col transition-all duration-300 ${
-            selectedCoach ? 'mr-[480px]' : ''
-          }`}
-        >
-          {/* Filter Bar */}
-          <div className="bg-white border-b border-stone-200 px-4 py-4">
-            {/* Search + Dropdowns + Actions Row */}
-            <div className="flex items-center gap-3 mb-4 flex-wrap">
-              {/* Search */}
-              <div className="relative flex-1 max-w-sm">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400" />
-                <input
-                  type="text"
-                  placeholder="Search by name, email, or phone..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 rounded-lg border border-stone-200 text-sm text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
-                />
-              </div>
+      {/* Main Content */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
+        {/* Page Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+          <div>
+            <h1 className="text-2xl font-bold text-stone-900">Coaches</h1>
+            <p className="text-sm text-stone-500 mt-1">
+              {filteredCoaches.length} of {coaches.length} coach{coaches.length !== 1 ? 'es' : ''}
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={refetch}
+              className="p-2 text-stone-400 hover:text-stone-600 hover:bg-stone-100 rounded-lg transition-colors"
+              title="Refresh"
+            >
+              <RefreshCw className="w-4 h-4" />
+            </button>
+            <button
+              onClick={handleExport}
+              className="p-2 text-stone-400 hover:text-stone-600 hover:bg-stone-100 rounded-lg transition-colors"
+              title="Export"
+            >
+              <Download className="w-4 h-4" />
+            </button>
+            <button
+              onClick={handleCreate}
+              className="flex items-center gap-2 px-5 py-2.5 bg-tne-red text-white text-sm font-semibold rounded-xl hover:bg-tne-red-dark transition-colors shadow-lg shadow-tne-red/20"
+            >
+              <Plus className="w-4 h-4" />
+              Add Coach
+            </button>
+          </div>
+        </div>
 
-              {/* Status Filter */}
+        {/* Filter Card */}
+        <div className="bg-white rounded-2xl border border-stone-200 shadow-sm p-4 mb-4">
+          <div className="flex flex-col lg:flex-row lg:items-center gap-4">
+            {/* Search */}
+            <div className="relative flex-1 max-w-md">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400" />
+              <input
+                type="text"
+                placeholder="Search by name, email, or phone..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-tne-maroon/20 focus:border-tne-maroon/50 transition-all"
+              />
+            </div>
+
+            {/* Dropdowns */}
+            <div className="flex flex-wrap items-center gap-2">
               <FilterDropdown
                 value={statusFilter}
                 options={[
@@ -617,8 +645,6 @@ export default function AdminCoachesPage() {
                 ]}
                 onChange={setStatusFilter}
               />
-
-              {/* Role Filter */}
               <FilterDropdown
                 value={roleFilter}
                 options={[
@@ -629,86 +655,59 @@ export default function AdminCoachesPage() {
                 ]}
                 onChange={setRoleFilter}
               />
-
-              {/* Actions */}
-              <div className="flex items-center gap-2 ml-auto">
-                <button
-                  onClick={refetch}
-                  className="p-2 text-stone-400 hover:text-stone-600 hover:bg-stone-100 rounded-lg transition-colors"
-                  title="Refresh"
-                >
-                  <RefreshCw className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={handleExport}
-                  className="p-2 text-stone-400 hover:text-stone-600 hover:bg-stone-100 rounded-lg transition-colors"
-                  title="Export"
-                >
-                  <Download className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={handleCreate}
-                  className="flex items-center gap-2 px-4 py-2 bg-tne-red text-white text-sm font-medium rounded-lg hover:bg-tne-red-dark transition-colors shadow-sm"
-                >
-                  <Plus className="w-4 h-4" />
-                  Add Coach
-                </button>
-              </div>
-            </div>
-
-            {/* Quick Filter Pills */}
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="text-xs font-medium text-stone-500 uppercase tracking-wide mr-1">Quick filters:</span>
-
-              <FilterPill
-                active={quickFilters.missingCerts}
-                onClick={() => toggleQuickFilter('missingCerts')}
-                variant="error"
-                icon={<AlertCircle className="w-3.5 h-3.5" />}
-                count={filterCounts.missingCerts}
-              >
-                Missing Certs
-              </FilterPill>
-
-              <FilterPill
-                active={quickFilters.expiringSoon}
-                onClick={() => toggleQuickFilter('expiringSoon')}
-                variant="warning"
-                icon={<Clock className="w-3.5 h-3.5" />}
-                count={filterCounts.expiringSoon}
-              >
-                Expiring Soon
-              </FilterPill>
-
-              <FilterPill
-                active={quickFilters.noTeam}
-                onClick={() => toggleQuickFilter('noTeam')}
-                variant="default"
-                count={filterCounts.noTeam}
-              >
-                No Team
-              </FilterPill>
-
-              {/* Clear Filters */}
-              {hasActiveFilters && (
-                <button
-                  onClick={clearFilters}
-                  className="flex items-center gap-1 px-2 py-1.5 rounded-lg text-xs text-stone-500 hover:text-stone-700 hover:bg-stone-100 transition-colors ml-2"
-                >
-                  <X className="w-3 h-3" />
-                  Clear all
-                </button>
-              )}
             </div>
           </div>
 
-          {/* Certification Legend */}
-          <div className="px-4 pt-4">
-            <CertificationLegend />
-          </div>
+          {/* Quick Filter Pills */}
+          <div className="flex flex-wrap items-center gap-2 mt-4 pt-4 border-t border-stone-100">
+            <span className="text-xs text-stone-400 font-medium">Quick filters:</span>
 
-          {/* Table */}
-          <div className="flex-1 overflow-auto bg-white">
+            <FilterPill
+              active={quickFilters.missingCerts}
+              onClick={() => toggleQuickFilter('missingCerts')}
+              variant="error"
+              icon={<AlertCircle className="w-3.5 h-3.5" />}
+              count={filterCounts.missingCerts}
+            >
+              Missing Certs
+            </FilterPill>
+
+            <FilterPill
+              active={quickFilters.expiringSoon}
+              onClick={() => toggleQuickFilter('expiringSoon')}
+              variant="warning"
+              icon={<Clock className="w-3.5 h-3.5" />}
+              count={filterCounts.expiringSoon}
+            >
+              Expiring Soon
+            </FilterPill>
+
+            <FilterPill
+              active={quickFilters.noTeam}
+              onClick={() => toggleQuickFilter('noTeam')}
+              variant="default"
+              count={filterCounts.noTeam}
+            >
+              No Team
+            </FilterPill>
+
+            {hasActiveFilters && (
+              <button
+                onClick={clearFilters}
+                className="flex items-center gap-1 px-2 py-1.5 rounded-lg text-xs text-stone-500 hover:text-stone-700 hover:bg-stone-100 transition-colors ml-2"
+              >
+                <X className="w-3 h-3" />
+                Clear all
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Certification Legend */}
+        <CertificationLegend />
+
+        {/* Coaches Table */}
+        <div className="bg-white rounded-2xl border border-stone-200 shadow-sm overflow-hidden">
             {error && (
               <div className="m-4 px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm flex items-center gap-2">
                 <AlertCircle className="w-4 h-4" />
@@ -749,6 +748,7 @@ export default function AdminCoachesPage() {
                 )}
               </div>
             ) : (
+              <div className="overflow-x-auto">
               <table className="w-full">
                 <thead className="bg-stone-50 sticky top-0">
                   <tr>
@@ -874,58 +874,48 @@ export default function AdminCoachesPage() {
                   })}
                 </tbody>
               </table>
+              </div>
             )}
-          </div>
-
-          {/* Footer */}
-          <div className="bg-white border-t border-stone-200 px-4 py-2">
-            <p className="text-sm text-stone-500">
-              {filteredCoaches.length} of {coaches.length} coach
-              {coaches.length !== 1 ? 'es' : ''}
-            </p>
-          </div>
-
-          {/* Stats Cards */}
-          <div className="px-4 py-4 bg-stone-100">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <StatsCard
-                label="Active Coaches"
-                value={filterCounts.active}
-                icon={Users}
-                color="green"
-              />
-              <StatsCard
-                label="Pending Approval"
-                value={filterCounts.pending}
-                icon={Clock}
-                color="amber"
-              />
-              <StatsCard
-                label="Expiring Soon"
-                value={filterCounts.expiringSoon}
-                icon={AlertCircle}
-                color="orange"
-              />
-              <StatsCard
-                label="Missing Certs"
-                value={filterCounts.missingCerts}
-                icon={Shield}
-                color="red"
-              />
-            </div>
-          </div>
         </div>
 
-        {/* Detail Panel */}
-        {selectedCoach && (
-          <CoachDetailPanel
-            coach={selectedCoach}
-            onClose={() => setSelectedCoach(null)}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
+        {/* Stats Cards */}
+        <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
+          <StatsCard
+            label="Active Coaches"
+            value={filterCounts.active}
+            icon={Users}
+            color="green"
           />
-        )}
-      </div>
+          <StatsCard
+            label="Pending Approval"
+            value={filterCounts.pending}
+            icon={Clock}
+            color="amber"
+          />
+          <StatsCard
+            label="Expiring Soon"
+            value={filterCounts.expiringSoon}
+            icon={AlertCircle}
+            color="orange"
+          />
+          <StatsCard
+            label="Missing Certs"
+            value={filterCounts.missingCerts}
+            icon={Shield}
+            color="red"
+          />
+        </div>
+      </main>
+
+      {/* Detail Panel */}
+      {selectedCoach && (
+        <CoachDetailPanel
+          coach={selectedCoach}
+          onClose={() => setSelectedCoach(null)}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+        />
+      )}
 
       {/* Add/Edit Modal */}
       <CoachModal
