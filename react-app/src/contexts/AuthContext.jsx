@@ -191,9 +191,42 @@ export function AuthProvider({ children }) {
       }
     });
 
+    // Handle visibility change - refresh session when tab becomes visible
+    const handleVisibilityChange = async () => {
+      if (document.visibilityState === 'visible' && hasReceivedAuthState.current) {
+        console.log('[Auth] Tab became visible - checking session...');
+        try {
+          const { data: { session }, error } = await supabase.auth.getSession();
+          if (error) {
+            console.error('[Auth] Session refresh error:', error);
+            return;
+          }
+
+          if (session?.user) {
+            console.log('[Auth] Session still valid for:', session.user.email);
+            // Refresh profile data in case it changed
+            const profileData = await fetchProfile(session.user.id);
+            if (isMounted && profileData) {
+              setProfile(profileData);
+            }
+          } else {
+            console.log('[Auth] Session expired - user needs to sign in again');
+            hasReceivedAuthState.current = false;
+            setUser(null);
+            setProfile(null);
+          }
+        } catch (err) {
+          console.error('[Auth] Visibility change session check failed:', err);
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
     return () => {
       isMounted = false;
       subscription.unsubscribe();
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, [fetchProfile]);
 
