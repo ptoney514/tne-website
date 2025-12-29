@@ -515,38 +515,54 @@ export default function AdminTryoutsPage() {
   }, [sessions]);
 
   return (
-    <div className="bg-stone-100 text-stone-900 antialiased min-h-screen flex flex-col font-sans">
+    <div className="bg-stone-100 text-stone-900 antialiased min-h-screen font-sans">
       <AdminNavbar />
 
-      <div className="flex-1 flex overflow-hidden">
-        {/* Main Table Panel */}
-        <div className={`flex-1 flex flex-col transition-all duration-300 ${selectedSignup ? 'mr-[480px]' : ''}`}>
-          {/* Header */}
-          <div className="bg-white border-b border-stone-200 px-6 py-4">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h1 className="text-2xl font-bold text-stone-900">Tryout Signups</h1>
-                <p className="text-sm text-stone-500">
-                  {filteredSignups.length} of {signups.length} signup{signups.length !== 1 ? 's' : ''}
-                </p>
-              </div>
+      {/* Main Content */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
+        {/* Page Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+          <div>
+            <h1 className="text-2xl font-bold text-stone-900">Tryout Signups</h1>
+            <p className="text-sm text-stone-500 mt-1">
+              {filteredSignups.length} of {signups.length} signup{signups.length !== 1 ? 's' : ''}
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={refetch}
+              className="p-2 text-stone-400 hover:text-stone-600 hover:bg-stone-100 rounded-lg transition-colors"
+              title="Refresh"
+            >
+              <RefreshCw className="w-4 h-4" />
+            </button>
+            <button
+              onClick={handleExport}
+              className="p-2 text-stone-400 hover:text-stone-600 hover:bg-stone-100 rounded-lg transition-colors"
+              title="Export CSV"
+            >
+              <Download className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+
+        {/* Filter Card */}
+        <div className="bg-white rounded-2xl border border-stone-200 shadow-sm p-4 mb-4">
+          <div className="flex flex-col lg:flex-row lg:items-center gap-4">
+            {/* Search */}
+            <div className="relative flex-1 max-w-md">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400" />
+              <input
+                type="text"
+                placeholder="Search by name or email..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-tne-maroon/20 focus:border-tne-maroon/50 transition-all"
+              />
             </div>
 
-            {/* Filters */}
-            <div className="flex items-center gap-3 flex-wrap">
-              {/* Search */}
-              <div className="relative flex-1 max-w-sm">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400" />
-                <input
-                  type="text"
-                  placeholder="Search by name or email..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 rounded-lg border border-stone-200 text-sm text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
-                />
-              </div>
-
-              {/* Status Filter */}
+            {/* Dropdowns */}
+            <div className="flex flex-wrap items-center gap-2">
               <FilterDropdown
                 value={statusFilter}
                 options={[
@@ -560,15 +576,11 @@ export default function AdminTryoutsPage() {
                 ]}
                 onChange={setStatusFilter}
               />
-
-              {/* Session Filter */}
               <FilterDropdown
                 value={sessionFilter}
                 options={sessionOptions}
                 onChange={setSessionFilter}
               />
-
-              {/* Grade Filter */}
               <FilterDropdown
                 value={gradeFilter}
                 options={[
@@ -581,74 +593,57 @@ export default function AdminTryoutsPage() {
                 ]}
                 onChange={setGradeFilter}
               />
-
-              {/* Actions */}
-              <div className="flex items-center gap-2 ml-auto">
-                <button
-                  onClick={refetch}
-                  className="p-2 text-stone-400 hover:text-stone-600 hover:bg-stone-100 rounded-lg transition-colors"
-                  title="Refresh"
-                >
-                  <RefreshCw className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={handleExport}
-                  className="p-2 text-stone-400 hover:text-stone-600 hover:bg-stone-100 rounded-lg transition-colors"
-                  title="Export CSV"
-                >
-                  <Download className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-
-            {/* Quick Filter Pills */}
-            <div className="flex flex-wrap items-center gap-2 mt-3">
-              <span className="text-xs font-medium text-stone-500 uppercase tracking-wide mr-1">Quick filters:</span>
-
-              <FilterPill
-                active={quickFilters.pending}
-                onClick={() => toggleQuickFilter('pending')}
-                variant="warning"
-                icon={<Clock className="w-3.5 h-3.5" />}
-                count={filterCounts.pending}
-              >
-                Pending
-              </FilterPill>
-
-              <FilterPill
-                active={quickFilters.attended}
-                onClick={() => toggleQuickFilter('attended')}
-                variant="success"
-                icon={<CheckCircle className="w-3.5 h-3.5" />}
-                count={filterCounts.attended}
-              >
-                Attended
-              </FilterPill>
-
-              <FilterPill
-                active={quickFilters.selected}
-                onClick={() => toggleQuickFilter('selected')}
-                variant="primary"
-                icon={<UserPlus className="w-3.5 h-3.5" />}
-                count={filterCounts.selected}
-              >
-                Selected
-              </FilterPill>
-
-              {hasActiveFilters && (
-                <button
-                  onClick={clearFilters}
-                  className="flex items-center gap-1 px-2 py-1.5 rounded-lg text-xs text-stone-500 hover:text-stone-700 hover:bg-stone-100 transition-colors ml-2"
-                >
-                  <X className="w-3 h-3" />
-                  Clear all
-                </button>
-              )}
             </div>
           </div>
 
-          {/* Table */}
-          <div className="flex-1 overflow-auto bg-white">
+          {/* Quick Filter Pills */}
+          <div className="flex flex-wrap items-center gap-2 mt-4 pt-4 border-t border-stone-100">
+            <span className="text-xs text-stone-400 font-medium">Quick filters:</span>
+
+            <FilterPill
+              active={quickFilters.pending}
+              onClick={() => toggleQuickFilter('pending')}
+              variant="warning"
+              icon={<Clock className="w-3.5 h-3.5" />}
+              count={filterCounts.pending}
+            >
+              Pending
+            </FilterPill>
+
+            <FilterPill
+              active={quickFilters.attended}
+              onClick={() => toggleQuickFilter('attended')}
+              variant="success"
+              icon={<CheckCircle className="w-3.5 h-3.5" />}
+              count={filterCounts.attended}
+            >
+              Attended
+            </FilterPill>
+
+            <FilterPill
+              active={quickFilters.selected}
+              onClick={() => toggleQuickFilter('selected')}
+              variant="primary"
+              icon={<UserPlus className="w-3.5 h-3.5" />}
+              count={filterCounts.selected}
+            >
+              Selected
+            </FilterPill>
+
+            {hasActiveFilters && (
+              <button
+                onClick={clearFilters}
+                className="flex items-center gap-1 px-2 py-1.5 rounded-lg text-xs text-stone-500 hover:text-stone-700 hover:bg-stone-100 transition-colors ml-2"
+              >
+                <X className="w-3 h-3" />
+                Clear all
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Signups Table */}
+        <div className="bg-white rounded-2xl border border-stone-200 shadow-sm overflow-hidden">
             {error && (
               <div className="m-4 px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm flex items-center gap-2">
                 <AlertCircle className="w-4 h-4" />
@@ -673,6 +668,7 @@ export default function AdminTryoutsPage() {
                 </p>
               </div>
             ) : (
+              <div className="overflow-x-auto">
               <table className="w-full">
                 <thead className="bg-stone-50 sticky top-0">
                   <tr>
@@ -762,30 +758,23 @@ export default function AdminTryoutsPage() {
                   })}
                 </tbody>
               </table>
+              </div>
             )}
-          </div>
-
-          {/* Footer */}
-          <div className="bg-white border-t border-stone-200 px-4 py-2">
-            <p className="text-sm text-stone-500">
-              {filteredSignups.length} of {signups.length} signup{signups.length !== 1 ? 's' : ''}
-            </p>
-          </div>
         </div>
+      </main>
 
-        {/* Detail Panel */}
-        {selectedSignup && (
-          <SignupDetailPanel
-            signup={selectedSignup}
-            sessions={sessions}
-            onClose={() => setSelectedSignup(null)}
-            onUpdateStatus={updateStatus}
-            onUpdateSession={updateSession}
-            onConvert={convertToPlayer}
-            onDelete={deleteSignup}
-          />
-        )}
-      </div>
+      {/* Detail Panel */}
+      {selectedSignup && (
+        <SignupDetailPanel
+          signup={selectedSignup}
+          sessions={sessions}
+          onClose={() => setSelectedSignup(null)}
+          onUpdateStatus={updateStatus}
+          onUpdateSession={updateSession}
+          onConvert={convertToPlayer}
+          onDelete={deleteSignup}
+        />
+      )}
     </div>
   );
 }
