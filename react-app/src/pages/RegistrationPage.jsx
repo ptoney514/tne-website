@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Bell, Shield } from 'lucide-react';
-import PublicLayout from '../components/layouts/PublicLayout';
+import InteriorLayout from '../components/layouts/InteriorLayout';
 import TeamRegistrationForm from '../components/registration/TeamRegistrationForm';
 import { useTeamRegistration } from '../hooks/useTeamRegistration';
 import { useRegistrationStatus } from '../hooks/useRegistrationStatus';
@@ -19,25 +19,19 @@ export default function RegistrationPage() {
   const { isRegistrationOpen } = useRegistrationStatus();
 
   return (
-    <PublicLayout>
-      {/* Hero Header - Compact style like Contact page */}
+    <InteriorLayout>
+      {/* Hero Header */}
       <header className="relative border-b border-white/5 overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(227,24,55,0.2),transparent_60%),radial-gradient(circle_at_bottom_left,rgba(139,31,58,0.15),transparent_55%)]" />
         <div className="absolute inset-0 bg-gradient-to-b from-black via-black/90 to-black" />
 
-        <div className="sm:px-6 sm:pt-16 sm:pb-12 max-w-6xl mx-auto pt-12 px-4 pb-8 relative">
-          <div className="flex flex-col gap-4 animate-enter">
-            {/* Breadcrumb */}
-            <div className="inline-flex items-center gap-2">
-              <Link
-                to="/"
-                className="text-[0.7rem] font-mono text-white/50 uppercase tracking-[0.2em] hover:text-white transition-colors"
-              >
-                Home
-              </Link>
-              <span className="text-white/30">/</span>
-              <span className="text-[0.7rem] font-mono text-tne-red uppercase tracking-[0.2em]">
-                Register
+        <div className="sm:px-6 sm:pt-16 sm:pb-14 max-w-6xl mx-auto pt-12 px-4 pb-10 relative">
+          <div className="flex flex-col gap-6 animate-enter">
+            {/* Season Badge */}
+            <div className="inline-flex items-center gap-2 rounded-md bg-white/5 border border-white/10 px-3 py-1.5 w-fit">
+              <span className="inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.8)]" />
+              <span className="font-mono uppercase tracking-[0.22em] text-[0.7rem] text-white/80">
+                2024-25 Winter Season
               </span>
             </div>
 
@@ -206,6 +200,6 @@ export default function RegistrationPage() {
           </div>
         </section>
       </main>
-    </PublicLayout>
+    </InteriorLayout>
   );
 }
