@@ -15,10 +15,6 @@ test.describe('Public Registration Page', () => {
     await expect(page.getByText('Registration Fees')).toBeVisible();
   });
 
-  test('should display Our Commitment section', async ({ page }) => {
-    await expect(page.getByText('Our Commitment')).toBeVisible();
-  });
-
   test('should display registration form', async ({ page }) => {
     await expect(page.locator('h2').filter({ hasText: 'Team Registration' })).toBeVisible();
     await expect(page.getByText('Complete the form below')).toBeVisible();

@@ -378,7 +378,7 @@ export default function TryoutsPage() {
         </section>
 
         {/* Section 2: Prepare Like the Best */}
-        <section id="prepare" className="bg-[#08090A] w-full border-t border-white/5 py-16 sm:py-20">
+        <section id="prepare" className="bg-[#050505] w-full border-t border-white/5 py-16 sm:py-20">
           <div className="max-w-6xl mx-auto px-4 sm:px-6">
             {/* Section Header */}
             <div className="flex items-center gap-2 mb-3">
@@ -634,7 +634,7 @@ export default function TryoutsPage() {
         </section>
 
         {/* Section 5: Testimonial */}
-        <section className="bg-[#08090A] w-full border-t border-white/5 py-16 sm:py-20">
+        <section className="bg-[#050505] w-full border-t border-white/5 py-16 sm:py-20">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center">
             <div className="mb-8">
               <Quote className="w-10 h-10 text-tne-red/40 mx-auto mb-4" />
