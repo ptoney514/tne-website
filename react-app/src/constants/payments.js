@@ -5,43 +5,42 @@ const STANDARD_DEPOSIT = 200;
 const LOWER_DEPOSIT = 150;
 
 // Payment plan configurations
-// For regular teams ($450)
+// Note: installmentAmount is calculated dynamically based on totalFee
+// This ensures uniform fees and other add-ons are properly included
+
+// For regular teams (under $1000)
 const REGULAR_FEE_PLANS = {
   plan_1: {
     id: 'plan_1',
     name: 'Plan A - Lower Payments',
     deposit: STANDARD_DEPOSIT,
     installments: 2,
-    installmentAmount: 125, // (450 - 200) / 2 = 125
-    description: '$200 today, then 2 payments of $125',
+    // installmentAmount calculated dynamically in getPaymentPlanDetails
   },
   plan_2: {
     id: 'plan_2',
     name: 'Plan B - Spread Out',
     deposit: LOWER_DEPOSIT,
     installments: 3,
-    installmentAmount: 100, // (450 - 150) / 3 = 100
-    description: '$150 today, then 3 payments of $100',
+    // installmentAmount calculated dynamically in getPaymentPlanDetails
   },
 };
 
-// For Jr 3SSB teams ($1,400)
+// For Jr 3SSB teams ($1,400+)
 const ELITE_FEE_PLANS = {
   plan_1: {
     id: 'plan_1',
     name: 'Plan A - Fewer Payments',
     deposit: STANDARD_DEPOSIT,
     installments: 4,
-    installmentAmount: 300, // (1400 - 200) / 4 = 300
-    description: '$200 today, then 4 payments of $300',
+    // installmentAmount calculated dynamically in getPaymentPlanDetails
   },
   plan_2: {
     id: 'plan_2',
     name: 'Plan B - Smaller Payments',
     deposit: LOWER_DEPOSIT,
     installments: 5,
-    installmentAmount: 250, // (1400 - 150) / 5 = 250
-    description: '$150 today, then 5 payments of $250',
+    // installmentAmount calculated dynamically in getPaymentPlanDetails
   },
 };
 
@@ -61,14 +60,25 @@ export function getPaymentPlans(totalFee) {
 }
 
 /**
- * Get details for a specific payment plan
- * @param {number} totalFee - The total registration fee
+ * Get details for a specific payment plan with dynamically calculated installment amounts
+ * @param {number} totalFee - The total registration fee (including uniforms/add-ons)
  * @param {string} planId - The plan identifier (plan_1, plan_2, etc.)
- * @returns {Object|null} Payment plan details or null if not found
+ * @returns {Object|null} Payment plan details with calculated amounts, or null if not found
  */
 export function getPaymentPlanDetails(totalFee, planId) {
   const plans = getPaymentPlans(totalFee);
-  return plans[planId] || null;
+  const basePlan = plans[planId];
+  if (!basePlan) return null;
+
+  // Calculate installment amount based on actual totalFee
+  const remaining = totalFee - basePlan.deposit;
+  const installmentAmount = Math.ceil(remaining / basePlan.installments);
+
+  return {
+    ...basePlan,
+    installmentAmount,
+    description: `$${basePlan.deposit} today, then ${basePlan.installments} payments of $${installmentAmount}`,
+  };
 }
 
 /**

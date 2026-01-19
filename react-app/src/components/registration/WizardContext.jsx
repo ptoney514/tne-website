@@ -134,6 +134,7 @@ function wizardReducer(state, action) {
         formData: { ...initialFormData, ...action.payload.formData },
         currentStep: action.payload.currentStep || 1,
         selectedTeam: action.payload.selectedTeam || null,
+        paymentReferenceId: action.payload.paymentReferenceId || state.paymentReferenceId,
         isDraft: true,
       };
 
@@ -183,6 +184,7 @@ export function WizardProvider({ children, teams = [] }) {
             formData: state.formData,
             currentStep: state.currentStep,
             selectedTeam: state.selectedTeam,
+            paymentReferenceId: state.paymentReferenceId,
             savedAt: new Date().toISOString(),
           })
         );
@@ -190,7 +192,7 @@ export function WizardProvider({ children, teams = [] }) {
         console.error('Failed to save registration draft:', e);
       }
     }
-  }, [state.formData, state.currentStep, state.selectedTeam, state.isDraft]);
+  }, [state.formData, state.currentStep, state.selectedTeam, state.paymentReferenceId, state.isDraft]);
 
   // Update selected team when teamId changes
   useEffect(() => {

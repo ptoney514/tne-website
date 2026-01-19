@@ -125,6 +125,7 @@ export function useTeamRegistration() {
             waiver_liability: registrationData.waiverLiability,
             waiver_medical: registrationData.waiverMedical,
             waiver_media: registrationData.waiverMedia,
+            payment_terms_acknowledged: registrationData.paymentTermsAcknowledged || false,
 
             // Payment commitment fields
             payment_plan_type: registrationData.paymentPlanType,
