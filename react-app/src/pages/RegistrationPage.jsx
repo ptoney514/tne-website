@@ -1,9 +1,153 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Bell, CreditCard, Shirt, AlertCircle } from 'lucide-react';
+import { Bell, Shirt, AlertCircle, ChevronDown } from 'lucide-react';
 import InteriorLayout from '../components/layouts/InteriorLayout';
-import TeamRegistrationForm from '../components/registration/TeamRegistrationForm';
+import { WizardProvider, useWizard } from '../components/registration/WizardContext';
+import { WizardContent } from '../components/registration/RegistrationWizard';
+import RegistrationSummaryPanel from '../components/registration/ui/RegistrationSummaryPanel';
 import { useTeamRegistration } from '../hooks/useTeamRegistration';
 import { useRegistrationStatus } from '../hooks/useRegistrationStatus';
+
+// Sidebar content that uses wizard context
+function SidebarContent() {
+  const { selectedTeam } = useWizard();
+  const [uniformsExpanded, setUniformsExpanded] = useState(false);
+
+  return (
+    <div className="space-y-6">
+      {/* Dynamic Registration Summary - shown when team is selected */}
+      <RegistrationSummaryPanel />
+
+      {/* Static Registration Fees - hidden when team is selected */}
+      {!selectedTeam && (
+        <div className="rounded-3xl bg-white border border-neutral-300 shadow-sm overflow-hidden">
+          <div className="px-5 py-4 border-b border-neutral-200">
+            <h2 className="text-lg font-semibold text-neutral-900">
+              Registration Fees
+            </h2>
+          </div>
+          <div className="px-5 py-4">
+            <div className="divide-y divide-neutral-100">
+              <div className="py-3 first:pt-0">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="font-medium text-neutral-900 text-sm">3rd-8th Girls</p>
+                  <span className="text-lg font-semibold text-neutral-900">$450</span>
+                </div>
+              </div>
+              <div className="py-3">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="font-medium text-neutral-900 text-sm">3rd-8th Boys Winter</p>
+                  <span className="text-lg font-semibold text-neutral-900">$450</span>
+                </div>
+              </div>
+              <div className="py-3 last:pb-0">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="font-medium text-neutral-900 text-sm">5th-8th Boys TNE Jr 3SSB</p>
+                  <span className="text-lg font-semibold text-tne-red">$1,400</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="px-5 py-3 bg-neutral-50 border-t border-neutral-200">
+            <p className="text-xs text-neutral-600 italic">
+              If there is a situation and you need extended time, please communicate with us.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Uniforms - Collapsible */}
+      <div className="rounded-3xl bg-white border border-neutral-300 shadow-sm overflow-hidden">
+        <button
+          onClick={() => setUniformsExpanded(!uniformsExpanded)}
+          className="w-full px-5 py-4 border-b border-neutral-200 flex items-center justify-between hover:bg-neutral-50 transition-colors"
+        >
+          <div className="flex items-center gap-2">
+            <Shirt className="w-4 h-4 text-tne-red" />
+            <h2 className="text-lg font-semibold text-neutral-900">
+              Uniforms
+            </h2>
+          </div>
+          <ChevronDown className={`w-5 h-5 text-neutral-400 transition-transform ${uniformsExpanded ? 'rotate-180' : ''}`} />
+        </button>
+        {uniformsExpanded && (
+          <>
+            <div className="px-5 py-4 space-y-4 text-sm text-neutral-600">
+              <div>
+                <p className="font-medium text-neutral-900 mb-1">Jr 3SSB</p>
+                <p>Uniforms will be ordered through coaches.</p>
+              </div>
+              <div>
+                <p className="font-medium text-neutral-900 mb-1">Express United Boys (3rd-8th)</p>
+                <p>Reversible gray uniforms (same as last year).</p>
+                <p className="mt-1">
+                  <span className="font-semibold text-neutral-900">Cost: $110</span>
+                </p>
+              </div>
+              <div>
+                <p className="font-medium text-neutral-900 mb-1">Girls</p>
+                <p>Reversible uniforms (same as last year).</p>
+                <p className="mt-1">
+                  <span className="font-semibold text-neutral-900">Cost: $75</span>
+                  <span className="text-neutral-500"> — Contact Rachelle Tucker: </span>
+                  <a href="tel:402-210-1568" className="text-tne-red hover:underline">402-210-1568</a>
+                </p>
+              </div>
+            </div>
+            <div className="px-5 py-3 bg-amber-50 border-t border-amber-200">
+              <p className="text-xs text-amber-800 font-medium">
+                If you haven&apos;t ordered your uniform yet, contact your coach ASAP.
+              </p>
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// Main wizard content area
+function RegistrationWizardArea({ onSubmit, submitting, submitSuccess, onReset, isRegistrationOpen }) {
+  if (!isRegistrationOpen) {
+    return (
+      <div id="registration" className="rounded-3xl bg-white border border-neutral-300 shadow-sm overflow-hidden">
+        <div className="px-5 py-4 border-b border-neutral-200 bg-neutral-50">
+          <h2 className="text-lg font-semibold text-neutral-900">
+            Team Registration
+          </h2>
+        </div>
+        <div className="px-6 py-12 text-center">
+          <div className="w-16 h-16 rounded-full bg-stone-100 flex items-center justify-center mx-auto mb-4">
+            <Bell className="w-8 h-8 text-stone-400" />
+          </div>
+          <h3 className="text-xl font-semibold text-neutral-900 mb-2">
+            Registration Is Currently Closed
+          </h3>
+          <p className="text-neutral-600 mb-6 max-w-md mx-auto">
+            Team registration is not available at this time. Sign up to be
+            notified when the next registration period opens.
+          </p>
+          <Link
+            to="/contact"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-tne-red text-white font-medium rounded-lg hover:bg-tne-red-dark transition-colors"
+          >
+            <Bell className="w-4 h-4" />
+            Get Notified
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <WizardContent
+      onSubmit={onSubmit}
+      submitting={submitting}
+      submitSuccess={submitSuccess}
+      onReset={onReset}
+    />
+  );
+}
 
 export default function RegistrationPage() {
   const {
@@ -11,7 +155,6 @@ export default function RegistrationPage() {
     submitRegistration,
     submitting,
     submitSuccess,
-    submitError,
     resetSubmitState,
   } = useTeamRegistration();
 
@@ -59,164 +202,26 @@ export default function RegistrationPage() {
             </p>
           </div>
 
-          {/* Two Column Layout */}
-          <div className="grid gap-8 lg:grid-cols-5">
-            {/* Registration Fees + Payment + Uniforms */}
-            <div className="lg:col-span-2 space-y-6">
-              {/* Registration Fees */}
-              <div className="rounded-3xl bg-white border border-neutral-300 shadow-sm overflow-hidden">
-                <div className="px-5 py-4 border-b border-neutral-200">
-                  <h2 className="text-lg font-semibold text-neutral-900">
-                    Registration Fees
-                  </h2>
-                </div>
-                <div className="px-5 py-4">
-                  <div className="divide-y divide-neutral-100">
-                    <div className="py-3 first:pt-0">
-                      <div className="flex items-center justify-between gap-3">
-                        <p className="font-medium text-neutral-900 text-sm">3rd-8th Girls</p>
-                        <span className="text-lg font-semibold text-neutral-900">$450</span>
-                      </div>
-                    </div>
-                    <div className="py-3">
-                      <div className="flex items-center justify-between gap-3">
-                        <p className="font-medium text-neutral-900 text-sm">3rd-8th Boys Winter</p>
-                        <span className="text-lg font-semibold text-neutral-900">$450</span>
-                      </div>
-                    </div>
-                    <div className="py-3 last:pb-0">
-                      <div className="flex items-center justify-between gap-3">
-                        <p className="font-medium text-neutral-900 text-sm">5th-8th Boys TNE Jr 3SSB</p>
-                        <span className="text-lg font-semibold text-tne-red">$1,400</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="px-5 py-3 bg-neutral-50 border-t border-neutral-200">
-                  <p className="text-xs text-neutral-600 italic">
-                    If there is a situation and you need extended time, please communicate with us.
-                  </p>
-                </div>
+          {/* Two Column Layout - Wrapped in WizardProvider for shared state */}
+          <WizardProvider teams={teams}>
+            <div className="grid gap-8 lg:grid-cols-5">
+              {/* Sidebar: Registration Summary + Fees + Uniforms */}
+              <div className="lg:col-span-2">
+                <SidebarContent />
               </div>
 
-              {/* Payment Methods */}
-              <div className="rounded-3xl bg-white border border-neutral-300 shadow-sm overflow-hidden">
-                <div className="px-5 py-4 border-b border-neutral-200">
-                  <div className="flex items-center gap-2">
-                    <CreditCard className="w-4 h-4 text-tne-red" />
-                    <h2 className="text-lg font-semibold text-neutral-900">
-                      Payment Methods
-                    </h2>
-                  </div>
-                </div>
-                <div className="px-5 py-4 space-y-3">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-neutral-600">PayPal</span>
-                    <a href="https://www.tnebasketball.com" target="_blank" rel="noopener noreferrer" className="text-tne-red hover:underline font-medium">
-                      tnebasketball.com
-                    </a>
-                  </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-neutral-600">Venmo</span>
-                    <span className="font-mono text-neutral-900">@Alvin-Mitchell-TNE</span>
-                  </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-neutral-600">Cash App</span>
-                    <span className="font-mono text-neutral-900">$AMitch2am</span>
-                  </div>
-                </div>
-                <div className="px-5 py-3 bg-neutral-50 border-t border-neutral-200">
-                  <p className="text-xs text-neutral-500">
-                    Payment plans available.{' '}
-                    <Link to="/contact" className="text-tne-red hover:underline">
-                      Contact us
-                    </Link>{' '}
-                    for details.
-                  </p>
-                </div>
-              </div>
-
-              {/* Uniforms */}
-              <div className="rounded-3xl bg-white border border-neutral-300 shadow-sm overflow-hidden">
-                <div className="px-5 py-4 border-b border-neutral-200">
-                  <div className="flex items-center gap-2">
-                    <Shirt className="w-4 h-4 text-tne-red" />
-                    <h2 className="text-lg font-semibold text-neutral-900">
-                      Uniforms
-                    </h2>
-                  </div>
-                </div>
-                <div className="px-5 py-4 space-y-4 text-sm text-neutral-600">
-                  <div>
-                    <p className="font-medium text-neutral-900 mb-1">Jr 3SSB</p>
-                    <p>Uniforms will be ordered through coaches.</p>
-                  </div>
-                  <div>
-                    <p className="font-medium text-neutral-900 mb-1">Express United Boys (3rd-8th)</p>
-                    <p>Reversible gray uniforms (same as last year).</p>
-                    <p className="mt-1">
-                      <span className="font-semibold text-neutral-900">Cost: $110</span>
-                    </p>
-                  </div>
-                  <div>
-                    <p className="font-medium text-neutral-900 mb-1">Girls</p>
-                    <p>Reversible uniforms (same as last year).</p>
-                    <p className="mt-1">
-                      <span className="font-semibold text-neutral-900">Cost: $75</span>
-                      <span className="text-neutral-500"> — Contact Rachelle Tucker: </span>
-                      <a href="tel:402-210-1568" className="text-tne-red hover:underline">402-210-1568</a>
-                    </p>
-                  </div>
-                </div>
-                <div className="px-5 py-3 bg-amber-50 border-t border-amber-200">
-                  <p className="text-xs text-amber-800 font-medium">
-                    If you haven't ordered your uniform yet, contact your coach ASAP.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Registration Form */}
-            <div className="lg:col-span-3">
-              {isRegistrationOpen ? (
-                <TeamRegistrationForm
-                  teams={teams}
+              {/* Registration Wizard */}
+              <div className="lg:col-span-3">
+                <RegistrationWizardArea
                   onSubmit={submitRegistration}
                   submitting={submitting}
                   submitSuccess={submitSuccess}
-                  submitError={submitError}
                   onReset={resetSubmitState}
+                  isRegistrationOpen={isRegistrationOpen}
                 />
-              ) : (
-                <div id="registration" className="rounded-3xl bg-white border border-neutral-300 shadow-sm overflow-hidden">
-                  <div className="px-5 py-4 border-b border-neutral-200 bg-neutral-50">
-                    <h2 className="text-lg font-semibold text-neutral-900">
-                      Team Registration
-                    </h2>
-                  </div>
-                  <div className="px-6 py-12 text-center">
-                    <div className="w-16 h-16 rounded-full bg-stone-100 flex items-center justify-center mx-auto mb-4">
-                      <Bell className="w-8 h-8 text-stone-400" />
-                    </div>
-                    <h3 className="text-xl font-semibold text-neutral-900 mb-2">
-                      Registration Is Currently Closed
-                    </h3>
-                    <p className="text-neutral-600 mb-6 max-w-md mx-auto">
-                      Team registration is not available at this time. Sign up to be
-                      notified when the next registration period opens.
-                    </p>
-                    <Link
-                      to="/contact"
-                      className="inline-flex items-center gap-2 px-6 py-3 bg-tne-red text-white font-medium rounded-lg hover:bg-tne-red-dark transition-colors"
-                    >
-                      <Bell className="w-4 h-4" />
-                      Get Notified
-                    </Link>
-                  </div>
-                </div>
-              )}
+              </div>
             </div>
-          </div>
+          </WizardProvider>
 
           {/* FAQ Teaser */}
           <div className="rounded-2xl bg-white border border-neutral-200 shadow-sm p-6 text-center">
