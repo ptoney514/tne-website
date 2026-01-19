@@ -76,6 +76,22 @@ export function useTeamRegistration() {
       setSubmitSuccess(false);
 
       try {
+        // Determine payment status based on payment plan type
+        let paymentStatus = 'pending';
+        if (registrationData.paymentPlanType === 'full' && registrationData.paymentConfirmed) {
+          paymentStatus = 'pending_verification'; // Awaiting admin verification
+        } else if (registrationData.paymentPlanType === 'installment') {
+          paymentStatus = 'payment_plan_active';
+        } else if (registrationData.paymentPlanType === 'special_request') {
+          paymentStatus = 'awaiting_approval';
+        }
+
+        // Combined waiver acceptance check (all three must be true)
+        const allWaiversAccepted =
+          registrationData.waiverLiability &&
+          registrationData.waiverMedical &&
+          registrationData.waiverMedia;
+
         const { error: insertError } = await supabase
           .from('registrations')
           .insert({
@@ -88,8 +104,8 @@ export function useTeamRegistration() {
             player_current_grade: registrationData.playerGrade,
             player_gender: registrationData.playerGender,
             jersey_size: registrationData.jerseySize,
-            position: registrationData.position,
-            medical_notes: registrationData.medicalNotes,
+            position: registrationData.position || null,
+            medical_notes: registrationData.medicalNotes || null,
             parent_first_name: registrationData.parentFirstName,
             parent_last_name: registrationData.parentLastName,
             parent_email: registrationData.parentEmail,
@@ -101,11 +117,30 @@ export function useTeamRegistration() {
             parent_relationship: registrationData.relationship,
             emergency_contact_name: registrationData.emergencyName,
             emergency_contact_phone: registrationData.emergencyPhone,
-            emergency_contact_relationship: registrationData.emergencyRelationship,
-            waiver_accepted: registrationData.waiverAccepted,
-            waiver_accepted_at: registrationData.waiverAccepted ? new Date().toISOString() : null,
-            payment_status: 'pending',
-            status: 'pending',
+            emergency_contact_relationship: registrationData.emergencyRelationship || null,
+
+            // Waivers
+            waiver_accepted: allWaiversAccepted,
+            waiver_accepted_at: allWaiversAccepted ? new Date().toISOString() : null,
+            waiver_liability: registrationData.waiverLiability,
+            waiver_medical: registrationData.waiverMedical,
+            waiver_media: registrationData.waiverMedia,
+
+            // Payment commitment fields
+            payment_plan_type: registrationData.paymentPlanType,
+            payment_plan_option: registrationData.paymentPlanOption || null,
+            initial_amount_due: registrationData.initialAmountDue,
+            remaining_balance: registrationData.remainingBalance,
+            payment_reference_id: registrationData.paymentReferenceId,
+            payment_confirmed: registrationData.paymentConfirmed || false,
+
+            // Special arrangement fields
+            special_request_reason: registrationData.specialRequestReason || null,
+            special_request_notes: registrationData.specialRequestNotes || null,
+
+            // Status
+            payment_status: paymentStatus,
+            status: registrationData.status || 'pending_payment',
           });
 
         if (insertError) throw insertError;

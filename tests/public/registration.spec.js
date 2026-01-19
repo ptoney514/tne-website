@@ -15,261 +15,534 @@ test.describe('Public Registration Page', () => {
     await expect(page.getByText('Registration Fees')).toBeVisible();
   });
 
-  test('should display registration form', async ({ page }) => {
-    await expect(page.locator('h2').filter({ hasText: 'Team Registration' })).toBeVisible();
-    await expect(page.getByText('Complete the form below')).toBeVisible();
+  test('should display registration wizard with step indicator', async ({ page }) => {
+    // Should show step indicator (desktop shows step titles)
+    await expect(page.getByText('Player & Team').first()).toBeVisible();
   });
 });
 
-test.describe('Registration Form - Team Selection', () => {
+test.describe('Registration Wizard - Step 1: Player & Team', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/register');
     await page.waitForSelector('h1', { timeout: 10000 });
   });
 
-  test('should display team selection dropdown', async ({ page }) => {
-    const teamSelect = page.locator('select#teamId');
-    await expect(teamSelect).toBeVisible();
+  test('should display all Step 1 form fields', async ({ page }) => {
+    // Team selection
+    await expect(page.locator('select#teamId')).toBeVisible();
+    await expect(page.getByText('Select Your Team')).toBeVisible();
+
+    // Player info
+    await expect(page.getByText('Player Information')).toBeVisible();
+    await expect(page.locator('input#playerFirstName')).toBeVisible();
+    await expect(page.locator('input#playerLastName')).toBeVisible();
+    await expect(page.locator('input#playerDob')).toBeVisible();
+    await expect(page.locator('select#playerGrade')).toBeVisible();
+    await expect(page.locator('input[name="playerGender"][value="male"]')).toBeVisible();
+    await expect(page.locator('input[name="playerGender"][value="female"]')).toBeVisible();
+    await expect(page.locator('select#jerseySize')).toBeVisible();
+    await expect(page.locator('select#position')).toBeVisible();
+
+    // Continue button
+    await expect(page.getByRole('button', { name: /Continue/i })).toBeVisible();
   });
 
-  test('should have team options in dropdown', async ({ page }) => {
-    const teamSelect = page.locator('select#teamId');
+  test('should show validation errors when Continue clicked without filling required fields', async ({ page }) => {
+    await page.getByRole('button', { name: /Continue/i }).click();
 
-    // Should have the select visible
-    await expect(teamSelect).toBeVisible();
-
-    // Should have multiple options (at least placeholder + teams)
-    const optionCount = await teamSelect.locator('option').count();
-    expect(optionCount).toBeGreaterThanOrEqual(1);
+    // Should show validation error for team
+    await expect(page.getByText('Please select a team')).toBeVisible();
   });
 
   test('should show fee breakdown when team is selected', async ({ page }) => {
     const teamSelect = page.locator('select#teamId');
 
-    // Get the first team option (not the placeholder)
-    const options = await teamSelect.locator('option').all();
+    // Wait for teams to load
+    await page.waitForFunction(
+      () => document.querySelector('select#teamId')?.options.length > 1,
+      { timeout: 10000 }
+    );
 
-    if (options.length > 1) {
-      // Select the first real team
-      await teamSelect.selectOption({ index: 1 });
+    // Select the first real team
+    await teamSelect.selectOption({ index: 1 });
 
-      // Fee breakdown should appear
-      await expect(page.getByText('Registration Fee:')).toBeVisible({ timeout: 5000 });
+    // Fee breakdown should appear
+    await expect(page.getByText('Season Fee:')).toBeVisible({ timeout: 5000 });
+  });
+
+  test('should have correct grade options (3rd-8th)', async ({ page }) => {
+    // Wait for the wizard to be visible (registration needs to be open)
+    const gradeSelect = page.locator('select#playerGrade');
+
+    // First check if registration is open (wizard is shown)
+    const wizardVisible = await page.locator('select#teamId').isVisible();
+    if (!wizardVisible) {
+      // Skip this test if registration is closed
+      test.skip();
+      return;
     }
-  });
-});
 
-test.describe('Registration Form - Player Information', () => {
-  test.beforeEach(async ({ page }) => {
-    await page.goto('/register');
-    await page.waitForSelector('h1', { timeout: 10000 });
-  });
-
-  test('should display player information section', async ({ page }) => {
-    await expect(page.getByText('Player Information')).toBeVisible();
-  });
-
-  test('should have first name field', async ({ page }) => {
-    const firstNameInput = page.locator('input#playerFirstName');
-    await expect(firstNameInput).toBeVisible();
-    await expect(firstNameInput).toHaveAttribute('required');
-  });
-
-  test('should have last name field', async ({ page }) => {
-    const lastNameInput = page.locator('input#playerLastName');
-    await expect(lastNameInput).toBeVisible();
-    await expect(lastNameInput).toHaveAttribute('required');
-  });
-
-  test('should have date of birth field', async ({ page }) => {
-    const dobInput = page.locator('input#playerDob');
-    await expect(dobInput).toBeVisible();
-    await expect(dobInput).toHaveAttribute('type', 'date');
-    await expect(dobInput).toHaveAttribute('required');
-  });
-
-  test('should have grade selection dropdown', async ({ page }) => {
-    const gradeSelect = page.locator('select#playerGrade');
-    await expect(gradeSelect).toBeVisible();
-    await expect(gradeSelect).toHaveAttribute('required');
-  });
-
-  test('should have grade options from 4th to 8th', async ({ page }) => {
-    const gradeSelect = page.locator('select#playerGrade');
-
-    // Select should be visible and have options
-    await expect(gradeSelect).toBeVisible();
-
-    // Should have 6 options: placeholder + 5 grades (4th-8th)
     const optionCount = await gradeSelect.locator('option').count();
-    expect(optionCount).toBe(6);
-  });
-
-  test('should have gender radio buttons', async ({ page }) => {
-    await expect(page.locator('input[name="playerGender"][value="male"]')).toBeVisible();
-    await expect(page.locator('input[name="playerGender"][value="female"]')).toBeVisible();
-  });
-
-  test('should have jersey size dropdown', async ({ page }) => {
-    const jerseySizeSelect = page.locator('select#jerseySize');
-    await expect(jerseySizeSelect).toBeVisible();
-    await expect(jerseySizeSelect).toHaveAttribute('required');
-  });
-
-  test('should have position preference dropdown', async ({ page }) => {
-    const positionSelect = page.locator('select#position');
-    await expect(positionSelect).toBeVisible();
-  });
-
-  test('should have medical notes textarea', async ({ page }) => {
-    const medicalNotes = page.locator('textarea#medicalNotes');
-    await expect(medicalNotes).toBeVisible();
+    // placeholder + 6 grades (3rd-8th)
+    expect(optionCount).toBe(7);
   });
 });
 
-test.describe('Registration Form - Parent/Guardian Information', () => {
-  test.beforeEach(async ({ page }) => {
+test.describe('Registration Wizard - Complete Flow E2E', () => {
+  test('should complete Step 1 and navigate to Step 2', async ({ page }) => {
     await page.goto('/register');
     await page.waitForSelector('h1', { timeout: 10000 });
-  });
 
-  test('should display parent/guardian section', async ({ page }) => {
-    await expect(page.getByText('Parent/Guardian Information')).toBeVisible();
-  });
+    // Wait for teams to load
+    await page.waitForFunction(
+      () => document.querySelector('select#teamId')?.options.length > 1,
+      { timeout: 10000 }
+    );
 
-  test('should have parent name fields', async ({ page }) => {
-    await expect(page.locator('input#parentFirstName')).toBeVisible();
-    await expect(page.locator('input#parentLastName')).toBeVisible();
-  });
+    // Fill Step 1
+    await page.locator('select#teamId').selectOption({ index: 1 });
+    await page.locator('input#playerFirstName').fill('John');
+    await page.locator('input#playerLastName').fill('Smith');
+    await page.locator('input#playerDob').fill('2015-03-15');
+    await page.locator('select#playerGrade').selectOption('5');
+    await page.locator('input[name="playerGender"][value="male"]').check();
+    await page.locator('select#jerseySize').selectOption('YM');
 
-  test('should have parent email field', async ({ page }) => {
-    const emailInput = page.locator('input#parentEmail');
-    await expect(emailInput).toBeVisible();
-    await expect(emailInput).toHaveAttribute('type', 'email');
-    await expect(emailInput).toHaveAttribute('required');
-  });
+    // Click Continue
+    await page.getByRole('button', { name: /Continue/i }).click();
 
-  test('should have parent phone field', async ({ page }) => {
-    const phoneInput = page.locator('input#parentPhone');
-    await expect(phoneInput).toBeVisible();
-    await expect(phoneInput).toHaveAttribute('type', 'tel');
-    await expect(phoneInput).toHaveAttribute('required');
-  });
-
-  test('should have relationship dropdown', async ({ page }) => {
-    const relationshipSelect = page.locator('select#relationship');
-    await expect(relationshipSelect).toBeVisible();
-    await expect(relationshipSelect).toHaveAttribute('required');
-  });
-
-  test('should have address fields', async ({ page }) => {
-    await expect(page.locator('input#addressStreet')).toBeVisible();
-    await expect(page.locator('input#addressCity')).toBeVisible();
-    await expect(page.locator('select#addressState')).toBeVisible();
-    await expect(page.locator('input#addressZip')).toBeVisible();
-  });
-});
-
-test.describe('Registration Form - Emergency Contact', () => {
-  test.beforeEach(async ({ page }) => {
-    await page.goto('/register');
-    await page.waitForSelector('h1', { timeout: 10000 });
-  });
-
-  test('should display emergency contact section', async ({ page }) => {
+    // Verify we're on Step 2
+    await expect(page.getByText('Parent/Guardian Information')).toBeVisible({ timeout: 5000 });
     await expect(page.getByText('Emergency Contact')).toBeVisible();
+    await expect(page.getByRole('button', { name: /Back/i })).toBeVisible();
   });
 
-  test('should have emergency contact fields', async ({ page }) => {
-    await expect(page.locator('input#emergencyName')).toBeVisible();
-    await expect(page.locator('input#emergencyPhone')).toBeVisible();
-    await expect(page.locator('input#emergencyRelationship')).toBeVisible();
-  });
-});
-
-test.describe('Registration Form - Waiver', () => {
-  test.beforeEach(async ({ page }) => {
+  test('should complete Step 2 and navigate to Step 3 (Payment)', async ({ page }) => {
     await page.goto('/register');
     await page.waitForSelector('h1', { timeout: 10000 });
+
+    // Wait for teams to load
+    await page.waitForFunction(
+      () => document.querySelector('select#teamId')?.options.length > 1,
+      { timeout: 10000 }
+    );
+
+    // Complete Step 1
+    await page.locator('select#teamId').selectOption({ index: 1 });
+    await page.locator('input#playerFirstName').fill('John');
+    await page.locator('input#playerLastName').fill('Smith');
+    await page.locator('input#playerDob').fill('2015-03-15');
+    await page.locator('select#playerGrade').selectOption('5');
+    await page.locator('input[name="playerGender"][value="male"]').check();
+    await page.locator('select#jerseySize').selectOption('YM');
+    await page.getByRole('button', { name: /Continue/i }).click();
+
+    // Wait for Step 2
+    await expect(page.getByText('Parent/Guardian Information')).toBeVisible({ timeout: 5000 });
+
+    // Complete Step 2
+    await page.locator('input#parentFirstName').fill('Jane');
+    await page.locator('input#parentLastName').fill('Smith');
+    await page.locator('input#parentEmail').fill('jane.smith@example.com');
+    await page.locator('input#parentPhone').fill('4025551234');
+    await page.locator('select#relationship').selectOption('mother');
+    await page.locator('input#addressStreet').fill('123 Main St');
+    await page.locator('input#addressCity').fill('Omaha');
+    await page.locator('select#addressState').selectOption('NE');
+    await page.locator('input#addressZip').fill('68114');
+    await page.locator('input#emergencyName').fill('Bob Smith');
+    await page.locator('input#emergencyPhone').fill('4025559999');
+
+    // Click Continue
+    await page.getByRole('button', { name: /Continue/i }).click();
+
+    // Verify we're on Step 3 - Payment
+    await expect(page.getByText('Choose Your Payment Option')).toBeVisible({ timeout: 5000 });
+    // Use heading role to target the specific payment option titles
+    await expect(page.getByRole('heading', { name: 'Pay in Full' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Payment Plan' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Request Special Arrangement' })).toBeVisible();
   });
 
-  test('should display waiver section', async ({ page }) => {
-    await expect(page.getByText('Waiver & Agreement')).toBeVisible();
+  test('should select payment option and navigate to Step 4 (Review)', async ({ page }) => {
+    await page.goto('/register');
+    await page.waitForSelector('h1', { timeout: 10000 });
+
+    // Wait for teams to load
+    await page.waitForFunction(
+      () => document.querySelector('select#teamId')?.options.length > 1,
+      { timeout: 10000 }
+    );
+
+    // Complete Step 1
+    await page.locator('select#teamId').selectOption({ index: 1 });
+    await page.locator('input#playerFirstName').fill('John');
+    await page.locator('input#playerLastName').fill('Smith');
+    await page.locator('input#playerDob').fill('2015-03-15');
+    await page.locator('select#playerGrade').selectOption('5');
+    await page.locator('input[name="playerGender"][value="male"]').check();
+    await page.locator('select#jerseySize').selectOption('YM');
+    await page.getByRole('button', { name: /Continue/i }).click();
+
+    // Complete Step 2
+    await expect(page.getByText('Parent/Guardian Information')).toBeVisible({ timeout: 5000 });
+    await page.locator('input#parentFirstName').fill('Jane');
+    await page.locator('input#parentLastName').fill('Smith');
+    await page.locator('input#parentEmail').fill('jane.smith@example.com');
+    await page.locator('input#parentPhone').fill('4025551234');
+    await page.locator('select#relationship').selectOption('mother');
+    await page.locator('input#addressStreet').fill('123 Main St');
+    await page.locator('input#addressCity').fill('Omaha');
+    await page.locator('select#addressState').selectOption('NE');
+    await page.locator('input#addressZip').fill('68114');
+    await page.locator('input#emergencyName').fill('Bob Smith');
+    await page.locator('input#emergencyPhone').fill('4025559999');
+    await page.getByRole('button', { name: /Continue/i }).click();
+
+    // Step 3 - Select Special Arrangement (doesn't require payment)
+    await expect(page.getByText('Choose Your Payment Option')).toBeVisible({ timeout: 5000 });
+    // Click the Special Arrangement button
+    await page.locator('button').filter({ hasText: 'Request Special Arrangement' }).click();
+
+    // Fill special request fields
+    await page.locator('select#specialRequestReason').selectOption('financial_hardship');
+    await page.locator('textarea#specialRequestNotes').fill('Need financial assistance for registration.');
+
+    // Click Submit Request
+    await page.getByRole('button', { name: /Submit Request/i }).click();
+
+    // Verify we're on Step 4 - Review
+    await expect(page.getByRole('heading', { name: 'Review & Confirm' })).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText('Liability Waiver')).toBeVisible();
+    await expect(page.getByText('Medical Authorization')).toBeVisible();
+    await expect(page.getByText('Photo/Video Release')).toBeVisible();
   });
 
-  test('should display waiver text', async ({ page }) => {
-    await expect(page.getByText('Liability Waiver:')).toBeVisible();
-    await expect(page.getByText('Medical Authorization:')).toBeVisible();
-  });
+  test('should require all waivers before submission', async ({ page }) => {
+    await page.goto('/register');
+    await page.waitForSelector('h1', { timeout: 10000 });
 
-  test('should have waiver acceptance checkbox', async ({ page }) => {
-    const waiverCheckbox = page.locator('input[name="waiverAccepted"]');
-    await expect(waiverCheckbox).toBeVisible();
-    await expect(waiverCheckbox).toHaveAttribute('required');
-  });
+    // Wait for teams to load
+    await page.waitForFunction(
+      () => document.querySelector('select#teamId')?.options.length > 1,
+      { timeout: 10000 }
+    );
 
-  test('should have submit button', async ({ page }) => {
-    await expect(page.getByRole('button', { name: /Complete Registration/i })).toBeVisible();
-  });
+    // Complete Step 1
+    await page.locator('select#teamId').selectOption({ index: 1 });
+    await page.locator('input#playerFirstName').fill('John');
+    await page.locator('input#playerLastName').fill('Smith');
+    await page.locator('input#playerDob').fill('2015-03-15');
+    await page.locator('select#playerGrade').selectOption('5');
+    await page.locator('input[name="playerGender"][value="male"]').check();
+    await page.locator('select#jerseySize').selectOption('YM');
+    await page.getByRole('button', { name: /Continue/i }).click();
 
-  test('submit button should be disabled until waiver is accepted', async ({ page }) => {
-    const submitButton = page.getByRole('button', { name: /Complete Registration/i });
-    const waiverCheckbox = page.locator('input[name="waiverAccepted"]');
+    // Complete Step 2
+    await expect(page.getByText('Parent/Guardian Information')).toBeVisible({ timeout: 5000 });
+    await page.locator('input#parentFirstName').fill('Jane');
+    await page.locator('input#parentLastName').fill('Smith');
+    await page.locator('input#parentEmail').fill('jane.smith@example.com');
+    await page.locator('input#parentPhone').fill('4025551234');
+    await page.locator('select#relationship').selectOption('mother');
+    await page.locator('input#addressStreet').fill('123 Main St');
+    await page.locator('input#addressCity').fill('Omaha');
+    await page.locator('select#addressState').selectOption('NE');
+    await page.locator('input#addressZip').fill('68114');
+    await page.locator('input#emergencyName').fill('Bob Smith');
+    await page.locator('input#emergencyPhone').fill('4025559999');
+    await page.getByRole('button', { name: /Continue/i }).click();
 
-    // Initially disabled (waiver not checked)
+    // Step 3 - Select Special Arrangement
+    await expect(page.getByText('Choose Your Payment Option')).toBeVisible({ timeout: 5000 });
+    // Click the Special Arrangement button
+    await page.locator('button').filter({ hasText: 'Request Special Arrangement' }).click();
+    await page.locator('select#specialRequestReason').selectOption('financial_hardship');
+    await page.locator('textarea#specialRequestNotes').fill('Need financial assistance.');
+    await page.getByRole('button', { name: /Submit Request/i }).click();
+
+    // Step 4 - Verify submit button is disabled without waivers
+    await expect(page.getByRole('heading', { name: 'Review & Confirm' })).toBeVisible({ timeout: 5000 });
+    const submitButton = page.getByRole('button', { name: /Secure Player Spot/i });
     await expect(submitButton).toBeDisabled();
 
-    // Check waiver
-    await waiverCheckbox.check();
+    // Accept all waivers
+    await page.locator('input[type="checkbox"]').nth(0).check(); // Liability
+    await page.locator('input[type="checkbox"]').nth(1).check(); // Medical
+    await page.locator('input[type="checkbox"]').nth(2).check(); // Media
 
-    // Still might be disabled due to missing required fields, but at least waiver condition is met
+    // Submit button should now be enabled
+    await expect(submitButton).toBeEnabled();
   });
 });
 
-test.describe('Registration Form - Validation', () => {
+test.describe('Registration Wizard - Navigation', () => {
+  test('should navigate back and preserve entered data', async ({ page }) => {
+    await page.goto('/register');
+    await page.waitForSelector('h1', { timeout: 10000 });
+
+    // Wait for teams to load
+    await page.waitForFunction(
+      () => document.querySelector('select#teamId')?.options.length > 1,
+      { timeout: 10000 }
+    );
+
+    // Fill Step 1
+    await page.locator('select#teamId').selectOption({ index: 1 });
+    await page.locator('input#playerFirstName').fill('TestFirst');
+    await page.locator('input#playerLastName').fill('TestLast');
+    await page.locator('input#playerDob').fill('2015-03-15');
+    await page.locator('select#playerGrade').selectOption('5');
+    await page.locator('input[name="playerGender"][value="male"]').check();
+    await page.locator('select#jerseySize').selectOption('YM');
+
+    // Go to Step 2
+    await page.getByRole('button', { name: /Continue/i }).click();
+    await expect(page.getByText('Parent/Guardian Information')).toBeVisible({ timeout: 5000 });
+
+    // Go back to Step 1
+    await page.getByRole('button', { name: /Back/i }).click();
+
+    // Verify data is preserved
+    await expect(page.locator('input#playerFirstName')).toHaveValue('TestFirst');
+    await expect(page.locator('input#playerLastName')).toHaveValue('TestLast');
+    await expect(page.locator('input#playerDob')).toHaveValue('2015-03-15');
+  });
+});
+
+test.describe('Registration Wizard - Validation', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/register');
     await page.waitForSelector('h1', { timeout: 10000 });
   });
 
-  test('should not submit without required fields', async ({ page }) => {
-    // Accept waiver
-    const waiverCheckbox = page.locator('input[name="waiverAccepted"]');
-    await waiverCheckbox.check();
+  test('should validate required fields in Step 1', async ({ page }) => {
+    // Click Continue without filling anything
+    await page.getByRole('button', { name: /Continue/i }).click();
 
-    // Try to submit
-    const submitButton = page.getByRole('button', { name: /Complete Registration/i });
-    await submitButton.click();
-
-    // Should still be on the registration page (form validation should prevent submission)
-    await expect(page).toHaveURL('/register');
+    // Should show validation error for team
+    await expect(page.getByText('Please select a team')).toBeVisible();
   });
 
-  test('should validate email format', async ({ page }) => {
-    const emailInput = page.locator('input#parentEmail');
-    await emailInput.fill('invalid-email');
+  test('should validate player info fields after team selection', async ({ page }) => {
+    // Wait for teams and select one
+    await page.waitForFunction(
+      () => document.querySelector('select#teamId')?.options.length > 1,
+      { timeout: 10000 }
+    );
+    await page.locator('select#teamId').selectOption({ index: 1 });
 
-    // Email validation is native HTML5 validation
-    await expect(emailInput).toHaveAttribute('type', 'email');
+    // Click Continue without filling player info
+    await page.getByRole('button', { name: /Continue/i }).click();
+
+    // Should show validation error for first name
+    await expect(page.getByText('First name is required')).toBeVisible();
   });
 
-  test('should validate zip code format', async ({ page }) => {
-    const zipInput = page.locator('input#addressZip');
+  test('should validate email format in Step 2', async ({ page }) => {
+    // Wait for teams to load
+    await page.waitForFunction(
+      () => document.querySelector('select#teamId')?.options.length > 1,
+      { timeout: 10000 }
+    );
 
-    // Has pattern attribute for 5-digit zip
-    await expect(zipInput).toHaveAttribute('pattern', '[0-9]{5}');
+    // Complete Step 1
+    await page.locator('select#teamId').selectOption({ index: 1 });
+    await page.locator('input#playerFirstName').fill('John');
+    await page.locator('input#playerLastName').fill('Smith');
+    await page.locator('input#playerDob').fill('2015-03-15');
+    await page.locator('select#playerGrade').selectOption('5');
+    await page.locator('input[name="playerGender"][value="male"]').check();
+    await page.locator('select#jerseySize').selectOption('YM');
+    await page.getByRole('button', { name: /Continue/i }).click();
+
+    // Wait for Step 2
+    await expect(page.getByText('Parent/Guardian Information')).toBeVisible({ timeout: 5000 });
+
+    // Fill with invalid email
+    await page.locator('input#parentFirstName').fill('Jane');
+    await page.locator('input#parentLastName').fill('Smith');
+    await page.locator('input#parentEmail').fill('invalid-email');
+    await page.locator('input#parentPhone').fill('4025551234');
+    await page.locator('select#relationship').selectOption('mother');
+    await page.locator('input#addressStreet').fill('123 Main St');
+    await page.locator('input#addressCity').fill('Omaha');
+    await page.locator('select#addressState').selectOption('NE');
+    await page.locator('input#addressZip').fill('68114');
+    await page.locator('input#emergencyName').fill('Bob Smith');
+    await page.locator('input#emergencyPhone').fill('4025559999');
+
+    // Try to continue
+    await page.getByRole('button', { name: /Continue/i }).click();
+
+    // Should show email validation error
+    await expect(page.getByText('Please enter a valid email address')).toBeVisible();
+  });
+
+  test('should validate ZIP code format in Step 2', async ({ page }) => {
+    // Wait for teams to load
+    await page.waitForFunction(
+      () => document.querySelector('select#teamId')?.options.length > 1,
+      { timeout: 10000 }
+    );
+
+    // Complete Step 1
+    await page.locator('select#teamId').selectOption({ index: 1 });
+    await page.locator('input#playerFirstName').fill('John');
+    await page.locator('input#playerLastName').fill('Smith');
+    await page.locator('input#playerDob').fill('2015-03-15');
+    await page.locator('select#playerGrade').selectOption('5');
+    await page.locator('input[name="playerGender"][value="male"]').check();
+    await page.locator('select#jerseySize').selectOption('YM');
+    await page.getByRole('button', { name: /Continue/i }).click();
+
+    // Wait for Step 2
+    await expect(page.getByText('Parent/Guardian Information')).toBeVisible({ timeout: 5000 });
+
+    // Fill with invalid ZIP
+    await page.locator('input#parentFirstName').fill('Jane');
+    await page.locator('input#parentLastName').fill('Smith');
+    await page.locator('input#parentEmail').fill('jane@example.com');
+    await page.locator('input#parentPhone').fill('4025551234');
+    await page.locator('select#relationship').selectOption('mother');
+    await page.locator('input#addressStreet').fill('123 Main St');
+    await page.locator('input#addressCity').fill('Omaha');
+    await page.locator('select#addressState').selectOption('NE');
+    await page.locator('input#addressZip').fill('123'); // Invalid - too short
+    await page.locator('input#emergencyName').fill('Bob Smith');
+    await page.locator('input#emergencyPhone').fill('4025559999');
+
+    // Try to continue
+    await page.getByRole('button', { name: /Continue/i }).click();
+
+    // Should show ZIP validation error
+    await expect(page.getByText('Please enter a valid 5-digit ZIP code')).toBeVisible();
+  });
+
+  test('should require payment selection in Step 3', async ({ page }) => {
+    // Wait for teams to load
+    await page.waitForFunction(
+      () => document.querySelector('select#teamId')?.options.length > 1,
+      { timeout: 10000 }
+    );
+
+    // Complete Step 1
+    await page.locator('select#teamId').selectOption({ index: 1 });
+    await page.locator('input#playerFirstName').fill('John');
+    await page.locator('input#playerLastName').fill('Smith');
+    await page.locator('input#playerDob').fill('2015-03-15');
+    await page.locator('select#playerGrade').selectOption('5');
+    await page.locator('input[name="playerGender"][value="male"]').check();
+    await page.locator('select#jerseySize').selectOption('YM');
+    await page.getByRole('button', { name: /Continue/i }).click();
+
+    // Complete Step 2
+    await expect(page.getByText('Parent/Guardian Information')).toBeVisible({ timeout: 5000 });
+    await page.locator('input#parentFirstName').fill('Jane');
+    await page.locator('input#parentLastName').fill('Smith');
+    await page.locator('input#parentEmail').fill('jane@example.com');
+    await page.locator('input#parentPhone').fill('4025551234');
+    await page.locator('select#relationship').selectOption('mother');
+    await page.locator('input#addressStreet').fill('123 Main St');
+    await page.locator('input#addressCity').fill('Omaha');
+    await page.locator('select#addressState').selectOption('NE');
+    await page.locator('input#addressZip').fill('68114');
+    await page.locator('input#emergencyName').fill('Bob Smith');
+    await page.locator('input#emergencyPhone').fill('4025559999');
+    await page.getByRole('button', { name: /Continue/i }).click();
+
+    // Step 3 - Try to continue without selecting payment option
+    await expect(page.getByText('Choose Your Payment Option')).toBeVisible({ timeout: 5000 });
+    await page.getByRole('button', { name: /Continue/i }).click();
+
+    // Should show payment validation error
+    await expect(page.getByText('Please select a payment option')).toBeVisible();
   });
 });
 
-test.describe('Registration Form - Mobile Responsiveness', () => {
-  test('should display form correctly on mobile', async ({ page }) => {
-    // Set mobile viewport
+test.describe('Registration Wizard - Payment Options', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/register');
+    await page.waitForSelector('h1', { timeout: 10000 });
+
+    // Wait for teams to load
+    await page.waitForFunction(
+      () => document.querySelector('select#teamId')?.options.length > 1,
+      { timeout: 10000 }
+    );
+
+    // Complete Step 1
+    await page.locator('select#teamId').selectOption({ index: 1 });
+    await page.locator('input#playerFirstName').fill('John');
+    await page.locator('input#playerLastName').fill('Smith');
+    await page.locator('input#playerDob').fill('2015-03-15');
+    await page.locator('select#playerGrade').selectOption('5');
+    await page.locator('input[name="playerGender"][value="male"]').check();
+    await page.locator('select#jerseySize').selectOption('YM');
+    await page.getByRole('button', { name: /Continue/i }).click();
+
+    // Complete Step 2
+    await expect(page.getByText('Parent/Guardian Information')).toBeVisible({ timeout: 5000 });
+    await page.locator('input#parentFirstName').fill('Jane');
+    await page.locator('input#parentLastName').fill('Smith');
+    await page.locator('input#parentEmail').fill('jane@example.com');
+    await page.locator('input#parentPhone').fill('4025551234');
+    await page.locator('select#relationship').selectOption('mother');
+    await page.locator('input#addressStreet').fill('123 Main St');
+    await page.locator('input#addressCity').fill('Omaha');
+    await page.locator('select#addressState').selectOption('NE');
+    await page.locator('input#addressZip').fill('68114');
+    await page.locator('input#emergencyName').fill('Bob Smith');
+    await page.locator('input#emergencyPhone').fill('4025559999');
+    await page.getByRole('button', { name: /Continue/i }).click();
+
+    // Wait for Step 3
+    await expect(page.getByText('Choose Your Payment Option')).toBeVisible({ timeout: 5000 });
+  });
+
+  test('should display all three payment options', async ({ page }) => {
+    // Use heading role to target the specific payment option titles
+    await expect(page.getByRole('heading', { name: 'Pay in Full' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Payment Plan' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Request Special Arrangement' })).toBeVisible();
+  });
+
+  test('should show payment plan options when Payment Plan is selected', async ({ page }) => {
+    // Click the Payment Plan button (which contains the h4 heading)
+    await page.locator('button').filter({ hasText: 'Payment Plan' }).filter({ hasText: 'Split your payment' }).click();
+
+    // Should show plan options
+    await expect(page.getByText('Plan A')).toBeVisible();
+    await expect(page.getByText('Plan B')).toBeVisible();
+  });
+
+  test('should show special request form when Special Arrangement is selected', async ({ page }) => {
+    // Click the Special Arrangement button (which contains the h4 heading)
+    await page.locator('button').filter({ hasText: 'Request Special Arrangement' }).click();
+
+    // Should show reason dropdown and notes field
+    await expect(page.locator('select#specialRequestReason')).toBeVisible();
+    await expect(page.locator('textarea#specialRequestNotes')).toBeVisible();
+  });
+});
+
+test.describe('Registration Wizard - Mobile Responsiveness', () => {
+  test('should display wizard correctly on mobile', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 812 });
     await page.goto('/register');
     await page.waitForSelector('h1', { timeout: 10000 });
 
-    // Form should still be visible
+    // Wizard should be visible
     await expect(page.locator('h1').filter({ hasText: /Team Registration/i })).toBeVisible();
-    await expect(page.getByRole('button', { name: /Complete Registration/i })).toBeVisible();
+    await expect(page.getByRole('button', { name: /Continue/i })).toBeVisible();
+  });
+
+  test('should show mobile step indicator', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 812 });
+    await page.goto('/register');
+    await page.waitForSelector('h1', { timeout: 10000 });
+
+    // Mobile step indicator should show step count
+    await expect(page.getByText(/Step 1 of 4/i)).toBeVisible();
   });
 });

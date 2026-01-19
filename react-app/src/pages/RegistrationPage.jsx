@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Bell, CreditCard, Shirt, AlertCircle } from 'lucide-react';
 import InteriorLayout from '../components/layouts/InteriorLayout';
-import TeamRegistrationForm from '../components/registration/TeamRegistrationForm';
+import RegistrationWizard from '../components/registration/RegistrationWizard';
 import { useTeamRegistration } from '../hooks/useTeamRegistration';
 import { useRegistrationStatus } from '../hooks/useRegistrationStatus';
 
@@ -11,7 +11,6 @@ export default function RegistrationPage() {
     submitRegistration,
     submitting,
     submitSuccess,
-    submitError,
     resetSubmitState,
   } = useTeamRegistration();
 
@@ -176,15 +175,14 @@ export default function RegistrationPage() {
               </div>
             </div>
 
-            {/* Registration Form */}
+            {/* Registration Wizard */}
             <div className="lg:col-span-3">
               {isRegistrationOpen ? (
-                <TeamRegistrationForm
+                <RegistrationWizard
                   teams={teams}
                   onSubmit={submitRegistration}
                   submitting={submitting}
                   submitSuccess={submitSuccess}
-                  submitError={submitError}
                   onReset={resetSubmitState}
                 />
               ) : (
