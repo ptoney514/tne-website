@@ -40,6 +40,28 @@ export default function ParentContactStep() {
     prevStep,
   } = useWizard();
 
+  // Check if all required fields are filled
+  const canProceed = (() => {
+    // Parent/Guardian required fields
+    if (!formData.parentFirstName?.trim()) return false;
+    if (!formData.parentLastName?.trim()) return false;
+    if (!formData.parentEmail?.trim()) return false;
+    if (!formData.parentPhone?.trim()) return false;
+    if (!formData.relationship) return false;
+
+    // Address required fields
+    if (!formData.addressStreet?.trim()) return false;
+    if (!formData.addressCity?.trim()) return false;
+    if (!formData.addressState) return false;
+    if (!formData.addressZip?.trim()) return false;
+
+    // Emergency contact required fields
+    if (!formData.emergencyName?.trim()) return false;
+    if (!formData.emergencyPhone?.trim()) return false;
+
+    return true;
+  })();
+
   const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -353,7 +375,14 @@ export default function ParentContactStep() {
         </div>
       </div>
 
-      <StepNavigation onNext={handleNext} onPrev={prevStep} />
+      {/* Visual prompt when incomplete */}
+      {!canProceed && (
+        <div className="rounded-xl bg-blue-50 border border-blue-200 p-3 text-center">
+          <p className="text-sm text-blue-700">Complete all required fields to continue</p>
+        </div>
+      )}
+
+      <StepNavigation onNext={handleNext} onPrev={prevStep} disabled={!canProceed} />
     </div>
   );
 }

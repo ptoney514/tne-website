@@ -78,6 +78,16 @@ export default function PaymentCommitmentStep() {
     }
   };
 
+  // Determine if user can proceed based on payment selection
+  const canProceed = (() => {
+    if (!formData.paymentPlanType) return false;
+    if (formData.paymentPlanType === 'installment' && !formData.paymentPlanOption) return false;
+    if (formData.paymentPlanType === 'special_request') {
+      if (!formData.specialRequestReason || !formData.specialRequestNotes?.trim()) return false;
+    }
+    return true;
+  })();
+
   const handleNext = () => {
     const errors = validateStep3(formData);
     if (Object.keys(errors).length > 0) {
@@ -453,9 +463,17 @@ export default function PaymentCommitmentStep() {
         </div>
       </div>
 
+      {/* Prompt when nothing selected */}
+      {!formData.paymentPlanType && (
+        <div className="rounded-xl bg-blue-50 border border-blue-200 p-3 text-center">
+          <p className="text-sm text-blue-700">Select a payment option above to continue</p>
+        </div>
+      )}
+
       <StepNavigation
         onNext={handleNext}
         onPrev={prevStep}
+        disabled={!canProceed}
         nextLabel={
           formData.paymentPlanType === 'full' || formData.paymentPlanType === 'installment'
             ? 'Continue to Payment'

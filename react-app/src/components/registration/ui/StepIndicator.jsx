@@ -2,10 +2,10 @@ import { Check } from 'lucide-react';
 import { useWizard } from '../WizardContext';
 
 const steps = [
-  { number: 1, title: 'Player & Team', shortTitle: 'Player' },
-  { number: 2, title: 'Parent & Contact', shortTitle: 'Contact' },
-  { number: 3, title: 'Payment Plan', shortTitle: 'Payment' },
-  { number: 4, title: 'Review & Confirm', shortTitle: 'Confirm' },
+  { number: 1, title: 'Player & Team', shortTitle: 'Player', subtitle: 'Select team and enter player info' },
+  { number: 2, title: 'Parent & Contact', shortTitle: 'Contact', subtitle: 'Guardian and emergency contact' },
+  { number: 3, title: 'Payment Plan', shortTitle: 'Payment', subtitle: "Secure your player's spot" },
+  { number: 4, title: 'Review & Confirm', shortTitle: 'Confirm', subtitle: 'Final review and agreements' },
 ];
 
 export default function StepIndicator() {
@@ -36,20 +36,27 @@ export default function StepIndicator() {
                   step.number
                 )}
               </div>
-              <span
-                className={`
-                  ml-3 text-sm font-medium
-                  ${
-                    currentStep === step.number
-                      ? 'text-tne-red'
-                      : currentStep > step.number
-                      ? 'text-emerald-600'
-                      : 'text-neutral-500'
-                  }
-                `}
-              >
-                {step.title}
-              </span>
+              <div className="ml-3">
+                <span
+                  className={`
+                    text-sm font-medium
+                    ${
+                      currentStep === step.number
+                        ? 'text-tne-red'
+                        : currentStep > step.number
+                        ? 'text-emerald-600'
+                        : 'text-neutral-500'
+                    }
+                  `}
+                >
+                  {step.title}
+                </span>
+                {currentStep === step.number && step.subtitle && (
+                  <span className="block text-xs text-neutral-500 mt-0.5">
+                    {step.subtitle}
+                  </span>
+                )}
+              </div>
             </div>
             {index < steps.length - 1 && (
               <div

@@ -38,6 +38,7 @@ const initialFormData = {
   waiverLiability: false,
   waiverMedical: false,
   waiverMedia: false,
+  paymentTermsAcknowledged: false,
 
   // Legacy fields for compatibility
   medicalNotes: '',

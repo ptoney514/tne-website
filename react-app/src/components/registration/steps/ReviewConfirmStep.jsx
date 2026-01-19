@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { AlertCircle, Check, Shield, Camera, Heart, Send, Loader2 } from 'lucide-react';
+import { AlertCircle, Check, Shield, Camera, Heart, Send, Loader2, DollarSign } from 'lucide-react';
 import { useWizard } from '../WizardContext';
 import { validateStep4 } from '../wizardValidation';
 import SummaryCard from '../ui/SummaryCard';
@@ -191,6 +191,35 @@ export default function ReviewConfirmStep({ onSubmit, isSubmitting }) {
             </div>
           </label>
         </div>
+
+        {/* Payment Terms Acknowledgment */}
+        <div
+          className={`
+            rounded-xl border p-4 transition-colors
+            ${validationErrors.paymentTermsAcknowledged ? 'border-red-300 bg-red-50' : 'border-neutral-200 bg-white'}
+          `}
+        >
+          <label className="flex items-start gap-3 cursor-pointer">
+            <div className="mt-0.5">
+              <input
+                type="checkbox"
+                checked={formData.paymentTermsAcknowledged}
+                onChange={(e) => handleWaiverChange('paymentTermsAcknowledged', e.target.checked)}
+                className="w-5 h-5 text-tne-red border-neutral-300 rounded focus:ring-tne-red/50"
+              />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <DollarSign className="w-4 h-4 text-neutral-500" />
+                <span className="font-medium text-neutral-900">Payment Terms *</span>
+              </div>
+              <p className="text-sm text-neutral-600 mt-1">
+                I understand that roster placement requires payment confirmation. My player&apos;s spot
+                is not guaranteed until payment is received and verified by TNE United Express.
+              </p>
+            </div>
+          </label>
+        </div>
       </div>
 
       {/* Final Confirmation */}
@@ -224,7 +253,7 @@ export default function ReviewConfirmStep({ onSubmit, isSubmitting }) {
         <button
           type="button"
           onClick={handleSubmit}
-          disabled={isSubmitting || !formData.waiverLiability || !formData.waiverMedical || !formData.waiverMedia}
+          disabled={isSubmitting || !formData.waiverLiability || !formData.waiverMedical || !formData.waiverMedia || !formData.paymentTermsAcknowledged}
           className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-tne-red text-white font-medium hover:bg-tne-red-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isSubmitting ? (

@@ -212,6 +212,9 @@ function WizardContent({ onSubmit, submitting, submitSuccess, onReset }) {
   );
 }
 
+// Export WizardContent for use when WizardProvider is lifted
+export { WizardContent };
+
 export default function RegistrationWizard({
   teams,
   onSubmit,

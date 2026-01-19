@@ -110,7 +110,7 @@ export default function PlayerTeamStep() {
           )}
         </div>
 
-        {selectedTeam && (
+        {selectedTeam && totalFee > 0 && (
           <div className="p-4 rounded-xl bg-tne-red/5 border border-tne-red/20">
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium text-neutral-700">Season Fee:</span>
