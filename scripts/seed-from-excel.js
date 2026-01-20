@@ -53,6 +53,28 @@ if (!dryRun && (!supabaseUrl || !supabaseKey)) {
 
 const supabase = !dryRun ? createClient(supabaseUrl, supabaseKey) : null;
 
+/**
+ * Normalize gender input to 'male' or 'female'
+ * Handles variations like: girls, F, female, boys, M, male, etc.
+ */
+function normalizeGender(value) {
+  if (!value) return null;
+  const normalized = String(value).trim().toLowerCase();
+
+  // Female variations
+  if (['female', 'f', 'girls', 'girl', 'women', 'woman', 'w'].includes(normalized)) {
+    return 'female';
+  }
+  // Male variations
+  if (['male', 'm', 'boys', 'boy', 'men', 'man'].includes(normalized)) {
+    return 'male';
+  }
+
+  // Warn about unrecognized value
+  console.warn(`  Warning: Unrecognized gender "${value}", defaulting to null`);
+  return null;
+}
+
 // Read Excel file
 function readExcelFile() {
   const filepath = path.join(rootDir, 'data', 'team-data.xlsx');
@@ -302,7 +324,7 @@ async function getOrCreateSeason(seasonName) {
 async function seedTeams(teams, coachIdMap) {
   console.log('\n--- Seeding Teams ---');
 
-  const teamIdMap = {}; // "Season||TeamName" -> id
+  const teamIdMap = {}; // "Season||TeamName" -> { id, gender }
   const seasonIdMap = {}; // season name -> id
   let created = 0;
   let updated = 0;
@@ -337,7 +359,7 @@ async function seedTeams(teams, coachIdMap) {
       continue;
     }
 
-    const gender = t.Gender?.toLowerCase() === 'female' ? 'female' : 'male';
+    const gender = normalizeGender(t.Gender) || 'male';
     const headCoachId = t['Head Coach'] ? coachIdMap[t['Head Coach']] : null;
     const assistantCoachId = t['Assistant Coach'] ? coachIdMap[t['Assistant Coach']] : null;
 
@@ -349,7 +371,7 @@ async function seedTeams(teams, coachIdMap) {
 
     if (dryRun) {
       console.log(`  [DRY RUN] Would upsert: ${t['Team Name']} (${t.Season})`);
-      teamIdMap[key] = `dry-run-${key}`;
+      teamIdMap[key] = { id: `dry-run-${key}`, gender };
       continue;
     }
 
@@ -382,7 +404,7 @@ async function seedTeams(teams, coachIdMap) {
         console.log(`  Updated: ${t['Team Name']}`);
         updated++;
       }
-      teamIdMap[key] = existing.id;
+      teamIdMap[key] = { id: existing.id, gender };
     } else {
       // Create new
       const { data, error } = await supabase
@@ -407,7 +429,7 @@ async function seedTeams(teams, coachIdMap) {
       } else {
         console.log(`  Created: ${t['Team Name']}`);
         created++;
-        teamIdMap[key] = data.id;
+        teamIdMap[key] = { id: data.id, gender };
       }
     }
   }
@@ -437,12 +459,15 @@ async function seedRosters(rosters, teamIdMap) {
 
   for (const r of filteredRosters) {
     const teamKey = `${r.Season}||${r['Team Name']}`;
-    const teamId = teamIdMap[teamKey];
+    const teamInfo = teamIdMap[teamKey];
 
-    if (!teamId) {
+    if (!teamInfo) {
       console.error(`  Skipping ${r['Player Name']}: Team not found (${r['Team Name']})`);
       continue;
     }
+
+    const teamId = teamInfo.id;
+    const playerGender = teamInfo.gender || 'male';
 
     const name = r['Player Name'];
     const nameParts = name.split(' ');
@@ -494,7 +519,7 @@ async function seedRosters(rosters, teamIdMap) {
           date_of_birth: dateOfBirth,
           graduating_year: gradYear,
           current_grade: r.Grade || null,
-          gender: 'male' // Default, update as needed
+          gender: playerGender
         })
         .select('id')
         .single();
@@ -577,12 +602,12 @@ async function getTeamIdMap() {
 
   const { data } = await supabase
     .from('teams')
-    .select('id, name, season:seasons(name)');
+    .select('id, name, gender, season:seasons(name)');
 
   const map = {};
   data?.forEach(t => {
     const key = `${t.season?.name}||${t.name}`;
-    map[key] = t.id;
+    map[key] = { id: t.id, gender: t.gender || 'male' };
   });
   return map;
 }

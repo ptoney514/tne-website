@@ -22,3 +22,6 @@ src/assets/images/media/videos/
 
 # Supabase CLI temp files
 supabase/.temp/
+
+# Seed data (may contain PII, generate locally)
+data/team-data.xlsx
