@@ -204,14 +204,9 @@ export default function RegistrationPage() {
 
           {/* Two Column Layout - Wrapped in WizardProvider for shared state */}
           <WizardProvider teams={teams}>
-            <div className="grid gap-8 lg:grid-cols-5">
-              {/* Sidebar: Registration Summary + Fees + Uniforms */}
-              <div className="lg:col-span-2">
-                <SidebarContent />
-              </div>
-
-              {/* Registration Wizard */}
-              <div className="lg:col-span-3">
+            <div className="grid gap-8 lg:grid-cols-7">
+              {/* Registration Wizard - LEFT (wider) */}
+              <div className="lg:col-span-4 order-2 lg:order-1">
                 <RegistrationWizardArea
                   onSubmit={submitRegistration}
                   submitting={submitting}
@@ -219,6 +214,11 @@ export default function RegistrationPage() {
                   onReset={resetSubmitState}
                   isRegistrationOpen={isRegistrationOpen}
                 />
+              </div>
+
+              {/* Sidebar: Registration Summary + Fees + Uniforms - RIGHT (narrower) */}
+              <div className="lg:col-span-3 order-1 lg:order-2">
+                <SidebarContent />
               </div>
             </div>
           </WizardProvider>

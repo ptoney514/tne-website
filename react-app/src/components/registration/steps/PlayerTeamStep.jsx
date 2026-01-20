@@ -76,6 +76,13 @@ export default function PlayerTeamStep() {
     ${validationErrors[fieldName] ? 'border-red-500' : 'border-neutral-300'}
   `;
 
+  const selectClass = (fieldName) => `
+    block w-full rounded-xl border bg-neutral-50 px-4 py-3 text-sm text-neutral-900
+    focus:outline-none focus:ring-2 focus:ring-tne-red/50 focus:border-tne-red/50
+    h-[42px] cursor-pointer
+    ${validationErrors[fieldName] ? 'border-red-500' : 'border-neutral-300'}
+  `;
+
   return (
     <div className="space-y-6">
       {/* Team Selection */}
@@ -93,7 +100,7 @@ export default function PlayerTeamStep() {
             name="teamId"
             value={formData.teamId}
             onChange={handleChange}
-            className={inputClass('teamId')}
+            className={selectClass('teamId')}
           >
             <option value="">Select a team</option>
             {teams.map((team) => (
@@ -202,7 +209,7 @@ export default function PlayerTeamStep() {
               name="playerGrade"
               value={formData.playerGrade}
               onChange={handleChange}
-              className={inputClass('playerGrade')}
+              className={selectClass('playerGrade')}
             >
               {gradeOptions.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -265,7 +272,7 @@ export default function PlayerTeamStep() {
               name="jerseySize"
               value={formData.jerseySize}
               onChange={handleChange}
-              className={inputClass('jerseySize')}
+              className={selectClass('jerseySize')}
             >
               {jerseySizeOptions.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -290,7 +297,7 @@ export default function PlayerTeamStep() {
               name="position"
               value={formData.position}
               onChange={handleChange}
-              className={inputClass('position')}
+              className={selectClass('position')}
             >
               {positionOptions.map((option) => (
                 <option key={option.value} value={option.value}>
