@@ -16,8 +16,9 @@ test.describe('Public Registration Page', () => {
   });
 
   test('should display registration wizard with step indicator', async ({ page }) => {
-    // Should show step indicator (desktop shows step titles)
-    await expect(page.getByText('Player & Team').first()).toBeVisible();
+    // Step indicator shows short titles on lg+ screens and step numbers in circles
+    // Check for "Player" short title (visible at lg+ viewport)
+    await expect(page.getByText('Player', { exact: true }).first()).toBeVisible();
   });
 });
 

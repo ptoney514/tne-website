@@ -4,7 +4,7 @@ import { useWizard } from '../WizardContext';
 import { getPaymentPlanDetails } from '../../../constants/payments';
 
 export default function RegistrationSummaryPanel() {
-  const { formData, selectedTeam, currentStep, totalSteps } = useWizard();
+  const { formData, selectedTeam, currentStep } = useWizard();
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   // Only show when team is selected
@@ -134,29 +134,6 @@ export default function RegistrationSummaryPanel() {
           )}
         </div>
 
-        {/* Progress Indicator */}
-        <div className="px-5 py-3 bg-neutral-50 border-t border-neutral-200">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-medium text-neutral-500">Progress</span>
-            <span className="text-xs font-medium text-neutral-700">Step {currentStep} of {totalSteps}</span>
-          </div>
-          <div className="flex gap-1.5">
-            {Array.from({ length: totalSteps }, (_, i) => (
-              <div
-                key={i}
-                className={`
-                  h-1.5 flex-1 rounded-full transition-colors
-                  ${i + 1 < currentStep
-                    ? 'bg-emerald-500'
-                    : i + 1 === currentStep
-                    ? 'bg-tne-red'
-                    : 'bg-neutral-200'
-                  }
-                `}
-              />
-            ))}
-          </div>
-        </div>
       </div>
     </div>
   );
