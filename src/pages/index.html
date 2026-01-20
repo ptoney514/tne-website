@@ -50,6 +50,16 @@
         .animate-fade-in-up {
             animation: fadeInUp 0.8s ease-out both;
         }
+        /* Enhanced button hover */
+        .btn-lift {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .btn-lift:hover {
+            transform: translateY(-2px);
+        }
+        .btn-lift:active {
+            transform: translateY(0);
+        }
     </style>
 </head>
 <body class="bg-white text-stone-950 antialiased min-h-screen flex flex-col font-sans selection:bg-tne-red selection:text-white">
@@ -87,8 +97,8 @@
                 <!-- Left Links -->
                 <div class="hidden md:flex items-center gap-1 pl-2">
                     <a href="teams.html" class="text-[11px] hover:text-white uppercase hover:bg-white/10 transition-all font-medium text-white/80 tracking-wider font-mono rounded-full px-3 py-1.5">Teams</a>
-                    <a href="schedule.html" class="text-[11px] hover:text-white uppercase hover:bg-white/10 transition-all font-medium text-white/80 tracking-wider font-mono rounded-full px-3 py-1.5">Schedule</a>
                     <a href="tryouts.html" class="text-[11px] hover:text-white uppercase hover:bg-white/10 transition-all font-medium text-white/80 tracking-wider font-mono rounded-full px-3 py-1.5">Tryouts</a>
+                    <a href="schedule.html" class="text-[11px] hover:text-white uppercase hover:bg-white/10 transition-all font-medium text-white/80 tracking-wider font-mono rounded-full px-3 py-1.5">Schedule</a>
                     <a href="about.html" class="text-[11px] hover:text-white uppercase hover:bg-white/10 transition-all font-medium text-white/80 tracking-wider font-mono rounded-full px-3 py-1.5">About</a>
                 </div>
 
@@ -125,8 +135,8 @@
                 <nav class="p-4 space-y-1">
                     <a href="index.html" class="block px-4 py-3 text-sm font-medium text-white bg-white/10 rounded-xl">Home</a>
                     <a href="teams.html" class="block px-4 py-3 text-sm font-medium text-white/80 hover:text-white hover:bg-white/5 rounded-xl transition-colors">Teams</a>
-                    <a href="schedule.html" class="block px-4 py-3 text-sm font-medium text-white/80 hover:text-white hover:bg-white/5 rounded-xl transition-colors">Schedule</a>
                     <a href="tryouts.html" class="block px-4 py-3 text-sm font-medium text-white/80 hover:text-white hover:bg-white/5 rounded-xl transition-colors">Tryouts</a>
+                    <a href="schedule.html" class="block px-4 py-3 text-sm font-medium text-white/80 hover:text-white hover:bg-white/5 rounded-xl transition-colors">Schedule</a>
                     <a href="about.html" class="block px-4 py-3 text-sm font-medium text-white/80 hover:text-white hover:bg-white/5 rounded-xl transition-colors">About</a>
                     <a href="contact.html" class="block px-4 py-3 text-sm font-medium text-white/80 hover:text-white hover:bg-white/5 rounded-xl transition-colors">Contact</a>
                 </nav>
@@ -150,24 +160,36 @@
 
                 <!-- Hero Title -->
                 <h1 class="text-5xl sm:text-7xl lg:text-8xl font-bold text-transparent bg-clip-text bg-gradient-to-b from-white to-white/50 tracking-tight leading-[0.95] font-bebas uppercase">
-                    <span class="block">To be the best,</span>
-                    <span class="block">you have to play the best</span>
+                    <span class="block">Omaha's Premier</span>
+                    <span class="block">Youth Basketball Program</span>
                 </h1>
 
                 <p class="max-w-md text-white/60 text-sm sm:text-base font-mono leading-relaxed mt-6 tracking-wide">
-                    Omaha's premier grassroots pipeline. Developing elite character and D1 talent since 2012.
+                    Developing elite character and college-ready athletes since 2012. To be the best, you have to play the best.
                 </p>
 
                 <!-- CTAs -->
                 <div class="flex flex-col sm:flex-row gap-4 pt-4 pointer-events-auto">
-                    <a href="#" class="group relative px-8 py-3 bg-tne-red text-white text-sm font-semibold uppercase tracking-wider overflow-hidden transition-all hover:bg-tne-red-dark shadow-lg shadow-tne-red/25">
+                    <a href="tryouts.html" class="btn-lift group relative px-8 py-3 bg-tne-red text-white text-sm font-semibold uppercase tracking-wider overflow-hidden transition-all hover:bg-tne-red-dark shadow-lg shadow-tne-red/25">
                         <span class="relative z-10 flex items-center gap-2">
                             Register For Tryouts
                             <i data-lucide="arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-1"></i>
                         </span>
                     </a>
-                    <a href="#" class="px-8 py-3 border border-white/20 text-white text-sm font-semibold uppercase tracking-wider rounded hover:bg-white/10 transition-all backdrop-blur-sm">
-                        View 2025 Rosters
+                    <a href="teams.html" class="btn-lift px-8 py-3 border border-white/30 text-white text-sm font-semibold uppercase tracking-wider rounded hover:bg-white/10 transition-all backdrop-blur-sm">
+                        View Teams
+                    </a>
+                </div>
+
+                <!-- Event Promotion Banner -->
+                <div class="mt-8 pointer-events-auto">
+                    <a href="schedule.html" class="inline-flex items-center gap-3 px-5 py-3 rounded-xl border border-amber-500/30 bg-amber-500/10 backdrop-blur-md hover:bg-amber-500/20 transition-all group">
+                        <i data-lucide="trophy" class="w-4 h-4 text-amber-400"></i>
+                        <div class="text-left">
+                            <span class="block text-xs font-mono text-amber-300/80 uppercase tracking-wider">Upcoming</span>
+                            <span class="block text-sm font-semibold text-white">New Year Classic — Limited Spots</span>
+                        </div>
+                        <i data-lucide="arrow-right" class="w-4 h-4 text-white/50 group-hover:translate-x-1 transition-transform"></i>
                     </a>
                 </div>
             </div>
@@ -273,6 +295,18 @@
                     </h2>
                 </div>
 
+                <!-- College Alumni -->
+                <div class="mb-12 flex flex-wrap items-center gap-4">
+                    <span class="text-xs font-mono text-white/50 uppercase tracking-wider">Alumni at:</span>
+                    <span class="text-sm text-white/70">Creighton</span>
+                    <span class="text-white/30">·</span>
+                    <span class="text-sm text-white/70">Nebraska</span>
+                    <span class="text-white/30">·</span>
+                    <span class="text-sm text-white/70">Oklahoma State</span>
+                    <span class="text-white/30">·</span>
+                    <span class="text-tne-red/70 text-sm">+ more</span>
+                </div>
+
                 <!-- Stats Grid -->
                 <div class="grid grid-cols-1 md:grid-cols-4 bg-neutral-900 border-white/5 border">
                     
@@ -327,7 +361,7 @@
                     <h2 class="text-4xl sm:text-5xl lg:text-6xl font-semibold text-stone-950 tracking-tight leading-[1.05] mb-6">
                         A Complete Game.
                     </h2>
-                    <p class="text-lg text-stone-500 max-w-xl leading-relaxed">
+                    <p class="text-lg text-stone-500 max-w-xl leading-7">
                         We build players from the ground up. Whether you are looking to refine mechanics or prepare for collegiate exposure.
                     </p>
                 </div>
@@ -345,13 +379,13 @@
                         </div>
                         <ul class="space-y-3 mb-8 flex-1">
                             <li class="flex items-start gap-3 text-sm text-stone-600">
-                                <i data-lucide="check" class="w-4 h-4 text-tne-red mt-0.5"></i> Ball Handling & Footwork
+                                <i data-lucide="check" class="w-4 h-4 text-tne-red mt-0.5"></i> Elite ball handling for game-speed performance
                             </li>
                             <li class="flex items-start gap-3 text-sm text-stone-600">
-                                <i data-lucide="check" class="w-4 h-4 text-tne-red mt-0.5"></i> Shooting Mechanics
+                                <i data-lucide="check" class="w-4 h-4 text-tne-red mt-0.5"></i> Shooting mechanics built for pressure
                             </li>
                             <li class="flex items-start gap-3 text-sm text-stone-600">
-                                <i data-lucide="check" class="w-4 h-4 text-tne-red mt-0.5"></i> Defensive Principles
+                                <i data-lucide="check" class="w-4 h-4 text-tne-red mt-0.5"></i> Defensive IQ that disrupts opponents
                             </li>
                         </ul>
                         <button class="text-sm font-semibold text-stone-950 flex items-center gap-2 group-hover:gap-4 transition-all">
@@ -371,13 +405,13 @@
                         </div>
                         <ul class="space-y-3 mb-8 flex-1">
                             <li class="flex items-start gap-3 text-sm text-stone-600">
-                                <i data-lucide="check" class="w-4 h-4 text-tne-red mt-0.5"></i> Regional & National Schedule
+                                <i data-lucide="check" class="w-4 h-4 text-tne-red mt-0.5"></i> Regional & national exposure to top competition
                             </li>
                             <li class="flex items-start gap-3 text-sm text-stone-600">
-                                <i data-lucide="check" class="w-4 h-4 text-tne-red mt-0.5"></i> 2x Weekly Practices
+                                <i data-lucide="check" class="w-4 h-4 text-tne-red mt-0.5"></i> 2x weekly practices to accelerate development
                             </li>
                             <li class="flex items-start gap-3 text-sm text-stone-600">
-                                <i data-lucide="check" class="w-4 h-4 text-tne-red mt-0.5"></i> Collegiate Recruiting Support
+                                <i data-lucide="check" class="w-4 h-4 text-tne-red mt-0.5"></i> Direct pathway to collegiate recruiting
                             </li>
                         </ul>
                         <button class="text-sm font-semibold text-tne-red flex items-center gap-2 group-hover:gap-4 transition-all">
@@ -396,13 +430,13 @@
                         </div>
                         <ul class="space-y-3 mb-8 flex-1">
                             <li class="flex items-start gap-3 text-sm text-stone-600">
-                                <i data-lucide="check" class="w-4 h-4 text-tne-red mt-0.5"></i> Plyometrics & Vertical
+                                <i data-lucide="check" class="w-4 h-4 text-tne-red mt-0.5"></i> Explosive vertical leap and court speed
                             </li>
                             <li class="flex items-start gap-3 text-sm text-stone-600">
-                                <i data-lucide="check" class="w-4 h-4 text-tne-red mt-0.5"></i> Injury Prevention
+                                <i data-lucide="check" class="w-4 h-4 text-tne-red mt-0.5"></i> Injury prevention for year-round durability
                             </li>
                             <li class="flex items-start gap-3 text-sm text-stone-600">
-                                <i data-lucide="check" class="w-4 h-4 text-tne-red mt-0.5"></i> Speed & Agility
+                                <i data-lucide="check" class="w-4 h-4 text-tne-red mt-0.5"></i> Elite agility that wins 50/50 balls
                             </li>
                         </ul>
                         <button class="text-sm font-semibold text-stone-950 flex items-center gap-2 group-hover:gap-4 transition-all">
@@ -538,6 +572,9 @@
                             </p>
                             <p class="text-base leading-relaxed text-[#8A8F98] mt-4">
                                 He taught us that wins are temporary, but character lasts forever. Every jersey we wear and every practice we run is a continuation of his legacy.
+                            </p>
+                            <p class="text-base leading-relaxed text-tne-red/80 mt-4 font-medium">
+                                This culture is why families stay with our program year after year.
                             </p>
                         </div>
                         <div class="pt-6 border-t border-white/10">
@@ -678,18 +715,18 @@
                     <span class="text-stone-400">when you sign up.</span>
                 </h2>
 
-                <p class="text-lg text-stone-500 mb-10 max-w-xl mx-auto leading-relaxed">
+                <p class="text-lg text-stone-500 mb-10 max-w-xl mx-auto leading-7">
                     Fall/Winter 2025-26 evaluations are approaching. Spaces are limited by team capacity. Secure your spot at tryouts today.
                 </p>
 
                 <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
-                    <button class="h-12 px-8 bg-tne-red text-white font-medium hover:bg-tne-red-dark transition-all shadow-xl shadow-tne-red/20 flex items-center gap-2 hover:scale-105 active:scale-95 duration-200">
+                    <a href="tryouts.html" class="h-12 px-8 bg-tne-red text-white font-medium hover:bg-tne-red-dark transition-all shadow-xl shadow-tne-red/20 flex items-center gap-2 hover:scale-105 active:scale-95 duration-200">
                         <span>Register for Tryouts</span>
                         <i data-lucide="chevron-right" class="w-4 h-4"></i>
-                    </button>
-                    <button class="h-12 px-8 rounded border border-stone-300 text-stone-600 font-medium hover:bg-white hover:text-stone-900 transition-all bg-white/50 backdrop-blur-sm">
+                    </a>
+                    <a href="contact.html" class="btn-lift h-12 px-8 rounded border border-stone-400 text-stone-600 font-medium hover:bg-white hover:text-stone-900 hover:border-stone-500 transition-all bg-white/50 backdrop-blur-sm">
                         Contact Coaches
-                    </button>
+                    </a>
                 </div>
             </div>
         </section>
