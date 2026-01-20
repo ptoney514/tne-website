@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { Instagram, Youtube, Twitter, LogIn, Calendar } from 'lucide-react';
 import tneLogoWhite from '../assets/tne-logo-white-transparent.png';
 
-export default function HomeFooter() {
+export default function HomeFooter({ hideStatusBadge = false }) {
   return (
     <footer className="bg-[#050505] w-full border-t border-white/10 pt-20 pb-10 relative overflow-hidden text-[#8A8F98]">
       <div className="max-w-[1400px] mx-auto px-6 lg:px-12 relative z-10">
@@ -72,12 +72,14 @@ export default function HomeFooter() {
           <div className="text-xs text-white/30 font-mono">
             &copy; 2025 TNE United Express Basketball. All rights reserved.
           </div>
-          <div className="flex items-center gap-2 border border-white/10 bg-white/5 rounded-full px-3 py-1">
-            <div className="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]"></div>
-            <span className="text-[10px] font-mono text-white/60 uppercase tracking-wider">
-              Registration Open
-            </span>
-          </div>
+          {!hideStatusBadge && (
+            <div className="flex items-center gap-2 border border-white/10 bg-white/5 rounded-full px-3 py-1">
+              <div className="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]"></div>
+              <span className="text-[10px] font-mono text-white/60 uppercase tracking-wider">
+                Registration Open
+              </span>
+            </div>
+          )}
         </div>
 
         <div className="absolute -bottom-12 -right-10 pointer-events-none select-none opacity-[0.03] overflow-hidden">

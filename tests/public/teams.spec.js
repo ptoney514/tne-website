@@ -8,15 +8,11 @@ test.describe('Public Teams Page', () => {
   });
 
   test('should display page title', async ({ page }) => {
-    await expect(page.locator('h1').filter({ hasText: /Teams/i })).toBeVisible();
-  });
-
-  test('should display hero section with season badge', async ({ page }) => {
-    await expect(page.getByText(/2024-25|Winter Season/i)).toBeVisible();
+    await expect(page.locator('h1').filter({ hasText: /2024–25 Winter Season Teams/i })).toBeVisible();
   });
 
   test('should display hero description', async ({ page }) => {
-    await expect(page.getByText(/Select a team to view roster/i)).toBeVisible();
+    await expect(page.getByText(/View current team rosters and coach assignments/i)).toBeVisible();
   });
 });
 
@@ -129,39 +125,87 @@ test.describe('Teams Page - Filter Functionality', () => {
     await page.waitForSelector('h1', { timeout: 10000 });
   });
 
-  test('should display all filter buttons', async ({ page }) => {
-    await expect(page.getByRole('button', { name: /All Teams/i })).toBeVisible();
-    await expect(page.getByRole('button', { name: /Boys Express/i })).toBeVisible();
-    await expect(page.getByRole('button', { name: /Boys TNE/i })).toBeVisible();
-    await expect(page.getByRole('button', { name: /Girls Program/i })).toBeVisible();
+  test('should display program and grade dropdown filters', async ({ page }) => {
+    // Program dropdown
+    await expect(page.getByLabel(/Program filter/i)).toBeVisible();
+    // Grade dropdown
+    await expect(page.getByLabel(/Grade filter/i)).toBeVisible();
   });
 
-  test('should filter teams when clicking filter buttons', async ({ page }) => {
+  test('should filter teams when selecting program dropdown option', async ({ page }) => {
     // Wait for teams to load
     await page.waitForSelector('[data-testid="teams-grid"], [data-testid="loading-spinner"]', {
       timeout: 10000,
     });
     await page.waitForTimeout(2000);
 
-    // Click Boys Express filter
-    await page.getByRole('button', { name: /Boys Express/i }).click();
+    // Select Boys Express from program dropdown
+    await page.getByLabel(/Program filter/i).selectOption('express');
 
-    // Button should now be active (has different styling)
-    await expect(page.getByRole('button', { name: /Boys Express/i })).toHaveClass(/bg-neutral-900/);
+    // Wait for filter to apply
+    await page.waitForTimeout(300);
+
+    // Clear button should appear
+    await expect(page.getByRole('button', { name: /Clear/i })).toBeVisible();
   });
 
-  test('should switch between filter options', async ({ page }) => {
+  test('should filter teams when selecting grade dropdown option', async ({ page }) => {
+    // Wait for teams to load
     await page.waitForSelector('[data-testid="teams-grid"], [data-testid="loading-spinner"]', {
       timeout: 10000,
     });
+    await page.waitForTimeout(2000);
 
-    // Click Girls Program filter
-    await page.getByRole('button', { name: /Girls Program/i }).click();
-    await expect(page.getByRole('button', { name: /Girls Program/i })).toHaveClass(/bg-neutral-900/);
+    // Select 4th Grade from grade dropdown
+    await page.getByLabel(/Grade filter/i).selectOption('4');
 
-    // Click All Teams filter
-    await page.getByRole('button', { name: /All Teams/i }).click();
-    await expect(page.getByRole('button', { name: /All Teams/i })).toHaveClass(/bg-neutral-900/);
+    // Wait for filter to apply
+    await page.waitForTimeout(300);
+
+    // Clear button should appear
+    await expect(page.getByRole('button', { name: /Clear/i })).toBeVisible();
+  });
+
+  test('should show Clear button only when filters are active', async ({ page }) => {
+    await page.waitForSelector('[data-testid="teams-grid"], [data-testid="loading-spinner"]', {
+      timeout: 10000,
+    });
+    await page.waitForTimeout(2000);
+
+    // Clear button should NOT be visible initially
+    await expect(page.getByRole('button', { name: /Clear/i })).not.toBeVisible();
+
+    // Apply a filter
+    await page.getByLabel(/Program filter/i).selectOption('tne');
+    await page.waitForTimeout(300);
+
+    // Clear button should now be visible
+    await expect(page.getByRole('button', { name: /Clear/i })).toBeVisible();
+
+    // Click Clear button
+    await page.getByRole('button', { name: /Clear/i }).click();
+    await page.waitForTimeout(300);
+
+    // Clear button should be hidden again
+    await expect(page.getByRole('button', { name: /Clear/i })).not.toBeVisible();
+  });
+
+  test('should combine filters with AND logic', async ({ page }) => {
+    await page.waitForSelector('[data-testid="teams-grid"], [data-testid="loading-spinner"]', {
+      timeout: 10000,
+    });
+    await page.waitForTimeout(2000);
+
+    // Apply program filter
+    await page.getByLabel(/Program filter/i).selectOption('express');
+    await page.waitForTimeout(300);
+
+    // Apply grade filter
+    await page.getByLabel(/Grade filter/i).selectOption('4');
+    await page.waitForTimeout(300);
+
+    // Both filters should be active, Clear button visible
+    await expect(page.getByRole('button', { name: /Clear/i })).toBeVisible();
   });
 });
 
@@ -171,8 +215,8 @@ test.describe('Teams Page - Search Functionality', () => {
     await page.waitForSelector('h1', { timeout: 10000 });
   });
 
-  test('should display search input', async ({ page }) => {
-    await expect(page.getByPlaceholder(/Search teams/i)).toBeVisible();
+  test('should display search input with updated placeholder', async ({ page }) => {
+    await expect(page.getByPlaceholder(/Search team or player/i)).toBeVisible();
   });
 
   test('should filter teams based on search input', async ({ page }) => {
@@ -182,13 +226,14 @@ test.describe('Teams Page - Search Functionality', () => {
     });
     await page.waitForTimeout(2000);
 
-    const searchInput = page.getByPlaceholder(/Search teams/i);
+    const searchInput = page.getByPlaceholder(/Search team or player/i);
     await searchInput.fill('4th');
 
-    // Wait for filter to apply
+    // Wait for debounced filter to apply
     await page.waitForTimeout(300);
 
-    // Teams should be filtered (can't check exact count without data)
+    // Clear button should appear when search has text
+    await expect(page.getByRole('button', { name: /Clear/i })).toBeVisible();
   });
 
   test('should show empty state when search has no results', async ({ page }) => {
@@ -197,14 +242,32 @@ test.describe('Teams Page - Search Functionality', () => {
     });
     await page.waitForTimeout(2000);
 
-    const searchInput = page.getByPlaceholder(/Search teams/i);
+    const searchInput = page.getByPlaceholder(/Search team or player/i);
     await searchInput.fill('xyznonexistentteam123');
 
-    // Wait for filter to apply
+    // Wait for debounced filter to apply
     await page.waitForTimeout(300);
 
     // Should show empty state
     await expect(page.getByText(/No teams found/i)).toBeVisible();
+    await expect(page.getByText(/Try adjusting your filters/i)).toBeVisible();
+  });
+
+  test('should show Clear filters button in empty state when filters are active', async ({ page }) => {
+    await page.waitForSelector('[data-testid="teams-grid"], [data-testid="loading-spinner"]', {
+      timeout: 10000,
+    });
+    await page.waitForTimeout(2000);
+
+    const searchInput = page.getByPlaceholder(/Search team or player/i);
+    await searchInput.fill('xyznonexistentteam123');
+
+    // Wait for debounced filter to apply
+    await page.waitForTimeout(300);
+
+    // Empty state should have Clear filters button
+    const emptyStateClearButton = page.locator('button', { hasText: /Clear filters/i });
+    await expect(emptyStateClearButton).toBeVisible();
   });
 
   test('should clear search and show all teams', async ({ page }) => {
@@ -213,7 +276,7 @@ test.describe('Teams Page - Search Functionality', () => {
     });
     await page.waitForTimeout(2000);
 
-    const searchInput = page.getByPlaceholder(/Search teams/i);
+    const searchInput = page.getByPlaceholder(/Search team or player/i);
     await searchInput.fill('test');
     await page.waitForTimeout(300);
 
@@ -222,6 +285,49 @@ test.describe('Teams Page - Search Functionality', () => {
     await page.waitForTimeout(300);
 
     // Should show teams again (if there are any)
+  });
+});
+
+test.describe('Teams Page - Grade Grouping', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/teams');
+    await page.waitForSelector('h1', { timeout: 10000 });
+  });
+
+  test('should display grade headings when teams are grouped', async ({ page }) => {
+    await page.waitForSelector('[data-testid="teams-grid"]', { timeout: 10000 });
+    await page.waitForTimeout(2000);
+
+    // Check if there are any grade heading elements (h2 with "Grade" text)
+    const gradeHeadings = page.locator('h2').filter({ hasText: /Grade/i });
+    const headingCount = await gradeHeadings.count();
+
+    // If there are teams, there should be at least one grade heading
+    const teamCards = await page.locator('[data-testid="team-card"]').count();
+    if (teamCards > 0) {
+      expect(headingCount).toBeGreaterThan(0);
+    }
+  });
+
+  test('should sort grade headings numerically', async ({ page }) => {
+    await page.waitForSelector('[data-testid="teams-grid"]', { timeout: 10000 });
+    await page.waitForTimeout(2000);
+
+    // Get all grade headings text
+    const gradeHeadings = page.locator('h2').filter({ hasText: /Grade|Other/i });
+    const headingTexts = await gradeHeadings.allTextContents();
+
+    // Extract grade numbers and check they're sorted
+    const gradeNumbers = headingTexts
+      .map(text => {
+        const match = text.match(/(\d+)/);
+        return match ? parseInt(match[1]) : 99; // "Other" gets 99
+      });
+
+    // Check sorting (each number should be <= next number)
+    for (let i = 0; i < gradeNumbers.length - 1; i++) {
+      expect(gradeNumbers[i]).toBeLessThanOrEqual(gradeNumbers[i + 1]);
+    }
   });
 });
 
@@ -276,28 +382,23 @@ test.describe('Teams Page - Team Cards', () => {
       expect(classAttr).toContain('hover:');
     }
   });
-});
 
-test.describe('Teams Page - OSA League Section', () => {
-  test.beforeEach(async ({ page }) => {
-    await page.goto('/teams');
-    await page.waitForSelector('h1', { timeout: 10000 });
-  });
+  test('team card should display simplified information', async ({ page }) => {
+    await page.waitForSelector('[data-testid="teams-grid"]', { timeout: 10000 });
+    await page.waitForTimeout(2000);
 
-  test('should display OSA League info section', async ({ page }) => {
-    await expect(page.getByRole('heading', { name: /OSA League Games/i })).toBeVisible();
-  });
+    const teamCards = page.locator('[data-testid="team-card"]');
+    const cardCount = await teamCards.count();
 
-  test('should display league season info', async ({ page }) => {
-    await expect(page.getByText(/Jan 3 – Mar 1/i)).toBeVisible();
-    await expect(page.getByText(/Saturdays & Sundays/i)).toBeVisible();
-  });
+    if (cardCount > 0) {
+      const firstCard = teamCards.first();
 
-  test('should display TourneyMachine link', async ({ page }) => {
-    const link = page.getByRole('link', { name: /View on TourneyMachine/i });
-    await expect(link).toBeVisible();
-    await expect(link).toHaveAttribute('href', /tourneymachine/i);
-    await expect(link).toHaveAttribute('target', '_blank');
+      // Card should have team name, grade info, coach, and program badge
+      await expect(firstCard.locator('h2')).toBeVisible(); // Team name
+      await expect(firstCard.getByText(/Grade/i)).toBeVisible(); // Grade info
+      await expect(firstCard.getByText(/Coach:/i)).toBeVisible(); // Coach info (now "Coach: Name")
+      // Player count only shows if > 0, arrow is always present (no text)
+    }
   });
 });
 
@@ -308,17 +409,18 @@ test.describe('Teams Page - Mobile Responsiveness', () => {
     await page.waitForSelector('h1', { timeout: 10000 });
 
     // Main elements should be visible
-    await expect(page.locator('h1').filter({ hasText: /Teams/i })).toBeVisible();
-    await expect(page.getByPlaceholder(/Search teams/i)).toBeVisible();
+    await expect(page.locator('h1').filter({ hasText: /2024–25 Winter Season Teams/i })).toBeVisible();
+    await expect(page.getByPlaceholder(/Search team or player/i)).toBeVisible();
   });
 
-  test('should stack filter buttons on mobile', async ({ page }) => {
+  test('should display dropdowns on mobile', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 812 });
     await page.goto('/teams');
     await page.waitForSelector('h1', { timeout: 10000 });
 
-    // Filter buttons should be visible and scrollable
-    await expect(page.getByRole('button', { name: /All Teams/i })).toBeVisible();
+    // Dropdowns should be visible
+    await expect(page.getByLabel(/Program filter/i)).toBeVisible();
+    await expect(page.getByLabel(/Grade filter/i)).toBeVisible();
   });
 
   test('should have single column layout on mobile', async ({ page }) => {
@@ -327,7 +429,7 @@ test.describe('Teams Page - Mobile Responsiveness', () => {
     await page.waitForSelector('[data-testid="teams-grid"]', { timeout: 10000 });
     await page.waitForTimeout(2000);
 
-    const grid = page.locator('[data-testid="teams-grid"]');
+    const grid = page.locator('[data-testid="teams-grid"]').first();
     const gridClass = await grid.getAttribute('class');
 
     // On mobile (375px), should use single column (grid-cols-1)

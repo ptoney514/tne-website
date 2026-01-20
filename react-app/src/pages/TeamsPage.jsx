@@ -1,8 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { CalendarDays, Search, Trophy, ChevronRight, Loader2, AlertCircle } from 'lucide-react';
+import { Search, ChevronRight, ChevronDown, Loader2, AlertCircle, X } from 'lucide-react';
 import InteriorLayout from '../components/layouts/InteriorLayout';
-import tneLogoWhite from '../assets/tne-logo-white-transparent.png';
 import { usePublicTeams } from '../hooks/usePublicTeams';
 
 // Team type display labels
@@ -21,18 +20,24 @@ function getTeamType(team) {
 
 // Format coach name for display
 function formatCoachName(coach) {
-  if (!coach) return 'Coach TBD';
-  if (coach.first_name === 'Coach') {
-    return `Coach ${coach.last_name}`;
-  }
-  return `Coach ${coach.last_name}`;
+  if (!coach) return 'Coach: TBD';
+  return `Coach: ${coach.last_name}`;
+}
+
+// Extract raw grade (e.g., "4th" from "4th Grade" or "4th")
+function extractGrade(gradeLevel) {
+  if (!gradeLevel) return null;
+  const match = gradeLevel.match(/(\d+)(st|nd|rd|th)?/i);
+  return match ? `${match[1]}${match[2] || 'th'}` : null;
 }
 
 // Transform Supabase team data for display
 function transformTeam(team) {
+  const rawGrade = extractGrade(team.grade_level);
   return {
     id: team.id,
-    grade: team.grade_level.includes('th') ? `${team.grade_level} Grade` : team.grade_level,
+    grade: rawGrade ? `${rawGrade} Grade` : team.grade_level,
+    rawGrade: rawGrade,
     name: team.name,
     coach: formatCoachName(team.head_coach),
     type: getTeamType(team),
@@ -40,70 +45,81 @@ function transformTeam(team) {
   };
 }
 
-function TeamCard({ team, index }) {
-  const isTNE = team.type === TEAM_TYPES.TNE;
-  const isGirls = team.type === TEAM_TYPES.GIRLS;
+// Debounce hook for search
+function useDebounce(value, delay = 200) {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedValue(value), delay);
+    return () => clearTimeout(timer);
+  }, [value, delay]);
+  return debouncedValue;
+}
 
+// Group teams by grade for display
+function groupTeamsByGrade(teams) {
+  const groups = {};
+  teams.forEach(team => {
+    const grade = team.rawGrade || 'Other';
+    if (!groups[grade]) groups[grade] = [];
+    groups[grade].push(team);
+  });
+
+  return Object.keys(groups)
+    .sort((a, b) => {
+      if (a === 'Other') return 1;
+      if (b === 'Other') return -1;
+      const numA = parseInt(a) || 99;
+      const numB = parseInt(b) || 99;
+      return numA - numB;
+    })
+    .map(grade => ({ grade, teams: groups[grade] }));
+}
+
+// Format lastUpdated date
+function formatLastUpdated(dateString) {
+  if (!dateString) return null;
+  const date = new Date(dateString);
+  return date.toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric'
+  });
+}
+
+function TeamCard({ team, index }) {
   return (
     <Link
       to={`/teams/${team.id}`}
       className="group block"
       style={{ animationDelay: `${index * 50}ms` }}
     >
-      <article data-testid="team-card" className="rounded-lg bg-white border border-neutral-200 overflow-hidden transition-all duration-300 hover:border-neutral-300 hover:shadow-lg hover:-translate-y-1">
-        {/* Header */}
-        <div className="bg-neutral-900 text-white px-5 py-5 flex items-center justify-between gap-4">
-          <div className="flex-1 min-w-0">
-            {/* Grade Badge */}
-            <div className="inline-flex items-center rounded-sm bg-white/10 border border-white/10 px-2 py-0.5 mb-2">
-              <span className="text-[0.6rem] font-mono uppercase tracking-[0.2em] text-white/80">
-                {team.grade}
-              </span>
-            </div>
-
-            {/* Team Name */}
-            <h2 className="text-xl font-semibold tracking-tight truncate group-hover:text-tne-red transition-colors">
-              {team.name}
-            </h2>
-
-            {/* Coach */}
-            <p className="text-sm text-white/50 truncate mt-0.5">
-              {team.coach}
-            </p>
-          </div>
-
-          {/* Logo */}
-          <div className={`flex-shrink-0 w-12 h-12 rounded-lg flex items-center justify-center transition-transform group-hover:scale-110 ${
-            isTNE ? 'bg-tne-red/20 border border-tne-red/30' : isGirls ? 'bg-pink-500/20 border border-pink-500/30' : 'bg-white/10 border border-white/10'
-          }`}>
-            <img
-              src={tneLogoWhite}
-              alt="TNE"
-              className={`w-8 h-8 object-contain ${
-                isTNE ? 'brightness-100' : isGirls ? 'brightness-100' : 'opacity-60'
-              }`}
-            />
-          </div>
+      <article
+        data-testid="team-card"
+        className="p-6 rounded-xl bg-white border border-neutral-200 shadow-sm transition-all duration-200 hover:shadow-lg hover:border-neutral-300 hover:-translate-y-1"
+      >
+        {/* Team Info */}
+        <div className="space-y-1 mb-4">
+          <h2 className="text-lg font-semibold text-neutral-900 group-hover:text-tne-red transition-colors">
+            {team.name}
+          </h2>
+          <p className="text-sm text-neutral-500">
+            {team.grade}
+          </p>
+          <p className="text-sm text-neutral-500">
+            {team.coach}
+          </p>
         </div>
 
         {/* Footer */}
-        <div className="px-5 py-3 bg-neutral-50 border-t border-neutral-100 flex items-center justify-between">
-          {/* Team Type Badge */}
-          <span className={`inline-flex items-center px-2 py-0.5 rounded text-[0.65rem] font-mono uppercase tracking-wider ${
-            isTNE
-              ? 'bg-tne-red/10 text-tne-red border border-tne-red/20'
-              : isGirls
-                ? 'bg-pink-500/10 text-pink-600 border border-pink-500/20'
-                : 'bg-neutral-100 text-neutral-600 border border-neutral-200'
-          }`}>
-            {team.type}
-          </span>
-
-          {/* View Link */}
-          <span className="inline-flex items-center gap-1 text-xs font-medium text-neutral-400 group-hover:text-tne-red transition-colors">
-            View Team
-            <ChevronRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
-          </span>
+        <div className="flex items-center justify-between pt-3 border-t border-neutral-100">
+          {team.playerCount > 0 ? (
+            <span className="text-sm text-neutral-500">
+              {team.playerCount} player{team.playerCount !== 1 ? 's' : ''}
+            </span>
+          ) : (
+            <span />
+          )}
+          <ChevronRight className="w-4 h-4 text-neutral-400 group-hover:text-tne-red group-hover:translate-x-0.5 transition-all" />
         </div>
       </article>
     </Link>
@@ -129,34 +145,83 @@ function ErrorState({ error }) {
   );
 }
 
-function EmptyState() {
+function EmptyState({ hasFilters, onClearFilters }) {
   return (
     <div className="flex flex-col items-center justify-center py-20">
-      <p className="text-neutral-500">No teams found matching your criteria.</p>
+      <Search className="w-8 h-8 text-neutral-300 mb-4" />
+      <p className="text-neutral-700 font-medium mb-1">No teams found</p>
+      <p className="text-neutral-500 text-sm mb-4">Try adjusting your filters or search terms.</p>
+      {hasFilters && (
+        <button
+          onClick={onClearFilters}
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-neutral-100 text-neutral-700 text-sm font-medium hover:bg-neutral-200 transition-colors"
+        >
+          Clear filters
+        </button>
+      )}
+    </div>
+  );
+}
+
+function Dropdown({ label, value, onChange, options }) {
+  return (
+    <div className="relative">
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        aria-label={label}
+        className="appearance-none px-4 py-2.5 pr-10 rounded-lg border border-neutral-200 bg-white text-sm text-neutral-700 font-medium cursor-pointer hover:border-neutral-300 focus:outline-none focus:ring-2 focus:ring-tne-red/30 focus:border-tne-red/50 transition-colors"
+      >
+        {options.map(opt => (
+          <option key={opt.value} value={opt.value}>{opt.label}</option>
+        ))}
+      </select>
+      <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400 pointer-events-none" />
     </div>
   );
 }
 
 export default function TeamsPage() {
-  const { teams, loading, error } = usePublicTeams();
-  const [filter, setFilter] = useState('all');
+  const { teams, loading, error, lastUpdated } = usePublicTeams();
   const [searchQuery, setSearchQuery] = useState('');
+  const [programFilter, setProgramFilter] = useState('all');
+  const [gradeFilter, setGradeFilter] = useState('all');
+  const debouncedSearch = useDebounce(searchQuery, 200);
+
+  // Check if any filters are active
+  const hasFilters = debouncedSearch.trim() !== '' || programFilter !== 'all' || gradeFilter !== 'all';
+
+  // Clear all filters
+  const clearFilters = () => {
+    setSearchQuery('');
+    setProgramFilter('all');
+    setGradeFilter('all');
+  };
 
   // Transform and filter teams
   const filteredTeams = teams
     .map(transformTeam)
     .filter(team => {
-      // Apply type filter
-      if (filter === 'all') return true;
-      if (filter === 'express') return team.type === TEAM_TYPES.EXPRESS;
-      if (filter === 'tne') return team.type === TEAM_TYPES.TNE;
-      if (filter === 'girls') return team.type === TEAM_TYPES.GIRLS;
+      // Apply program filter
+      if (programFilter !== 'all') {
+        if (programFilter === 'express' && team.type !== TEAM_TYPES.EXPRESS) return false;
+        if (programFilter === 'tne' && team.type !== TEAM_TYPES.TNE) return false;
+        if (programFilter === 'girls' && team.type !== TEAM_TYPES.GIRLS) return false;
+      }
+      return true;
+    })
+    .filter(team => {
+      // Apply grade filter
+      if (gradeFilter !== 'all') {
+        const gradeNum = team.rawGrade ? parseInt(team.rawGrade) : null;
+        if (gradeNum !== parseInt(gradeFilter)) return false;
+      }
       return true;
     })
     .filter(team => {
       // Apply search filter
-      if (!searchQuery.trim()) return true;
-      const q = searchQuery.toLowerCase();
+      if (!debouncedSearch.trim()) return true;
+      const q = debouncedSearch.toLowerCase();
       return (
         team.name.toLowerCase().includes(q) ||
         team.coach.toLowerCase().includes(q) ||
@@ -164,15 +229,30 @@ export default function TeamsPage() {
       );
     });
 
-  const filterButtons = [
-    { key: 'all', label: 'All Teams' },
-    { key: 'express', label: 'Boys Express' },
-    { key: 'tne', label: 'Boys TNE' },
-    { key: 'girls', label: 'Girls Program' }
+  // Group filtered teams by grade
+  const groupedTeams = groupTeamsByGrade(filteredTeams);
+
+  // Grade options
+  const gradeOptions = [
+    { value: 'all', label: 'All Grades' },
+    { value: '3', label: '3rd Grade' },
+    { value: '4', label: '4th Grade' },
+    { value: '5', label: '5th Grade' },
+    { value: '6', label: '6th Grade' },
+    { value: '7', label: '7th Grade' },
+    { value: '8', label: '8th Grade' }
+  ];
+
+  // Program options
+  const programOptions = [
+    { value: 'all', label: 'All Programs' },
+    { value: 'express', label: 'Boys Express' },
+    { value: 'tne', label: 'Boys TNE' },
+    { value: 'girls', label: 'Girls Program' }
   ];
 
   return (
-    <InteriorLayout>
+    <InteriorLayout hideStatusBadge>
       {/* Hero Header */}
       <header className="relative border-b border-white/5 overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(227,24,55,0.2),transparent_60%),radial-gradient(circle_at_bottom_left,rgba(139,31,58,0.15),transparent_55%)]" />
@@ -180,22 +260,20 @@ export default function TeamsPage() {
         <div className="absolute inset-0 bg-gradient-to-b from-black via-black/90 to-black" />
 
         <div className="sm:px-6 sm:pt-16 sm:pb-14 max-w-6xl mx-auto pt-12 px-4 pb-10 relative">
-          <div className="flex flex-col gap-6 animate-enter">
-            <div className="inline-flex items-center gap-2 rounded-md bg-white/5 border border-white/10 px-3 py-1.5 w-fit">
-              <span className="inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.8)]" />
-              <span className="font-mono uppercase tracking-[0.22em] text-[0.7rem] text-white/80">
-                2024-25 Winter Season
-              </span>
-            </div>
-
+          <div className="flex flex-col gap-4 animate-enter">
             <div>
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tight text-white">
-                Teams
+                2024–25 Winter Season Teams
               </h1>
               <p className="mt-2 text-base sm:text-lg text-white/70 max-w-2xl">
-                Select a team to view roster, schedule, and coach information.
+                View current team rosters and coach assignments.
               </p>
             </div>
+            {lastUpdated && (
+              <p className="text-sm text-white/50">
+                Last updated: {formatLastUpdated(lastUpdated)}
+              </p>
+            )}
           </div>
         </div>
       </header>
@@ -205,96 +283,77 @@ export default function TeamsPage() {
         <section className="max-w-6xl mx-auto px-4 sm:px-6 py-10 sm:py-14 space-y-8">
 
           {/* Controls Bar */}
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            {/* Filter Pills */}
-            <div className="flex items-center gap-2 overflow-x-auto pb-2 sm:pb-0">
-              {filterButtons.map(btn => (
-                <button
-                  key={btn.key}
-                  onClick={() => setFilter(btn.key)}
-                  className={`px-4 py-2 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${
-                    filter === btn.key
-                      ? 'bg-neutral-900 text-white'
-                      : 'border border-neutral-200 bg-white text-neutral-600 hover:border-neutral-300 hover:bg-neutral-50'
-                  }`}
-                >
-                  {btn.label}
-                </button>
-              ))}
-            </div>
-
-            {/* Search */}
-            <div className="relative w-full sm:w-72">
+          <div className="flex flex-col gap-4">
+            <p className="text-xs font-medium text-neutral-500 uppercase tracking-wider mb-2">
+              Find your team
+            </p>
+            {/* Search - full width on mobile, flex-grow on desktop */}
+            <div className="relative w-full">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-neutral-400">
                 <Search className="w-4 h-4" />
               </div>
               <input
                 type="text"
-                placeholder="Search teams..."
+                placeholder="Search team or player"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="block w-full rounded-lg border border-neutral-200 bg-white pl-10 pr-4 py-2 text-sm text-neutral-900 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-tne-red/30 focus:border-tne-red/50 transition-colors"
+                className="block w-full rounded-lg border border-neutral-200 bg-white pl-10 pr-4 py-2.5 text-sm text-neutral-900 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-tne-red/30 focus:border-tne-red/50 transition-colors"
               />
+            </div>
+
+            {/* Dropdowns and Clear button */}
+            <div className="flex flex-wrap items-center gap-3">
+              <Dropdown
+                label="Program filter"
+                value={programFilter}
+                onChange={setProgramFilter}
+                options={programOptions}
+              />
+              <Dropdown
+                label="Grade filter"
+                value={gradeFilter}
+                onChange={setGradeFilter}
+                options={gradeOptions}
+              />
+              {hasFilters && (
+                <button
+                  onClick={clearFilters}
+                  className="inline-flex items-center gap-1.5 px-3 py-2.5 rounded-lg text-sm font-medium text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 transition-colors"
+                >
+                  <X className="w-4 h-4" />
+                  Clear
+                </button>
+              )}
             </div>
           </div>
 
           {/* Content States */}
           {loading && <LoadingState />}
           {error && <ErrorState error={error} />}
-          {!loading && !error && filteredTeams.length === 0 && <EmptyState />}
+          {!loading && !error && filteredTeams.length === 0 && (
+            <EmptyState hasFilters={hasFilters} onClearFilters={clearFilters} />
+          )}
 
-          {/* Team Grid */}
+          {/* Grouped Team Grid */}
           {!loading && !error && filteredTeams.length > 0 && (
-            <div data-testid="teams-grid" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-              {filteredTeams.map((team, index) => (
-                <TeamCard key={team.id} team={team} index={index} />
+            <div className="space-y-10">
+              {groupedTeams.map(({ grade, teams: gradeTeams }) => (
+                <div key={grade} className="border-t border-neutral-200 pt-8 first:border-t-0 first:pt-0">
+                  {/* Grade Heading */}
+                  <h2 className="text-lg font-bold text-neutral-800 uppercase tracking-wide mb-5">
+                    {grade === 'Other' ? 'Other' : `${grade} Grade`}
+                  </h2>
+
+                  {/* Team Grid */}
+                  <div data-testid="teams-grid" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                    {gradeTeams.map((team, index) => (
+                      <TeamCard key={team.id} team={team} index={index} />
+                    ))}
+                  </div>
+                </div>
               ))}
             </div>
           )}
-
-          {/* OSA League Info */}
-          <div className="rounded-lg bg-white border border-neutral-200 overflow-hidden">
-            <div className="bg-neutral-900 text-white px-6 py-5 flex items-center gap-4">
-              <div className="flex items-center justify-center w-11 h-11 rounded-lg bg-white/10 border border-white/10">
-                <Trophy className="w-5 h-5" />
-              </div>
-              <div>
-                <h2 className="text-lg font-semibold tracking-tight">OSA League Games</h2>
-                <p className="text-sm text-white/60">Omaha Sports Academy Winter League</p>
-              </div>
-            </div>
-
-            <div className="px-6 py-5 space-y-4">
-              <div className="flex flex-wrap gap-8 text-sm">
-                <div>
-                  <span className="block text-[0.65rem] font-mono uppercase tracking-wider text-neutral-400 mb-1">
-                    Season
-                  </span>
-                  <span className="font-medium text-neutral-900">Jan 3 – Mar 1, 2025</span>
-                </div>
-                <div>
-                  <span className="block text-[0.65rem] font-mono uppercase tracking-wider text-neutral-400 mb-1">
-                    Game Days
-                  </span>
-                  <span className="font-medium text-neutral-900">Saturdays & Sundays</span>
-                </div>
-              </div>
-
-              <p className="text-sm text-neutral-500 leading-relaxed">
-                League schedules are managed through TourneyMachine. Check below for game times, locations, and opponents.
-              </p>
-
-              <a
-                href="https://tourneymachine.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-tne-red text-white text-sm font-medium hover:bg-tne-red-dark transition-colors"
-              >
-                <CalendarDays className="w-4 h-4" />
-                View on TourneyMachine
-              </a>
-            </div>
-          </div>
         </section>
       </main>
     </InteriorLayout>

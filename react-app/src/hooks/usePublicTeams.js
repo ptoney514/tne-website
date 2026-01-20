@@ -84,6 +84,7 @@ export function usePublicTeams() {
   const [teams, setTeams] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [lastUpdated, setLastUpdated] = useState(null);
   const isBackgroundRefresh = useRef(false);
 
   /**
@@ -175,6 +176,10 @@ export function usePublicTeams() {
       // Show cached data immediately
       setTeams(cached.data);
       setLoading(false);
+      // Set lastUpdated from cache version (which is the updated_at timestamp)
+      if (cached.version) {
+        setLastUpdated(cached.version);
+      }
       console.log(`[usePublicTeams] Loaded ${cached.data.length} teams from cache (age: ${Math.round(cached.age / 1000)}s)`);
 
       // If cache isn't expired, check version in background
@@ -209,6 +214,11 @@ export function usePublicTeams() {
       console.log(`[usePublicTeams] Loaded ${freshTeams.length} teams from Supabase`);
       setTeams(freshTeams);
 
+      // Set lastUpdated from version timestamp
+      if (version) {
+        setLastUpdated(version);
+      }
+
       // Save to cache
       if (freshTeams.length > 0) {
         saveToCache(freshTeams, version, seasonId);
@@ -232,5 +242,5 @@ export function usePublicTeams() {
     fetchTeams();
   }, [fetchTeams]);
 
-  return { teams, loading, error, refetch: fetchTeams };
+  return { teams, loading, error, refetch: fetchTeams, lastUpdated };
 }

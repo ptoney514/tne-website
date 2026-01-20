@@ -269,12 +269,12 @@ function InteriorNavbar() {
   );
 }
 
-export default function InteriorLayout({ children }) {
+export default function InteriorLayout({ children, hideStatusBadge = false }) {
   return (
     <div className="bg-[#050505] text-white antialiased min-h-screen flex flex-col font-sans selection:bg-tne-red/20 selection:text-red-100">
       <InteriorNavbar />
       {children}
-      <HomeFooter />
+      <HomeFooter hideStatusBadge={hideStatusBadge} />
     </div>
   );
 }
