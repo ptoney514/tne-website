@@ -50,7 +50,7 @@ function TeamCard({ team, index }) {
       className="group block"
       style={{ animationDelay: `${index * 50}ms` }}
     >
-      <article className="rounded-lg bg-white border border-neutral-200 overflow-hidden transition-all duration-300 hover:border-neutral-300 hover:shadow-lg hover:-translate-y-1">
+      <article data-testid="team-card" className="rounded-lg bg-white border border-neutral-200 overflow-hidden transition-all duration-300 hover:border-neutral-300 hover:shadow-lg hover:-translate-y-1">
         {/* Header */}
         <div className="bg-neutral-900 text-white px-5 py-5 flex items-center justify-between gap-4">
           <div className="flex-1 min-w-0">
@@ -112,7 +112,7 @@ function TeamCard({ team, index }) {
 
 function LoadingState() {
   return (
-    <div className="flex flex-col items-center justify-center py-20">
+    <div data-testid="loading-spinner" className="flex flex-col items-center justify-center py-20">
       <Loader2 className="w-8 h-8 text-tne-red animate-spin mb-4" />
       <p className="text-neutral-500">Loading teams...</p>
     </div>
@@ -245,7 +245,7 @@ export default function TeamsPage() {
 
           {/* Team Grid */}
           {!loading && !error && filteredTeams.length > 0 && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            <div data-testid="teams-grid" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
               {filteredTeams.map((team, index) => (
                 <TeamCard key={team.id} team={team} index={index} />
               ))}
