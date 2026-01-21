@@ -55,7 +55,7 @@ export default function HomeFooter({ hideStatusBadge = false }) {
               <li>
                 <Link to="/login" className="hover:text-white transition-colors inline-flex items-center gap-2">
                   <LogIn className="w-4 h-4" />
-                  Parent/Coach Login
+                  Admin Login
                 </Link>
               </li>
               <li>
