@@ -1,97 +1,10 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, LogOut, User, ChevronDown, Settings, X, Loader2 } from 'lucide-react';
-import { useAuth } from '../../hooks/useAuth';
+import { Menu, X } from 'lucide-react';
 import { useRegistrationStatus } from '../../hooks/useRegistrationStatus';
 import tneLogoWhite from '../../assets/tne-logo-white-transparent.png';
 import { navLinks } from '../../constants/navigation';
 import HomeFooter from '../HomeFooter';
-
-function UserDropdown({ profile, onSignOut, isSigningOut }) {
-  const [isOpen, setIsOpen] = useState(false);
-  const dropdownRef = useRef(null);
-
-  useEffect(() => {
-    function handleClickOutside(event) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setIsOpen(false);
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-  const displayName = profile?.first_name || 'User';
-  const initials = (profile?.first_name?.[0] || 'U').toUpperCase();
-
-  return (
-    <div className="relative" ref={dropdownRef}>
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        disabled={isSigningOut}
-        className="flex items-center gap-2 px-3 py-2 rounded-full border border-white/15 text-white/80 hover:text-white hover:border-white/40 transition-colors disabled:opacity-50"
-      >
-        {isSigningOut ? (
-          <Loader2 className="w-7 h-7 animate-spin text-white/60" />
-        ) : (
-          <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-tne-maroon to-tne-red flex items-center justify-center text-xs font-bebas">
-            {initials}
-          </div>
-        )}
-        <span className="text-sm font-medium max-w-[100px] truncate hidden sm:inline">
-          {isSigningOut ? 'Signing out...' : displayName}
-        </span>
-        {!isSigningOut && <ChevronDown className={`w-3.5 h-3.5 transition-transform ${isOpen ? 'rotate-180' : ''}`} />}
-      </button>
-
-      {isOpen && !isSigningOut && (
-        <div className="absolute right-0 mt-2 w-52 rounded-xl bg-[#0a0a0a] border border-white/10 shadow-xl overflow-hidden z-50">
-          <div className="px-4 py-3 border-b border-white/10">
-            <p className="text-sm font-medium truncate">{profile?.first_name} {profile?.last_name}</p>
-            <p className="text-xs text-white/50 truncate">{profile?.email}</p>
-            <span className="inline-block mt-1 px-2 py-0.5 rounded-full text-[10px] font-medium uppercase tracking-wider bg-white/10 text-white/60">
-              {profile?.role}
-            </span>
-          </div>
-
-          <div className="py-1">
-            <Link
-              to="/profile"
-              onClick={() => setIsOpen(false)}
-              className="flex items-center gap-2 px-4 py-2.5 text-sm text-white/80 hover:bg-white/5 hover:text-white transition-colors"
-            >
-              <User className="w-4 h-4" />
-              My Profile
-            </Link>
-            {profile?.role === 'admin' && (
-              <Link
-                to="/admin"
-                onClick={() => setIsOpen(false)}
-                className="flex items-center gap-2 px-4 py-2.5 text-sm text-white/80 hover:bg-white/5 hover:text-white transition-colors"
-              >
-                <Settings className="w-4 h-4" />
-                Admin Dashboard
-              </Link>
-            )}
-          </div>
-
-          <div className="border-t border-white/10 py-1">
-            <button
-              onClick={() => {
-                setIsOpen(false);
-                onSignOut();
-              }}
-              className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-red-400 hover:bg-red-500/10 transition-colors"
-            >
-              <LogOut className="w-4 h-4" />
-              Sign Out
-            </button>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
 
 function MobileMenu({ isOpen, onClose }) {
   const location = useLocation();
@@ -152,13 +65,6 @@ function MobileMenu({ isOpen, onClose }) {
               Register
             </Link>
           ) : null}
-          <Link
-            to="/login"
-            onClick={onClose}
-            className="block w-full py-3 text-center text-sm font-medium uppercase tracking-wider rounded-lg border border-white/20 text-white/80 hover:bg-white/5 hover:text-white transition-colors"
-          >
-            Login
-          </Link>
         </div>
       </div>
     </div>
@@ -166,26 +72,9 @@ function MobileMenu({ isOpen, onClose }) {
 }
 
 function InteriorNavbar() {
-  const { user, profile, signOut } = useAuth();
   const { isTryoutsOpen, isRegistrationOpen } = useRegistrationStatus();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isSigningOut, setIsSigningOut] = useState(false);
   const location = useLocation();
-
-  const handleSignOut = async () => {
-    if (isSigningOut) return; // Prevent multiple clicks
-    setIsSigningOut(true);
-    try {
-      await signOut();
-      // Small delay to ensure state is cleared before redirect
-      setTimeout(() => {
-        window.location.href = '/';
-      }, 100);
-    } catch {
-      // If signOut fails, still redirect (local state is cleared)
-      window.location.href = '/';
-    }
-  };
 
   const isActive = (path) => location.pathname === path;
 
@@ -222,35 +111,23 @@ function InteriorNavbar() {
             ))}
           </div>
 
-          {/* Right: Auth Buttons */}
+          {/* Right: CTA Buttons */}
           <div className="hidden md:flex items-center gap-3 z-10">
-            {user ? (
-              <UserDropdown profile={profile} onSignOut={handleSignOut} isSigningOut={isSigningOut} />
-            ) : (
-              <>
-                <Link
-                  to="/login"
-                  className="text-[13px] font-semibold font-mono uppercase tracking-wider px-5 py-2 rounded-full border border-white/20 text-white/80 hover:text-white hover:border-white/40 transition-colors"
-                >
-                  Login
-                </Link>
-                {isTryoutsOpen ? (
-                  <Link
-                    to="/tryouts"
-                    className="text-[13px] font-semibold font-mono uppercase tracking-wider px-5 py-2 rounded-full bg-tne-red text-white hover:bg-tne-red-dark transition-colors shadow-lg shadow-tne-red/25"
-                  >
-                    Tryouts
-                  </Link>
-                ) : isRegistrationOpen ? (
-                  <Link
-                    to="/register"
-                    className="text-[13px] font-semibold font-mono uppercase tracking-wider px-5 py-2 rounded-full bg-tne-red text-white hover:bg-tne-red-dark transition-colors shadow-lg shadow-tne-red/25"
-                  >
-                    Register
-                  </Link>
-                ) : null}
-              </>
-            )}
+            {isTryoutsOpen ? (
+              <Link
+                to="/tryouts"
+                className="text-[13px] font-semibold font-mono uppercase tracking-wider px-5 py-2 rounded-full bg-tne-red text-white hover:bg-tne-red-dark transition-colors shadow-lg shadow-tne-red/25"
+              >
+                Tryouts
+              </Link>
+            ) : isRegistrationOpen ? (
+              <Link
+                to="/register"
+                className="text-[13px] font-semibold font-mono uppercase tracking-wider px-5 py-2 rounded-full bg-tne-red text-white hover:bg-tne-red-dark transition-colors shadow-lg shadow-tne-red/25"
+              >
+                Register
+              </Link>
+            ) : null}
           </div>
 
           {/* Mobile Menu Button */}

@@ -1,17 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
-import { supabase } from '../lib/supabase';
 
-// Set to false to use real Supabase data
-const USE_SAMPLE_DATA = false;
-
-const SAMPLE_STATUS = {
-  isTryoutsOpen: true,
-  tryoutsLabel: "Winter '25-26 Tryouts",
-  isRegistrationOpen: false,
-  registrationLabel: "Fall/Winter '25-26",
-  seasonId: 'sample-season-id',
-};
-
+/**
+ * Hook for fetching registration and tryout status.
+ * Fetches from static config.json file.
+ */
 export function useRegistrationStatus() {
   const [status, setStatus] = useState({
     isTryoutsOpen: false,
@@ -28,52 +20,20 @@ export function useRegistrationStatus() {
       setLoading(true);
       setError(null);
 
-      if (USE_SAMPLE_DATA) {
-        await new Promise((resolve) => setTimeout(resolve, 100));
-        setStatus(SAMPLE_STATUS);
-        return;
+      const response = await fetch('/data/json/config.json');
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch config: ${response.status}`);
       }
 
-      // Fetch the active season with both tryouts and registration status
-      const { data, error: fetchError } = await supabase
-        .from('seasons')
-        .select('id, name, tryouts_open, tryouts_label, registration_open, registration_label')
-        .eq('is_active', true)
-        .single();
-
-      if (fetchError) {
-        // If no active season found, both are closed
-        if (fetchError.code === 'PGRST116') {
-          setStatus({
-            isTryoutsOpen: false,
-            tryoutsLabel: null,
-            isRegistrationOpen: false,
-            registrationLabel: null,
-            seasonId: null,
-          });
-          return;
-        }
-        throw fetchError;
-      }
-
-      // Handle case where no data returned (no active season)
-      if (!data) {
-        setStatus({
-          isTryoutsOpen: false,
-          tryoutsLabel: null,
-          isRegistrationOpen: false,
-          registrationLabel: null,
-          seasonId: null,
-        });
-        return;
-      }
+      const data = await response.json();
 
       setStatus({
-        isTryoutsOpen: data.tryouts_open || false,
-        tryoutsLabel: data.tryouts_label || data.name,
-        isRegistrationOpen: data.registration_open || false,
-        registrationLabel: data.registration_label || data.name,
-        seasonId: data.id,
+        isTryoutsOpen: data.tryouts?.is_open || false,
+        tryoutsLabel: data.tryouts?.label || data.season?.name,
+        isRegistrationOpen: data.registration?.is_open || false,
+        registrationLabel: data.registration?.label || data.season?.name,
+        seasonId: data.season?.id || null,
       });
     } catch (err) {
       console.error('Status fetch error:', err);

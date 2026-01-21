@@ -12,7 +12,6 @@ import {
 } from 'lucide-react';
 import InteriorLayout from '../components/layouts/InteriorLayout';
 import { usePublicTeamDetail } from '../hooks/usePublicTeamDetail';
-import { usePracticeSchedule, formatPracticeSession } from '../hooks/usePracticeSchedule';
 
 // Format date for display (e.g., "Sat Dec 28")
 function formatDate(dateStr) {
@@ -197,7 +196,6 @@ function NotFoundState() {
 export default function TeamDetailPage() {
   const { teamId } = useParams();
   const { team, roster, schedule, loading, error } = usePublicTeamDetail(teamId);
-  const { practices } = usePracticeSchedule(teamId);
 
   if (loading) {
     return <LoadingState />;
@@ -207,7 +205,7 @@ export default function TeamDetailPage() {
     return <NotFoundState />;
   }
 
-  const playerCount = roster.length;
+  const playerCount = team.player_count || 0;
   const teamType = getTeamType(team);
   const coachName = formatCoachName(team.head_coach);
 
@@ -354,34 +352,6 @@ export default function TeamDetailPage() {
                   )}
                 </div>
               </div>
-
-              {/* Practice Schedule */}
-              {practices.length > 0 && (
-                <div className="bg-white border border-neutral-200/80 rounded-lg overflow-hidden">
-                  {/* Header */}
-                  <div className="px-5 py-4 border-b border-neutral-100 flex items-center gap-3">
-                    <Clock className="w-4 h-4 text-neutral-400" />
-                    <h2 className="font-semibold text-neutral-900">Practice Schedule</h2>
-                  </div>
-
-                  {/* Practice List */}
-                  <div className="px-5 py-4 space-y-3">
-                    {practices.map((practice) => (
-                      <div key={practice.id} className="flex items-start gap-3">
-                        <div className="w-2 h-2 rounded-full bg-emerald-500 mt-1.5 flex-shrink-0" />
-                        <div>
-                          <p className="text-sm font-medium text-neutral-800">
-                            {formatPracticeSession(practice)}
-                          </p>
-                          {practice.notes && (
-                            <p className="text-xs text-neutral-500 mt-0.5">{practice.notes}</p>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
 
               {/* Coach Info */}
               <div className="bg-white border border-neutral-200/80 rounded-lg overflow-hidden">

@@ -1,9 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
-import { supabase } from '../lib/supabase';
 
-// Set to true to skip Supabase and use sample data (faster for development)
-const USE_SAMPLE_DATA = false;
-
+/**
+ * Hook for team registration.
+ * - Fetches teams from static JSON files
+ * - Submits registration to serverless API endpoint
+ */
 export function useTeamRegistration() {
   const [teams, setTeams] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -16,49 +17,39 @@ export function useTeamRegistration() {
     setLoading(true);
     setError(null);
 
-    // Use sample data for development (instant load)
-    if (USE_SAMPLE_DATA) {
-      setTeams(getSampleTeams());
-      setLoading(false);
-      return;
-    }
-
     try {
-      // Fetch active teams from the active season
-      const { data: seasonData } = await supabase
-        .from('seasons')
-        .select('id')
-        .eq('is_active', true)
-        .single();
+      // Fetch teams and config in parallel
+      const [teamsResponse, configResponse] = await Promise.all([
+        fetch('/data/json/teams.json'),
+        fetch('/data/json/config.json'),
+      ]);
 
-      if (!seasonData) {
-        setTeams([]);
-        setLoading(false);
-        return;
+      if (!teamsResponse.ok) {
+        throw new Error(`Failed to fetch teams: ${teamsResponse.status}`);
       }
 
-      const { data, error: fetchError } = await supabase
-        .from('teams')
-        .select(`
-          id,
-          name,
-          grade_level,
-          gender,
-          team_fee,
-          uniform_fee,
-          season:seasons(id, name)
-        `)
-        .eq('season_id', seasonData.id)
-        .eq('is_active', true)
-        .order('grade_level', { ascending: true });
+      const teamsData = await teamsResponse.json();
+      const configData = configResponse.ok ? await configResponse.json() : { season: {} };
 
-      if (fetchError) throw fetchError;
+      // Transform teams to match expected format
+      const transformedTeams = (teamsData.teams || []).map(team => ({
+        id: team.id,
+        name: team.name,
+        grade_level: team.grade_level,
+        gender: team.gender,
+        team_fee: team.team_fee,
+        uniform_fee: team.uniform_fee,
+        season: {
+          id: teamsData.season?.id || configData.season?.id,
+          name: teamsData.season?.name || configData.season?.name,
+        },
+      }));
 
-      setTeams(data || []);
+      setTeams(transformedTeams);
     } catch (err) {
       console.error('Error fetching teams:', err);
       setError(err.message || 'Failed to fetch teams');
-      // Return sample data for now if Supabase fetch fails
+      // Return sample data as fallback
       setTeams(getSampleTeams());
     } finally {
       setLoading(false);
@@ -70,7 +61,7 @@ export function useTeamRegistration() {
   }, [fetchTeams]);
 
   const submitRegistration = useCallback(
-    async (registrationData) => {
+    async (registrationData, turnstileToken = null) => {
       setSubmitting(true);
       setSubmitError(null);
       setSubmitSuccess(false);
@@ -79,7 +70,7 @@ export function useTeamRegistration() {
         // Determine payment status based on payment plan type
         let paymentStatus = 'pending';
         if (registrationData.paymentPlanType === 'full' && registrationData.paymentConfirmed) {
-          paymentStatus = 'pending_verification'; // Awaiting admin verification
+          paymentStatus = 'pending_verification';
         } else if (registrationData.paymentPlanType === 'installment') {
           paymentStatus = 'payment_plan_active';
         } else if (registrationData.paymentPlanType === 'special_request') {
@@ -92,9 +83,9 @@ export function useTeamRegistration() {
           registrationData.waiverMedical &&
           registrationData.waiverMedia;
 
-        const { error: insertError } = await supabase
-          .from('registrations')
-          .insert({
+        // Build registration payload
+        const payload = {
+          registration: {
             source: 'direct',
             team_id: registrationData.teamId,
             player_first_name: registrationData.playerFirstName,
@@ -142,12 +133,25 @@ export function useTeamRegistration() {
             // Status
             payment_status: paymentStatus,
             status: registrationData.status || 'pending_payment',
-          });
+          },
+          turnstileToken,
+        };
 
-        if (insertError) throw insertError;
+        // Submit to serverless API
+        const response = await fetch('/api/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          throw new Error(result.error || 'Registration failed');
+        }
 
         setSubmitSuccess(true);
-        return { success: true };
+        return { success: true, referenceId: result.referenceId };
       } catch (err) {
         console.error('Error submitting registration:', err);
         setSubmitError(err.message || 'Failed to submit registration');

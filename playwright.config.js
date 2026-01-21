@@ -20,24 +20,6 @@ export default defineConfig({
         baseURL: 'file://' + process.cwd(),
       },
     },
-    // React app (auth tests)
-    {
-      name: 'react-app',
-      testMatch: /auth\/.*\.spec\.js/,
-      use: {
-        ...devices['Desktop Chrome'],
-        baseURL: 'http://localhost:5173',
-      },
-    },
-    // React app (admin tests)
-    {
-      name: 'admin-app',
-      testMatch: /admin\/.*\.spec\.js/,
-      use: {
-        ...devices['Desktop Chrome'],
-        baseURL: 'http://localhost:5173',
-      },
-    },
     // React app (public pages)
     {
       name: 'public-pages',

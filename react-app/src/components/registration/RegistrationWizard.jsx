@@ -18,7 +18,7 @@ function WizardContent({ onSubmit, submitting, submitSuccess, onReset }) {
     clearDraft,
   } = useWizard();
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (turnstileToken = null) => {
     const graduatingYear = calculateGraduatingYear(formData.playerGrade);
 
     // Determine status based on payment type
@@ -84,6 +84,7 @@ function WizardContent({ onSubmit, submitting, submitSuccess, onReset }) {
       remainingBalance,
       paymentReferenceId,
       paymentConfirmed: formData.paymentConfirmed,
+      paymentTermsAcknowledged: formData.paymentTermsAcknowledged,
 
       // Special request
       specialRequestReason: formData.specialRequestReason,
@@ -98,7 +99,7 @@ function WizardContent({ onSubmit, submitting, submitSuccess, onReset }) {
       status,
     };
 
-    const result = await onSubmit(registrationData);
+    const result = await onSubmit(registrationData, turnstileToken);
     if (result.success) {
       clearDraft();
     }

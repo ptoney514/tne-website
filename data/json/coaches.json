@@ -1,0 +1,45 @@
+{
+  "coaches": [
+    {
+      "id": "coach-alvin-mitchell",
+      "first_name": "Alvin",
+      "last_name": "Mitchell",
+      "email": "amitch2am@gmail.com",
+      "phone": null,
+      "role": "head",
+      "bio": null,
+      "certifications": []
+    },
+    {
+      "id": "coach-coach-foster",
+      "first_name": "Coach",
+      "last_name": "Foster",
+      "email": "foster@tneunited.placeholder",
+      "phone": null,
+      "role": "head",
+      "bio": null,
+      "certifications": []
+    },
+    {
+      "id": "coach-coach-grixby",
+      "first_name": "Coach",
+      "last_name": "Grixby",
+      "email": "grixby@tneunited.placeholder",
+      "phone": null,
+      "role": "head",
+      "bio": null,
+      "certifications": []
+    },
+    {
+      "id": "coach-coach-evans",
+      "first_name": "Coach",
+      "last_name": "Evans",
+      "email": "evans@tneunited.placeholder",
+      "phone": null,
+      "role": "head",
+      "bio": null,
+      "certifications": []
+    }
+  ],
+  "updated_at": "2026-01-20T23:17:30.418Z"
+}

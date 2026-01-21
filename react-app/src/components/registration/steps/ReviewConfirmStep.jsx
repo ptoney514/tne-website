@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { AlertCircle, Check, Shield, Camera, Heart, Send, Loader2, DollarSign } from 'lucide-react';
 import { useWizard } from '../WizardContext';
 import { validateStep4 } from '../wizardValidation';
 import SummaryCard from '../ui/SummaryCard';
+import Turnstile from '../ui/Turnstile';
 
 export default function ReviewConfirmStep({ onSubmit, isSubmitting }) {
   const {
@@ -15,6 +16,8 @@ export default function ReviewConfirmStep({ onSubmit, isSubmitting }) {
   } = useWizard();
 
   const [submitError, setSubmitError] = useState(null);
+  const [turnstileToken, setTurnstileToken] = useState(null);
+  const [turnstileError, setTurnstileError] = useState(null);
 
   const handleWaiverChange = (field, checked) => {
     updateField(field, checked);
@@ -23,6 +26,22 @@ export default function ReviewConfirmStep({ onSubmit, isSubmitting }) {
     }
   };
 
+  const handleTurnstileSuccess = useCallback((token) => {
+    setTurnstileToken(token);
+    setTurnstileError(null);
+  }, []);
+
+  const handleTurnstileError = useCallback((error) => {
+    setTurnstileToken(null);
+    setTurnstileError('Captcha verification failed. Please try again.');
+    console.error('Turnstile error:', error);
+  }, []);
+
+  const handleTurnstileExpire = useCallback(() => {
+    setTurnstileToken(null);
+    setTurnstileError('Captcha expired. Please verify again.');
+  }, []);
+
   const handleSubmit = async () => {
     const errors = validateStep4(formData);
     if (Object.keys(errors).length > 0) {
@@ -30,12 +49,24 @@ export default function ReviewConfirmStep({ onSubmit, isSubmitting }) {
       return;
     }
 
+    // Check for Turnstile token
+    if (!turnstileToken) {
+      setSubmitError('Please complete the captcha verification.');
+      return;
+    }
+
     setSubmitError(null);
-    const result = await onSubmit();
+    const result = await onSubmit(turnstileToken);
     if (!result.success) {
       setSubmitError(result.error || 'Failed to submit registration. Please try again.');
     }
   };
+
+  const allWaiversAccepted =
+    formData.waiverLiability &&
+    formData.waiverMedical &&
+    formData.waiverMedia &&
+    formData.paymentTermsAcknowledged;
 
   return (
     <div className="space-y-6">
@@ -222,6 +253,31 @@ export default function ReviewConfirmStep({ onSubmit, isSubmitting }) {
         </div>
       </div>
 
+      {/* Turnstile Captcha */}
+      <div className="pt-4 border-t border-neutral-200">
+        <h3 className="text-sm font-medium text-neutral-900 uppercase tracking-wide mb-3">
+          Security Verification
+        </h3>
+        {turnstileError && (
+          <div className="flex items-center gap-2 p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 mb-3">
+            <AlertCircle className="w-5 h-5 flex-shrink-0" />
+            <p className="text-sm">{turnstileError}</p>
+          </div>
+        )}
+        <Turnstile
+          onSuccess={handleTurnstileSuccess}
+          onError={handleTurnstileError}
+          onExpire={handleTurnstileExpire}
+          className="flex justify-center"
+        />
+        {turnstileToken && (
+          <p className="text-xs text-emerald-600 text-center mt-2">
+            <Check className="w-4 h-4 inline mr-1" />
+            Verification complete
+          </p>
+        )}
+      </div>
+
       {/* Final Confirmation */}
       <div className="rounded-xl bg-emerald-50 border border-emerald-200 p-4">
         <div className="flex items-start gap-3">
@@ -253,7 +309,7 @@ export default function ReviewConfirmStep({ onSubmit, isSubmitting }) {
         <button
           type="button"
           onClick={handleSubmit}
-          disabled={isSubmitting || !formData.waiverLiability || !formData.waiverMedical || !formData.waiverMedia || !formData.paymentTermsAcknowledged}
+          disabled={isSubmitting || !allWaiversAccepted || !turnstileToken}
           className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-tne-red text-white font-medium hover:bg-tne-red-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isSubmitting ? (

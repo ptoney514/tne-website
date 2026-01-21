@@ -1,33 +1,8 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { supabase, withTimeout } from '../lib/supabase';
 
 // Cache configuration
 const CACHE_KEY = 'tne_teams_cache';
 const CACHE_TTL = 60 * 60 * 1000; // 1 hour in milliseconds
-
-/**
- * Get the latest updated_at timestamp from the teams table
- * Used for cache invalidation when admin makes changes
- */
-async function getTeamsVersion() {
-  try {
-    const { data, error } = await withTimeout(
-      supabase
-        .from('teams')
-        .select('updated_at')
-        .order('updated_at', { ascending: false })
-        .limit(1)
-        .single(),
-      5000,
-      'Teams version check timed out'
-    );
-
-    if (error || !data) return null;
-    return data.updated_at;
-  } catch {
-    return null;
-  }
-}
 
 /**
  * Load cached data from localStorage
@@ -37,14 +12,13 @@ function loadFromCache() {
     const cached = localStorage.getItem(CACHE_KEY);
     if (!cached) return null;
 
-    const { data, timestamp, version, seasonId } = JSON.parse(cached);
+    const { data, timestamp, version } = JSON.parse(cached);
     const age = Date.now() - timestamp;
 
     // Return cache info including whether it's expired
     return {
       data,
       version,
-      seasonId,
       isExpired: age > CACHE_TTL,
       age,
     };
@@ -57,13 +31,12 @@ function loadFromCache() {
 /**
  * Save data to localStorage cache
  */
-function saveToCache(data, version, seasonId) {
+function saveToCache(data, version) {
   try {
     localStorage.setItem(CACHE_KEY, JSON.stringify({
       data,
       timestamp: Date.now(),
       version,
-      seasonId,
     }));
   } catch (err) {
     console.warn('[usePublicTeams] Failed to save cache:', err.message);
@@ -72,13 +45,12 @@ function saveToCache(data, version, seasonId) {
 
 /**
  * Hook for fetching teams on the public Teams page.
- * Fetches only active teams from the active season.
- * No authentication required (public read via RLS).
+ * Fetches from static JSON files.
  *
  * Features:
  * - Shows cached data immediately for instant load
- * - Refreshes in background if cache is stale or version changed
- * - 1 hour cache TTL with smart invalidation on admin changes
+ * - Refreshes in background if cache is stale
+ * - 1 hour cache TTL
  */
 export function usePublicTeams() {
   const [teams, setTeams] = useState([]);
@@ -88,81 +60,46 @@ export function usePublicTeams() {
   const isBackgroundRefresh = useRef(false);
 
   /**
-   * Fetch fresh data from Supabase
+   * Fetch fresh data from JSON files
    */
-  const fetchFromSupabase = useCallback(async () => {
-    // First get active season
-    const { data: activeSeason, error: seasonError } = await withTimeout(
-      supabase
-        .from('seasons')
-        .select('id, name')
-        .eq('is_active', true)
-        .single(),
-      5000,
-      'Active season check timed out'
-    );
+  const fetchFromJSON = useCallback(async () => {
+    // Fetch teams and coaches in parallel
+    const [teamsResponse, coachesResponse] = await Promise.all([
+      fetch('/data/json/teams.json'),
+      fetch('/data/json/coaches.json'),
+    ]);
 
-    if (seasonError) {
-      throw seasonError;
+    if (!teamsResponse.ok) {
+      throw new Error(`Failed to fetch teams: ${teamsResponse.status}`);
     }
 
-    if (!activeSeason) {
-      return { teams: [], seasonId: null };
-    }
+    const teamsData = await teamsResponse.json();
+    const coachesData = coachesResponse.ok ? await coachesResponse.json() : { coaches: [] };
 
-    // Then get teams for that season
-    const { data, error: fetchError } = await withTimeout(
-      supabase
-        .from('teams')
-        .select(`
-          id,
-          name,
-          grade_level,
-          gender,
-          tier,
-          practice_location,
-          practice_days,
-          practice_time,
-          head_coach:coaches!teams_head_coach_id_fkey(id, first_name, last_name)
-        `)
-        .eq('is_active', true)
-        .eq('season_id', activeSeason.id)
-        .order('grade_level', { ascending: true }),
-      10000,
-      'Teams fetch timed out'
-    );
+    // Build coach lookup map
+    const coachMap = {};
+    (coachesData.coaches || []).forEach(coach => {
+      coachMap[coach.id] = coach;
+    });
 
-    if (fetchError) {
-      throw fetchError;
-    }
+    // Transform teams to match expected format (with head_coach object)
+    const transformedTeams = (teamsData.teams || []).map(team => {
+      const headCoach = team.head_coach_id ? coachMap[team.head_coach_id] : null;
 
-    // Fetch player counts for each team
-    const teamIds = data?.map(t => t.id) || [];
+      return {
+        ...team,
+        head_coach: headCoach ? {
+          id: headCoach.id,
+          first_name: headCoach.first_name,
+          last_name: headCoach.last_name,
+        } : null,
+      };
+    });
 
-    let countMap = {};
-    if (teamIds.length > 0) {
-      const { data: rosterCounts } = await withTimeout(
-        supabase
-          .from('team_roster')
-          .select('team_id')
-          .in('team_id', teamIds)
-          .eq('is_active', true),
-        5000,
-        'Roster count fetch timed out'
-      );
-
-      rosterCounts?.forEach((r) => {
-        countMap[r.team_id] = (countMap[r.team_id] || 0) + 1;
-      });
-    }
-
-    // Add player counts to teams
-    const teamsWithCounts = data?.map((team) => ({
-      ...team,
-      player_count: countMap[team.id] || 0,
-    })) || [];
-
-    return { teams: teamsWithCounts, seasonId: activeSeason.id };
+    return {
+      teams: transformedTeams,
+      version: teamsData.updated_at,
+    };
   }, []);
 
   /**
@@ -176,30 +113,20 @@ export function usePublicTeams() {
       // Show cached data immediately
       setTeams(cached.data);
       setLoading(false);
-      // Set lastUpdated from cache version (which is the updated_at timestamp)
+      // Set lastUpdated from cache version
       if (cached.version) {
         setLastUpdated(cached.version);
       }
       console.log(`[usePublicTeams] Loaded ${cached.data.length} teams from cache (age: ${Math.round(cached.age / 1000)}s)`);
 
-      // If cache isn't expired, check version in background
+      // If cache isn't expired, no need to refresh
       if (!cached.isExpired) {
-        isBackgroundRefresh.current = true;
-
-        // Check if version changed (admin made updates)
-        const currentVersion = await getTeamsVersion();
-        if (currentVersion && currentVersion !== cached.version) {
-          console.log('[usePublicTeams] Version changed, refreshing data...');
-        } else {
-          // Cache is still valid
-          console.log('[usePublicTeams] Cache is valid, no refresh needed');
-          isBackgroundRefresh.current = false;
-          return;
-        }
-      } else {
-        console.log('[usePublicTeams] Cache expired, refreshing in background...');
-        isBackgroundRefresh.current = true;
+        console.log('[usePublicTeams] Cache is valid, no refresh needed');
+        return;
       }
+
+      console.log('[usePublicTeams] Cache expired, refreshing in background...');
+      isBackgroundRefresh.current = true;
     } else {
       // No cache, show loading
       setLoading(true);
@@ -208,10 +135,9 @@ export function usePublicTeams() {
     setError(null);
 
     try {
-      const { teams: freshTeams, seasonId } = await fetchFromSupabase();
-      const version = await getTeamsVersion();
+      const { teams: freshTeams, version } = await fetchFromJSON();
 
-      console.log(`[usePublicTeams] Loaded ${freshTeams.length} teams from Supabase`);
+      console.log(`[usePublicTeams] Loaded ${freshTeams.length} teams from JSON`);
       setTeams(freshTeams);
 
       // Set lastUpdated from version timestamp
@@ -221,7 +147,7 @@ export function usePublicTeams() {
 
       // Save to cache
       if (freshTeams.length > 0) {
-        saveToCache(freshTeams, version, seasonId);
+        saveToCache(freshTeams, version);
       }
     } catch (err) {
       console.error('Error fetching teams:', err);
@@ -236,7 +162,7 @@ export function usePublicTeams() {
       setLoading(false);
       isBackgroundRefresh.current = false;
     }
-  }, [fetchFromSupabase]);
+  }, [fetchFromJSON]);
 
   useEffect(() => {
     fetchTeams();
