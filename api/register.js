@@ -16,6 +16,7 @@
 
 import { verifyTurnstile, isConfigured as isTurnstileConfigured } from './lib/turnstile.js';
 import { appendRegistration, isConfigured as isSheetsConfigured } from './lib/googleSheets.js';
+import { insertRegistration, isSupabaseConfigured } from './lib/supabaseAdmin.js';
 
 // Simple rate limiting map (per IP, in-memory)
 // Note: This resets on each serverless cold start, but provides some protection
@@ -172,6 +173,14 @@ export default async function handler(req, res) {
         });
       }
 
+      // Step 4: Also write to Supabase (dual-write, don't fail if this fails)
+      if (isSupabaseConfigured()) {
+        const supabaseResult = await insertRegistration(registration);
+        if (!supabaseResult.success && !supabaseResult.skipped) {
+          console.warn('[Register] Supabase write failed (non-blocking):', supabaseResult.error);
+        }
+      }
+
       // Success!
       return res.status(200).json({
         success: true,
@@ -179,12 +188,29 @@ export default async function handler(req, res) {
         message: 'Registration submitted successfully',
       });
     } else {
-      // Google Sheets not configured - log registration and return success
+      // Google Sheets not configured - try Supabase only or log
       console.warn('[Register] Google Sheets not configured');
-      console.log('[Register] Registration data:', JSON.stringify(registration, null, 2));
 
       // Generate a reference ID anyway for tracking
       const referenceId = `REG-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+
+      // Try Supabase if configured
+      if (isSupabaseConfigured()) {
+        const supabaseResult = await insertRegistration(registration);
+        if (supabaseResult.success && !supabaseResult.skipped) {
+          console.log('[Register] Registration saved to Supabase:', supabaseResult.id);
+          return res.status(200).json({
+            success: true,
+            referenceId,
+            message: 'Registration submitted successfully',
+          });
+        } else if (!supabaseResult.skipped) {
+          console.error('[Register] Supabase write failed:', supabaseResult.error);
+        }
+      }
+
+      // Neither configured - development mode
+      console.log('[Register] Registration data:', JSON.stringify(registration, null, 2));
 
       return res.status(200).json({
         success: true,

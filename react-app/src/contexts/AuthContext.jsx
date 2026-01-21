@@ -28,6 +28,11 @@ export function AuthProvider({ children }) {
 
   // Fetch user profile with role (with debouncing)
   const fetchProfile = useCallback(async (userId) => {
+    if (!supabase) {
+      console.log('[Auth] Supabase not configured - skipping profile fetch');
+      return null;
+    }
+
     // Skip if already fetching for this user
     if (activeProfileFetch.current === userId) {
       console.log('[Auth] Profile fetch already in progress for:', userId);
@@ -62,6 +67,13 @@ export function AuthProvider({ children }) {
     let initTimedOut = false;
 
     const initAuth = async () => {
+      if (!supabase) {
+        console.log('[Auth] Supabase not configured - skipping auth initialization');
+        setLoading(false);
+        loadingRef.current = false;
+        return;
+      }
+
       console.log('[Auth] Starting initialization...');
       try {
         // Use timeout to prevent hanging forever
@@ -135,6 +147,13 @@ export function AuthProvider({ children }) {
 
     initAuth();
 
+    // Skip subscription setup if supabase is not configured
+    if (!supabase) {
+      return () => {
+        isMounted = false;
+      };
+    }
+
     // Listen for auth changes
     const {
       data: { subscription },
@@ -193,6 +212,7 @@ export function AuthProvider({ children }) {
 
     // Handle visibility change - refresh session when tab becomes visible
     const handleVisibilityChange = async () => {
+      if (!supabase) return;
       if (document.visibilityState === 'visible' && hasReceivedAuthState.current) {
         console.log('[Auth] Tab became visible - checking session...');
         try {
@@ -232,6 +252,12 @@ export function AuthProvider({ children }) {
 
   // Sign in with email/password
   const signIn = async (email, password, rememberMe = false) => {
+    if (!supabase) {
+      const message = 'Authentication is not configured';
+      setError(message);
+      return { error: message };
+    }
+
     setError(null);
 
     // Add timeout to prevent infinite hanging
@@ -269,6 +295,14 @@ export function AuthProvider({ children }) {
 
   // Sign out with timeout to prevent hanging
   const signOut = async () => {
+    if (!supabase) {
+      // No supabase, just clear local state
+      setUser(null);
+      setProfile(null);
+      hasReceivedAuthState.current = false;
+      return { error: null };
+    }
+
     try {
       const { error } = await withTimeout(
         supabase.auth.signOut(),
