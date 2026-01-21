@@ -10,6 +10,13 @@ export function SeasonProvider({ children }) {
   const initializedRef = useRef(false);
 
   const fetchSeasons = useCallback(async () => {
+    if (!supabase) {
+      console.log('[Season] Supabase not configured - using empty seasons');
+      setSeasons([]);
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     const { data, error } = await supabase
       .from('seasons')
@@ -38,6 +45,13 @@ export function SeasonProvider({ children }) {
     let mounted = true;
 
     const loadSeasons = async () => {
+      if (!supabase) {
+        console.log('[Season] Supabase not configured - using empty seasons');
+        setSeasons([]);
+        setLoading(false);
+        return;
+      }
+
       const { data, error } = await supabase
         .from('seasons')
         .select('*')
