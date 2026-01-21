@@ -65,7 +65,9 @@ describe('parseExcelFile', () => {
     expect(result.teams[0].gender).toBe('male');
     expect(result.teams[0].tier).toBe('express');
     expect(result.teams[0].team_fee).toBe(450);
-    expect(result.teams[0].head_coach_id).toBe('coach-john-smith');
+    // Teams now store coach names (not IDs) for later resolution to UUIDs
+    expect(result.teams[0].head_coach_name).toBe('John Smith');
+    expect(result.teams[0]).not.toHaveProperty('id'); // No ID generated, DB will create UUID
   });
 
   it('creates coaches from Teams sheet Head Coach column', async () => {
@@ -96,7 +98,9 @@ describe('parseExcelFile', () => {
     const result = await parseExcelFile(buffer);
 
     expect(result.coaches).toHaveLength(1);
-    expect(result.teams[0].head_coach_id).toBe(result.teams[1].head_coach_id);
+    // Teams store coach names (not IDs) for later resolution
+    expect(result.teams[0].head_coach_name).toBe('John Smith');
+    expect(result.teams[1].head_coach_name).toBe('John Smith');
   });
 
   it('parses Coaches sheet when present', async () => {
@@ -115,23 +119,149 @@ describe('parseExcelFile', () => {
     expect(result.coaches[1].role).toBe('assistant');
   });
 
-  it('parses Rosters sheet correctly', async () => {
+  it('parses Rosters sheet correctly with required fields', async () => {
     const buffer = createMockExcel({
       Teams: [{ 'Team Name': 'Express 12U Boys' }],
       Rosters: [
-        { 'Team Name': 'Express 12U Boys', 'Player Name': 'Michael Johnson', 'Jersey #': 23 },
-        { 'Team Name': 'Express 12U Boys', 'Player Name': 'James Williams', 'Jersey #': 10 },
+        {
+          'Team Name': 'Express 12U Boys',
+          'Player Name': 'Michael Johnson',
+          'Jersey #': 23,
+          'Date of Birth': '2012-03-15',
+          'Current Grade': '6th',
+          'Graduating Year': 2030,
+          'Gender': 'male'
+        },
+        {
+          'Team Name': 'Express 12U Boys',
+          'Player Name': 'James Williams',
+          'Jersey #': 10,
+          'Date of Birth': '2012-06-20',
+          'Current Grade': '6th',
+          'Graduating Year': 2030,
+          'Gender': 'male'
+        },
       ],
     });
 
     const result = await parseExcelFile(buffer);
 
     expect(result.rosters).toHaveLength(1);
-    expect(result.rosters[0].team_id).toBe('express-12u-boys');
+    // Rosters now use team_name (not team_id) for later resolution to UUID
+    expect(result.rosters[0].team_name).toBe('Express 12U Boys');
+    expect(result.rosters[0]).not.toHaveProperty('team_id');
     expect(result.rosters[0].players).toHaveLength(2);
     expect(result.rosters[0].players[0].first_name).toBe('Michael');
     expect(result.rosters[0].players[0].last_name).toBe('Johnson');
     expect(result.rosters[0].players[0].jersey_number).toBe('23');
+    // Check required fields are parsed
+    expect(result.rosters[0].players[0].date_of_birth).toBe('2012-03-15');
+    expect(result.rosters[0].players[0].current_grade).toBe('6th');
+    expect(result.rosters[0].players[0].graduating_year).toBe(2030);
+    expect(result.rosters[0].players[0].gender).toBe('male');
+    // Players should not have IDs - DB will generate UUIDs
+    expect(result.rosters[0].players[0]).not.toHaveProperty('id');
+    expect(result.errors).toHaveLength(0);
+  });
+
+  it('adds errors for missing required player fields', async () => {
+    const buffer = createMockExcel({
+      Teams: [{ 'Team Name': 'Express 12U Boys' }],
+      Rosters: [
+        {
+          'Team Name': 'Express 12U Boys',
+          'Player Name': 'Michael Johnson',
+          'Jersey #': 23,
+          // Missing: Date of Birth, Current Grade, Graduating Year, Gender
+        },
+      ],
+    });
+
+    const result = await parseExcelFile(buffer);
+
+    // Should have errors for missing required fields
+    expect(result.errors.length).toBeGreaterThan(0);
+    expect(result.errors.some(e => e.message.includes('date of birth'))).toBe(true);
+    expect(result.errors.some(e => e.message.includes('current grade'))).toBe(true);
+    expect(result.errors.some(e => e.message.includes('graduating year'))).toBe(true);
+    expect(result.errors.some(e => e.message.includes('gender'))).toBe(true);
+  });
+
+  it('adds error for missing gender field', async () => {
+    const buffer = createMockExcel({
+      Teams: [{ 'Team Name': 'Express 12U Boys' }],
+      Rosters: [
+        {
+          'Team Name': 'Express 12U Boys',
+          'Player Name': 'Michael Johnson',
+          'Jersey #': 23,
+          'Date of Birth': '2012-03-15',
+          'Current Grade': '6th',
+          'Graduating Year': 2030,
+          // Missing Gender
+        },
+      ],
+    });
+
+    const result = await parseExcelFile(buffer);
+
+    expect(result.errors.some(e => e.message.includes('Missing gender'))).toBe(true);
+    expect(result.errors.some(e => e.message.includes('Michael Johnson'))).toBe(true);
+  });
+
+  it('adds error for invalid gender value', async () => {
+    const buffer = createMockExcel({
+      Teams: [{ 'Team Name': 'Express 12U Boys' }],
+      Rosters: [
+        {
+          'Team Name': 'Express 12U Boys',
+          'Player Name': 'Michael Johnson',
+          'Jersey #': 23,
+          'Date of Birth': '2012-03-15',
+          'Current Grade': '6th',
+          'Graduating Year': 2030,
+          'Gender': 'other', // Invalid value
+        },
+      ],
+    });
+
+    const result = await parseExcelFile(buffer);
+
+    expect(result.errors.some(e => e.message.includes('Invalid gender'))).toBe(true);
+    expect(result.errors.some(e => e.message.includes('Must be "male" or "female"'))).toBe(true);
+  });
+
+  it('accepts valid gender values', async () => {
+    const buffer = createMockExcel({
+      Teams: [{ 'Team Name': 'Express 12U Boys' }],
+      Rosters: [
+        {
+          'Team Name': 'Express 12U Boys',
+          'Player Name': 'Michael Johnson',
+          'Jersey #': 23,
+          'Date of Birth': '2012-03-15',
+          'Current Grade': '6th',
+          'Graduating Year': 2030,
+          'Gender': 'male',
+        },
+        {
+          'Team Name': 'Express 12U Boys',
+          'Player Name': 'Sarah Smith',
+          'Jersey #': 10,
+          'Date of Birth': '2012-04-20',
+          'Current Grade': '6th',
+          'Graduating Year': 2030,
+          'Gender': 'Female', // Mixed case should work
+        },
+      ],
+    });
+
+    const result = await parseExcelFile(buffer);
+
+    // No gender-related errors
+    expect(result.errors.filter(e => e.message.includes('gender'))).toHaveLength(0);
+    expect(result.rosters[0].players[0].gender).toBe('male');
+    expect(result.rosters[0].players[1].gender).toBe('female');
   });
 
   it('adds errors for teams without names', async () => {
@@ -175,9 +305,9 @@ describe('parseExcelFile', () => {
 });
 
 describe('compareWithExisting', () => {
-  it('identifies new teams', () => {
+  it('identifies new teams by name', () => {
     const parsedData = {
-      teams: [{ id: 'team-1', name: 'New Team' }],
+      teams: [{ name: 'New Team' }],
       coaches: [],
       rosters: [],
     };
@@ -194,14 +324,14 @@ describe('compareWithExisting', () => {
     expect(diff.teams.unchanged).toHaveLength(0);
   });
 
-  it('identifies updated teams', () => {
+  it('identifies updated teams by name', () => {
     const parsedData = {
-      teams: [{ id: 'team-1', name: 'Team 1', grade_level: '13U' }],
+      teams: [{ name: 'Team 1', grade_level: '13U' }],
       coaches: [],
       rosters: [],
     };
     const existingData = {
-      teams: [{ id: 'team-1', name: 'Team 1', grade_level: '12U' }],
+      teams: [{ id: 'uuid-123', name: 'Team 1', grade_level: '12U' }],
       coaches: [],
       rosters: [],
     };
@@ -213,15 +343,151 @@ describe('compareWithExisting', () => {
     expect(diff.teams.unchanged).toHaveLength(0);
   });
 
-  it('identifies unchanged teams', () => {
-    const team = { id: 'team-1', name: 'Team 1', grade_level: '12U', gender: 'male', tier: 'express' };
+  it('identifies unchanged teams by name', () => {
     const parsedData = {
-      teams: [{ ...team }],
+      teams: [{ name: 'Team 1', grade_level: '12U', gender: 'male', tier: 'express' }],
       coaches: [],
       rosters: [],
     };
     const existingData = {
-      teams: [{ ...team }],
+      teams: [{ id: 'uuid-123', name: 'Team 1', grade_level: '12U', gender: 'male', tier: 'express' }],
+      coaches: [],
+      rosters: [],
+    };
+
+    const diff = compareWithExisting(parsedData, existingData);
+
+    expect(diff.teams.new).toHaveLength(0);
+    expect(diff.teams.updated).toHaveLength(0);
+    expect(diff.teams.unchanged).toHaveLength(1);
+  });
+
+  it('identifies new coaches by email', () => {
+    const parsedData = {
+      teams: [],
+      coaches: [{ first_name: 'John', last_name: 'Smith', email: 'john@example.com' }],
+      rosters: [],
+    };
+    const existingData = {
+      teams: [],
+      coaches: [],
+      rosters: [],
+    };
+
+    const diff = compareWithExisting(parsedData, existingData);
+
+    expect(diff.coaches.new).toHaveLength(1);
+  });
+
+  it('identifies existing coaches by email', () => {
+    const parsedData = {
+      teams: [],
+      coaches: [{ first_name: 'John', last_name: 'Smith', email: 'john@example.com' }],
+      rosters: [],
+    };
+    const existingData = {
+      teams: [],
+      coaches: [{ id: 'uuid-456', first_name: 'John', last_name: 'Smith', email: 'john@example.com' }],
+      rosters: [],
+    };
+
+    const diff = compareWithExisting(parsedData, existingData);
+
+    expect(diff.coaches.new).toHaveLength(0);
+    expect(diff.coaches.unchanged).toHaveLength(1);
+  });
+
+  it('detects head coach assignment changes', () => {
+    const parsedData = {
+      teams: [{
+        name: 'Team 1',
+        grade_level: '12U',
+        gender: 'male',
+        tier: 'express',
+        head_coach_name: 'Jane Doe', // Changed from John Smith
+        assistant_coach_name: null,
+      }],
+      coaches: [],
+      rosters: [],
+    };
+    const existingData = {
+      teams: [{
+        id: 'uuid-123',
+        name: 'Team 1',
+        grade_level: '12U',
+        gender: 'male',
+        tier: 'express',
+        head_coach: { first_name: 'John', last_name: 'Smith' },
+        assistant_coach: null,
+      }],
+      coaches: [],
+      rosters: [],
+    };
+
+    const diff = compareWithExisting(parsedData, existingData);
+
+    expect(diff.teams.new).toHaveLength(0);
+    expect(diff.teams.updated).toHaveLength(1);
+    expect(diff.teams.unchanged).toHaveLength(0);
+  });
+
+  it('detects assistant coach assignment changes', () => {
+    const parsedData = {
+      teams: [{
+        name: 'Team 1',
+        grade_level: '12U',
+        gender: 'male',
+        tier: 'express',
+        head_coach_name: 'John Smith',
+        assistant_coach_name: 'New Assistant', // Added
+      }],
+      coaches: [],
+      rosters: [],
+    };
+    const existingData = {
+      teams: [{
+        id: 'uuid-123',
+        name: 'Team 1',
+        grade_level: '12U',
+        gender: 'male',
+        tier: 'express',
+        head_coach: { first_name: 'John', last_name: 'Smith' },
+        assistant_coach: null, // No assistant before
+      }],
+      coaches: [],
+      rosters: [],
+    };
+
+    const diff = compareWithExisting(parsedData, existingData);
+
+    expect(diff.teams.new).toHaveLength(0);
+    expect(diff.teams.updated).toHaveLength(1);
+    expect(diff.teams.unchanged).toHaveLength(0);
+  });
+
+  it('considers team unchanged when coach names match (case-insensitive)', () => {
+    const parsedData = {
+      teams: [{
+        name: 'Team 1',
+        grade_level: '12U',
+        gender: 'male',
+        tier: 'express',
+        head_coach_name: 'john smith', // lowercase
+        assistant_coach_name: null,
+      }],
+      coaches: [],
+      rosters: [],
+    };
+    const existingData = {
+      teams: [{
+        id: 'uuid-123',
+        name: 'Team 1',
+        grade_level: '12U',
+        gender: 'male',
+        tier: 'express',
+        head_coach: { first_name: 'John', last_name: 'Smith' }, // Mixed case
+        assistant_coach: null,
+      }],
       coaches: [],
       rosters: [],
     };
@@ -274,15 +540,23 @@ describe('exportToExcel', () => {
     expect(blob.type).toBe('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
   });
 
-  it('creates a valid Excel blob for rosters data', () => {
+  it('creates a valid Excel blob for rosters data with team_name', () => {
     const data = {
-      teams: [{ id: 'team-1', name: 'Team 1' }],
+      teams: [{ id: 'uuid-123', name: 'Team 1' }],
       coaches: [],
       rosters: [
         {
-          team_id: 'team-1',
+          team_name: 'Team 1',
           players: [
-            { first_name: 'Michael', last_name: 'Johnson', jersey_number: '23' },
+            {
+              first_name: 'Michael',
+              last_name: 'Johnson',
+              jersey_number: '23',
+              date_of_birth: '2012-03-15',
+              current_grade: '6th',
+              graduating_year: 2030,
+              gender: 'male'
+            },
           ],
         },
       ],

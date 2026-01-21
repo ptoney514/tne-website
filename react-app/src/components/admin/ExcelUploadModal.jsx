@@ -14,31 +14,51 @@ const STEPS = {
   ERROR: 'error',
 };
 
-export default function ExcelUploadModal({ isOpen, onClose, onSuccess }) {
+export default function ExcelUploadModal({ isOpen, onClose, onSuccess, seasonId }) {
   const [step, setStep] = useState(STEPS.UPLOAD);
   const [parsedData, setParsedData] = useState(null);
   const [diff, setDiff] = useState(null);
   const [existingData, setExistingData] = useState(null);
   const [error, setError] = useState(null);
   const [uploadProgress, setUploadProgress] = useState('');
+  const [uploadWarnings, setUploadWarnings] = useState([]);
 
   // Fetch existing data from Supabase for comparison
   const fetchExistingData = useCallback(async () => {
     try {
-      const [teamsRes, coachesRes, playersRes] = await Promise.all([
-        supabase.from('teams').select('*'),
+      const [teamsRes, coachesRes, rosterRes] = await Promise.all([
+        // Include coach joins for change detection
+        supabase.from('teams').select(`
+          *,
+          head_coach:coaches!head_coach_id(first_name, last_name),
+          assistant_coach:coaches!assistant_coach_id(first_name, last_name)
+        `),
         supabase.from('coaches').select('*'),
-        supabase.from('players').select('*'),
+        // Query team_roster with player and team info
+        supabase.from('team_roster').select(`
+          team_id,
+          jersey_number,
+          position,
+          teams!inner(id, name),
+          players!inner(id, first_name, last_name, date_of_birth, current_grade, graduating_year, gender)
+        `).eq('is_active', true),
       ]);
 
-      // Group players by team for roster comparison
+      // Group roster entries by team name
       const rostersMap = new Map();
-      playersRes.data?.forEach(player => {
-        const teamId = player.team_id;
-        if (!rostersMap.has(teamId)) {
-          rostersMap.set(teamId, { team_id: teamId, players: [] });
+      rosterRes.data?.forEach(entry => {
+        const teamName = entry.teams?.name;
+        if (!teamName) return;
+
+        const teamKey = teamName.toLowerCase();
+        if (!rostersMap.has(teamKey)) {
+          rostersMap.set(teamKey, { team_name: teamName, players: [] });
         }
-        rostersMap.get(teamId).players.push(player);
+        rostersMap.get(teamKey).players.push({
+          ...entry.players,
+          jersey_number: entry.jersey_number,
+          position: entry.position,
+        });
       });
 
       return {
@@ -60,6 +80,7 @@ export default function ExcelUploadModal({ isOpen, onClose, onSuccess }) {
       setDiff(null);
       setError(null);
       setUploadProgress('');
+      setUploadWarnings([]);
       fetchExistingData().then(setExistingData);
     }
   }, [isOpen, fetchExistingData]);
@@ -99,62 +120,241 @@ export default function ExcelUploadModal({ isOpen, onClose, onSuccess }) {
     setStep(STEPS.UPLOADING);
     setError(null);
 
+    // Maps to track resolved UUIDs
+    const coachIdMap = new Map(); // coach name (lowercase) -> UUID
+    const teamIdMap = new Map(); // team name (lowercase) -> UUID
+
     try {
-      // Upload teams
-      if (parsedData.teams?.length > 0) {
-        setUploadProgress('Uploading teams...');
-        for (const team of parsedData.teams) {
-          // Remove internal fields and fields not in schema
-          const { _rowIndex, player_count, ...teamData } = team;
-
-          const { error: teamError } = await supabase
-            .from('teams')
-            .upsert(teamData, { onConflict: 'id' });
-
-          if (teamError) {
-            throw new Error(`Failed to upload team "${team.name}": ${teamError.message}`);
-          }
-        }
-      }
-
-      // Upload coaches
+      // 1. Upload coaches FIRST (teams reference them via FK)
       if (parsedData.coaches?.length > 0) {
         setUploadProgress('Uploading coaches...');
         for (const coach of parsedData.coaches) {
-          const { _rowIndex, ...coachData } = coach;
+          const { _rowIndex, certifications, ...coachBaseData } = coach;
 
-          const { error: coachError } = await supabase
-            .from('coaches')
-            .upsert(coachData, { onConflict: 'id' });
+          // Lookup existing coach by email (preferred) or name
+          let existingQuery = supabase.from('coaches').select('id');
+          if (coach.email) {
+            existingQuery = existingQuery.eq('email', coach.email);
+          } else {
+            existingQuery = existingQuery
+              .eq('first_name', coach.first_name)
+              .eq('last_name', coach.last_name);
+          }
 
-          if (coachError) {
-            throw new Error(`Failed to upload coach "${coach.first_name} ${coach.last_name}": ${coachError.message}`);
+          const { data: existing } = await existingQuery.maybeSingle();
+
+          let coachId;
+          if (existing) {
+            // UPDATE existing coach
+            const { error: updateError } = await supabase
+              .from('coaches')
+              .update(coachBaseData)
+              .eq('id', existing.id);
+
+            if (updateError) {
+              throw new Error(`Failed to update coach "${coach.first_name} ${coach.last_name}": ${updateError.message}`);
+            }
+            coachId = existing.id;
+          } else {
+            // INSERT new coach
+            const { data: inserted, error: insertError } = await supabase
+              .from('coaches')
+              .insert(coachBaseData)
+              .select('id')
+              .single();
+
+            if (insertError) {
+              throw new Error(`Failed to create coach "${coach.first_name} ${coach.last_name}": ${insertError.message}`);
+            }
+            coachId = inserted.id;
+          }
+
+          // Store UUID for later reference by teams
+          const coachKey = `${coach.first_name} ${coach.last_name}`.toLowerCase();
+          coachIdMap.set(coachKey, coachId);
+        }
+      }
+
+      // 2. Upload teams with season_id and resolved coach UUIDs
+      const uploadWarnings = [];
+
+      if (parsedData.teams?.length > 0) {
+        setUploadProgress('Uploading teams...');
+
+        if (!seasonId) {
+          throw new Error('No season selected. Please select a season before uploading.');
+        }
+
+        for (const team of parsedData.teams) {
+          const {
+            _rowIndex,
+            player_count,
+            head_coach_name,
+            assistant_coach_name,
+            ...teamBaseData
+          } = team;
+
+          // Resolve coach names to UUIDs
+          const headCoachId = head_coach_name
+            ? coachIdMap.get(head_coach_name.toLowerCase()) || null
+            : null;
+          const assistantCoachId = assistant_coach_name
+            ? coachIdMap.get(assistant_coach_name.toLowerCase()) || null
+            : null;
+
+          // Warn if coach names were provided but didn't resolve
+          if (head_coach_name && !headCoachId) {
+            uploadWarnings.push(`Coach "${head_coach_name}" not found for team "${team.name}". Head coach will be unassigned.`);
+          }
+          if (assistant_coach_name && !assistantCoachId) {
+            uploadWarnings.push(`Coach "${assistant_coach_name}" not found for team "${team.name}". Assistant coach will be unassigned.`);
+          }
+
+          // Lookup existing team by name + season
+          const { data: existing } = await supabase
+            .from('teams')
+            .select('id')
+            .eq('name', team.name)
+            .eq('season_id', seasonId)
+            .maybeSingle();
+
+          const teamData = {
+            ...teamBaseData,
+            season_id: seasonId,
+            head_coach_id: headCoachId,
+            assistant_coach_id: assistantCoachId,
+          };
+
+          let teamId;
+          if (existing) {
+            // UPDATE existing team
+            const { error: updateError } = await supabase
+              .from('teams')
+              .update(teamData)
+              .eq('id', existing.id);
+
+            if (updateError) {
+              throw new Error(`Failed to update team "${team.name}": ${updateError.message}`);
+            }
+            teamId = existing.id;
+          } else {
+            // INSERT new team
+            const { data: inserted, error: insertError } = await supabase
+              .from('teams')
+              .insert(teamData)
+              .select('id')
+              .single();
+
+            if (insertError) {
+              throw new Error(`Failed to create team "${team.name}": ${insertError.message}`);
+            }
+            teamId = inserted.id;
+          }
+
+          // Store UUID for later reference by rosters
+          teamIdMap.set(team.name.toLowerCase(), teamId);
+        }
+      }
+
+      // 3. Upload players and create team_roster entries
+      if (parsedData.rosters?.length > 0) {
+        setUploadProgress('Uploading rosters...');
+        for (const roster of parsedData.rosters) {
+          const teamId = teamIdMap.get(roster.team_name?.toLowerCase());
+          if (!teamId) {
+            console.warn(`Skipping roster for unknown team: ${roster.team_name}`);
+            continue;
+          }
+
+          for (const player of roster.players) {
+            const {
+              _rowIndex,
+              jersey_number,
+              position,
+              ...playerBaseData
+            } = player;
+
+            // Lookup existing player by name + DOB (natural key)
+            const { data: existing } = await supabase
+              .from('players')
+              .select('id')
+              .eq('first_name', player.first_name)
+              .eq('last_name', player.last_name)
+              .eq('date_of_birth', player.date_of_birth)
+              .maybeSingle();
+
+            let playerId;
+            if (existing) {
+              // UPDATE existing player
+              const { error: updateError } = await supabase
+                .from('players')
+                .update(playerBaseData)
+                .eq('id', existing.id);
+
+              if (updateError) {
+                throw new Error(`Failed to update player "${player.first_name} ${player.last_name}": ${updateError.message}`);
+              }
+              playerId = existing.id;
+            } else {
+              // INSERT new player
+              const { data: inserted, error: insertError } = await supabase
+                .from('players')
+                .insert(playerBaseData)
+                .select('id')
+                .single();
+
+              if (insertError) {
+                throw new Error(`Failed to create player "${player.first_name} ${player.last_name}": ${insertError.message}`);
+              }
+              playerId = inserted.id;
+            }
+
+            // Check if roster entry exists to preserve payment_status and is_active
+            const { data: existingRoster } = await supabase
+              .from('team_roster')
+              .select('id, payment_status, is_active')
+              .eq('team_id', teamId)
+              .eq('player_id', playerId)
+              .maybeSingle();
+
+            const rosterData = {
+              team_id: teamId,
+              player_id: playerId,
+              jersey_number: jersey_number,
+              position: position,
+            };
+
+            let rosterError;
+            if (existingRoster) {
+              // UPDATE: preserve payment_status and is_active
+              const { error } = await supabase
+                .from('team_roster')
+                .update(rosterData)
+                .eq('id', existingRoster.id);
+              rosterError = error;
+            } else {
+              // INSERT: set defaults for new roster entry
+              const { error } = await supabase
+                .from('team_roster')
+                .insert({
+                  ...rosterData,
+                  payment_status: 'pending',
+                  is_active: true,
+                });
+              rosterError = error;
+            }
+
+            if (rosterError) {
+              throw new Error(`Failed to add "${player.first_name} ${player.last_name}" to roster: ${rosterError.message}`);
+            }
           }
         }
       }
 
-      // Upload rosters (players)
-      if (parsedData.rosters?.length > 0) {
-        setUploadProgress('Uploading rosters...');
-        for (const roster of parsedData.rosters) {
-          for (const player of roster.players) {
-            const { _rowIndex, ...playerData } = player;
-
-            // Add team_id to player
-            const playerWithTeam = {
-              ...playerData,
-              team_id: roster.team_id,
-            };
-
-            const { error: playerError } = await supabase
-              .from('players')
-              .upsert(playerWithTeam, { onConflict: 'id' });
-
-            if (playerError) {
-              throw new Error(`Failed to upload player "${player.first_name} ${player.last_name}": ${playerError.message}`);
-            }
-          }
-        }
+      // Log warnings to console and store for UI display
+      if (uploadWarnings.length > 0) {
+        console.warn('Upload completed with warnings:', uploadWarnings);
+        setUploadWarnings(uploadWarnings);
       }
 
       setUploadProgress('');
@@ -305,6 +505,16 @@ export default function ExcelUploadModal({ isOpen, onClose, onSuccess }) {
               <p className="text-sm text-stone-500 mt-2">
                 Your team data has been synced to the database.
               </p>
+              {uploadWarnings.length > 0 && (
+                <div className="mt-4 w-full max-w-md p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                  <p className="text-sm font-medium text-amber-800 mb-2">Warnings:</p>
+                  <ul className="text-sm text-amber-700 space-y-1">
+                    {uploadWarnings.map((warning, index) => (
+                      <li key={index}>• {warning}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
           )}
 

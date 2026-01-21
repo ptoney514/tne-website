@@ -597,19 +597,34 @@ export default function AdminDashboard() {
 
   const handleExportCurrentData = async () => {
     try {
-      const [teamsRes, coachesRes, playersRes] = await Promise.all([
+      const [teamsRes, coachesRes, rosterRes] = await Promise.all([
         supabase.from('teams').select('*'),
         supabase.from('coaches').select('*'),
-        supabase.from('players').select('*'),
+        // Query team_roster with player and team info
+        supabase.from('team_roster').select(`
+          team_id,
+          jersey_number,
+          position,
+          teams!inner(id, name),
+          players!inner(id, first_name, last_name, date_of_birth, current_grade, graduating_year, gender)
+        `).eq('is_active', true),
       ]);
 
+      // Group roster entries by team name
       const rostersMap = new Map();
-      playersRes.data?.forEach(player => {
-        const teamId = player.team_id;
-        if (!rostersMap.has(teamId)) {
-          rostersMap.set(teamId, { team_id: teamId, players: [] });
+      rosterRes.data?.forEach(entry => {
+        const teamName = entry.teams?.name;
+        if (!teamName) return;
+
+        const teamKey = teamName.toLowerCase();
+        if (!rostersMap.has(teamKey)) {
+          rostersMap.set(teamKey, { team_name: teamName, players: [] });
         }
-        rostersMap.get(teamId).players.push(player);
+        rostersMap.get(teamKey).players.push({
+          ...entry.players,
+          jersey_number: entry.jersey_number,
+          position: entry.position,
+        });
       });
 
       const data = {
@@ -647,6 +662,7 @@ export default function AdminDashboard() {
         isOpen={showUploadModal}
         onClose={() => setShowUploadModal(false)}
         onSuccess={handleUploadSuccess}
+        seasonId={selectedSeason?.id}
       />
 
       <main className="flex-1 px-4 py-6 lg:py-8">

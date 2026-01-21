@@ -97,10 +97,8 @@ export async function parseExcelFile(fileBuffer) {
         const practiceTime = row['Practice Time'] || row.practice_time;
         const playerCount = row['Player Count'] || row.player_count;
 
-        // Extract coach info and create/reuse coach IDs
-        let headCoachId = null;
-        let assistantCoachId = null;
-
+        // Extract coach info (store names for later resolution to UUIDs during upload)
+        // Don't generate IDs - let the database generate UUIDs
         if (headCoachName) {
           const name = headCoachName.trim();
           const key = name.toLowerCase();
@@ -108,7 +106,7 @@ export async function parseExcelFile(fileBuffer) {
           if (!coachMap.has(key)) {
             const nameParts = name.split(' ');
             const coach = {
-              id: `coach-${generateId(name)}`,
+              // No ID - will be resolved during upload
               first_name: nameParts[0] || 'Coach',
               last_name: nameParts.slice(1).join(' ') || name,
               email: null,
@@ -120,7 +118,6 @@ export async function parseExcelFile(fileBuffer) {
             coachMap.set(key, coach);
             result.coaches.push(coach);
           }
-          headCoachId = coachMap.get(key).id;
         }
 
         if (assistantCoachName && assistantCoachName.trim()) {
@@ -130,7 +127,7 @@ export async function parseExcelFile(fileBuffer) {
           if (!coachMap.has(key)) {
             const nameParts = name.split(' ');
             const coach = {
-              id: `coach-${generateId(name)}`,
+              // No ID - will be resolved during upload
               first_name: nameParts[0] || 'Coach',
               last_name: nameParts.slice(1).join(' ') || name,
               email: null,
@@ -142,7 +139,6 @@ export async function parseExcelFile(fileBuffer) {
             coachMap.set(key, coach);
             result.coaches.push(coach);
           }
-          assistantCoachId = coachMap.get(key).id;
         }
 
         // Derive tier from team name if not explicitly set
@@ -154,13 +150,14 @@ export async function parseExcelFile(fileBuffer) {
         }
 
         const team = {
-          id: generateId(teamName),
+          // No ID - database will generate UUID
           name: teamName,
           grade_level: gradeLevel,
           gender: (gender || 'male').toLowerCase(),
           tier: derivedTier,
-          head_coach_id: headCoachId,
-          assistant_coach_id: assistantCoachId,
+          // Store coach names for later resolution to UUIDs during upload
+          head_coach_name: headCoachName?.trim() || null,
+          assistant_coach_name: assistantCoachName?.trim() || null,
           team_fee: parseFloat(teamFee) || 450,
           uniform_fee: parseFloat(uniformFee) || 75,
           practice_location: practiceLocation || null,
@@ -219,7 +216,7 @@ export async function parseExcelFile(fileBuffer) {
         const certifications = row['Certifications'] || row.certifications;
 
         const coach = {
-          id: row.id || `coach-${generateId(firstName + ' ' + lastName)}`,
+          // No ID - database will generate UUID
           first_name: firstName,
           last_name: lastName,
           email: email,
@@ -231,7 +228,9 @@ export async function parseExcelFile(fileBuffer) {
         };
 
         result.coaches.push(coach);
-        coachMap.set(coach.email || coach.id, coach);
+        // Use email as key if available, otherwise use name
+        const coachKey = coach.email || `${firstName} ${lastName}`.toLowerCase();
+        coachMap.set(coachKey, coach);
       });
     } catch (err) {
       result.errors.push({
@@ -257,7 +256,8 @@ export async function parseExcelFile(fileBuffer) {
           return;
         }
 
-        const teamId = generateId(teamName);
+        // Store team_name for later resolution to UUID during upload
+        const teamKey = teamName.trim().toLowerCase();
         const playerName = row['Player Name'] || '';
 
         if (!playerName.trim()) {
@@ -272,30 +272,79 @@ export async function parseExcelFile(fileBuffer) {
         const jerseyRaw = row['Jersey #'];
         const jerseyNumber = jerseyRaw ? String(jerseyRaw).trim() || null : null;
 
-        const grade = row['Grade'] || null;
-        const gradYear = row['Grad Year'] ? parseInt(row['Grad Year']) : null;
+        // Parse required fields
+        const dateOfBirth = formatDate(row['Date of Birth'] || row['DOB'] || row['date_of_birth']);
+        const currentGrade = row['Current Grade'] || row['Grade'] || null;
+        const gradYear = row['Graduating Year'] || row['Grad Year'];
+        const graduatingYear = gradYear ? parseInt(gradYear) : null;
+
+        // Parse and validate gender field
+        const genderRaw = row['Gender']?.toString().toLowerCase().trim();
+        const validGenders = ['male', 'female'];
+        let gender = null;
+
+        if (genderRaw && validGenders.includes(genderRaw)) {
+          gender = genderRaw;
+        } else if (genderRaw) {
+          result.errors.push({
+            sheet: 'Rosters',
+            row: rowIndex + 2,
+            message: `Invalid gender "${row['Gender']}" for player "${firstName} ${lastName}". Must be "male" or "female"`,
+          });
+        } else {
+          result.errors.push({
+            sheet: 'Rosters',
+            row: rowIndex + 2,
+            message: `Missing gender for player "${firstName} ${lastName}"`,
+          });
+        }
+
+        // Validate required fields
+        if (!dateOfBirth) {
+          result.errors.push({
+            sheet: 'Rosters',
+            row: rowIndex + 2,
+            message: `Missing date of birth for player "${firstName} ${lastName}"`,
+          });
+        }
+        if (!currentGrade) {
+          result.errors.push({
+            sheet: 'Rosters',
+            row: rowIndex + 2,
+            message: `Missing current grade for player "${firstName} ${lastName}"`,
+          });
+        }
+        if (!graduatingYear) {
+          result.errors.push({
+            sheet: 'Rosters',
+            row: rowIndex + 2,
+            message: `Missing graduating year for player "${firstName} ${lastName}"`,
+          });
+        }
 
         const player = {
-          id: `player-${Date.now()}-${rowIndex}`,
+          // No ID - database will generate UUID
           first_name: firstName,
           last_name: lastName,
+          date_of_birth: dateOfBirth,
+          current_grade: currentGrade,
+          graduating_year: graduatingYear,
+          gender: gender,
           jersey_number: jerseyNumber,
           position: row['Position'] || null,
-          grade: grade,
-          graduating_year: gradYear,
           _rowIndex: rowIndex + 2,
         };
 
-        if (!teamPlayersMap.has(teamId)) {
-          teamPlayersMap.set(teamId, []);
+        if (!teamPlayersMap.has(teamKey)) {
+          teamPlayersMap.set(teamKey, { team_name: teamName.trim(), players: [] });
         }
-        teamPlayersMap.get(teamId).push(player);
+        teamPlayersMap.get(teamKey).players.push(player);
       });
 
-      for (const [teamId, players] of teamPlayersMap) {
+      for (const [, rosterData] of teamPlayersMap) {
         result.rosters.push({
-          team_id: teamId,
-          players: players,
+          team_name: rosterData.team_name,
+          players: rosterData.players,
         });
       }
     } catch (err) {
@@ -358,7 +407,7 @@ export async function parseExcelFile(fileBuffer) {
 /**
  * Compare parsed data with existing database data to determine changes
  * @param {Object} parsedData - Output from parseExcelFile
- * @param {Object} existingData - Current data from Supabase { teams, coaches, players }
+ * @param {Object} existingData - Current data from Supabase { teams, coaches, rosters }
  * @returns {Object} Diff showing new, updated, and unchanged records
  */
 export function compareWithExisting(parsedData, existingData) {
@@ -369,14 +418,26 @@ export function compareWithExisting(parsedData, existingData) {
     events: { new: [], updated: [], unchanged: [] },
   };
 
-  // Create lookup maps for existing data
-  const existingTeamsMap = new Map(existingData.teams?.map(t => [t.id, t]) || []);
-  const existingCoachesMap = new Map(existingData.coaches?.map(c => [c.id, c]) || []);
-  const existingRostersMap = new Map(existingData.rosters?.map(r => [r.team_id, r]) || []);
+  // Create lookup maps for existing data using natural keys
+  // Teams: lookup by name (case-insensitive)
+  const existingTeamsMap = new Map(
+    existingData.teams?.map(t => [t.name?.toLowerCase(), t]) || []
+  );
+  // Coaches: lookup by email (preferred) or name
+  const existingCoachesByEmail = new Map(
+    existingData.coaches?.filter(c => c.email).map(c => [c.email.toLowerCase(), c]) || []
+  );
+  const existingCoachesByName = new Map(
+    existingData.coaches?.map(c => [`${c.first_name} ${c.last_name}`.toLowerCase(), c]) || []
+  );
+  // Rosters: lookup by team_name
+  const existingRostersMap = new Map(
+    existingData.rosters?.map(r => [r.team_name?.toLowerCase(), r]) || []
+  );
 
-  // Compare teams
+  // Compare teams by name
   parsedData.teams.forEach(team => {
-    const existing = existingTeamsMap.get(team.id);
+    const existing = existingTeamsMap.get(team.name?.toLowerCase());
     if (!existing) {
       diff.teams.new.push(team);
     } else if (hasTeamChanged(team, existing)) {
@@ -386,9 +447,17 @@ export function compareWithExisting(parsedData, existingData) {
     }
   });
 
-  // Compare coaches
+  // Compare coaches by email or name
   parsedData.coaches.forEach(coach => {
-    const existing = existingCoachesMap.get(coach.id);
+    let existing = null;
+    if (coach.email) {
+      existing = existingCoachesByEmail.get(coach.email.toLowerCase());
+    }
+    if (!existing) {
+      const coachName = `${coach.first_name} ${coach.last_name}`.toLowerCase();
+      existing = existingCoachesByName.get(coachName);
+    }
+
     if (!existing) {
       diff.coaches.new.push(coach);
     } else if (hasCoachChanged(coach, existing)) {
@@ -398,9 +467,9 @@ export function compareWithExisting(parsedData, existingData) {
     }
   });
 
-  // Compare rosters
+  // Compare rosters by team_name
   parsedData.rosters.forEach(roster => {
-    const existing = existingRostersMap.get(roster.team_id);
+    const existing = existingRostersMap.get(roster.team_name?.toLowerCase());
     if (!existing) {
       diff.rosters.new.push(roster);
     } else if (hasRosterChanged(roster, existing)) {
@@ -417,12 +486,38 @@ export function compareWithExisting(parsedData, existingData) {
 function hasTeamChanged(newTeam, existingTeam) {
   const fieldsToCompare = [
     'name', 'grade_level', 'gender', 'tier',
-    'head_coach_id', 'assistant_coach_id',
     'team_fee', 'uniform_fee',
     'practice_location', 'practice_days', 'practice_time',
   ];
 
-  return fieldsToCompare.some(field => newTeam[field] !== existingTeam[field]);
+  // Compare basic fields
+  if (fieldsToCompare.some(field => newTeam[field] !== existingTeam[field])) {
+    return true;
+  }
+
+  // Compare coach assignments
+  // New team has coach names; existing team has coach objects from join
+  const existingHeadCoach = existingTeam.head_coach
+    ? `${existingTeam.head_coach.first_name} ${existingTeam.head_coach.last_name}`
+    : null;
+  const existingAssistantCoach = existingTeam.assistant_coach
+    ? `${existingTeam.assistant_coach.first_name} ${existingTeam.assistant_coach.last_name}`
+    : null;
+
+  // Normalize for comparison (case-insensitive, null-safe)
+  const newHead = newTeam.head_coach_name?.toLowerCase()?.trim() || null;
+  const existingHead = existingHeadCoach?.toLowerCase()?.trim() || null;
+  if (newHead !== existingHead) {
+    return true;
+  }
+
+  const newAssistant = newTeam.assistant_coach_name?.toLowerCase()?.trim() || null;
+  const existingAssistant = existingAssistantCoach?.toLowerCase()?.trim() || null;
+  if (newAssistant !== existingAssistant) {
+    return true;
+  }
+
+  return false;
 }
 
 function hasCoachChanged(newCoach, existingCoach) {
@@ -470,11 +565,14 @@ export function generateTemplateFile() {
   ]);
   XLSX.utils.book_append_sheet(wb, coachesWs, 'Coaches');
 
-  // Rosters sheet
-  const rostersHeaders = ['Team Name', 'Player Name', 'Jersey #', 'Position', 'Grade', 'Grad Year'];
+  // Rosters sheet - includes all required fields for players
+  const rostersHeaders = [
+    'Team Name', 'Player Name', 'Jersey #', 'Position',
+    'Date of Birth', 'Current Grade', 'Graduating Year', 'Gender'
+  ];
   const rostersWs = XLSX.utils.aoa_to_sheet([
     rostersHeaders,
-    ['Example Express 12U Boys', 'Michael Johnson', '23', 'Guard', '6th', 2030],
+    ['Example Express 12U Boys', 'Michael Johnson', '23', 'Guard', '2012-03-15', '6th', 2030, 'male'],
   ]);
   XLSX.utils.book_append_sheet(wb, rostersWs, 'Rosters');
 
@@ -534,8 +632,11 @@ export function exportToExcel(data) {
   if (data.rosters?.length > 0) {
     const rostersData = [];
     data.rosters.forEach(roster => {
-      const team = data.teams?.find(t => t.id === roster.team_id);
-      const teamName = team?.name || roster.team_id;
+      // Support both team_name (new) and team_id (legacy) lookup
+      const team = data.teams?.find(t =>
+        t.id === roster.team_id || t.name?.toLowerCase() === roster.team_name?.toLowerCase()
+      );
+      const teamName = roster.team_name || team?.name || roster.team_id || 'Unknown Team';
 
       roster.players?.forEach(p => {
         rostersData.push({
@@ -543,8 +644,10 @@ export function exportToExcel(data) {
           'Player Name': `${p.first_name} ${p.last_name}`.trim(),
           'Jersey #': p.jersey_number,
           'Position': p.position,
-          'Grade': p.grade,
-          'Grad Year': p.graduating_year,
+          'Date of Birth': p.date_of_birth,
+          'Current Grade': p.current_grade,
+          'Graduating Year': p.graduating_year,
+          'Gender': p.gender,
         });
       });
     });
