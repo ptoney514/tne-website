@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider } from './contexts/AuthContext';
 import { SeasonProvider } from './contexts/SeasonContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
+import ScrollToTop from './components/ScrollToTop';
 import HomePage from './pages/HomePage';
 import TeamsPage from './pages/TeamsPage';
 import TeamDetailPage from './pages/TeamDetailPage';
@@ -34,6 +35,7 @@ import AdminPracticeSchedulePage from './pages/AdminPracticeSchedulePage';
 function App() {
   return (
     <Router>
+      <ScrollToTop />
       <AuthProvider>
         <Routes>
           {/* Public routes */}
