@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Merch Store | TNE United Express</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="../assets/images/favicon.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'tne': {
+                            'maroon': '#8B1F3A',
+                            'red': '#E31837',
+                            'red-dark': '#C41230',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        .font-bebas { font-family: 'Bebas Neue', sans-serif; }
+        .font-mono { font-family: 'Space Mono', monospace; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #050505; }
+        ::-webkit-scrollbar-thumb { background: #E31837; border-radius: 3px; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-enter { animation: fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .delay-100 { animation-delay: 100ms; }
+        .delay-200 { animation-delay: 200ms; }
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(227, 24, 55, 0.3); }
+            50% { box-shadow: 0 0 40px rgba(227, 24, 55, 0.6); }
+        }
+        .pulse-glow { animation: pulse-glow 2s ease-in-out infinite; }
+    </style>
+</head>
+<body class="bg-[#050505] text-white antialiased min-h-screen flex flex-col font-sans selection:bg-tne-red/20 selection:text-red-100">
+
+    <!-- Navbar -->
+    <nav class="sticky supports-[backdrop-filter]:bg-black/80 bg-black/90 w-full z-50 border-white/5 border-b top-0 backdrop-blur-md">
+        <div class="sm:px-6 flex h-14 max-w-6xl mx-auto px-4 items-center justify-between">
+            <!-- Brand -->
+            <a href="index.html" class="flex items-center gap-3 hover:opacity-90 transition-opacity">
+                <img src="../assets/images/tne-logo-white-transparent.png" alt="TNE United Express" class="h-12 w-12 object-contain">
+                <span class="text-sm font-medium tracking-tight text-white/90 hidden sm:inline">TNE United Express</span>
+            </a>
+
+            <!-- Links -->
+            <div class="hidden md:flex items-center gap-6 text-xs font-medium uppercase tracking-[0.18em]">
+                <a href="index.html" class="hover:text-white transition-colors text-stone-300">Home</a>
+                <a href="teams.html" class="hover:text-white transition-colors text-stone-300">Teams</a>
+                <a href="schedule.html" class="hover:text-white transition-colors text-stone-300">Schedule</a>
+                <a href="tryouts.html" class="text-stone-300 hover:text-white transition-colors">Tryouts</a>
+                <a href="about.html" class="text-stone-300 hover:text-white transition-colors">About</a>
+                <a href="contact.html" class="text-stone-300 hover:text-white transition-colors">Contact</a>
+            </div>
+
+            <!-- Right -->
+            <div class="flex items-center gap-2">
+                <div class="hidden md:flex items-center gap-2">
+                    <a href="../react-app/dist/index.html#/login" class="px-3 py-1.5 text-xs font-medium rounded-full border border-white/15 text-white/80 hover:text-white hover:border-white/40 transition-colors">
+                        Login
+                    </a>
+                    <a href="tryouts.html" class="px-3 py-1.5 text-xs font-medium rounded-full bg-tne-red text-white hover:bg-tne-red-dark transition-colors">
+                        Register
+                    </a>
+                </div>
+                <button id="mobile-menu-btn" class="md:hidden inline-flex items-center justify-center w-8 h-8 rounded-full border border-white/10 text-white/70 hover:text-white hover:border-white/40 transition-colors">
+                    <i data-lucide="menu" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu Drawer -->
+    <div id="mobile-menu" class="fixed inset-0 z-[60] hidden">
+        <!-- Backdrop -->
+        <div id="mobile-menu-backdrop" class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
+        <!-- Drawer -->
+        <div class="absolute right-0 top-0 h-full w-72 bg-[#0a0a0a] border-l border-white/10 shadow-2xl transform transition-transform duration-300 translate-x-full" id="mobile-menu-drawer">
+            <div class="flex items-center justify-between p-4 border-b border-white/10">
+                <img src="../assets/images/tne-logo-white-transparent.png" alt="TNE" class="h-12 w-12 object-contain">
+                <button id="mobile-menu-close" class="p-2 text-white/70 hover:text-white transition-colors">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <nav class="p-4 space-y-1">
+                <a href="index.html" class="block px-4 py-3 text-sm font-medium text-white/80 hover:text-white hover:bg-white/5 rounded-xl transition-colors">Home</a>
+                <a href="teams.html" class="block px-4 py-3 text-sm font-medium text-white/80 hover:text-white hover:bg-white/5 rounded-xl transition-colors">Teams</a>
+                <a href="schedule.html" class="block px-4 py-3 text-sm font-medium text-white/80 hover:text-white hover:bg-white/5 rounded-xl transition-colors">Schedule</a>
+                <a href="tryouts.html" class="block px-4 py-3 text-sm font-medium text-white/80 hover:text-white hover:bg-white/5 rounded-xl transition-colors">Tryouts</a>
+                <a href="about.html" class="block px-4 py-3 text-sm font-medium text-white/80 hover:text-white hover:bg-white/5 rounded-xl transition-colors">About</a>
+                <a href="contact.html" class="block px-4 py-3 text-sm font-medium text-white/80 hover:text-white hover:bg-white/5 rounded-xl transition-colors">Contact</a>
+                <a href="merch.html" class="block px-4 py-3 text-sm font-medium text-white bg-white/10 rounded-xl">Merch</a>
+            </nav>
+            <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-white/10 space-y-2">
+                <a href="../react-app/dist/index.html#/login" class="block w-full text-center px-4 py-2.5 text-sm font-medium rounded-xl border border-white/15 text-white/80 hover:text-white hover:border-white/40 transition-colors">Login</a>
+                <a href="tryouts.html" class="block w-full text-center px-4 py-2.5 text-sm font-medium rounded-xl bg-tne-red text-white hover:bg-tne-red-dark transition-colors">Register</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="flex-1 w-full flex items-center justify-center relative overflow-hidden">
+        <!-- Background Elements -->
+        <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(227,24,55,0.15),transparent_60%)]"></div>
+        <div class="absolute inset-0 opacity-5" style="background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(to right, rgba(255,255,255,0.03) 1px, transparent 1px); background-size: 40px 40px;"></div>
+
+        <!-- Floating Jersey Icon -->
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none opacity-[0.03]">
+            <i data-lucide="shirt" class="w-[400px] h-[400px] stroke-[0.5]"></i>
+        </div>
+
+        <div class="relative z-10 max-w-2xl mx-auto px-4 sm:px-6 py-20 text-center">
+            <div class="animate-enter space-y-8">
+                <!-- Badge -->
+                <div class="inline-flex items-center gap-2 rounded-full border border-tne-red/30 bg-tne-red/10 px-4 py-1.5">
+                    <span class="h-2 w-2 rounded-full bg-tne-red shadow-[0_0_12px_rgba(227,24,55,0.9)] animate-pulse"></span>
+                    <span class="text-[0.7rem] font-mono uppercase tracking-[0.22em] text-red-300">Coming Soon</span>
+                </div>
+
+                <!-- Icon -->
+                <div class="flex justify-center">
+                    <div class="w-24 h-24 rounded-3xl bg-gradient-to-br from-tne-maroon to-tne-red flex items-center justify-center pulse-glow">
+                        <i data-lucide="shopping-bag" class="w-12 h-12 text-white"></i>
+                    </div>
+                </div>
+
+                <!-- Heading -->
+                <div class="space-y-4">
+                    <h1 class="text-5xl sm:text-6xl lg:text-7xl font-bebas uppercase tracking-tight text-white">
+                        Merch Store
+                    </h1>
+                    <p class="text-lg sm:text-xl text-white/60 max-w-lg mx-auto leading-relaxed">
+                        Official TNE United Express gear is on the way. Jerseys, apparel, and accessories for players and fans.
+                    </p>
+                </div>
+
+                <!-- Features Preview -->
+                <div class="flex flex-wrap justify-center gap-4 pt-4">
+                    <div class="flex items-center gap-2 px-4 py-2 rounded-full border border-white/10 bg-white/5">
+                        <i data-lucide="shirt" class="w-4 h-4 text-tne-red"></i>
+                        <span class="text-sm text-white/70">Team Jerseys</span>
+                    </div>
+                    <div class="flex items-center gap-2 px-4 py-2 rounded-full border border-white/10 bg-white/5">
+                        <i data-lucide="package" class="w-4 h-4 text-tne-red"></i>
+                        <span class="text-sm text-white/70">Apparel</span>
+                    </div>
+                    <div class="flex items-center gap-2 px-4 py-2 rounded-full border border-white/10 bg-white/5">
+                        <i data-lucide="star" class="w-4 h-4 text-tne-red"></i>
+                        <span class="text-sm text-white/70">Accessories</span>
+                    </div>
+                </div>
+
+                <!-- Divider -->
+                <div class="flex items-center gap-4 pt-4">
+                    <div class="flex-1 h-px bg-white/10"></div>
+                    <span class="text-xs font-mono text-white/30 uppercase tracking-widest">Stay Updated</span>
+                    <div class="flex-1 h-px bg-white/10"></div>
+                </div>
+
+                <!-- CTA -->
+                <div class="space-y-4 animate-enter delay-100">
+                    <p class="text-sm text-white/50">
+                        Follow us on social media to be the first to know when the store launches.
+                    </p>
+                    <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+                        <a href="https://instagram.com/taborneexpress" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-tne-red text-white font-medium hover:bg-tne-red-dark transition-colors">
+                            <i data-lucide="instagram" class="w-5 h-5"></i>
+                            Follow @taborneexpress
+                        </a>
+                        <a href="contact.html" class="inline-flex items-center gap-2 px-6 py-3 rounded-full border border-white/20 text-white/80 font-medium hover:bg-white/5 hover:border-white/40 transition-colors">
+                            <i data-lucide="mail" class="w-5 h-5"></i>
+                            Contact Us
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-white/10 bg-black py-8 sm:py-10">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col gap-6 sm:gap-4 sm:flex-row sm:items-center sm:justify-between text-xs sm:text-sm text-white/45">
+            <div class="flex items-center gap-3">
+                <img src="../assets/images/tne-logo-white-transparent.png" alt="TNE" class="h-12 w-12 object-contain">
+                <span class="font-semibold tracking-tight text-white text-base">
+                    UNITED <span class="text-white/40">EXPRESS</span>
+                </span>
+                <span class="hidden sm:inline text-white/30">·</span>
+                <span class="hidden sm:inline text-white/40">© 2025 TNE United Express. All rights reserved.</span>
+            </div>
+            <div class="flex flex-wrap items-center gap-3">
+                <div class="inline-flex items-center gap-1.5">
+                    <span class="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>
+                    <span class="text-[0.7rem] font-mono uppercase tracking-[0.2em] text-white/60">
+                        Registration Open
+                    </span>
+                </div>
+                <div class="flex items-center gap-3">
+                    <a href="https://instagram.com/taborneexpress" target="_blank" rel="noopener noreferrer" class="text-white/40 hover:text-white transition-colors">
+                        <i data-lucide="instagram" class="w-4 h-4"></i>
+                    </a>
+                    <a href="https://www.facebook.com/TNEUnitedExpress" target="_blank" rel="noopener noreferrer" class="text-white/40 hover:text-white transition-colors">
+                        <i data-lucide="facebook" class="w-4 h-4"></i>
+                    </a>
+                    <a href="https://twitter.com/TNEBasketball" target="_blank" rel="noopener noreferrer" class="text-white/40 hover:text-white transition-colors">
+                        <i data-lucide="twitter" class="w-4 h-4"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        lucide.createIcons({ attrs: { strokeWidth: 1.5 } });
+
+        // Mobile menu functionality
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const mobileMenuDrawer = document.getElementById('mobile-menu-drawer');
+        const mobileMenuClose = document.getElementById('mobile-menu-close');
+        const mobileMenuBackdrop = document.getElementById('mobile-menu-backdrop');
+
+        function openMobileMenu() {
+            mobileMenu.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            setTimeout(() => {
+                mobileMenuDrawer.classList.remove('translate-x-full');
+            }, 10);
+        }
+
+        function closeMobileMenu() {
+            mobileMenuDrawer.classList.add('translate-x-full');
+            setTimeout(() => {
+                mobileMenu.classList.add('hidden');
+                document.body.style.overflow = '';
+            }, 300);
+        }
+
+        mobileMenuBtn.addEventListener('click', openMobileMenu);
+        mobileMenuClose.addEventListener('click', closeMobileMenu);
+        mobileMenuBackdrop.addEventListener('click', closeMobileMenu);
+    </script>
+
+</body>
+</html>
