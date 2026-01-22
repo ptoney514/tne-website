@@ -14,6 +14,7 @@ import PaymentsPage from './pages/PaymentsPage';
 import RegistrationPage from './pages/RegistrationPage';
 import LoginPage from './pages/LoginPage';
 import ProfilePage from './pages/ProfilePage';
+import SkillsAcademyPage from './pages/SkillsAcademyPage';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminTeamsPage from './pages/AdminTeamsPage';
 import AdminPlayersPage from './pages/AdminPlayersPage';
@@ -48,6 +49,7 @@ function App() {
           <Route path="/register" element={<RegistrationPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/skills-academy" element={<SkillsAcademyPage />} />
 
           {/* Protected admin routes - wrapped with SeasonProvider */}
           <Route

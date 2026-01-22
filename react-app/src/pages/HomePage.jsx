@@ -392,9 +392,9 @@ export default function HomePage() {
                     <Check className="w-4 h-4 text-tne-red mt-0.5" /> Defensive Principles
                   </li>
                 </ul>
-                <button className="text-sm font-semibold text-stone-950 flex items-center gap-2 group-hover:gap-4 transition-all">
+                <Link to="/skills-academy" className="text-sm font-semibold text-stone-950 flex items-center gap-2 group-hover:gap-4 transition-all">
                   Learn More <ArrowRight className="w-4 h-4" />
-                </button>
+                </Link>
               </div>
 
               {/* Program 2 (Featured) */}
