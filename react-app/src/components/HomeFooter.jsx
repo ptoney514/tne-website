@@ -36,7 +36,7 @@ export default function HomeFooter({ hideStatusBadge = false }) {
             <ul className="space-y-4 text-sm">
               <li><Link to="/teams" className="hover:text-white transition-colors">Teams</Link></li>
               <li><Link to="/schedule" className="hover:text-white transition-colors">Tournaments</Link></li>
-              <li><a href="#" className="hover:text-white transition-colors">Skills Academy</a></li>
+              <li><Link to="/skills-academy" className="hover:text-white transition-colors">Skills Academy</Link></li>
             </ul>
           </div>
 
