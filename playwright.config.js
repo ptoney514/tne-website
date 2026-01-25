@@ -54,6 +54,15 @@ export default defineConfig({
         baseURL: 'http://localhost:5173',
       },
     },
+    // Admin E2E tests (requires TEST_ADMIN_EMAIL and TEST_ADMIN_PASSWORD env vars)
+    {
+      name: 'admin',
+      testMatch: /admin\/.*\.spec\.js/,
+      use: {
+        ...devices['Desktop Chrome'],
+        baseURL: 'http://localhost:5173',
+      },
+    },
   ],
   webServer: {
     command: 'cd react-app && npm run dev',
