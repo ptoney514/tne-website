@@ -20,7 +20,7 @@ export function validateStep2(formData) {
   if (!formData.parentFirstName?.trim()) errors.parentFirstName = 'First name is required';
   if (!formData.parentLastName?.trim()) errors.parentLastName = 'Last name is required';
   if (!formData.parentEmail?.trim()) errors.parentEmail = 'Email is required';
-  else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.parentEmail)) {
+  else if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(formData.parentEmail)) {
     errors.parentEmail = 'Please enter a valid email address';
   }
   if (!formData.parentPhone?.trim()) errors.parentPhone = 'Phone number is required';
