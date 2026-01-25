@@ -46,7 +46,8 @@ export default function InviteUserModal({ isOpen, onClose, onSuccess }) {
 
     try {
       // Validate email
-      if (!formData.email || !formData.email.includes('@')) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+      if (!formData.email || !emailRegex.test(formData.email)) {
         throw new Error('Please enter a valid email address');
       }
 

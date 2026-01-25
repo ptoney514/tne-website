@@ -29,7 +29,7 @@ export function useContactForm() {
       }
 
       // Validate email format
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
       if (!emailRegex.test(data.email)) {
         throw new Error('Please enter a valid email address');
       }
