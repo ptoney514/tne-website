@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { supabase } from '../lib/supabase';
+import { api } from '../lib/api-client';
 
 /**
  * Hook for managing nearby places (admin)
@@ -14,12 +14,7 @@ export function useNearbyPlaces() {
     setError(null);
 
     try {
-      const { data, error: fetchError } = await supabase
-        .from('nearby_places')
-        .select('*')
-        .order('name');
-
-      if (fetchError) throw fetchError;
+      const data = await api.get('/admin/nearby-places');
       setPlaces(data || []);
     } catch (err) {
       console.error('Error fetching nearby places:', err);
@@ -34,48 +29,25 @@ export function useNearbyPlaces() {
   }, [fetchPlaces]);
 
   const createPlace = async (placeData) => {
-    const { data, error } = await supabase
-      .from('nearby_places')
-      .insert(placeData)
-      .select()
-      .single();
-
-    if (error) throw error;
+    const data = await api.post('/admin/nearby-places', placeData);
     await fetchPlaces();
     return data;
   };
 
   const updatePlace = async (id, placeData) => {
-    const { data, error } = await supabase
-      .from('nearby_places')
-      .update(placeData)
-      .eq('id', id)
-      .select()
-      .single();
-
-    if (error) throw error;
+    const data = await api.patch(`/admin/nearby-places?id=${id}`, placeData);
     await fetchPlaces();
     return data;
   };
 
   const deletePlace = async (id) => {
-    const { error } = await supabase
-      .from('nearby_places')
-      .delete()
-      .eq('id', id);
-
-    if (error) throw error;
+    await api.delete(`/admin/nearby-places?id=${id}`);
     await fetchPlaces();
   };
 
   // Bulk create places (for agent use)
   const bulkCreatePlaces = async (placesArray) => {
-    const { data, error } = await supabase
-      .from('nearby_places')
-      .insert(placesArray)
-      .select();
-
-    if (error) throw error;
+    const data = await api.post('/admin/nearby-places', placesArray);
     await fetchPlaces();
     return data;
   };
@@ -105,18 +77,10 @@ export function usePlacesByType(placeType) {
     setError(null);
 
     try {
-      let query = supabase
-        .from('nearby_places')
-        .select('*')
-        .order('name');
-
-      if (placeType && placeType !== 'all') {
-        query = query.eq('place_type', placeType);
-      }
-
-      const { data, error: fetchError } = await query;
-
-      if (fetchError) throw fetchError;
+      const url = placeType && placeType !== 'all'
+        ? `/admin/nearby-places?placeType=${encodeURIComponent(placeType)}`
+        : '/admin/nearby-places';
+      const data = await api.get(url);
       setPlaces(data || []);
     } catch (err) {
       console.error('Error fetching places:', err);
@@ -156,20 +120,11 @@ export function usePlacesByLocation(city, state, placeType = null) {
     setError(null);
 
     try {
-      let query = supabase
-        .from('nearby_places')
-        .select('*')
-        .eq('city', city)
-        .eq('state', state)
-        .order('name');
-
+      let url = `/admin/nearby-places?city=${encodeURIComponent(city)}&state=${encodeURIComponent(state)}`;
       if (placeType) {
-        query = query.eq('place_type', placeType);
+        url += `&placeType=${encodeURIComponent(placeType)}`;
       }
-
-      const { data, error: fetchError } = await query;
-
-      if (fetchError) throw fetchError;
+      const data = await api.get(url);
       setPlaces(data || []);
     } catch (err) {
       console.error('Error fetching places:', err);

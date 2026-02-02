@@ -8,7 +8,7 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useTeamRoster } from '../hooks/usePlayers';
-import { supabase } from '../lib/supabase';
+import { api } from '../lib/api-client';
 import { parsePlayerInput, validateParsedPlayers } from '../utils/playerParser';
 
 // Components
@@ -414,21 +414,13 @@ export default function AdminTeamDetailPage() {
   // Fetch team details with coach info
   useEffect(() => {
     const fetchTeam = async () => {
-      const { data, error: fetchError } = await supabase
-        .from('teams')
-        .select(
-          `
-          *,
-          season:seasons(name),
-          head_coach:coaches!teams_head_coach_id_fkey(id, first_name, last_name),
-          assistant_coach:coaches!teams_assistant_coach_id_fkey(id, first_name, last_name)
-        `
-        )
-        .eq('id', teamId)
-        .single();
-
-      if (!fetchError && data) {
-        setTeam(data);
+      try {
+        const data = await api.get(`/admin/teams?id=${teamId}`);
+        if (data) {
+          setTeam(data);
+        }
+      } catch (err) {
+        console.error('Error fetching team:', err);
       }
     };
 
@@ -532,30 +524,14 @@ export default function AdminTeamDetailPage() {
 
       if (hasParentData) {
         if (parentId) {
-          // Update existing parent
-          const { error: parentError } = await supabase
-            .from('parents')
-            .update(parentData)
-            .eq('id', parentId);
-
-          if (parentError) throw parentError;
+          // Update existing parent via API
+          await api.patch(`/admin/parents?id=${parentId}`, parentData);
         } else {
-          // Create new parent and link to player
-          const { data: newParent, error: createError } = await supabase
-            .from('parents')
-            .insert([parentData])
-            .select()
-            .single();
-
-          if (createError) throw createError;
+          // Create new parent and link to player via API
+          const newParent = await api.post('/admin/parents', parentData);
 
           // Link parent to player
-          const { error: linkError } = await supabase
-            .from('players')
-            .update({ primary_parent_id: newParent.id })
-            .eq('id', playerId);
-
-          if (linkError) throw linkError;
+          await api.patch(`/admin/players?id=${playerId}`, { primaryParentId: newParent.id });
         }
       }
 

@@ -4,40 +4,32 @@ import userEvent from '@testing-library/user-event';
 import { AuthProvider, AuthContext } from '../../contexts/AuthContext';
 import { useContext } from 'react';
 
-// Mock Supabase
-const mockGetSession = vi.fn();
-const mockOnAuthStateChange = vi.fn();
-const mockSignInWithPassword = vi.fn();
+// Mock auth-client
+const mockUseSession = vi.fn();
+const mockSignIn = vi.fn();
 const mockSignOut = vi.fn();
-const mockFromSelect = vi.fn();
 
-vi.mock('../../lib/supabase', () => ({
-  supabase: {
-    auth: {
-      getSession: () => mockGetSession(),
-      onAuthStateChange: (callback) => {
-        mockOnAuthStateChange(callback);
-        return {
-          data: {
-            subscription: {
-              unsubscribe: vi.fn(),
-            },
-          },
-        };
-      },
-      signInWithPassword: (params) => mockSignInWithPassword(params),
-      signOut: () => mockSignOut(),
+vi.mock('../../lib/auth-client', () => ({
+  authClient: {
+    useSession: () => mockUseSession(),
+    signIn: {
+      email: (params) => mockSignIn(params),
     },
-    from: vi.fn(() => ({
-      select: vi.fn(() => ({
-        eq: vi.fn(() => ({
-          single: () => mockFromSelect(),
-        })),
-      })),
-    })),
+    signOut: () => mockSignOut(),
   },
-  withTimeout: (promise) => promise,
 }));
+
+// Mock api-client for profile fetch
+vi.mock('../../lib/api-client', () => ({
+  api: {
+    get: vi.fn(),
+    post: vi.fn(),
+    patch: vi.fn(),
+    delete: vi.fn(),
+  },
+}));
+
+import { api } from '../../lib/api-client';
 
 // Test component to consume auth context
 function TestConsumer() {
@@ -59,11 +51,11 @@ describe('AuthContext', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     // Default: no session
-    mockGetSession.mockResolvedValue({
-      data: { session: null },
-      error: null,
+    mockUseSession.mockReturnValue({
+      data: null,
+      isPending: false,
     });
-    mockFromSelect.mockResolvedValue({ data: null, error: null });
+    api.get.mockResolvedValue(null);
   });
 
   afterEach(() => {
@@ -71,9 +63,11 @@ describe('AuthContext', () => {
   });
 
   describe('initial loading state', () => {
-    it('should start with loading true', async () => {
-      // Make getSession hang
-      mockGetSession.mockImplementation(() => new Promise(() => {}));
+    it('should start with loading true when session is pending', async () => {
+      mockUseSession.mockReturnValue({
+        data: null,
+        isPending: true,
+      });
 
       render(
         <AuthProvider>
@@ -85,9 +79,9 @@ describe('AuthContext', () => {
     });
 
     it('should finish loading after session check', async () => {
-      mockGetSession.mockResolvedValue({
-        data: { session: null },
-        error: null,
+      mockUseSession.mockReturnValue({
+        data: null,
+        isPending: false,
       });
 
       render(
@@ -107,11 +101,11 @@ describe('AuthContext', () => {
       const mockUser = { id: 'user-123', email: 'test@example.com' };
       const mockProfile = { id: 'user-123', role: 'admin', first_name: 'Test' };
 
-      mockGetSession.mockResolvedValue({
-        data: { session: { user: mockUser } },
-        error: null,
+      mockUseSession.mockReturnValue({
+        data: { user: mockUser, session: { user: mockUser } },
+        isPending: false,
       });
-      mockFromSelect.mockResolvedValue({ data: mockProfile, error: null });
+      api.get.mockResolvedValue(mockProfile);
 
       render(
         <AuthProvider>
@@ -127,23 +121,6 @@ describe('AuthContext', () => {
         expect(screen.getByTestId('profile').textContent).toBe('admin');
       });
     });
-
-    it('should handle session error gracefully', async () => {
-      mockGetSession.mockResolvedValue({
-        data: { session: null },
-        error: { message: 'Session expired' },
-      });
-
-      render(
-        <AuthProvider>
-          <TestConsumer />
-        </AuthProvider>
-      );
-
-      await waitFor(() => {
-        expect(screen.getByTestId('error').textContent).toBe('Session expired');
-      });
-    });
   });
 
   describe('sign in', () => {
@@ -151,7 +128,12 @@ describe('AuthContext', () => {
       const user = userEvent.setup();
       const mockUser = { id: 'user-123', email: 'test@example.com' };
 
-      mockSignInWithPassword.mockResolvedValue({
+      mockUseSession.mockReturnValue({
+        data: null,
+        isPending: false,
+      });
+
+      mockSignIn.mockResolvedValue({
         data: { user: mockUser, session: { user: mockUser } },
         error: null,
       });
@@ -170,7 +152,7 @@ describe('AuthContext', () => {
         await user.click(screen.getByText('Sign In'));
       });
 
-      expect(mockSignInWithPassword).toHaveBeenCalledWith({
+      expect(mockSignIn).toHaveBeenCalledWith({
         email: 'test@example.com',
         password: 'password',
       });
@@ -179,7 +161,12 @@ describe('AuthContext', () => {
     it('should handle sign in error', async () => {
       const user = userEvent.setup();
 
-      mockSignInWithPassword.mockResolvedValue({
+      mockUseSession.mockReturnValue({
+        data: null,
+        isPending: false,
+      });
+
+      mockSignIn.mockResolvedValue({
         data: null,
         error: { message: 'Invalid credentials' },
       });
@@ -209,17 +196,15 @@ describe('AuthContext', () => {
       const user = userEvent.setup();
       const mockUser = { id: 'user-123', email: 'test@example.com' };
 
-      mockGetSession.mockResolvedValue({
-        data: { session: { user: mockUser } },
-        error: null,
+      // Start with a logged-in user
+      mockUseSession.mockReturnValue({
+        data: { user: mockUser, session: { user: mockUser } },
+        isPending: false,
       });
-      mockFromSelect.mockResolvedValue({
-        data: { role: 'admin' },
-        error: null,
-      });
+      api.get.mockResolvedValue({ role: 'admin' });
       mockSignOut.mockResolvedValue({ error: null });
 
-      render(
+      const { rerender } = render(
         <AuthProvider>
           <TestConsumer />
         </AuthProvider>
@@ -229,13 +214,22 @@ describe('AuthContext', () => {
         expect(screen.getByTestId('user').textContent).toBe('test@example.com');
       });
 
-      // Simulate the auth state change callback being called on sign out
+      // Simulate sign out - update the mock to return no session
+      mockUseSession.mockReturnValue({
+        data: null,
+        isPending: false,
+      });
+
       await act(async () => {
         await user.click(screen.getByText('Sign Out'));
-        // The onAuthStateChange callback should be triggered with SIGNED_OUT
-        const callback = mockOnAuthStateChange.mock.calls[0][0];
-        callback('SIGNED_OUT', null);
       });
+
+      // Rerender to pick up the new session state
+      rerender(
+        <AuthProvider>
+          <TestConsumer />
+        </AuthProvider>
+      );
 
       await waitFor(() => {
         expect(screen.getByTestId('user').textContent).toBe('no-user');
@@ -248,11 +242,11 @@ describe('AuthContext', () => {
       const mockUser = { id: 'user-123', email: 'admin@example.com' };
       const mockProfile = { id: 'user-123', role: 'admin' };
 
-      mockGetSession.mockResolvedValue({
-        data: { session: { user: mockUser } },
-        error: null,
+      mockUseSession.mockReturnValue({
+        data: { user: mockUser, session: { user: mockUser } },
+        isPending: false,
       });
-      mockFromSelect.mockResolvedValue({ data: mockProfile, error: null });
+      api.get.mockResolvedValue(mockProfile);
 
       render(
         <AuthProvider>
@@ -273,11 +267,11 @@ describe('AuthContext', () => {
       const mockUser = { id: 'user-123', email: 'parent@example.com' };
       const mockProfile = { id: 'user-123', role: 'parent' };
 
-      mockGetSession.mockResolvedValue({
-        data: { session: { user: mockUser } },
-        error: null,
+      mockUseSession.mockReturnValue({
+        data: { user: mockUser, session: { user: mockUser } },
+        isPending: false,
       });
-      mockFromSelect.mockResolvedValue({ data: mockProfile, error: null });
+      api.get.mockResolvedValue(mockProfile);
 
       render(
         <AuthProvider>
@@ -291,44 +285,6 @@ describe('AuthContext', () => {
 
       await waitFor(() => {
         expect(screen.getByTestId('is-admin').textContent).toBe('no');
-      });
-    });
-  });
-
-  describe('auth state change listener', () => {
-    it('should register auth state change listener on mount', async () => {
-      render(
-        <AuthProvider>
-          <TestConsumer />
-        </AuthProvider>
-      );
-
-      await waitFor(() => {
-        expect(mockOnAuthStateChange).toHaveBeenCalled();
-      });
-    });
-
-    it('should update state when auth state changes', async () => {
-      const mockUser = { id: 'user-123', email: 'test@example.com' };
-
-      render(
-        <AuthProvider>
-          <TestConsumer />
-        </AuthProvider>
-      );
-
-      await waitFor(() => {
-        expect(screen.getByTestId('loading').textContent).toBe('ready');
-      });
-
-      // Simulate sign in through auth state change
-      await act(async () => {
-        const callback = mockOnAuthStateChange.mock.calls[0][0];
-        callback('SIGNED_IN', { user: mockUser });
-      });
-
-      await waitFor(() => {
-        expect(screen.getByTestId('user').textContent).toBe('test@example.com');
       });
     });
   });

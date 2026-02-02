@@ -2,17 +2,15 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { SeasonProvider, useSeason } from '../../contexts/SeasonContext';
+import { api } from '../../lib/api-client';
 
-// Mock Supabase
-const mockFromSelect = vi.fn();
-
-vi.mock('../../lib/supabase', () => ({
-  supabase: {
-    from: vi.fn(() => ({
-      select: vi.fn(() => ({
-        order: () => mockFromSelect(),
-      })),
-    })),
+// Mock api-client
+vi.mock('../../lib/api-client', () => ({
+  api: {
+    get: vi.fn(),
+    post: vi.fn(),
+    patch: vi.fn(),
+    delete: vi.fn(),
   },
 }));
 
@@ -41,10 +39,7 @@ function TestConsumer() {
 describe('SeasonContext', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockFromSelect.mockResolvedValue({
-      data: mockSeasons,
-      error: null,
-    });
+    api.get.mockResolvedValue(mockSeasons);
   });
 
   afterEach(() => {
@@ -67,7 +62,7 @@ describe('SeasonContext', () => {
   describe('initial loading state', () => {
     it('should start with loading true', () => {
       // Make query hang
-      mockFromSelect.mockImplementation(() => new Promise(() => {}));
+      api.get.mockImplementation(() => new Promise(() => {}));
 
       render(
         <SeasonProvider>
@@ -102,13 +97,12 @@ describe('SeasonContext', () => {
       await waitFor(() => {
         expect(screen.getByTestId('seasons-count').textContent).toBe('3');
       });
+
+      expect(api.get).toHaveBeenCalledWith('/public/seasons');
     });
 
     it('should handle fetch error gracefully', async () => {
-      mockFromSelect.mockResolvedValue({
-        data: null,
-        error: { message: 'Database error' },
-      });
+      api.get.mockRejectedValue(new Error('Database error'));
 
       render(
         <SeasonProvider>
@@ -140,10 +134,7 @@ describe('SeasonContext', () => {
 
     it('should select first season if no active season', async () => {
       const seasonsWithoutActive = mockSeasons.map((s) => ({ ...s, is_active: false }));
-      mockFromSelect.mockResolvedValue({
-        data: seasonsWithoutActive,
-        error: null,
-      });
+      api.get.mockResolvedValue(seasonsWithoutActive);
 
       render(
         <SeasonProvider>
@@ -158,10 +149,7 @@ describe('SeasonContext', () => {
     });
 
     it('should handle empty seasons list', async () => {
-      mockFromSelect.mockResolvedValue({
-        data: [],
-        error: null,
-      });
+      api.get.mockResolvedValue([]);
 
       render(
         <SeasonProvider>
@@ -234,13 +222,10 @@ describe('SeasonContext', () => {
       });
 
       // Update mock to return different data
-      mockFromSelect.mockResolvedValue({
-        data: [
-          ...mockSeasons,
-          { id: 'season-4', name: '2026 Summer', is_active: false, start_date: '2026-06-01' },
-        ],
-        error: null,
-      });
+      api.get.mockResolvedValue([
+        ...mockSeasons,
+        { id: 'season-4', name: '2026 Summer', is_active: false, start_date: '2026-06-01' },
+      ]);
 
       await user.click(screen.getByText('Refetch'));
 

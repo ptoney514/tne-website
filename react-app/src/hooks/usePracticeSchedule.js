@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '../lib/supabase';
+import { api } from '../lib/api-client';
 
 /**
  * Hook for fetching practice schedules for a specific team.
  * Used on the TeamDetailPage.
- * No authentication required (public read via RLS).
+ * No authentication required (public read).
  */
 export function usePracticeSchedule(teamId) {
   const [practices, setPractices] = useState([]);
@@ -22,47 +22,34 @@ export function usePracticeSchedule(teamId) {
       setError(null);
 
       try {
-        // Fetch practice sessions linked to this team
-        const { data, error: fetchError } = await supabase
-          .from('practice_session_teams')
-          .select(`
-            id,
-            practice_session:practice_sessions!inner(
-              id,
-              day_of_week,
-              start_time,
-              end_time,
-              location,
-              address,
-              notes,
-              is_active
-            )
-          `)
-          .eq('team_id', teamId)
-          .eq('practice_sessions.is_active', true);
+        const data = await api.get(`/public/practice-schedule?teamId=${teamId}`);
 
-        if (fetchError) {
-          throw fetchError;
-        }
-
-        // Extract practice sessions and sort by day of week
+        // Sort by day of week
         const dayOrder = {
           Monday: 1,
+          monday: 1,
           Tuesday: 2,
+          tuesday: 2,
           Wednesday: 3,
+          wednesday: 3,
           Thursday: 4,
+          thursday: 4,
           Friday: 5,
+          friday: 5,
           Saturday: 6,
+          saturday: 6,
           Sunday: 7,
+          sunday: 7,
         };
 
-        const practiceList = (data || [])
-          .map((p) => p.practice_session)
-          .sort((a, b) => {
-            const dayDiff = dayOrder[a.day_of_week] - dayOrder[b.day_of_week];
-            if (dayDiff !== 0) return dayDiff;
-            return a.start_time.localeCompare(b.start_time);
-          });
+        const practiceList = (data || []).sort((a, b) => {
+          const dayDiff = (dayOrder[a.dayOfWeek] || dayOrder[a.day_of_week] || 8) -
+                         (dayOrder[b.dayOfWeek] || dayOrder[b.day_of_week] || 8);
+          if (dayDiff !== 0) return dayDiff;
+          const startA = a.startTime || a.start_time || '';
+          const startB = b.startTime || b.start_time || '';
+          return startA.localeCompare(startB);
+        });
 
         setPractices(practiceList);
       } catch (err) {
@@ -97,9 +84,11 @@ export function formatPracticeTime(timeStr) {
  * Returns: "Mon 6:00-7:30 PM at Monroe MS"
  */
 export function formatPracticeSession(practice) {
-  const dayShort = practice.day_of_week.slice(0, 3);
-  const startTime = formatPracticeTime(practice.start_time);
-  const endTime = formatPracticeTime(practice.end_time);
+  const dayOfWeek = practice.dayOfWeek || practice.day_of_week || '';
+  const dayShort = dayOfWeek.slice(0, 3);
+  const startTime = formatPracticeTime(practice.startTime || practice.start_time);
+  const endTime = formatPracticeTime(practice.endTime || practice.end_time);
+  const location = practice.location || '';
 
   // Remove duplicate AM/PM if both times are same period
   const startPeriod = startTime.slice(-2);
@@ -108,5 +97,5 @@ export function formatPracticeSession(practice) {
     ? startTime.slice(0, -3)
     : startTime;
 
-  return `${dayShort} ${startDisplay}-${endTime} at ${practice.location}`;
+  return `${dayShort} ${startDisplay}-${endTime} at ${location}`;
 }

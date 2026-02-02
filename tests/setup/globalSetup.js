@@ -19,20 +19,20 @@ export default async function globalSetup() {
   console.log('\n[Global Setup] Starting E2E test setup...');
 
   // Check for required environment variables
-  const requiredVars = ['SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY'];
-  const missingVars = requiredVars.filter((v) => !process.env[v] && !process.env[`VITE_${v}`]);
+  const requiredVars = ['DATABASE_URL'];
+  const missingVars = requiredVars.filter((v) => !process.env[v]);
 
   if (missingVars.length > 0) {
     console.warn(
       `[Global Setup] Warning: Missing environment variables: ${missingVars.join(', ')}`
     );
-    console.warn('[Global Setup] Supabase verification will be skipped in tests.');
+    console.warn('[Global Setup] Database verification will be skipped in tests.');
   } else {
     console.log('[Global Setup] Environment variables loaded successfully.');
 
     // Import dynamically to ensure env vars are loaded first
     const { cleanupTestData, getTestDataCounts, isTestClientConfigured } = await import(
-      '../fixtures/supabaseClient.js'
+      '../fixtures/testDbClient.js'
     );
 
     if (isTestClientConfigured()) {

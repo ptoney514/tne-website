@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useSeason } from '../contexts/SeasonContext';
-import { supabase } from '../lib/supabase';
+import { api } from '../lib/api-client';
 import {
   Save,
   Loader2,
@@ -51,15 +51,10 @@ export default function AdminRegistrationSettings() {
     setSuccess(false);
 
     try {
-      const { error: updateError } = await supabase
-        .from('seasons')
-        .update({
-          registration_open: registrationOpen,
-          registration_label: registrationLabel || null,
-        })
-        .eq('id', selectedSeasonId);
-
-      if (updateError) throw updateError;
+      await api.patch(`/admin/seasons?id=${selectedSeasonId}`, {
+        registrationOpen: registrationOpen,
+        registrationLabel: registrationLabel || null,
+      });
 
       setSuccess(true);
       refetch(); // Refresh season data

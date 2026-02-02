@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { useDashboardStats } from '../hooks/useDashboardStats';
 import { useSeason } from '../contexts/SeasonContext';
-import { supabase } from '../lib/supabase';
+import { api } from '../lib/api-client';
 import { generateTemplateFile, exportToExcel } from '../lib/excelParser';
 import AdminNavbar from '../components/AdminNavbar';
 import ExcelUploadModal from '../components/admin/ExcelUploadModal';
@@ -52,12 +52,7 @@ function TryoutsControl({ season, onUpdate }) {
     const newState = !isOpen;
 
     try {
-      const { error } = await supabase
-        .from('seasons')
-        .update({ tryouts_open: newState })
-        .eq('id', season.id);
-
-      if (error) throw error;
+      await api.patch(`/admin/seasons?id=${season.id}`, { tryoutsOpen: newState });
       setIsOpen(newState);
       onUpdate?.();
     } catch (err) {
@@ -72,12 +67,7 @@ function TryoutsControl({ season, onUpdate }) {
     setSaving(true);
 
     try {
-      const { error } = await supabase
-        .from('seasons')
-        .update({ tryouts_label: tempLabel })
-        .eq('id', season.id);
-
-      if (error) throw error;
+      await api.patch(`/admin/seasons?id=${season.id}`, { tryoutsLabel: tempLabel });
       setLabel(tempLabel);
       setIsEditingLabel(false);
       onUpdate?.();
@@ -233,12 +223,7 @@ function RegistrationControl({ season, onUpdate }) {
     const newState = !isOpen;
 
     try {
-      const { error } = await supabase
-        .from('seasons')
-        .update({ registration_open: newState })
-        .eq('id', season.id);
-
-      if (error) throw error;
+      await api.patch(`/admin/seasons?id=${season.id}`, { registrationOpen: newState });
       setIsOpen(newState);
       onUpdate?.();
     } catch (err) {
@@ -253,12 +238,7 @@ function RegistrationControl({ season, onUpdate }) {
     setSaving(true);
 
     try {
-      const { error } = await supabase
-        .from('seasons')
-        .update({ registration_label: tempLabel })
-        .eq('id', season.id);
-
-      if (error) throw error;
+      await api.patch(`/admin/seasons?id=${season.id}`, { registrationLabel: tempLabel });
       setLabel(tempLabel);
       setIsEditingLabel(false);
       onUpdate?.();
@@ -597,23 +577,17 @@ export default function AdminDashboard() {
 
   const handleExportCurrentData = async () => {
     try {
-      const [teamsRes, coachesRes, rosterRes] = await Promise.all([
-        supabase.from('teams').select('*'),
-        supabase.from('coaches').select('*'),
-        // Query team_roster with player and team info
-        supabase.from('team_roster').select(`
-          team_id,
-          jersey_number,
-          position,
-          teams!inner(id, name),
-          players!inner(id, first_name, last_name, date_of_birth, current_grade, graduating_year, gender)
-        `).eq('is_active', true),
+      // Fetch data from API endpoints
+      const [teamsData, coachesData, playersData] = await Promise.all([
+        api.get('/admin/teams'),
+        api.get('/admin/coaches'),
+        api.get('/admin/players'),
       ]);
 
-      // Group roster entries by team name
+      // Group players by team name for rosters
       const rostersMap = new Map();
-      rosterRes.data?.forEach(entry => {
-        const teamName = entry.teams?.name;
+      (playersData || []).forEach(player => {
+        const teamName = player.team?.name || player.teamName;
         if (!teamName) return;
 
         const teamKey = teamName.toLowerCase();
@@ -621,15 +595,21 @@ export default function AdminDashboard() {
           rostersMap.set(teamKey, { team_name: teamName, players: [] });
         }
         rostersMap.get(teamKey).players.push({
-          ...entry.players,
-          jersey_number: entry.jersey_number,
-          position: entry.position,
+          id: player.id,
+          first_name: player.firstName || player.first_name,
+          last_name: player.lastName || player.last_name,
+          date_of_birth: player.dateOfBirth || player.date_of_birth,
+          current_grade: player.currentGrade || player.current_grade,
+          graduating_year: player.graduatingYear || player.graduating_year,
+          gender: player.gender,
+          jersey_number: player.jerseyNumber || player.jersey_number,
+          position: player.position,
         });
       });
 
       const data = {
-        teams: teamsRes.data || [],
-        coaches: coachesRes.data || [],
+        teams: teamsData || [],
+        coaches: coachesData || [],
         rosters: Array.from(rostersMap.values()),
       };
 

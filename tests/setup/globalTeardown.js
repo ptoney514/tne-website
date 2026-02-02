@@ -25,12 +25,10 @@ export default async function globalTeardown() {
   }
 
   // Check for required environment variables
-  const hasEnvVars =
-    (process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL) &&
-    process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const hasEnvVars = !!process.env.DATABASE_URL;
 
   if (!hasEnvVars) {
-    console.log('[Global Teardown] Supabase not configured, skipping cleanup.');
+    console.log('[Global Teardown] Database not configured, skipping cleanup.');
     return;
   }
 
@@ -41,7 +39,7 @@ export default async function globalTeardown() {
       cleanupTestTryoutSessions,
       getTestDataCounts,
       isTestClientConfigured,
-    } = await import('../fixtures/supabaseClient.js');
+    } = await import('../fixtures/testDbClient.js');
 
     if (!isTestClientConfigured()) {
       console.log('[Global Teardown] Test client not configured, skipping cleanup.');

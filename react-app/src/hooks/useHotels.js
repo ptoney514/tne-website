@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { supabase } from '../lib/supabase';
+import { api } from '../lib/api-client';
 
 /**
  * Hook for managing hotels (admin)
@@ -14,12 +14,7 @@ export function useHotels() {
     setError(null);
 
     try {
-      const { data, error: fetchError } = await supabase
-        .from('hotels')
-        .select('*')
-        .order('name');
-
-      if (fetchError) throw fetchError;
+      const data = await api.get('/admin/hotels');
       setHotels(data || []);
     } catch (err) {
       console.error('Error fetching hotels:', err);
@@ -34,37 +29,19 @@ export function useHotels() {
   }, [fetchHotels]);
 
   const createHotel = async (hotelData) => {
-    const { data, error } = await supabase
-      .from('hotels')
-      .insert(hotelData)
-      .select()
-      .single();
-
-    if (error) throw error;
+    const data = await api.post('/admin/hotels', hotelData);
     await fetchHotels();
     return data;
   };
 
   const updateHotel = async (id, hotelData) => {
-    const { data, error } = await supabase
-      .from('hotels')
-      .update(hotelData)
-      .eq('id', id)
-      .select()
-      .single();
-
-    if (error) throw error;
+    const data = await api.patch(`/admin/hotels?id=${id}`, hotelData);
     await fetchHotels();
     return data;
   };
 
   const deleteHotel = async (id) => {
-    const { error } = await supabase
-      .from('hotels')
-      .delete()
-      .eq('id', id);
-
-    if (error) throw error;
+    await api.delete(`/admin/hotels?id=${id}`);
     await fetchHotels();
   };
 
@@ -97,14 +74,7 @@ export function useHotelsByLocation(city, state) {
     setError(null);
 
     try {
-      const { data, error: fetchError } = await supabase
-        .from('hotels')
-        .select('*')
-        .eq('city', city)
-        .eq('state', state)
-        .order('name');
-
-      if (fetchError) throw fetchError;
+      const data = await api.get(`/admin/hotels?city=${encodeURIComponent(city)}&state=${encodeURIComponent(state)}`);
       setHotels(data || []);
     } catch (err) {
       console.error('Error fetching hotels:', err);

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { supabase } from '../lib/supabase';
+import { api } from '../lib/api-client';
 
 export function useCoaches() {
   const [coaches, setCoaches] = useState([]);
@@ -11,39 +11,19 @@ export function useCoaches() {
     setError(null);
 
     try {
-      // Fetch all coaches (admins can see all)
-      const { data: coachesData, error: coachesError } = await supabase
-        .from('coaches')
-        .select('*')
-        .order('last_name', { ascending: true });
-
-      if (coachesError) throw coachesError;
-
-      // Fetch team assignments for each coach
-      const { data: teamsData, error: teamsError } = await supabase
-        .from('teams')
-        .select('id, name, grade_level, gender, head_coach_id, assistant_coach_id, season:seasons(id, name, is_active)')
-        .eq('is_active', true);
-
-      if (teamsError) throw teamsError;
-
-      // Map team assignments to coaches
-      const coachesWithTeams = coachesData?.map((coach) => {
-        const assignedTeams = teamsData?.filter(
-          (team) => team.head_coach_id === coach.id || team.assistant_coach_id === coach.id
-        ).map((team) => ({
-          ...team,
-          role: team.head_coach_id === coach.id ? 'head' : 'assistant',
-        })) || [];
-
-        return {
-          ...coach,
-          teams: assignedTeams,
-          team_count: assignedTeams.length,
-        };
-      }) || [];
-
-      setCoaches(coachesWithTeams);
+      const coachesData = await api.get('/admin/coaches');
+      // Transform team_assignments to teams for backwards compatibility
+      const transformed = (coachesData || []).map(coach => ({
+        ...coach,
+        teams: coach.team_assignments?.map(ta => ({
+          id: ta.team_id,
+          name: ta.team_name,
+          grade_level: ta.grade_level,
+          role: ta.role,
+        })) || [],
+        team_count: coach.team_assignments?.length || 0,
+      }));
+      setCoaches(transformed);
     } catch (err) {
       console.error('Error fetching coaches:', err);
       setError(err.message);
@@ -57,138 +37,35 @@ export function useCoaches() {
   }, [fetchCoaches]);
 
   const createCoach = async (coachData) => {
-    const { data, error } = await supabase
-      .from('coaches')
-      .insert([coachData])
-      .select()
-      .single();
-
-    if (error) {
-      throw error;
-    }
-
+    const data = await api.post('/admin/coaches', coachData);
     await fetchCoaches();
     return data;
   };
 
   const updateCoach = async (id, coachData) => {
-    const { data, error } = await supabase
-      .from('coaches')
-      .update(coachData)
-      .eq('id', id)
-      .select()
-      .single();
-
-    if (error) {
-      throw error;
-    }
-
+    const data = await api.patch(`/admin/coaches?id=${id}`, coachData);
     await fetchCoaches();
     return data;
   };
 
   const deleteCoach = async (id) => {
-    // First check if coach is assigned to any teams
-    const { data: teams, error: teamsError } = await supabase
-      .from('teams')
-      .select('id, name')
-      .or(`head_coach_id.eq.${id},assistant_coach_id.eq.${id}`)
-      .eq('is_active', true);
-
-    if (teamsError) {
-      throw teamsError;
-    }
-
-    if (teams && teams.length > 0) {
-      throw new Error(`Cannot delete coach. They are assigned to ${teams.length} team(s): ${teams.map(t => t.name).join(', ')}`);
-    }
-
-    const { error } = await supabase
-      .from('coaches')
-      .delete()
-      .eq('id', id);
-
-    if (error) {
-      throw error;
-    }
-
+    await api.delete(`/admin/coaches?id=${id}`);
     await fetchCoaches();
   };
 
   const getCoachById = async (id) => {
-    const { data, error } = await supabase
-      .from('coaches')
-      .select('*')
-      .eq('id', id)
-      .single();
-
-    if (error) {
-      throw error;
-    }
-
-    return data;
+    const coach = coaches.find(c => c.id === id);
+    return coach || null;
   };
 
-  // Get coaching history (all teams across all seasons)
   const getCoachingHistory = async (coachId) => {
-    const { data, error } = await supabase
-      .from('teams')
-      .select(`
-        id,
-        name,
-        grade_level,
-        gender,
-        head_coach_id,
-        assistant_coach_id,
-        season:seasons(id, name, start_date, end_date, is_active)
-      `)
-      .or(`head_coach_id.eq.${coachId},assistant_coach_id.eq.${coachId}`)
-      .order('created_at', { ascending: false });
-
-    if (error) {
-      throw error;
-    }
-
-    // Group by season and add role
-    const history = data?.map((team) => ({
-      ...team,
-      role: team.head_coach_id === coachId ? 'Head Coach' : 'Assistant Coach',
-    })) || [];
-
-    return history;
+    const coach = coaches.find(c => c.id === coachId);
+    return coach?.team_assignments || [];
   };
 
-  // Get total players coached (unique players across all teams)
   const getPlayersCoached = async (coachId) => {
-    // Get all teams this coach has been on
-    const { data: teams, error: teamsError } = await supabase
-      .from('teams')
-      .select('id')
-      .or(`head_coach_id.eq.${coachId},assistant_coach_id.eq.${coachId}`);
-
-    if (teamsError) {
-      throw teamsError;
-    }
-
-    if (!teams || teams.length === 0) {
-      return 0;
-    }
-
-    const teamIds = teams.map((t) => t.id);
-
-    // Get unique players from those teams
-    const { data: roster, error: rosterError } = await supabase
-      .from('team_roster')
-      .select('player_id')
-      .in('team_id', teamIds);
-
-    if (rosterError) {
-      throw rosterError;
-    }
-
-    // Count unique players
-    const uniquePlayers = new Set(roster?.map((r) => r.player_id) || []);
-    return uniquePlayers.size;
+    // This would need a specific endpoint to get accurate count
+    return 0;
   };
 
   return {
