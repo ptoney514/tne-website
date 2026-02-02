@@ -1,14 +1,14 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
+import { api } from '../../lib/api-client';
 
-// Setup mock before importing the hook
-const mockInsert = vi.fn();
-
-vi.mock('../../lib/supabase', () => ({
-  supabase: {
-    from: () => ({
-      insert: mockInsert,
-    }),
+// Mock api-client
+vi.mock('../../lib/api-client', () => ({
+  api: {
+    get: vi.fn(),
+    post: vi.fn(),
+    patch: vi.fn(),
+    delete: vi.fn(),
   },
 }));
 
@@ -17,7 +17,7 @@ import { useContactForm } from '../../hooks/useContactForm';
 describe('useContactForm', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockInsert.mockResolvedValue({ error: null });
+    api.post.mockResolvedValue({ success: true });
   });
 
   it('should initialize with default state', () => {
@@ -170,7 +170,8 @@ describe('useContactForm', () => {
       });
 
       expect(result.current.success).toBe(true);
-      expect(mockInsert).toHaveBeenCalledWith(
+      expect(api.post).toHaveBeenCalledWith(
+        '/public/contact',
         expect.objectContaining({ name: 'John Doe' })
       );
     });
@@ -189,7 +190,8 @@ describe('useContactForm', () => {
       });
 
       expect(result.current.success).toBe(true);
-      expect(mockInsert).toHaveBeenCalledWith(
+      expect(api.post).toHaveBeenCalledWith(
+        '/public/contact',
         expect.objectContaining({ name: 'John Doe' })
       );
     });
@@ -197,11 +199,11 @@ describe('useContactForm', () => {
 
   describe('form submission', () => {
     it('should set loading state during submission', async () => {
-      // Make insert return a promise that doesn't resolve immediately
-      let resolveInsert;
-      mockInsert.mockReturnValue(
+      // Make post return a promise that doesn't resolve immediately
+      let resolvePost;
+      api.post.mockReturnValue(
         new Promise((resolve) => {
-          resolveInsert = resolve;
+          resolvePost = resolve;
         })
       );
 
@@ -221,9 +223,9 @@ describe('useContactForm', () => {
       // Should be loading immediately
       expect(result.current.loading).toBe(true);
 
-      // Resolve the insert
+      // Resolve the post
       await act(async () => {
-        resolveInsert({ error: null });
+        resolvePost({ success: true });
         await submitPromise;
       });
 
@@ -247,7 +249,7 @@ describe('useContactForm', () => {
       expect(result.current.success).toBe(true);
     });
 
-    it('should insert correct data into Supabase', async () => {
+    it('should post correct data to API', async () => {
       const { result } = renderHook(() => useContactForm());
 
       await act(async () => {
@@ -259,7 +261,7 @@ describe('useContactForm', () => {
         }, { skipMailto: true });
       });
 
-      expect(mockInsert).toHaveBeenCalledWith({
+      expect(api.post).toHaveBeenCalledWith('/public/contact', {
         name: 'John Doe',
         email: 'john@example.com',
         subject: 'Team Inquiry',
@@ -270,8 +272,8 @@ describe('useContactForm', () => {
   });
 
   describe('error handling', () => {
-    it('should handle Supabase insert error with skipMailto', async () => {
-      mockInsert.mockResolvedValue({ error: { message: 'Database error' } });
+    it('should handle API error with skipMailto', async () => {
+      api.post.mockRejectedValue(new Error('Database error'));
 
       const { result } = renderHook(() => useContactForm());
 
@@ -289,7 +291,7 @@ describe('useContactForm', () => {
     });
 
     it('should return error result on failure', async () => {
-      mockInsert.mockResolvedValue({ error: { message: 'Database error' } });
+      api.post.mockRejectedValue(new Error('Database error'));
 
       const { result } = renderHook(() => useContactForm());
 
@@ -312,7 +314,7 @@ describe('useContactForm', () => {
 
   describe('reset function', () => {
     it('should reset all state', async () => {
-      mockInsert.mockResolvedValue({ error: { message: 'Error' } });
+      api.post.mockRejectedValue(new Error('Error'));
 
       const { result } = renderHook(() => useContactForm());
 

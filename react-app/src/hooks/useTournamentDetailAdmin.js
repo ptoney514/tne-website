@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { supabase } from '../lib/supabase';
+import { api } from '../lib/api-client';
 
 /**
  * Hook for admin management of tournament details
@@ -15,35 +15,11 @@ export function useTournamentDetailAdmin() {
     setError(null);
 
     try {
-      // Check if details already exist
-      const { data: existing } = await supabase
-        .from('tournament_details')
-        .select('id')
-        .eq('game_id', gameId)
-        .single();
-
-      if (existing) {
-        // Update existing
-        const { data, error: updateError } = await supabase
-          .from('tournament_details')
-          .update(detailsData)
-          .eq('game_id', gameId)
-          .select()
-          .single();
-
-        if (updateError) throw updateError;
-        return data;
-      } else {
-        // Create new
-        const { data, error: insertError } = await supabase
-          .from('tournament_details')
-          .insert({ ...detailsData, game_id: gameId })
-          .select()
-          .single();
-
-        if (insertError) throw insertError;
-        return data;
-      }
+      const data = await api.post('/admin/tournaments', {
+        gameId,
+        ...detailsData,
+      });
+      return data;
     } catch (err) {
       console.error('Error saving tournament details:', err);
       setError(err.message);
@@ -55,139 +31,84 @@ export function useTournamentDetailAdmin() {
 
   // Get or create tournament details for a game
   const getOrCreateDetails = async (gameId) => {
-    const { data: existing } = await supabase
-      .from('tournament_details')
-      .select('*')
-      .eq('game_id', gameId)
-      .single();
-
+    const existing = await api.get(`/admin/tournaments?gameId=${gameId}`);
     if (existing) return existing;
 
-    const { data: created, error } = await supabase
-      .from('tournament_details')
-      .insert({ game_id: gameId })
-      .select()
-      .single();
-
-    if (error) throw error;
+    const created = await api.post('/admin/tournaments', { gameId });
     return created;
   };
 
   // Link hotel to tournament with rate info
   const addHotelToTournament = async (tournamentDetailId, hotelId, rateInfo = {}) => {
-    const { data, error } = await supabase
-      .from('tournament_hotels')
-      .insert({
-        tournament_detail_id: tournamentDetailId,
-        hotel_id: hotelId,
-        ...rateInfo,
-      })
-      .select()
-      .single();
-
-    if (error) throw error;
+    const data = await api.post('/admin/tournament-hotels', {
+      tournamentDetailId,
+      hotelId,
+      ...rateInfo,
+    });
     return data;
   };
 
   // Update hotel rate info
   const updateTournamentHotel = async (id, rateInfo) => {
-    const { data, error } = await supabase
-      .from('tournament_hotels')
-      .update(rateInfo)
-      .eq('id', id)
-      .select()
-      .single();
-
-    if (error) throw error;
+    const data = await api.patch(`/admin/tournament-hotels?id=${id}`, rateInfo);
     return data;
   };
 
   // Remove hotel from tournament
   const removeHotelFromTournament = async (tournamentDetailId, hotelId) => {
-    const { error } = await supabase
-      .from('tournament_hotels')
-      .delete()
-      .eq('tournament_detail_id', tournamentDetailId)
-      .eq('hotel_id', hotelId);
-
-    if (error) throw error;
+    await api.delete(`/admin/tournament-hotels?tournamentDetailId=${tournamentDetailId}&hotelId=${hotelId}`);
   };
 
   // Link place to tournament
   const addPlaceToTournament = async (tournamentDetailId, placeId, linkInfo = {}) => {
-    const { data, error } = await supabase
-      .from('tournament_nearby_places')
-      .insert({
-        tournament_detail_id: tournamentDetailId,
-        nearby_place_id: placeId,
-        ...linkInfo,
-      })
-      .select()
-      .single();
-
-    if (error) throw error;
+    const data = await api.post('/admin/tournament-places', {
+      tournamentDetailId,
+      nearbyPlaceId: placeId,
+      ...linkInfo,
+    });
     return data;
   };
 
   // Update place link info
   const updateTournamentPlace = async (id, linkInfo) => {
-    const { data, error } = await supabase
-      .from('tournament_nearby_places')
-      .update(linkInfo)
-      .eq('id', id)
-      .select()
-      .single();
-
-    if (error) throw error;
+    const data = await api.patch(`/admin/tournament-places?id=${id}`, linkInfo);
     return data;
   };
 
   // Remove place from tournament
   const removePlaceFromTournament = async (tournamentDetailId, placeId) => {
-    const { error } = await supabase
-      .from('tournament_nearby_places')
-      .delete()
-      .eq('tournament_detail_id', tournamentDetailId)
-      .eq('nearby_place_id', placeId);
-
-    if (error) throw error;
+    await api.delete(`/admin/tournament-places?tournamentDetailId=${tournamentDetailId}&nearbyPlaceId=${placeId}`);
   };
 
   // Bulk add nearby places (for agent use)
-  // Accepts array of places with optional existing_id for known places
   const bulkAddNearbyPlaces = async (tournamentDetailId, places) => {
     // Separate places to create vs just link
     const placesToCreate = places.filter(p => !p.existing_id);
-    const placesToLink = places.filter(p => p.existing_id);
+    const placesToLink = [...places.filter(p => p.existing_id)];
 
     // Create new places
     if (placesToCreate.length > 0) {
-      const { data: newPlaces, error: createError } = await supabase
-        .from('nearby_places')
-        .insert(placesToCreate.map(p => ({
-          name: p.name,
-          place_type: p.place_type,
-          category: p.category,
-          description: p.description,
-          street_address: p.street_address,
-          city: p.city,
-          state: p.state,
-          zip_code: p.zip_code,
-          latitude: p.latitude,
-          longitude: p.longitude,
-          google_place_id: p.google_place_id,
-          yelp_id: p.yelp_id,
-          rating: p.rating,
-          review_count: p.review_count,
-          price_range: p.price_range,
-          cuisine_type: p.cuisine_type,
-          is_family_friendly: p.is_family_friendly,
-          phone: p.phone,
-          website_url: p.website_url,
-        })))
-        .select();
-
-      if (createError) throw createError;
+      const newPlaces = await api.post('/admin/nearby-places', placesToCreate.map(p => ({
+        name: p.name,
+        placeType: p.place_type,
+        category: p.category,
+        description: p.description,
+        streetAddress: p.street_address,
+        city: p.city,
+        state: p.state,
+        zipCode: p.zip_code,
+        latitude: p.latitude,
+        longitude: p.longitude,
+        googlePlaceId: p.google_place_id,
+        yelpId: p.yelp_id,
+        rating: p.rating,
+        reviewCount: p.review_count,
+        priceRange: p.price_range,
+        cuisineType: p.cuisine_type,
+        isFamilyFriendly: p.is_family_friendly,
+        phone: p.phone,
+        websiteUrl: p.website_url,
+      })));
 
       // Add newly created places to link list
       newPlaces.forEach((np, i) => {
@@ -202,26 +123,14 @@ export function useTournamentDetailAdmin() {
 
     // Link all places to tournament
     if (placesToLink.length > 0) {
-      const { error: linkError } = await supabase
-        .from('tournament_nearby_places')
-        .insert(
-          placesToLink.map(p => ({
-            tournament_detail_id: tournamentDetailId,
-            nearby_place_id: p.existing_id,
-            distance_miles: p.distance_miles,
-            has_team_discount: p.has_team_discount,
-            team_discount_info: p.team_discount_info,
-          }))
-        );
-
-      if (linkError) throw linkError;
+      await api.post('/admin/tournament-places', placesToLink.map(p => ({
+        tournamentDetailId,
+        nearbyPlaceId: p.existing_id,
+        distanceMiles: p.distance_miles,
+        hasTeamDiscount: p.has_team_discount,
+        teamDiscountInfo: p.team_discount_info,
+      })));
     }
-
-    // Update places_populated_at timestamp
-    await supabase
-      .from('tournament_details')
-      .update({ places_populated_at: new Date().toISOString() })
-      .eq('id', tournamentDetailId);
 
     return placesToLink.length;
   };
@@ -229,31 +138,26 @@ export function useTournamentDetailAdmin() {
   // Bulk add hotels (for agent use)
   const bulkAddHotels = async (tournamentDetailId, hotels) => {
     const hotelsToCreate = hotels.filter(h => !h.existing_id);
-    const hotelsToLink = hotels.filter(h => h.existing_id);
+    const hotelsToLink = [...hotels.filter(h => h.existing_id)];
 
     // Create new hotels
     if (hotelsToCreate.length > 0) {
-      const { data: newHotels, error: createError } = await supabase
-        .from('hotels')
-        .insert(hotelsToCreate.map(h => ({
-          name: h.name,
-          brand: h.brand,
-          street_address: h.street_address,
-          city: h.city,
-          state: h.state,
-          zip_code: h.zip_code,
-          phone: h.phone,
-          website_url: h.website_url,
-          booking_url: h.booking_url,
-          latitude: h.latitude,
-          longitude: h.longitude,
-          amenities: h.amenities,
-          star_rating: h.star_rating,
-          google_place_id: h.google_place_id,
-        })))
-        .select();
-
-      if (createError) throw createError;
+      const newHotels = await api.post('/admin/hotels', hotelsToCreate.map(h => ({
+        name: h.name,
+        brand: h.brand,
+        streetAddress: h.street_address,
+        city: h.city,
+        state: h.state,
+        zipCode: h.zip_code,
+        phone: h.phone,
+        websiteUrl: h.website_url,
+        bookingUrl: h.booking_url,
+        latitude: h.latitude,
+        longitude: h.longitude,
+        amenities: h.amenities,
+        starRating: h.star_rating,
+        googlePlaceId: h.google_place_id,
+      })));
 
       newHotels.forEach((nh, i) => {
         hotelsToLink.push({
@@ -267,20 +171,14 @@ export function useTournamentDetailAdmin() {
 
     // Link all hotels to tournament
     if (hotelsToLink.length > 0) {
-      const { error: linkError } = await supabase
-        .from('tournament_hotels')
-        .insert(
-          hotelsToLink.map(h => ({
-            tournament_detail_id: tournamentDetailId,
-            hotel_id: h.existing_id,
-            distance_miles: h.distance_miles,
-            drive_time_minutes: h.drive_time_minutes,
-            nightly_rate: h.nightly_rate,
-            is_team_rate: false,
-          }))
-        );
-
-      if (linkError) throw linkError;
+      await api.post('/admin/tournament-hotels', hotelsToLink.map(h => ({
+        tournamentDetailId,
+        hotelId: h.existing_id,
+        distanceMiles: h.distance_miles,
+        driveTimeMinutes: h.drive_time_minutes,
+        nightlyRate: h.nightly_rate,
+        isTeamRate: false,
+      })));
     }
 
     return hotelsToLink.length;
@@ -290,12 +188,7 @@ export function useTournamentDetailAdmin() {
   const findPlaceByGoogleId = async (googlePlaceId) => {
     if (!googlePlaceId) return null;
 
-    const { data } = await supabase
-      .from('nearby_places')
-      .select('id')
-      .eq('google_place_id', googlePlaceId)
-      .single();
-
+    const data = await api.get(`/admin/nearby-places?googlePlaceId=${encodeURIComponent(googlePlaceId)}`);
     return data;
   };
 
@@ -303,12 +196,7 @@ export function useTournamentDetailAdmin() {
   const findHotelByGoogleId = async (googlePlaceId) => {
     if (!googlePlaceId) return null;
 
-    const { data } = await supabase
-      .from('hotels')
-      .select('id')
-      .eq('google_place_id', googlePlaceId)
-      .single();
-
+    const data = await api.get(`/admin/hotels?googlePlaceId=${encodeURIComponent(googlePlaceId)}`);
     return data;
   };
 
@@ -349,34 +237,15 @@ export function useTournamentDetailForEdit(gameId) {
 
     try {
       // Fetch game with tournament details
-      const { data: game, error: gameError } = await supabase
-        .from('games')
-        .select(`
-          *,
-          tournament_details(
-            *,
-            venue:venues(*),
-            tournament_hotels(
-              *,
-              hotel:hotels(*)
-            ),
-            tournament_nearby_places(
-              *,
-              nearby_place:nearby_places(*)
-            )
-          )
-        `)
-        .eq('id', gameId)
-        .single();
-
-      if (gameError) throw gameError;
+      const game = await api.get(`/admin/games?id=${gameId}`);
+      const details = await api.get(`/admin/tournaments?gameId=${gameId}`);
 
       setData({
         game,
-        details: game.tournament_details?.[0] || null,
-        venue: game.tournament_details?.[0]?.venue || null,
-        hotels: game.tournament_details?.[0]?.tournament_hotels || [],
-        places: game.tournament_details?.[0]?.tournament_nearby_places || [],
+        details: details || null,
+        venue: details?.venue || null,
+        hotels: details?.tournament_hotels || [],
+        places: details?.tournament_nearby_places || [],
       });
     } catch (err) {
       console.error('Error fetching tournament for edit:', err);

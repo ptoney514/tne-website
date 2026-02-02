@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
-import { supabase } from '../lib/supabase';
+import { api } from '../lib/api-client';
 
-// Set to true to skip Supabase and use sample data (faster for development)
-const USE_SAMPLE_DATA = false;
-
+/**
+ * Hook for public tryout sessions display and signup
+ */
 export function useTryoutSessions() {
   const [sessions, setSessions] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -16,28 +16,13 @@ export function useTryoutSessions() {
     setLoading(true);
     setError(null);
 
-    // Use sample data for development (instant load)
-    if (USE_SAMPLE_DATA) {
-      setSessions(getSampleSessions());
-      setLoading(false);
-      return;
-    }
-
     try {
-      const { data, error: fetchError } = await supabase
-        .from('tryout_sessions')
-        .select('*')
-        .eq('is_active', true)
-        .gte('session_date', new Date().toISOString().split('T')[0])
-        .order('session_date', { ascending: true });
-
-      if (fetchError) throw fetchError;
-
+      const data = await api.get('/public/tryouts');
       setSessions(data || []);
     } catch (err) {
       console.error('Error fetching tryout sessions:', err);
       setError(err.message || 'Failed to fetch sessions');
-      // Return sample data for now if Supabase fetch fails
+      // Return sample data as fallback
       setSessions(getSampleSessions());
     } finally {
       setLoading(false);
@@ -48,45 +33,38 @@ export function useTryoutSessions() {
     fetchSessions();
   }, [fetchSessions]);
 
-  const submitSignup = useCallback(
-    async (signupData) => {
-      setSubmitting(true);
-      setSubmitError(null);
-      setSubmitSuccess(false);
+  const submitSignup = useCallback(async (signupData) => {
+    setSubmitting(true);
+    setSubmitError(null);
+    setSubmitSuccess(false);
 
-      try {
-        const { error: insertError } = await supabase
-          .from('tryout_signups')
-          .insert({
-            session_id: signupData.sessionId,
-            player_first_name: signupData.playerFirstName,
-            player_last_name: signupData.playerLastName,
-            player_dob: signupData.playerDob,
-            player_grade: signupData.playerGrade,
-            player_gender: signupData.playerGender,
-            player_school: signupData.playerSchool,
-            parent_first_name: signupData.parentFirstName,
-            parent_last_name: signupData.parentLastName,
-            parent_email: signupData.parentEmail,
-            parent_phone: signupData.parentPhone,
-            relationship: signupData.relationship,
-            status: 'pending',
-          });
+    try {
+      await api.post('/public/tryout-signup', {
+        tryout_session_id: signupData.sessionId,
+        player_first_name: signupData.playerFirstName,
+        player_last_name: signupData.playerLastName,
+        player_date_of_birth: signupData.playerDob,
+        player_grade: signupData.playerGrade,
+        player_gender: signupData.playerGender,
+        parent_first_name: signupData.parentFirstName,
+        parent_last_name: signupData.parentLastName,
+        parent_email: signupData.parentEmail,
+        parent_phone: signupData.parentPhone,
+        previous_experience: signupData.previousExperience,
+        how_heard_about_us: signupData.howHeardAboutUs,
+      });
 
-        if (insertError) throw insertError;
-
-        setSubmitSuccess(true);
-        return { success: true };
-      } catch (err) {
-        console.error('Error submitting tryout signup:', err);
-        setSubmitError(err.message || 'Failed to submit registration');
-        return { success: false, error: err.message };
-      } finally {
-        setSubmitting(false);
-      }
-    },
-    []
-  );
+      setSubmitSuccess(true);
+      return { success: true };
+    } catch (err) {
+      console.error('Error submitting tryout signup:', err);
+      const message = err.data?.error || err.message || 'Failed to submit registration';
+      setSubmitError(message);
+      return { success: false, error: message };
+    } finally {
+      setSubmitting(false);
+    }
+  }, []);
 
   const resetSubmitState = useCallback(() => {
     setSubmitting(false);
@@ -107,6 +85,69 @@ export function useTryoutSessions() {
   };
 }
 
+/**
+ * Hook for admin tryout session management
+ */
+export function useTryoutSessionsAdmin(options = {}) {
+  const { seasonId, includeSignups = false } = options;
+  const [sessions, setSessions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const fetchSessions = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const params = new URLSearchParams();
+      if (seasonId) params.append('seasonId', seasonId);
+      if (includeSignups) params.append('includeSignups', 'true');
+
+      const queryString = params.toString();
+      const data = await api.get(
+        `/admin/tryouts${queryString ? `?${queryString}` : ''}`
+      );
+      setSessions(data || []);
+    } catch (err) {
+      console.error('Error fetching tryout sessions:', err);
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }, [seasonId, includeSignups]);
+
+  useEffect(() => {
+    fetchSessions();
+  }, [fetchSessions]);
+
+  const createSession = async (sessionData) => {
+    const data = await api.post('/admin/tryouts', sessionData);
+    await fetchSessions();
+    return data;
+  };
+
+  const updateSession = async (id, sessionData) => {
+    const data = await api.patch(`/admin/tryouts?id=${id}`, sessionData);
+    await fetchSessions();
+    return data;
+  };
+
+  const deleteSession = async (id) => {
+    await api.delete(`/admin/tryouts?id=${id}`);
+    await fetchSessions();
+  };
+
+  return {
+    sessions,
+    loading,
+    error,
+    refetch: fetchSessions,
+    createSession,
+    updateSession,
+    deleteSession,
+  };
+}
+
 // Sample data for development/fallback
 function getSampleSessions() {
   const today = new Date();
@@ -119,39 +160,27 @@ function getSampleSessions() {
   return [
     {
       id: '1',
-      session_date: formatDate(14), // 2 weeks from now
+      date: formatDate(14),
       start_time: '09:00',
       end_time: '12:00',
       location: 'Central Recreation Center',
-      grades: '4th-5th',
-      description: '4th-5th Grade Tryouts',
-      notes: 'Boys & Girls divisions',
-      is_active: true,
-      spots_available: 30,
+      grade_levels: '4th-5th',
+      gender: 'both',
+      max_participants: 30,
+      spots_remaining: 25,
+      registration_open: true,
     },
     {
       id: '2',
-      session_date: formatDate(15), // 2 weeks + 1 day
+      date: formatDate(15),
       start_time: '13:00',
       end_time: '16:00',
       location: 'Central Recreation Center',
-      grades: '6th-7th',
-      description: '6th-7th Grade Tryouts',
-      notes: 'Boys & Girls divisions',
-      is_active: true,
-      spots_available: 25,
-    },
-    {
-      id: '3',
-      session_date: formatDate(21), // 3 weeks from now
-      start_time: '09:00',
-      end_time: '12:00',
-      location: 'Gateway High School Gym',
-      grades: '8th',
-      description: '8th Grade Tryouts',
-      notes: 'Boys & Girls divisions',
-      is_active: true,
-      spots_available: 20,
+      grade_levels: '6th-7th',
+      gender: 'both',
+      max_participants: 25,
+      spots_remaining: 20,
+      registration_open: true,
     },
   ];
 }

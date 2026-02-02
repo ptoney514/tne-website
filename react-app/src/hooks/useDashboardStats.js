@@ -1,7 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
-import { supabase } from '../lib/supabase';
+import { api } from '../lib/api-client';
+import { useSeason } from '../contexts/SeasonContext';
 
 export function useDashboardStats() {
+  const { selectedSeason } = useSeason();
   const [stats, setStats] = useState({
     teams: 0,
     players: 0,
@@ -20,64 +22,29 @@ export function useDashboardStats() {
       setLoading(true);
       setError(null);
 
-      // Fetch all stats in parallel
-      const [
-        teamsResult,
-        playersResult,
-        registrationsResult,
-        pendingRegistrationsResult,
-        pendingPaymentsResult,
-        tryoutSignupsResult,
-        recentActivityResult,
-        upcomingEventsResult,
-      ] = await Promise.all([
-        // Teams count (active only)
-        supabase.from('teams').select('id', { count: 'exact', head: true }).eq('is_active', true),
-        // Players count
-        supabase.from('players').select('id', { count: 'exact', head: true }),
-        // Total registrations
-        supabase.from('registrations').select('id', { count: 'exact', head: true }),
-        // Pending registrations
-        supabase.from('registrations').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
-        // Pending payments (team roster)
-        supabase.from('team_roster').select('id', { count: 'exact', head: true }).eq('payment_status', 'pending'),
-        // Tryout signups (registered status)
-        supabase.from('tryout_signups').select('id', { count: 'exact', head: true }).eq('status', 'registered'),
-        // Recent activity (last 5 registrations)
-        supabase
-          .from('registrations')
-          .select('id, player_first_name, player_last_name, status, created_at')
-          .order('created_at', { ascending: false })
-          .limit(5),
-        // Upcoming events (next 7 days)
-        supabase
-          .from('events')
-          .select('id, title, event_type, date, start_time, location, team_id')
-          .gte('date', new Date().toISOString().split('T')[0])
-          .eq('is_cancelled', false)
-          .order('date', { ascending: true })
-          .order('start_time', { ascending: true })
-          .limit(5),
-      ]);
+      const params = selectedSeason?.id ? `?seasonId=${selectedSeason.id}` : '';
+      const data = await api.get(`/admin/dashboard${params}`);
 
       setStats({
-        teams: teamsResult.count || 0,
-        players: playersResult.count || 0,
-        registrations: registrationsResult.count || 0,
-        pendingRegistrations: pendingRegistrationsResult.count || 0,
-        pendingPayments: pendingPaymentsResult.count || 0,
-        tryoutSignups: tryoutSignupsResult.count || 0,
+        teams: data.teams?.total || 0,
+        players: data.players?.total || 0,
+        registrations: data.registrations?.total || 0,
+        pendingRegistrations: data.registrations?.pending || 0,
+        pendingPayments: 0, // Not currently tracked in dashboard endpoint
+        tryoutSignups: data.tryouts?.recentSignups || 0,
       });
 
-      setRecentActivity(recentActivityResult.data || []);
-      setUpcomingEvents(upcomingEventsResult.data || []);
+      // Recent activity and upcoming events would need separate endpoints
+      // For now, leave them empty
+      setRecentActivity([]);
+      setUpcomingEvents([]);
     } catch (err) {
       console.error('Dashboard stats error:', err);
       setError(err.message);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [selectedSeason?.id]);
 
   useEffect(() => {
     fetchStats();

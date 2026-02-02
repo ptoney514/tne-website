@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { X, Upload, Loader2, CheckCircle, Download, FileSpreadsheet } from 'lucide-react';
 import { parseExcelFile, compareWithExisting, generateTemplateFile, exportToExcel } from '../../lib/excelParser';
-import { supabase } from '../../lib/supabase';
+import { api } from '../../lib/api-client';
 import ExcelDropZone from './ExcelDropZone';
 import ExcelPreviewTable from './ExcelPreviewTable';
 import ExcelValidationSummary from './ExcelValidationSummary';
@@ -23,31 +23,19 @@ export default function ExcelUploadModal({ isOpen, onClose, onSuccess, seasonId 
   const [uploadProgress, setUploadProgress] = useState('');
   const [uploadWarnings, setUploadWarnings] = useState([]);
 
-  // Fetch existing data from Supabase for comparison
+  // Fetch existing data from API for comparison
   const fetchExistingData = useCallback(async () => {
     try {
-      const [teamsRes, coachesRes, rosterRes] = await Promise.all([
-        // Include coach joins for change detection
-        supabase.from('teams').select(`
-          *,
-          head_coach:coaches!head_coach_id(first_name, last_name),
-          assistant_coach:coaches!assistant_coach_id(first_name, last_name)
-        `),
-        supabase.from('coaches').select('*'),
-        // Query team_roster with player and team info
-        supabase.from('team_roster').select(`
-          team_id,
-          jersey_number,
-          position,
-          teams!inner(id, name),
-          players!inner(id, first_name, last_name, date_of_birth, current_grade, graduating_year, gender)
-        `).eq('is_active', true),
+      const [teamsData, coachesData, playersData] = await Promise.all([
+        api.get('/admin/teams'),
+        api.get('/admin/coaches'),
+        api.get('/admin/players'),
       ]);
 
-      // Group roster entries by team name
+      // Group players by team name for rosters
       const rostersMap = new Map();
-      rosterRes.data?.forEach(entry => {
-        const teamName = entry.teams?.name;
+      (playersData || []).forEach(player => {
+        const teamName = player.team?.name || player.teamName;
         if (!teamName) return;
 
         const teamKey = teamName.toLowerCase();
@@ -55,15 +43,21 @@ export default function ExcelUploadModal({ isOpen, onClose, onSuccess, seasonId 
           rostersMap.set(teamKey, { team_name: teamName, players: [] });
         }
         rostersMap.get(teamKey).players.push({
-          ...entry.players,
-          jersey_number: entry.jersey_number,
-          position: entry.position,
+          id: player.id,
+          first_name: player.firstName || player.first_name,
+          last_name: player.lastName || player.last_name,
+          date_of_birth: player.dateOfBirth || player.date_of_birth,
+          current_grade: player.currentGrade || player.current_grade,
+          graduating_year: player.graduatingYear || player.graduating_year,
+          gender: player.gender,
+          jersey_number: player.jerseyNumber || player.jersey_number,
+          position: player.position,
         });
       });
 
       return {
-        teams: teamsRes.data || [],
-        coaches: coachesRes.data || [],
+        teams: teamsData || [],
+        coaches: coachesData || [],
         rosters: Array.from(rostersMap.values()),
       };
     } catch (err) {
@@ -125,6 +119,15 @@ export default function ExcelUploadModal({ isOpen, onClose, onSuccess, seasonId 
     const teamIdMap = new Map(); // team name (lowercase) -> UUID
 
     try {
+      // Fetch existing coaches for lookup
+      const existingCoaches = await api.get('/admin/coaches');
+      const coachLookup = new Map();
+      (existingCoaches || []).forEach(c => {
+        const key = `${c.firstName || c.first_name} ${c.lastName || c.last_name}`.toLowerCase();
+        coachLookup.set(key, c.id);
+        if (c.email) coachLookup.set(c.email.toLowerCase(), c.id);
+      });
+
       // 1. Upload coaches FIRST (teams reference them via FK)
       if (parsedData.coaches?.length > 0) {
         setUploadProgress('Uploading coaches...');
@@ -132,46 +135,23 @@ export default function ExcelUploadModal({ isOpen, onClose, onSuccess, seasonId 
           const { _rowIndex, certifications, ...coachBaseData } = coach;
 
           // Lookup existing coach by email (preferred) or name
-          let existingQuery = supabase.from('coaches').select('id');
-          if (coach.email) {
-            existingQuery = existingQuery.eq('email', coach.email);
-          } else {
-            existingQuery = existingQuery
-              .eq('first_name', coach.first_name)
-              .eq('last_name', coach.last_name);
-          }
-
-          const { data: existing } = await existingQuery.maybeSingle();
+          const emailKey = coach.email?.toLowerCase();
+          const nameKey = `${coach.first_name} ${coach.last_name}`.toLowerCase();
+          const existingId = (emailKey && coachLookup.get(emailKey)) || coachLookup.get(nameKey);
 
           let coachId;
-          if (existing) {
+          if (existingId) {
             // UPDATE existing coach
-            const { error: updateError } = await supabase
-              .from('coaches')
-              .update(coachBaseData)
-              .eq('id', existing.id);
-
-            if (updateError) {
-              throw new Error(`Failed to update coach "${coach.first_name} ${coach.last_name}": ${updateError.message}`);
-            }
-            coachId = existing.id;
+            await api.patch(`/admin/coaches?id=${existingId}`, coachBaseData);
+            coachId = existingId;
           } else {
             // INSERT new coach
-            const { data: inserted, error: insertError } = await supabase
-              .from('coaches')
-              .insert(coachBaseData)
-              .select('id')
-              .single();
-
-            if (insertError) {
-              throw new Error(`Failed to create coach "${coach.first_name} ${coach.last_name}": ${insertError.message}`);
-            }
+            const inserted = await api.post('/admin/coaches', coachBaseData);
             coachId = inserted.id;
           }
 
           // Store UUID for later reference by teams
-          const coachKey = `${coach.first_name} ${coach.last_name}`.toLowerCase();
-          coachIdMap.set(coachKey, coachId);
+          coachIdMap.set(nameKey, coachId);
         }
       }
 
@@ -184,6 +164,13 @@ export default function ExcelUploadModal({ isOpen, onClose, onSuccess, seasonId 
         if (!seasonId) {
           throw new Error('No season selected. Please select a season before uploading.');
         }
+
+        // Fetch existing teams for lookup
+        const existingTeams = await api.get(`/admin/teams?seasonId=${seasonId}`);
+        const teamLookup = new Map();
+        (existingTeams || []).forEach(t => {
+          teamLookup.set(t.name.toLowerCase(), t.id);
+        });
 
         for (const team of parsedData.teams) {
           const {
@@ -210,44 +197,23 @@ export default function ExcelUploadModal({ isOpen, onClose, onSuccess, seasonId 
             uploadWarnings.push(`Coach "${assistant_coach_name}" not found for team "${team.name}". Assistant coach will be unassigned.`);
           }
 
-          // Lookup existing team by name + season
-          const { data: existing } = await supabase
-            .from('teams')
-            .select('id')
-            .eq('name', team.name)
-            .eq('season_id', seasonId)
-            .maybeSingle();
+          const existingId = teamLookup.get(team.name.toLowerCase());
 
           const teamData = {
             ...teamBaseData,
-            season_id: seasonId,
-            head_coach_id: headCoachId,
-            assistant_coach_id: assistantCoachId,
+            seasonId: seasonId,
+            headCoachId: headCoachId,
+            assistantCoachId: assistantCoachId,
           };
 
           let teamId;
-          if (existing) {
+          if (existingId) {
             // UPDATE existing team
-            const { error: updateError } = await supabase
-              .from('teams')
-              .update(teamData)
-              .eq('id', existing.id);
-
-            if (updateError) {
-              throw new Error(`Failed to update team "${team.name}": ${updateError.message}`);
-            }
-            teamId = existing.id;
+            await api.patch(`/admin/teams?id=${existingId}`, teamData);
+            teamId = existingId;
           } else {
             // INSERT new team
-            const { data: inserted, error: insertError } = await supabase
-              .from('teams')
-              .insert(teamData)
-              .select('id')
-              .single();
-
-            if (insertError) {
-              throw new Error(`Failed to create team "${team.name}": ${insertError.message}`);
-            }
+            const inserted = await api.post('/admin/teams', teamData);
             teamId = inserted.id;
           }
 
@@ -259,6 +225,15 @@ export default function ExcelUploadModal({ isOpen, onClose, onSuccess, seasonId 
       // 3. Upload players and create team_roster entries
       if (parsedData.rosters?.length > 0) {
         setUploadProgress('Uploading rosters...');
+
+        // Fetch existing players for lookup
+        const existingPlayers = await api.get('/admin/players');
+        const playerLookup = new Map();
+        (existingPlayers || []).forEach(p => {
+          const key = `${p.firstName || p.first_name}|${p.lastName || p.last_name}|${p.dateOfBirth || p.date_of_birth}`.toLowerCase();
+          playerLookup.set(key, p.id);
+        });
+
         for (const roster of parsedData.rosters) {
           const teamId = teamIdMap.get(roster.team_name?.toLowerCase());
           if (!teamId) {
@@ -275,78 +250,27 @@ export default function ExcelUploadModal({ isOpen, onClose, onSuccess, seasonId 
             } = player;
 
             // Lookup existing player by name + DOB (natural key)
-            const { data: existing } = await supabase
-              .from('players')
-              .select('id')
-              .eq('first_name', player.first_name)
-              .eq('last_name', player.last_name)
-              .eq('date_of_birth', player.date_of_birth)
-              .maybeSingle();
+            const playerKey = `${player.first_name}|${player.last_name}|${player.date_of_birth}`.toLowerCase();
+            const existingPlayerId = playerLookup.get(playerKey);
 
             let playerId;
-            if (existing) {
+            if (existingPlayerId) {
               // UPDATE existing player
-              const { error: updateError } = await supabase
-                .from('players')
-                .update(playerBaseData)
-                .eq('id', existing.id);
-
-              if (updateError) {
-                throw new Error(`Failed to update player "${player.first_name} ${player.last_name}": ${updateError.message}`);
-              }
-              playerId = existing.id;
+              await api.patch(`/admin/players?id=${existingPlayerId}`, playerBaseData);
+              playerId = existingPlayerId;
             } else {
               // INSERT new player
-              const { data: inserted, error: insertError } = await supabase
-                .from('players')
-                .insert(playerBaseData)
-                .select('id')
-                .single();
-
-              if (insertError) {
-                throw new Error(`Failed to create player "${player.first_name} ${player.last_name}": ${insertError.message}`);
-              }
+              const inserted = await api.post('/admin/players', playerBaseData);
               playerId = inserted.id;
             }
 
-            // Check if roster entry exists to preserve payment_status and is_active
-            const { data: existingRoster } = await supabase
-              .from('team_roster')
-              .select('id, payment_status, is_active')
-              .eq('team_id', teamId)
-              .eq('player_id', playerId)
-              .maybeSingle();
-
-            const rosterData = {
-              team_id: teamId,
-              player_id: playerId,
-              jersey_number: jersey_number,
+            // Add to roster (the API handles upsert logic)
+            await api.post('/admin/roster', {
+              teamId: teamId,
+              playerId: playerId,
+              jerseyNumber: jersey_number,
               position: position,
-            };
-
-            let rosterError;
-            if (existingRoster) {
-              // UPDATE: preserve payment_status and is_active
-              const { error } = await supabase
-                .from('team_roster')
-                .update(rosterData)
-                .eq('id', existingRoster.id);
-              rosterError = error;
-            } else {
-              // INSERT: set defaults for new roster entry
-              const { error } = await supabase
-                .from('team_roster')
-                .insert({
-                  ...rosterData,
-                  payment_status: 'pending',
-                  is_active: true,
-                });
-              rosterError = error;
-            }
-
-            if (rosterError) {
-              throw new Error(`Failed to add "${player.first_name} ${player.last_name}" to roster: ${rosterError.message}`);
-            }
+            });
           }
         }
       }

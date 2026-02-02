@@ -9,23 +9,26 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-// Mock Supabase client for unit tests
-vi.mock('../lib/supabase', () => ({
-  supabase: {
-    auth: {
-      getSession: vi.fn(() => Promise.resolve({ data: { session: null } })),
-      onAuthStateChange: vi.fn(() => ({
-        data: { subscription: { unsubscribe: vi.fn() } },
-      })),
-      signInWithPassword: vi.fn(),
-      signOut: vi.fn(),
-    },
-    from: vi.fn(() => ({
-      select: vi.fn(() => ({
-        eq: vi.fn(() => ({
-          single: vi.fn(),
-        })),
-      })),
+// Mock API client for unit tests
+vi.mock('../lib/api-client', () => ({
+  api: {
+    get: vi.fn(() => Promise.resolve([])),
+    post: vi.fn(() => Promise.resolve({})),
+    patch: vi.fn(() => Promise.resolve({})),
+    delete: vi.fn(() => Promise.resolve()),
+  },
+}));
+
+// Mock Better Auth client for unit tests
+vi.mock('../lib/auth-client', () => ({
+  authClient: {
+    useSession: vi.fn(() => ({
+      data: null,
+      isPending: false,
     })),
+    signIn: {
+      email: vi.fn(() => Promise.resolve({ data: null, error: null })),
+    },
+    signOut: vi.fn(() => Promise.resolve()),
   },
 }));

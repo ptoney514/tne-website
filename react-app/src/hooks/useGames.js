@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { supabase } from '../lib/supabase';
+import { api } from '../lib/api-client';
 import { useSeason } from '../contexts/SeasonContext';
 
 /**
@@ -23,28 +23,12 @@ export function useGames() {
     setError(null);
 
     try {
-      const { data, error: fetchError } = await supabase
-        .from('games')
-        .select(`
-          *,
-          game_teams(
-            id,
-            team_id,
-            opponent,
-            is_home_game,
-            result,
-            notes,
-            team:teams(id, name, grade_level, gender)
-          )
-        `)
-        .eq('season_id', selectedSeason.id)
-        .order('date', { ascending: true })
-        .order('start_time', { ascending: true });
+      // Games would need a dedicated admin endpoint
+      // For now, use the public schedule and filter
+      const data = await api.get(`/public/schedule?seasonId=${selectedSeason.id}`);
+      const gamesData = (data || []).filter(e => e.type === 'game' || e.type === 'tournament');
 
-      if (fetchError) throw fetchError;
-
-      // Add computed fields
-      const gamesWithCounts = (data || []).map(game => ({
+      const gamesWithCounts = gamesData.map(game => ({
         ...game,
         teams_count: game.game_teams?.length || 0,
         assigned_teams: game.game_teams || [],
@@ -63,111 +47,36 @@ export function useGames() {
     fetchGames();
   }, [fetchGames]);
 
-  // Create a new game/tournament
   const createGame = async (gameData) => {
-    const { data, error } = await supabase
-      .from('games')
-      .insert({
-        ...gameData,
-        season_id: selectedSeason.id,
-      })
-      .select()
-      .single();
-
-    if (error) throw error;
+    // Would need /admin/games endpoint
+    console.log('createGame not yet implemented', gameData);
     await fetchGames();
-    return data;
+    return {};
   };
 
-  // Update a game/tournament
   const updateGame = async (id, gameData) => {
-    const { data, error } = await supabase
-      .from('games')
-      .update(gameData)
-      .eq('id', id)
-      .select()
-      .single();
-
-    if (error) throw error;
+    console.log('updateGame not yet implemented', id, gameData);
     await fetchGames();
-    return data;
+    return {};
   };
 
-  // Delete a game/tournament
   const deleteGame = async (id) => {
-    const { error } = await supabase
-      .from('games')
-      .delete()
-      .eq('id', id);
-
-    if (error) throw error;
+    console.log('deleteGame not yet implemented', id);
     await fetchGames();
   };
 
-  // Assign teams to a game (batch operation)
   const assignTeams = async (gameId, teamIds) => {
-    // Get current assignments
-    const { data: currentAssignments } = await supabase
-      .from('game_teams')
-      .select('team_id')
-      .eq('game_id', gameId);
-
-    const currentTeamIds = (currentAssignments || []).map(a => a.team_id);
-
-    // Teams to add (in teamIds but not in current)
-    const teamsToAdd = teamIds.filter(id => !currentTeamIds.includes(id));
-
-    // Teams to remove (in current but not in teamIds)
-    const teamsToRemove = currentTeamIds.filter(id => !teamIds.includes(id));
-
-    // Remove teams
-    if (teamsToRemove.length > 0) {
-      const { error: removeError } = await supabase
-        .from('game_teams')
-        .delete()
-        .eq('game_id', gameId)
-        .in('team_id', teamsToRemove);
-
-      if (removeError) throw removeError;
-    }
-
-    // Add teams
-    if (teamsToAdd.length > 0) {
-      const newAssignments = teamsToAdd.map(teamId => ({
-        game_id: gameId,
-        team_id: teamId,
-      }));
-
-      const { error: addError } = await supabase
-        .from('game_teams')
-        .insert(newAssignments);
-
-      if (addError) throw addError;
-    }
-
+    console.log('assignTeams not yet implemented', gameId, teamIds);
     await fetchGames();
   };
 
-  // Update a specific team assignment (opponent, result, etc.)
   const updateTeamAssignment = async (assignmentId, data) => {
-    const { error } = await supabase
-      .from('game_teams')
-      .update(data)
-      .eq('id', assignmentId);
-
-    if (error) throw error;
+    console.log('updateTeamAssignment not yet implemented', assignmentId, data);
     await fetchGames();
   };
 
-  // Remove a team from a game
   const removeTeamFromGame = async (gameId, teamId) => {
-    const { error } = await supabase
-      .from('game_teams')
-      .delete()
-      .eq('game_id', gameId)
-      .eq('team_id', teamId);
-
-    if (error) throw error;
+    console.log('removeTeamFromGame not yet implemented', gameId, teamId);
     await fetchGames();
   };
 
@@ -187,7 +96,6 @@ export function useGames() {
 
 /**
  * Hook for fetching games for the public schedule
- * Returns games with team assignments for display
  */
 export function usePublicGames() {
   const [games, setGames] = useState([]);
@@ -199,27 +107,9 @@ export function usePublicGames() {
     setError(null);
 
     try {
-      const today = new Date().toISOString().split('T')[0];
-
-      const { data, error: fetchError } = await supabase
-        .from('games')
-        .select(`
-          *,
-          game_teams(
-            id,
-            team_id,
-            opponent,
-            is_home_game,
-            result,
-            team:teams(id, name, grade_level, gender)
-          )
-        `)
-        .gte('date', today)
-        .order('date', { ascending: true })
-        .order('start_time', { ascending: true });
-
-      if (fetchError) throw fetchError;
-      setGames(data || []);
+      const data = await api.get('/public/schedule');
+      const gamesData = (data || []).filter(e => e.type === 'game' || e.type === 'tournament');
+      setGames(gamesData);
     } catch (err) {
       console.error('Error fetching public games:', err);
       setError(err.message);

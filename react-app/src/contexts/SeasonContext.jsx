@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
-import { supabase } from '../lib/supabase';
+import { api } from '../lib/api-client';
 
 const SeasonContext = createContext(null);
 
@@ -10,60 +10,9 @@ export function SeasonProvider({ children }) {
   const initializedRef = useRef(false);
 
   const fetchSeasons = useCallback(async () => {
-    if (!supabase) {
-      console.log('[Season] Supabase not configured - using empty seasons');
-      setSeasons([]);
-      setLoading(false);
-      return;
-    }
-
     setLoading(true);
-    const { data, error } = await supabase
-      .from('seasons')
-      .select('*')
-      .order('start_date', { ascending: false });
-
-    if (error) {
-      console.error('Error fetching seasons:', error);
-      setLoading(false);
-      return;
-    }
-
-    setSeasons(data || []);
-
-    // Set default to active season or most recent (only on initial load)
-    if (!initializedRef.current && data?.length > 0) {
-      const activeSeason = data.find((s) => s.is_active);
-      setSelectedSeasonId(activeSeason?.id || data[0].id);
-      initializedRef.current = true;
-    }
-
-    setLoading(false);
-  }, []);
-
-  useEffect(() => {
-    let mounted = true;
-
-    const loadSeasons = async () => {
-      if (!supabase) {
-        console.log('[Season] Supabase not configured - using empty seasons');
-        setSeasons([]);
-        setLoading(false);
-        return;
-      }
-
-      const { data, error } = await supabase
-        .from('seasons')
-        .select('*')
-        .order('start_date', { ascending: false });
-
-      if (!mounted) return;
-
-      if (error) {
-        console.error('Error fetching seasons:', error);
-        setLoading(false);
-        return;
-      }
+    try {
+      const data = await api.get('/public/seasons');
 
       setSeasons(data || []);
 
@@ -73,8 +22,40 @@ export function SeasonProvider({ children }) {
         setSelectedSeasonId(activeSeason?.id || data[0].id);
         initializedRef.current = true;
       }
-
+    } catch (error) {
+      console.error('Error fetching seasons:', error);
+      setSeasons([]);
+    } finally {
       setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    let mounted = true;
+
+    const loadSeasons = async () => {
+      try {
+        const data = await api.get('/public/seasons');
+
+        if (!mounted) return;
+
+        setSeasons(data || []);
+
+        // Set default to active season or most recent (only on initial load)
+        if (!initializedRef.current && data?.length > 0) {
+          const activeSeason = data.find((s) => s.is_active);
+          setSelectedSeasonId(activeSeason?.id || data[0].id);
+          initializedRef.current = true;
+        }
+      } catch (error) {
+        if (!mounted) return;
+        console.error('Error fetching seasons:', error);
+        setSeasons([]);
+      } finally {
+        if (mounted) {
+          setLoading(false);
+        }
+      }
     };
 
     loadSeasons();

@@ -1,33 +1,20 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, waitFor, act } from '@testing-library/react';
+import React from 'react';
+import { api } from '../../lib/api-client';
+import { SeasonProvider } from '../../contexts/SeasonContext';
 
-// Setup mock before importing the hook
-const mockFrom = vi.fn();
-
-vi.mock('../../lib/supabase', () => ({
-  supabase: {
-    from: (...args) => mockFrom(...args),
+// Mock api-client
+vi.mock('../../lib/api-client', () => ({
+  api: {
+    get: vi.fn(),
+    post: vi.fn(),
+    patch: vi.fn(),
+    delete: vi.fn(),
   },
 }));
 
 import { useRegistrations } from '../../hooks/useRegistrations';
-
-// Helper to create chainable mock
-const createChainableMock = (data = [], error = null) => {
-  const mock = {
-    select: vi.fn().mockReturnThis(),
-    insert: vi.fn().mockReturnThis(),
-    update: vi.fn().mockReturnThis(),
-    delete: vi.fn().mockReturnThis(),
-    eq: vi.fn().mockReturnThis(),
-    order: vi.fn().mockReturnThis(),
-    single: vi.fn().mockResolvedValue({ data: data[0] || null, error }),
-  };
-  mock.order.mockResolvedValue({ data, error });
-  mock.eq.mockReturnValue(mock);
-  mock.select.mockReturnValue(mock);
-  return mock;
-};
 
 // Sample test data
 const mockRegistrations = [
@@ -72,32 +59,38 @@ const mockTeams = [
   { id: 'team-2', name: '6th Grade Elite', grade_level: '6th', gender: 'male' },
 ];
 
+const mockSeasons = [
+  { id: 'season-1', name: 'Winter 2025', is_active: true },
+];
+
+// Wrapper with SeasonProvider
+const wrapper = ({ children }) => (
+  <SeasonProvider>{children}</SeasonProvider>
+);
+
 describe('useRegistrations', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    // Default mock returns for SeasonContext
+    api.get.mockImplementation((path) => {
+      if (path.includes('/public/seasons')) return Promise.resolve(mockSeasons);
+      if (path.includes('/admin/registrations')) return Promise.resolve(mockRegistrations);
+      if (path.includes('/admin/teams')) return Promise.resolve(mockTeams);
+      return Promise.resolve([]);
+    });
   });
 
   it('should start with loading state', () => {
-    mockFrom.mockImplementation(() => createChainableMock([]));
+    api.get.mockReturnValue(new Promise(() => {})); // Never resolves
 
-    const { result } = renderHook(() => useRegistrations());
+    const { result } = renderHook(() => useRegistrations(), { wrapper });
 
     expect(result.current.loading).toBe(true);
     expect(result.current.registrations).toEqual([]);
   });
 
   it('should fetch registrations with team info', async () => {
-    mockFrom.mockImplementation((table) => {
-      if (table === 'registrations') {
-        return createChainableMock(mockRegistrations);
-      }
-      if (table === 'teams') {
-        return createChainableMock(mockTeams);
-      }
-      return createChainableMock([]);
-    });
-
-    const { result } = renderHook(() => useRegistrations());
+    const { result } = renderHook(() => useRegistrations(), { wrapper });
 
     await waitFor(() => {
       expect(result.current.loading).toBe(false);
@@ -108,17 +101,7 @@ describe('useRegistrations', () => {
   });
 
   it('should fetch teams for assignment', async () => {
-    mockFrom.mockImplementation((table) => {
-      if (table === 'registrations') {
-        return createChainableMock(mockRegistrations);
-      }
-      if (table === 'teams') {
-        return createChainableMock(mockTeams);
-      }
-      return createChainableMock([]);
-    });
-
-    const { result } = renderHook(() => useRegistrations());
+    const { result } = renderHook(() => useRegistrations(), { wrapper });
 
     await waitFor(() => {
       expect(result.current.loading).toBe(false);
@@ -128,11 +111,12 @@ describe('useRegistrations', () => {
   });
 
   it('should handle fetch error', async () => {
-    mockFrom.mockImplementation(() =>
-      createChainableMock([], { message: 'Database error' })
-    );
+    api.get.mockImplementation((path) => {
+      if (path.includes('/public/seasons')) return Promise.resolve(mockSeasons);
+      return Promise.reject(new Error('Database error'));
+    });
 
-    const { result } = renderHook(() => useRegistrations());
+    const { result } = renderHook(() => useRegistrations(), { wrapper });
 
     await waitFor(() => {
       expect(result.current.loading).toBe(false);
@@ -143,26 +127,9 @@ describe('useRegistrations', () => {
 
   it('should update registration status', async () => {
     const updatedReg = { ...mockRegistrations[0], status: 'approved' };
+    api.patch.mockResolvedValue(updatedReg);
 
-    mockFrom.mockImplementation((table) => {
-      if (table === 'registrations') {
-        const mock = createChainableMock(mockRegistrations);
-        mock.update = vi.fn().mockReturnValue({
-          eq: vi.fn().mockReturnValue({
-            select: vi.fn().mockReturnValue({
-              single: vi.fn().mockResolvedValue({ data: updatedReg, error: null }),
-            }),
-          }),
-        });
-        return mock;
-      }
-      if (table === 'teams') {
-        return createChainableMock(mockTeams);
-      }
-      return createChainableMock([]);
-    });
-
-    const { result } = renderHook(() => useRegistrations());
+    const { result } = renderHook(() => useRegistrations(), { wrapper });
 
     await waitFor(() => {
       expect(result.current.loading).toBe(false);
@@ -172,30 +139,15 @@ describe('useRegistrations', () => {
       const updated = await result.current.updateStatus('reg-1', 'approved');
       expect(updated.status).toBe('approved');
     });
+
+    expect(api.patch).toHaveBeenCalledWith('/admin/registrations/reg-1', { status: 'approved' });
   });
 
   it('should update payment status', async () => {
     const updatedReg = { ...mockRegistrations[0], payment_status: 'paid' };
+    api.patch.mockResolvedValue(updatedReg);
 
-    mockFrom.mockImplementation((table) => {
-      if (table === 'registrations') {
-        const mock = createChainableMock(mockRegistrations);
-        mock.update = vi.fn().mockReturnValue({
-          eq: vi.fn().mockReturnValue({
-            select: vi.fn().mockReturnValue({
-              single: vi.fn().mockResolvedValue({ data: updatedReg, error: null }),
-            }),
-          }),
-        });
-        return mock;
-      }
-      if (table === 'teams') {
-        return createChainableMock(mockTeams);
-      }
-      return createChainableMock([]);
-    });
-
-    const { result } = renderHook(() => useRegistrations());
+    const { result } = renderHook(() => useRegistrations(), { wrapper });
 
     await waitFor(() => {
       expect(result.current.loading).toBe(false);
@@ -205,30 +157,18 @@ describe('useRegistrations', () => {
       const updated = await result.current.updatePaymentStatus('reg-1', 'paid', 525);
       expect(updated.payment_status).toBe('paid');
     });
+
+    expect(api.patch).toHaveBeenCalledWith('/admin/registrations/reg-1/payment', {
+      payment_status: 'paid',
+      amount_paid: 525,
+    });
   });
 
   it('should assign registration to team', async () => {
     const updatedReg = { ...mockRegistrations[0], team_id: 'team-2' };
+    api.patch.mockResolvedValue(updatedReg);
 
-    mockFrom.mockImplementation((table) => {
-      if (table === 'registrations') {
-        const mock = createChainableMock(mockRegistrations);
-        mock.update = vi.fn().mockReturnValue({
-          eq: vi.fn().mockReturnValue({
-            select: vi.fn().mockReturnValue({
-              single: vi.fn().mockResolvedValue({ data: updatedReg, error: null }),
-            }),
-          }),
-        });
-        return mock;
-      }
-      if (table === 'teams') {
-        return createChainableMock(mockTeams);
-      }
-      return createChainableMock([]);
-    });
-
-    const { result } = renderHook(() => useRegistrations());
+    const { result } = renderHook(() => useRegistrations(), { wrapper });
 
     await waitFor(() => {
       expect(result.current.loading).toBe(false);
@@ -238,24 +178,14 @@ describe('useRegistrations', () => {
       const updated = await result.current.assignToTeam('reg-1', 'team-2');
       expect(updated.team_id).toBe('team-2');
     });
+
+    expect(api.patch).toHaveBeenCalledWith('/admin/registrations/reg-1', { team_id: 'team-2' });
   });
 
   it('should delete registration', async () => {
-    mockFrom.mockImplementation((table) => {
-      if (table === 'registrations') {
-        const mock = createChainableMock(mockRegistrations);
-        mock.delete = vi.fn().mockReturnValue({
-          eq: vi.fn().mockResolvedValue({ error: null }),
-        });
-        return mock;
-      }
-      if (table === 'teams') {
-        return createChainableMock(mockTeams);
-      }
-      return createChainableMock([]);
-    });
+    api.delete.mockResolvedValue({ success: true });
 
-    const { result } = renderHook(() => useRegistrations());
+    const { result } = renderHook(() => useRegistrations(), { wrapper });
 
     await waitFor(() => {
       expect(result.current.loading).toBe(false);
@@ -265,60 +195,14 @@ describe('useRegistrations', () => {
       await result.current.deleteRegistration('reg-1');
     });
 
-    expect(mockFrom).toHaveBeenCalledWith('registrations');
+    expect(api.delete).toHaveBeenCalledWith('/admin/registrations/reg-1');
   });
 
   it('should convert registration to player', async () => {
     const newPlayer = { id: 'player-1', first_name: 'John', last_name: 'Doe' };
-    const newParent = { id: 'parent-1', first_name: 'Jane', last_name: 'Doe' };
+    api.post.mockResolvedValue(newPlayer);
 
-    mockFrom.mockImplementation((table) => {
-      switch (table) {
-        case 'registrations': {
-          const mock = createChainableMock(mockRegistrations);
-          mock.update = vi.fn().mockReturnValue({
-            eq: vi.fn().mockReturnValue({
-              select: vi.fn().mockReturnValue({
-                single: vi.fn().mockResolvedValue({ data: mockRegistrations[0], error: null }),
-              }),
-            }),
-          });
-          return mock;
-        }
-        case 'players': {
-          const mock = createChainableMock([]);
-          mock.insert = vi.fn().mockReturnValue({
-            select: vi.fn().mockReturnValue({
-              single: vi.fn().mockResolvedValue({ data: newPlayer, error: null }),
-            }),
-          });
-          mock.update = vi.fn().mockReturnValue({
-            eq: vi.fn().mockResolvedValue({ error: null }),
-          });
-          return mock;
-        }
-        case 'parents': {
-          const mock = createChainableMock([]);
-          mock.insert = vi.fn().mockReturnValue({
-            select: vi.fn().mockReturnValue({
-              single: vi.fn().mockResolvedValue({ data: newParent, error: null }),
-            }),
-          });
-          return mock;
-        }
-        case 'team_roster': {
-          const mock = createChainableMock([]);
-          mock.insert = vi.fn().mockResolvedValue({ error: null });
-          return mock;
-        }
-        case 'teams':
-          return createChainableMock(mockTeams);
-        default:
-          return createChainableMock([]);
-      }
-    });
-
-    const { result } = renderHook(() => useRegistrations());
+    const { result } = renderHook(() => useRegistrations(), { wrapper });
 
     await waitFor(() => {
       expect(result.current.loading).toBe(false);
@@ -328,12 +212,15 @@ describe('useRegistrations', () => {
       const player = await result.current.convertToPlayer(mockRegistrations[0]);
       expect(player).toEqual(newPlayer);
     });
+
+    expect(api.post).toHaveBeenCalledWith(
+      '/admin/registrations/reg-1/convert',
+      expect.any(Object)
+    );
   });
 
   it('should provide refetch function', async () => {
-    mockFrom.mockImplementation(() => createChainableMock([]));
-
-    const { result } = renderHook(() => useRegistrations());
+    const { result } = renderHook(() => useRegistrations(), { wrapper });
 
     await waitFor(() => {
       expect(result.current.loading).toBe(false);

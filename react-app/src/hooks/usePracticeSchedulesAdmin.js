@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { supabase } from '../lib/supabase';
+import { api } from '../lib/api-client';
 
 /**
  * Admin hook for managing practice schedules.
@@ -16,36 +16,34 @@ export function usePracticeSchedulesAdmin() {
     setError(null);
 
     try {
-      // Fetch all practice sessions with their assigned teams
-      const { data, error: fetchError } = await supabase
-        .from('practice_sessions')
-        .select(`
-          *,
-          practice_session_teams(
-            id,
-            team:teams(id, name, grade_level, tier)
-          ),
-          season:seasons(id, name, is_active)
-        `)
-        .order('day_of_week', { ascending: true });
-
-      if (fetchError) throw fetchError;
+      const data = await api.get('/admin/practice-sessions');
 
       // Sort by day of week order
       const dayOrder = {
         Monday: 1,
+        monday: 1,
         Tuesday: 2,
+        tuesday: 2,
         Wednesday: 3,
+        wednesday: 3,
         Thursday: 4,
+        thursday: 4,
         Friday: 5,
+        friday: 5,
         Saturday: 6,
+        saturday: 6,
         Sunday: 7,
+        sunday: 7,
       };
 
       const sorted = (data || []).sort((a, b) => {
-        const dayDiff = dayOrder[a.day_of_week] - dayOrder[b.day_of_week];
+        const dayA = a.dayOfWeek || a.day_of_week || '';
+        const dayB = b.dayOfWeek || b.day_of_week || '';
+        const dayDiff = (dayOrder[dayA] || 8) - (dayOrder[dayB] || 8);
         if (dayDiff !== 0) return dayDiff;
-        return a.start_time.localeCompare(b.start_time);
+        const startA = a.startTime || a.start_time || '';
+        const startB = b.startTime || b.start_time || '';
+        return startA.localeCompare(startB);
       });
 
       setPractices(sorted);
@@ -58,19 +56,14 @@ export function usePracticeSchedulesAdmin() {
   }, []);
 
   const fetchTeams = useCallback(async () => {
-    // Fetch active teams for assignment dropdown
-    const { data, error } = await supabase
-      .from('teams')
-      .select('id, name, grade_level, tier, season:seasons!inner(is_active)')
-      .eq('is_active', true)
-      .eq('seasons.is_active', true)
-      .order('grade_level', { ascending: true });
-
-    if (error) {
-      console.error('Error fetching teams:', error);
-      return;
+    try {
+      const data = await api.get('/admin/teams');
+      // Filter to active teams only
+      const activeTeams = (data || []).filter(t => t.isActive !== false && t.is_active !== false);
+      setTeams(activeTeams);
+    } catch (err) {
+      console.error('Error fetching teams:', err);
     }
-    setTeams(data || []);
   }, []);
 
   useEffect(() => {
@@ -82,96 +75,31 @@ export function usePracticeSchedulesAdmin() {
    * Create a new practice session
    */
   const createPractice = async (practiceData, teamIds = []) => {
-    // Get active season
-    const { data: activeSeason } = await supabase
-      .from('seasons')
-      .select('id')
-      .eq('is_active', true)
-      .single();
-
-    if (!activeSeason) {
-      throw new Error('No active season found');
-    }
-
-    // Create practice session
-    const { data: practice, error: practiceError } = await supabase
-      .from('practice_sessions')
-      .insert({
-        ...practiceData,
-        season_id: activeSeason.id,
-      })
-      .select()
-      .single();
-
-    if (practiceError) throw practiceError;
-
-    // Assign teams if provided
-    if (teamIds.length > 0) {
-      const assignments = teamIds.map((teamId) => ({
-        practice_session_id: practice.id,
-        team_id: teamId,
-      }));
-
-      const { error: assignError } = await supabase
-        .from('practice_session_teams')
-        .insert(assignments);
-
-      if (assignError) throw assignError;
-    }
-
+    const data = await api.post('/admin/practice-sessions', {
+      ...practiceData,
+      teamIds,
+    });
     await fetchPractices();
-    return practice;
+    return data;
   };
 
   /**
    * Update an existing practice session
    */
   const updatePractice = async (id, practiceData, teamIds = []) => {
-    // Update practice session
-    const { data: practice, error: practiceError } = await supabase
-      .from('practice_sessions')
-      .update(practiceData)
-      .eq('id', id)
-      .select()
-      .single();
-
-    if (practiceError) throw practiceError;
-
-    // Update team assignments - delete existing and re-add
-    await supabase
-      .from('practice_session_teams')
-      .delete()
-      .eq('practice_session_id', id);
-
-    if (teamIds.length > 0) {
-      const assignments = teamIds.map((teamId) => ({
-        practice_session_id: id,
-        team_id: teamId,
-      }));
-
-      const { error: assignError } = await supabase
-        .from('practice_session_teams')
-        .insert(assignments);
-
-      if (assignError) throw assignError;
-    }
-
+    const data = await api.patch(`/admin/practice-sessions?id=${id}`, {
+      ...practiceData,
+      teamIds,
+    });
     await fetchPractices();
-    return practice;
+    return data;
   };
 
   /**
    * Delete a practice session
    */
   const deletePractice = async (id) => {
-    // Cascade will handle practice_session_teams
-    const { error } = await supabase
-      .from('practice_sessions')
-      .delete()
-      .eq('id', id);
-
-    if (error) throw error;
-
+    await api.delete(`/admin/practice-sessions?id=${id}`);
     await fetchPractices();
   };
 
@@ -179,13 +107,7 @@ export function usePracticeSchedulesAdmin() {
    * Toggle practice active status
    */
   const toggleActive = async (id, isActive) => {
-    const { error } = await supabase
-      .from('practice_sessions')
-      .update({ is_active: isActive })
-      .eq('id', id);
-
-    if (error) throw error;
-
+    await api.patch(`/admin/practice-sessions?id=${id}`, { isActive });
     await fetchPractices();
   };
 

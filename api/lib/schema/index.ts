@@ -15,6 +15,16 @@ export * from './events';
 export * from './announcements';
 export * from './contact';
 
+// New tables for games, tournaments, practice sessions
+export * from './games';
+export * from './gameTeams';
+export * from './venues';
+export * from './hotels';
+export * from './nearbyPlaces';
+export * from './tournamentDetails';
+export * from './practiceSessions';
+export * from './userInvites';
+
 // Re-export commonly used types
 export type {
   User,
@@ -78,3 +88,50 @@ export type {
   ContactSubmission,
   NewContactSubmission,
 } from './contact';
+
+// New types
+export type {
+  Game,
+  NewGame,
+} from './games';
+
+export type {
+  GameTeam,
+  NewGameTeam,
+} from './gameTeams';
+
+export type {
+  Venue,
+  NewVenue,
+} from './venues';
+
+export type {
+  Hotel,
+  NewHotel,
+} from './hotels';
+
+export type {
+  NearbyPlace,
+  NewNearbyPlace,
+} from './nearbyPlaces';
+
+export type {
+  TournamentDetail,
+  NewTournamentDetail,
+  TournamentHotel,
+  NewTournamentHotel,
+  TournamentNearbyPlace,
+  NewTournamentNearbyPlace,
+} from './tournamentDetails';
+
+export type {
+  PracticeSession,
+  NewPracticeSession,
+  PracticeSessionTeam,
+  NewPracticeSessionTeam,
+} from './practiceSessions';
+
+export type {
+  UserInvite,
+  NewUserInvite,
+} from './userInvites';

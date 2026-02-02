@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { supabase } from '../lib/supabase';
+import { api } from '../lib/api-client';
 
 export function usePlayers() {
   const [players, setPlayers] = useState([]);
@@ -12,53 +12,17 @@ export function usePlayers() {
     setError(null);
 
     try {
-      // Fetch players with parent info
-      const { data: playersData, error: playersError } = await supabase
-        .from('players')
-        .select(`
-          *,
-          primary_parent:parents!players_primary_parent_id_fkey(id, first_name, last_name, email, phone)
-        `)
-        .order('last_name', { ascending: true });
-
-      if (playersError) throw playersError;
-
-      // Fetch team assignments for each player with payment status
-      const { data: rosterData, error: rosterError } = await supabase
-        .from('team_roster')
-        .select(`
-          player_id,
-          payment_status,
-          team:teams(id, name, grade_level)
-        `)
-        .eq('is_active', true);
-
-      if (rosterError) throw rosterError;
-
-      // Map team assignments to players
-      const teamMap = {};
-      const paymentMap = {};
-      rosterData?.forEach((r) => {
-        if (!teamMap[r.player_id]) {
-          teamMap[r.player_id] = [];
-        }
-        teamMap[r.player_id].push(r.team);
-        // Use the most "urgent" payment status (pending > partial > paid > waived)
-        const priority = { pending: 0, partial: 1, paid: 2, waived: 3 };
-        const current = paymentMap[r.player_id];
-        if (!current || priority[r.payment_status] < priority[current]) {
-          paymentMap[r.player_id] = r.payment_status;
-        }
-      });
-
-      // Add team info to players
-      const playersWithTeams = playersData?.map((player) => ({
+      const playersData = await api.get('/admin/players');
+      // Transform team_assignments to teams for backwards compatibility
+      const transformed = (playersData || []).map(player => ({
         ...player,
-        teams: teamMap[player.id] || [],
-        payment_status: paymentMap[player.id] || null,
-      })) || [];
-
-      setPlayers(playersWithTeams);
+        teams: player.team_assignments?.map(ta => ({
+          id: ta.team_id,
+          name: ta.team_name,
+          grade_level: ta.grade_level,
+        })) || [],
+      }));
+      setPlayers(transformed);
     } catch (err) {
       console.error('Error fetching players:', err);
       setError(err.message);
@@ -68,16 +32,16 @@ export function usePlayers() {
   }, []);
 
   const fetchTeams = useCallback(async () => {
-    const { data, error } = await supabase
-      .from('teams')
-      .select('id, name, grade_level')
-      .order('grade_level', { ascending: true });
-
-    if (error) {
-      console.error('Error fetching teams:', error);
-      return;
+    try {
+      const data = await api.get('/admin/teams');
+      setTeams((data || []).map(t => ({
+        id: t.id,
+        name: t.name,
+        grade_level: t.grade_level,
+      })));
+    } catch (err) {
+      console.error('Error fetching teams:', err);
     }
-    setTeams(data || []);
   }, []);
 
   useEffect(() => {
@@ -86,145 +50,44 @@ export function usePlayers() {
   }, [fetchPlayers, fetchTeams]);
 
   const createPlayer = async (playerData) => {
-    const { data, error } = await supabase
-      .from('players')
-      .insert([playerData])
-      .select()
-      .single();
-
-    if (error) {
-      throw error;
-    }
-
+    const data = await api.post('/admin/players', playerData);
     await fetchPlayers();
     return data;
   };
 
   const updatePlayer = async (id, playerData) => {
-    const { data, error } = await supabase
-      .from('players')
-      .update(playerData)
-      .eq('id', id)
-      .select()
-      .single();
-
-    if (error) {
-      throw error;
-    }
-
+    const data = await api.patch(`/admin/players?id=${id}`, playerData);
     await fetchPlayers();
     return data;
   };
 
   const deletePlayer = async (id) => {
-    const { error } = await supabase
-      .from('players')
-      .delete()
-      .eq('id', id);
-
-    if (error) {
-      throw error;
-    }
-
+    await api.delete(`/admin/players?id=${id}`);
     await fetchPlayers();
   };
 
-  /**
-   * Get player's team history across all seasons
-   * @param {string} playerId
-   * @returns {Promise<Array>} Array of roster entries with team and season info
-   */
   const getPlayerHistory = useCallback(async (playerId) => {
     if (!playerId) return [];
+    // For now, return team assignments from the player data
+    const player = players.find(p => p.id === playerId);
+    return player?.team_assignments || [];
+  }, [players]);
 
-    const { data, error } = await supabase
-      .from('team_roster')
-      .select(`
-        id,
-        jersey_number,
-        position,
-        payment_status,
-        joined_date,
-        team:teams(
-          id,
-          name,
-          grade_level,
-          season:seasons(id, name, is_active)
-        )
-      `)
-      .eq('player_id', playerId)
-      .order('joined_date', { ascending: false });
-
-    if (error) {
-      console.error('Error fetching player history:', error);
-      return [];
-    }
-
-    // Flatten the season data
-    return (data || []).map((entry) => ({
-      ...entry,
-      season: entry.team?.season,
-    }));
-  }, []);
-
-  /**
-   * Assign a player to a team
-   * @param {string} playerId
-   * @param {string} teamId
-   * @returns {Promise<Object>} The new roster entry
-   */
   const assignPlayerToTeam = async (playerId, teamId) => {
-    // Check if already on this team
-    const { data: existing } = await supabase
-      .from('team_roster')
-      .select('id, is_active')
-      .eq('player_id', playerId)
-      .eq('team_id', teamId)
-      .single();
-
-    if (existing && existing.is_active) {
-      throw new Error('Player is already on this team');
-    }
-
-    // If there's an inactive entry, reactivate it
-    if (existing && !existing.is_active) {
-      const { error } = await supabase
-        .from('team_roster')
-        .update({ is_active: true, joined_date: new Date().toISOString().split('T')[0] })
-        .eq('id', existing.id);
-
-      if (error) throw error;
-    } else {
-      // Create new roster entry (payment_status defaults to 'pending' in DB)
-      const { error } = await supabase
-        .from('team_roster')
-        .insert([{
-          team_id: teamId,
-          player_id: playerId,
-          joined_date: new Date().toISOString().split('T')[0],
-          is_active: true,
-        }]);
-
-      if (error) throw error;
-    }
-
+    await api.post('/admin/players', {
+      action: 'assign_team',
+      player_id: playerId,
+      team_id: teamId,
+    });
     await fetchPlayers();
   };
 
-  /**
-   * Remove a player from a team
-   * @param {string} playerId
-   * @param {string} teamId
-   */
   const removePlayerFromTeam = async (playerId, teamId) => {
-    const { error } = await supabase
-      .from('team_roster')
-      .update({ is_active: false })
-      .eq('player_id', playerId)
-      .eq('team_id', teamId);
-
-    if (error) throw error;
-
+    await api.post('/admin/players', {
+      action: 'remove_team',
+      player_id: playerId,
+      team_id: teamId,
+    });
     await fetchPlayers();
   };
 
@@ -260,42 +123,14 @@ export function useTeamRoster(teamId) {
     setError(null);
 
     try {
-      // Get current roster with player and parent data
-      const { data: rosterData, error: rosterError } = await supabase
-        .from('team_roster')
-        .select(`
-          *,
-          player:players(
-            *,
-            primary_parent:parents!players_primary_parent_id_fkey(
-              id, first_name, last_name, phone, email
-            )
-          )
-        `)
-        .eq('team_id', teamId)
-        .eq('is_active', true);
+      // Fetch players on this team
+      const playersData = await api.get(`/admin/players?teamId=${teamId}`);
+      setRoster(playersData || []);
 
-      if (rosterError) throw rosterError;
-
-      setRoster(rosterData || []);
-
-      // Get players not on this team
-      const rosterPlayerIds = rosterData?.map((r) => r.player_id) || [];
-
-      let query = supabase
-        .from('players')
-        .select('*')
-        .order('last_name', { ascending: true });
-
-      if (rosterPlayerIds.length > 0) {
-        query = query.not('id', 'in', `(${rosterPlayerIds.join(',')})`);
-      }
-
-      const { data: availableData, error: availableError } = await query;
-
-      if (availableError) throw availableError;
-
-      setAvailablePlayers(availableData || []);
+      // Fetch all players to find available ones
+      const allPlayers = await api.get('/admin/players');
+      const rosterIds = (playersData || []).map(p => p.id);
+      setAvailablePlayers((allPlayers || []).filter(p => !rosterIds.includes(p.id)));
     } catch (err) {
       console.error('Error fetching roster:', err);
       setError(err.message);
@@ -309,57 +144,34 @@ export function useTeamRoster(teamId) {
   }, [fetchRoster]);
 
   const addToRoster = async (playerId, rosterData = {}) => {
-    // payment_status defaults to 'pending' in DB
-    const { error } = await supabase
-      .from('team_roster')
-      .insert([{
-        team_id: teamId,
-        player_id: playerId,
-        joined_date: new Date().toISOString().split('T')[0],
-        is_active: true,
-        ...rosterData,
-      }]);
-
-    if (error) {
-      throw error;
-    }
-
+    await api.post('/admin/players', {
+      action: 'assign_team',
+      player_id: playerId,
+      team_id: teamId,
+      ...rosterData,
+    });
     await fetchRoster();
   };
 
   const removeFromRoster = async (rosterId) => {
-    const { error } = await supabase
-      .from('team_roster')
-      .update({ is_active: false })
-      .eq('id', rosterId);
-
-    if (error) {
-      throw error;
+    // Find the player from roster
+    const rosterEntry = roster.find(r => r.id === rosterId || r.roster_id === rosterId);
+    if (rosterEntry) {
+      await api.post('/admin/players', {
+        action: 'remove_team',
+        player_id: rosterEntry.id,
+        team_id: teamId,
+      });
     }
-
     await fetchRoster();
   };
 
   const updateRosterEntry = async (rosterId, data) => {
-    const { error } = await supabase
-      .from('team_roster')
-      .update(data)
-      .eq('id', rosterId);
-
-    if (error) {
-      throw error;
-    }
-
+    // This would need a specific endpoint for roster entry updates
+    console.log('updateRosterEntry not yet implemented', rosterId, data);
     await fetchRoster();
   };
 
-  /**
-   * Bulk add players to roster (for Quick Add feature)
-   * Creates new player records if needed, then adds them to the roster
-   * @param {Array} players - Array of { firstName, lastName, jerseyNumber, position }
-   * @param {Object} teamData - Team data with grade_level, gender for new players
-   * @returns {Object} Results with added count and any errors
-   */
   const bulkAddToRoster = async (players, teamData = {}) => {
     const results = {
       added: 0,
@@ -368,41 +180,18 @@ export function useTeamRoster(teamId) {
 
     for (const player of players) {
       try {
-        // Create the player record
-        const { data: newPlayer, error: playerError } = await supabase
-          .from('players')
-          .insert([{
-            first_name: player.firstName,
-            last_name: player.lastName || '',
-            current_grade: teamData.grade_level || '',
-            gender: teamData.gender || 'male',
-            graduating_year: calculateGraduatingYear(teamData.grade_level),
-            date_of_birth: '2015-01-01', // Placeholder - needs parent input later
-            jersey_number: player.jerseyNumber || null,
-            position: player.position || null,
-          }])
-          .select()
-          .single();
-
-        if (playerError) throw playerError;
-
-        // Add to roster (payment_status defaults to 'pending' in DB)
-        const { error: rosterError } = await supabase
-          .from('team_roster')
-          .insert([{
-            team_id: teamId,
-            player_id: newPlayer.id,
-            jersey_number: player.jerseyNumber || null,
-            position: player.position || null,
-            joined_date: new Date().toISOString().split('T')[0],
-            is_active: true,
-          }]);
-
-        if (rosterError) throw rosterError;
-
+        // Create player and add to roster
+        await api.post('/admin/players', {
+          first_name: player.firstName,
+          last_name: player.lastName || '',
+          grade: teamData.grade_level || '',
+          gender: teamData.gender || 'male',
+          jersey_number: player.jerseyNumber || null,
+          position: player.position || null,
+          team_id: teamId,
+        });
         results.added++;
       } catch (err) {
-        console.error(`Error adding player ${player.firstName} ${player.lastName}:`, err);
         results.errors.push({
           player: `${player.firstName} ${player.lastName}`,
           error: err.message,
@@ -425,19 +214,4 @@ export function useTeamRoster(teamId) {
     updateRosterEntry,
     bulkAddToRoster,
   };
-}
-
-/**
- * Calculate graduating year based on current grade
- * Assumes current school year (e.g., 5th grader in 2025 graduates 2032)
- */
-function calculateGraduatingYear(gradeLevel) {
-  if (!gradeLevel) return new Date().getFullYear() + 7;
-
-  const gradeNum = parseInt(gradeLevel.replace(/\D/g, ''), 10);
-  if (isNaN(gradeNum)) return new Date().getFullYear() + 7;
-
-  // Years until 12th grade graduation
-  const yearsUntilGraduation = 12 - gradeNum;
-  return new Date().getFullYear() + yearsUntilGraduation;
 }

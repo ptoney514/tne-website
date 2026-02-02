@@ -16,7 +16,7 @@
 
 import { verifyTurnstile, isConfigured as isTurnstileConfigured } from './lib/turnstile.js';
 import { appendRegistration, isConfigured as isSheetsConfigured } from './lib/googleSheets.js';
-import { insertRegistration, isSupabaseConfigured } from './lib/supabaseAdmin.js';
+import { insertRegistration, isDatabaseConfigured } from './lib/registrationDb.js';
 
 // Simple rate limiting map (per IP, in-memory)
 // Note: This resets on each serverless cold start, but provides some protection
@@ -174,7 +174,7 @@ export default async function handler(req, res) {
       }
 
       // Step 4: Also write to Supabase (dual-write, don't fail if this fails)
-      if (isSupabaseConfigured()) {
+      if (isDatabaseConfigured()) {
         const supabaseResult = await insertRegistration(registration);
         if (!supabaseResult.success && !supabaseResult.skipped) {
           console.warn('[Register] Supabase write failed (non-blocking):', supabaseResult.error);
@@ -195,7 +195,7 @@ export default async function handler(req, res) {
       const referenceId = `REG-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
 
       // Try Supabase if configured
-      if (isSupabaseConfigured()) {
+      if (isDatabaseConfigured()) {
         const supabaseResult = await insertRegistration(registration);
         if (supabaseResult.success && !supabaseResult.skipped) {
           console.log('[Register] Registration saved to Supabase:', supabaseResult.id);

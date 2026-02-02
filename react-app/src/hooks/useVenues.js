@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { supabase } from '../lib/supabase';
+import { api } from '../lib/api-client';
 
 /**
  * Hook for managing venues (admin)
@@ -14,12 +14,7 @@ export function useVenues() {
     setError(null);
 
     try {
-      const { data, error: fetchError } = await supabase
-        .from('venues')
-        .select('*')
-        .order('name');
-
-      if (fetchError) throw fetchError;
+      const data = await api.get('/admin/venues');
       setVenues(data || []);
     } catch (err) {
       console.error('Error fetching venues:', err);
@@ -34,37 +29,19 @@ export function useVenues() {
   }, [fetchVenues]);
 
   const createVenue = async (venueData) => {
-    const { data, error } = await supabase
-      .from('venues')
-      .insert(venueData)
-      .select()
-      .single();
-
-    if (error) throw error;
+    const data = await api.post('/admin/venues', venueData);
     await fetchVenues();
     return data;
   };
 
   const updateVenue = async (id, venueData) => {
-    const { data, error } = await supabase
-      .from('venues')
-      .update(venueData)
-      .eq('id', id)
-      .select()
-      .single();
-
-    if (error) throw error;
+    const data = await api.patch(`/admin/venues?id=${id}`, venueData);
     await fetchVenues();
     return data;
   };
 
   const deleteVenue = async (id) => {
-    const { error } = await supabase
-      .from('venues')
-      .delete()
-      .eq('id', id);
-
-    if (error) throw error;
+    await api.delete(`/admin/venues?id=${id}`);
     await fetchVenues();
   };
 
@@ -97,13 +74,7 @@ export function useVenue(venueId) {
     setError(null);
 
     try {
-      const { data, error: fetchError } = await supabase
-        .from('venues')
-        .select('*')
-        .eq('id', venueId)
-        .single();
-
-      if (fetchError) throw fetchError;
+      const data = await api.get(`/admin/venues?id=${venueId}`);
       setVenue(data);
     } catch (err) {
       console.error('Error fetching venue:', err);

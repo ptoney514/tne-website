@@ -1,10 +1,10 @@
 import { useState, useCallback } from 'react';
-import { supabase } from '../lib/supabase';
+import { api } from '../lib/api-client';
 
 /**
- * Contact form hook with Supabase storage
+ * Contact form hook with API storage
  *
- * Saves contact submissions to Supabase database and optionally
+ * Saves contact submissions to database and optionally
  * opens a mailto link as a secondary notification.
  */
 export function useContactForm() {
@@ -21,7 +21,8 @@ export function useContactForm() {
 
     try {
       // Handle both name formats (combined name or firstName/lastName)
-      const name = data.name || `${data.firstName || ''} ${data.lastName || ''}`.trim();
+      const name =
+        data.name || `${data.firstName || ''} ${data.lastName || ''}`.trim();
 
       // Validate required fields
       if (!name || !data.email || !data.subject || !data.message) {
@@ -34,20 +35,17 @@ export function useContactForm() {
         throw new Error('Please enter a valid email address');
       }
 
-      // Save to Supabase
-      const { error: insertError } = await supabase
-        .from('contact_submissions')
-        .insert({
+      // Save to database via API
+      try {
+        await api.post('/public/contact', {
           name: name,
           email: data.email,
           subject: data.subject,
           message: data.message,
-          status: 'new',
         });
-
-      if (insertError) {
-        console.error('Supabase insert error:', insertError);
-        // Don't fail completely if Supabase fails - still allow mailto
+      } catch (apiError) {
+        console.error('API insert error:', apiError);
+        // Don't fail completely if API fails - still allow mailto
         if (!skipMailto) {
           console.warn('Falling back to mailto only');
         } else {
@@ -58,7 +56,9 @@ export function useContactForm() {
       // Open mailto as secondary notification (skip in tests)
       if (!skipMailto) {
         const recipient = 'amitch2am@gmail.com';
-        const subject = encodeURIComponent(`[TNE Website] ${data.subject}: ${name}`);
+        const subject = encodeURIComponent(
+          `[TNE Website] ${data.subject}: ${name}`
+        );
         const body = encodeURIComponent(
           `From: ${name}\nEmail: ${data.email}\nSubject: ${data.subject}\n\n${data.message}`
         );

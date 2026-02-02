@@ -1,7 +1,6 @@
 import { useState, useRef } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import { supabase } from '../lib/supabase';
 import { Mail, Lock, AlertCircle, Loader2 } from 'lucide-react';
 import TeamsNavbar from '../components/TeamsNavbar';
 import TeamsFooter from '../components/TeamsFooter';
@@ -61,20 +60,9 @@ export default function LoginPage() {
         if (from !== '/') {
           navigate(from, { replace: true });
         } else {
-          // Otherwise, check user role and redirect accordingly
-          const { data: { user } } = await supabase.auth.getUser();
-          if (user) {
-            const { data: profile } = await supabase
-              .from('profiles')
-              .select('role')
-              .eq('id', user.id)
-              .single();
-
-            if (profile?.role === 'admin') {
-              navigate('/admin', { replace: true });
-            } else {
-              navigate('/', { replace: true });
-            }
+          // Redirect based on user role from result
+          if (result.user?.role === 'admin') {
+            navigate('/admin', { replace: true });
           } else {
             navigate('/', { replace: true });
           }

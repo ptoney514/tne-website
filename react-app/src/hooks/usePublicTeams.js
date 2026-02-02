@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { api } from '../lib/api-client';
 
 // Cache configuration
 const CACHE_KEY = 'tne_teams_cache';
@@ -12,13 +13,11 @@ function loadFromCache() {
     const cached = localStorage.getItem(CACHE_KEY);
     if (!cached) return null;
 
-    const { data, timestamp, version } = JSON.parse(cached);
+    const { data, timestamp } = JSON.parse(cached);
     const age = Date.now() - timestamp;
 
-    // Return cache info including whether it's expired
     return {
       data,
-      version,
       isExpired: age > CACHE_TTL,
       age,
     };
@@ -31,13 +30,15 @@ function loadFromCache() {
 /**
  * Save data to localStorage cache
  */
-function saveToCache(data, version) {
+function saveToCache(data) {
   try {
-    localStorage.setItem(CACHE_KEY, JSON.stringify({
-      data,
-      timestamp: Date.now(),
-      version,
-    }));
+    localStorage.setItem(
+      CACHE_KEY,
+      JSON.stringify({
+        data,
+        timestamp: Date.now(),
+      })
+    );
   } catch (err) {
     console.warn('[usePublicTeams] Failed to save cache:', err.message);
   }
@@ -45,12 +46,13 @@ function saveToCache(data, version) {
 
 /**
  * Hook for fetching teams on the public Teams page.
- * Fetches from static JSON files.
+ * Uses the public API with caching for performance.
  *
  * Features:
  * - Shows cached data immediately for instant load
  * - Refreshes in background if cache is stale
  * - 1 hour cache TTL
+ * - Falls back to JSON files if API fails
  */
 export function usePublicTeams() {
   const [teams, setTeams] = useState([]);
@@ -60,10 +62,17 @@ export function usePublicTeams() {
   const isBackgroundRefresh = useRef(false);
 
   /**
-   * Fetch fresh data from JSON files
+   * Fetch from API
+   */
+  const fetchFromAPI = useCallback(async () => {
+    const data = await api.get('/public/teams');
+    return data || [];
+  }, []);
+
+  /**
+   * Fallback to JSON files if API fails
    */
   const fetchFromJSON = useCallback(async () => {
-    // Fetch teams and coaches in parallel
     const [teamsResponse, coachesResponse] = await Promise.all([
       fetch('/data/json/teams.json'),
       fetch('/data/json/coaches.json'),
@@ -74,95 +83,93 @@ export function usePublicTeams() {
     }
 
     const teamsData = await teamsResponse.json();
-    const coachesData = coachesResponse.ok ? await coachesResponse.json() : { coaches: [] };
+    const coachesData = coachesResponse.ok
+      ? await coachesResponse.json()
+      : { coaches: [] };
 
-    // Build coach lookup map
     const coachMap = {};
-    (coachesData.coaches || []).forEach(coach => {
+    (coachesData.coaches || []).forEach((coach) => {
       coachMap[coach.id] = coach;
     });
 
-    // Transform teams to match expected format (with head_coach object)
-    const transformedTeams = (teamsData.teams || []).map(team => {
+    return (teamsData.teams || []).map((team) => {
       const headCoach = team.head_coach_id ? coachMap[team.head_coach_id] : null;
-
       return {
         ...team,
-        head_coach: headCoach ? {
-          id: headCoach.id,
-          first_name: headCoach.first_name,
-          last_name: headCoach.last_name,
-        } : null,
+        head_coach: headCoach
+          ? {
+              id: headCoach.id,
+              first_name: headCoach.first_name,
+              last_name: headCoach.last_name,
+            }
+          : null,
       };
     });
-
-    return {
-      teams: transformedTeams,
-      version: teamsData.updated_at,
-    };
   }, []);
 
   /**
    * Main fetch function with caching
    */
-  const fetchTeams = useCallback(async (forceRefresh = false) => {
-    // Check cache first (unless forcing refresh)
-    const cached = !forceRefresh ? loadFromCache() : null;
+  const fetchTeams = useCallback(
+    async (forceRefresh = false) => {
+      const cached = !forceRefresh ? loadFromCache() : null;
 
-    if (cached?.data && cached.data.length > 0) {
-      // Show cached data immediately
-      setTeams(cached.data);
-      setLoading(false);
-      // Set lastUpdated from cache version
-      if (cached.version) {
-        setLastUpdated(cached.version);
-      }
-      console.log(`[usePublicTeams] Loaded ${cached.data.length} teams from cache (age: ${Math.round(cached.age / 1000)}s)`);
+      if (cached?.data && cached.data.length > 0) {
+        setTeams(cached.data);
+        setLoading(false);
+        console.log(
+          `[usePublicTeams] Loaded ${cached.data.length} teams from cache (age: ${Math.round(cached.age / 1000)}s)`
+        );
 
-      // If cache isn't expired, no need to refresh
-      if (!cached.isExpired) {
-        console.log('[usePublicTeams] Cache is valid, no refresh needed');
-        return;
-      }
+        if (!cached.isExpired) {
+          console.log('[usePublicTeams] Cache is valid, no refresh needed');
+          return;
+        }
 
-      console.log('[usePublicTeams] Cache expired, refreshing in background...');
-      isBackgroundRefresh.current = true;
-    } else {
-      // No cache, show loading
-      setLoading(true);
-    }
-
-    setError(null);
-
-    try {
-      const { teams: freshTeams, version } = await fetchFromJSON();
-
-      console.log(`[usePublicTeams] Loaded ${freshTeams.length} teams from JSON`);
-      setTeams(freshTeams);
-
-      // Set lastUpdated from version timestamp
-      if (version) {
-        setLastUpdated(version);
+        console.log('[usePublicTeams] Cache expired, refreshing in background...');
+        isBackgroundRefresh.current = true;
+      } else {
+        setLoading(true);
       }
 
-      // Save to cache
-      if (freshTeams.length > 0) {
-        saveToCache(freshTeams, version);
-      }
-    } catch (err) {
-      console.error('Error fetching teams:', err);
-      setError(err.message || 'Failed to fetch teams');
+      setError(null);
 
-      // If we have cached data, keep showing it despite error
-      if (!cached?.data || cached.data.length === 0) {
-        setTeams([]);
+      try {
+        // Try API first
+        const freshTeams = await fetchFromAPI();
+        console.log(`[usePublicTeams] Loaded ${freshTeams.length} teams from API`);
+        setTeams(freshTeams);
+        setLastUpdated(new Date().toISOString());
+
+        if (freshTeams.length > 0) {
+          saveToCache(freshTeams);
+        }
+      } catch (apiError) {
+        console.warn('[usePublicTeams] API failed, falling back to JSON:', apiError.message);
+
+        try {
+          const jsonTeams = await fetchFromJSON();
+          console.log(`[usePublicTeams] Loaded ${jsonTeams.length} teams from JSON`);
+          setTeams(jsonTeams);
+
+          if (jsonTeams.length > 0) {
+            saveToCache(jsonTeams);
+          }
+        } catch (jsonError) {
+          console.error('Error fetching teams:', jsonError);
+          setError(jsonError.message || 'Failed to fetch teams');
+
+          if (!cached?.data || cached.data.length === 0) {
+            setTeams([]);
+          }
+        }
+      } finally {
+        setLoading(false);
+        isBackgroundRefresh.current = false;
       }
-      // Otherwise keep showing cached data
-    } finally {
-      setLoading(false);
-      isBackgroundRefresh.current = false;
-    }
-  }, [fetchFromJSON]);
+    },
+    [fetchFromAPI, fetchFromJSON]
+  );
 
   useEffect(() => {
     fetchTeams();
