@@ -5,9 +5,8 @@ import {
   date,
   boolean,
   timestamp,
-  uniqueIndex,
+  index,
 } from 'drizzle-orm/pg-core';
-import { eq } from 'drizzle-orm';
 
 export const seasons = pgTable(
   'seasons',
@@ -23,10 +22,9 @@ export const seasons = pgTable(
     createdAt: timestamp('created_at').notNull().defaultNow(),
   },
   (table) => [
-    // Only one active season at a time (partial unique index)
-    uniqueIndex('idx_seasons_active')
-      .on(table.isActive)
-      .where(eq(table.isActive, true)),
+    // Index for quick active season lookup
+    // Note: Enforce single active season in application logic
+    index('idx_seasons_active').on(table.isActive),
   ]
 );
 
