@@ -68,7 +68,7 @@ export default function HomeNavbar() {
                 to="/tryouts"
                 className="text-[13px] uppercase transition-all font-semibold text-white tracking-wider font-mono bg-tne-red hover:bg-tne-red-dark rounded-full px-5 py-2 shadow-lg shadow-tne-red/25"
               >
-                Register for Tryouts
+                Register Today
               </Link>
             ) : isRegistrationOpen ? (
               <Link

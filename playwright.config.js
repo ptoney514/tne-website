@@ -11,9 +11,9 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: [['html', { open: 'never' }], ['list']],
 
-  // Global setup and teardown for test data management
-  globalSetup: './tests/setup/globalSetup.js',
-  globalTeardown: './tests/setup/globalTeardown.js',
+  // Global setup and teardown for test data management (skip for remote/smoke runs)
+  globalSetup: isRemote ? undefined : './tests/setup/globalSetup.js',
+  globalTeardown: isRemote ? undefined : './tests/setup/globalTeardown.js',
 
   use: {
     trace: 'on-first-retry',

@@ -15,6 +15,8 @@ import ContactPage from './pages/ContactPage';
 import PaymentsPage from './pages/PaymentsPage';
 import RegistrationPage from './pages/RegistrationPage';
 import LoginPage from './pages/LoginPage';
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
 import ProfilePage from './pages/ProfilePage';
 import SkillsAcademyPage from './pages/SkillsAcademyPage';
 import AdminDashboard from './pages/AdminDashboard';
@@ -53,6 +55,8 @@ function App() {
             <Route path="/payments" element={<PaymentsPage />} />
             <Route path="/register" element={<RegistrationPage />} />
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+            <Route path="/reset-password" element={<ResetPasswordPage />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/skills-academy" element={<SkillsAcademyPage />} />
 
