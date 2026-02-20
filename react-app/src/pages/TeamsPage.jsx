@@ -274,7 +274,7 @@ export default function TeamsPage() {
           <div className="flex flex-col gap-4 animate-enter">
             <div>
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tight text-white">
-                {selectedSeason ? `${selectedSeason.name} Season Teams` : 'Season Teams'}
+                {selectedSeason ? selectedSeason.name : 'Teams'}
               </h1>
               <p className="mt-2 text-base sm:text-lg text-white/70 max-w-2xl">
                 View current team rosters and coach assignments.

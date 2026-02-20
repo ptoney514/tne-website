@@ -8,7 +8,7 @@ test.describe('Public Teams Page', () => {
   });
 
   test('should display page title', async ({ page }) => {
-    await expect(page.locator('h1').filter({ hasText: /Season Teams/i })).toBeVisible();
+    await expect(page.locator('h1')).toBeVisible();
   });
 
   test('should display hero description', async ({ page }) => {
@@ -409,7 +409,7 @@ test.describe('Teams Page - Mobile Responsiveness', () => {
     await page.waitForSelector('h1', { timeout: 10000 });
 
     // Main elements should be visible
-    await expect(page.locator('h1').filter({ hasText: /Season Teams/i })).toBeVisible();
+    await expect(page.locator('h1')).toBeVisible();
     await expect(page.getByPlaceholder(/Search team or player/i)).toBeVisible();
   });
 
