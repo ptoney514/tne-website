@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Search, ChevronRight, ChevronDown, Loader2, AlertCircle, X } from 'lucide-react';
 import InteriorLayout from '../components/layouts/InteriorLayout';
 import { usePublicTeams } from '../hooks/usePublicTeams';
+import { usePublicSeasons } from '../hooks/usePublicSeasons';
 
 // Team type display labels
 const TEAM_TYPES = {
@@ -191,7 +192,9 @@ function Dropdown({ label, value, onChange, options }) {
 }
 
 export default function TeamsPage() {
-  const { teams, loading, error, lastUpdated } = usePublicTeams();
+  const { seasons, selectedSeasonId, selectedSeason, setSelectedSeasonId, loading: seasonsLoading, ready: seasonsReady } = usePublicSeasons();
+  const { teams, loading: teamsLoading, error, lastUpdated } = usePublicTeams(seasonsReady ? selectedSeasonId : undefined);
+  const loading = seasonsLoading || teamsLoading;
   const [searchQuery, setSearchQuery] = useState('');
   const [programFilter, setProgramFilter] = useState('all');
   const [gradeFilter, setGradeFilter] = useState('all');
@@ -271,7 +274,7 @@ export default function TeamsPage() {
           <div className="flex flex-col gap-4 animate-enter">
             <div>
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tight text-white">
-                Winter 2025 Season Teams
+                {selectedSeason ? `${selectedSeason.name} Season Teams` : 'Season Teams'}
               </h1>
               <p className="mt-2 text-base sm:text-lg text-white/70 max-w-2xl">
                 View current team rosters and coach assignments.
@@ -311,6 +314,14 @@ export default function TeamsPage() {
 
             {/* Dropdowns and Clear button */}
             <div className="flex flex-wrap items-center gap-3">
+              {seasons.length > 1 && (
+                <Dropdown
+                  label="Season filter"
+                  value={selectedSeasonId || ''}
+                  onChange={setSelectedSeasonId}
+                  options={seasons.map(s => ({ value: s.id, label: s.name }))}
+                />
+              )}
               <Dropdown
                 label="Program filter"
                 value={programFilter}

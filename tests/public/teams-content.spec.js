@@ -5,7 +5,7 @@ test.describe('Winter 2025 Teams Content', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/teams');
     // Clear cache to ensure fresh data
-    await page.evaluate(() => localStorage.removeItem('tne_teams_cache'));
+    await page.evaluate(() => Object.keys(localStorage).filter(k => k.startsWith('tne_teams_cache')).forEach(k => localStorage.removeItem(k)));
     await page.reload();
     await page.waitForSelector('[data-testid="teams-grid"]', { timeout: 15000 });
     await page.waitForTimeout(1000);
@@ -80,7 +80,7 @@ test.describe('Winter 2025 Teams Content', () => {
 test.describe('Girls Program Empty State', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/teams');
-    await page.evaluate(() => localStorage.removeItem('tne_teams_cache'));
+    await page.evaluate(() => Object.keys(localStorage).filter(k => k.startsWith('tne_teams_cache')).forEach(k => localStorage.removeItem(k)));
     await page.reload();
     await page.waitForSelector('[data-testid="teams-grid"]', { timeout: 15000 });
     await page.waitForTimeout(1000);

@@ -2,15 +2,22 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { api } from '../lib/api-client';
 
 // Cache configuration
-const CACHE_KEY = 'tne_teams_cache';
+const CACHE_KEY_PREFIX = 'tne_teams_cache';
 const CACHE_TTL = 60 * 60 * 1000; // 1 hour in milliseconds
+
+/**
+ * Get the cache key for a given seasonId
+ */
+function getCacheKey(seasonId) {
+  return seasonId ? `${CACHE_KEY_PREFIX}_${seasonId}` : CACHE_KEY_PREFIX;
+}
 
 /**
  * Load cached data from localStorage
  */
-function loadFromCache() {
+function loadFromCache(seasonId) {
   try {
-    const cached = localStorage.getItem(CACHE_KEY);
+    const cached = localStorage.getItem(getCacheKey(seasonId));
     if (!cached) return null;
 
     const { data, timestamp } = JSON.parse(cached);
@@ -22,7 +29,7 @@ function loadFromCache() {
       age,
     };
   } catch {
-    localStorage.removeItem(CACHE_KEY);
+    localStorage.removeItem(getCacheKey(seasonId));
     return null;
   }
 }
@@ -30,10 +37,10 @@ function loadFromCache() {
 /**
  * Save data to localStorage cache
  */
-function saveToCache(data) {
+function saveToCache(seasonId, data) {
   try {
     localStorage.setItem(
-      CACHE_KEY,
+      getCacheKey(seasonId),
       JSON.stringify({
         data,
         timestamp: Date.now(),
@@ -51,10 +58,12 @@ function saveToCache(data) {
  * Features:
  * - Shows cached data immediately for instant load
  * - Refreshes in background if cache is stale
- * - 1 hour cache TTL
+ * - 1 hour cache TTL per season
  * - Falls back to JSON files if API fails
+ *
+ * @param {string|null|undefined} seasonId - Season UUID to filter by. null = fetch all teams. undefined = don't fetch yet.
  */
-export function usePublicTeams() {
+export function usePublicTeams(seasonId) {
   const [teams, setTeams] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -65,9 +74,10 @@ export function usePublicTeams() {
    * Fetch from API
    */
   const fetchFromAPI = useCallback(async () => {
-    const data = await api.get('/public/teams');
+    const path = seasonId ? `/public/teams?seasonId=${seasonId}` : '/public/teams';
+    const data = await api.get(path);
     return data || [];
-  }, []);
+  }, [seasonId]);
 
   /**
    * Fallback to JSON files if API fails
@@ -112,7 +122,9 @@ export function usePublicTeams() {
    */
   const fetchTeams = useCallback(
     async (forceRefresh = false) => {
-      const cached = !forceRefresh ? loadFromCache() : null;
+      if (seasonId === undefined) return;
+
+      const cached = !forceRefresh ? loadFromCache(seasonId) : null;
 
       if (cached?.data && cached.data.length > 0) {
         setTeams(cached.data);
@@ -142,7 +154,7 @@ export function usePublicTeams() {
         setLastUpdated(new Date().toISOString());
 
         if (freshTeams.length > 0) {
-          saveToCache(freshTeams);
+          saveToCache(seasonId, freshTeams);
         }
       } catch (apiError) {
         console.warn('[usePublicTeams] API failed, falling back to JSON:', apiError.message);
@@ -153,7 +165,7 @@ export function usePublicTeams() {
           setTeams(jsonTeams);
 
           if (jsonTeams.length > 0) {
-            saveToCache(jsonTeams);
+            saveToCache(seasonId, jsonTeams);
           }
         } catch (jsonError) {
           console.error('Error fetching teams:', jsonError);
@@ -168,12 +180,14 @@ export function usePublicTeams() {
         isBackgroundRefresh.current = false;
       }
     },
-    [fetchFromAPI, fetchFromJSON]
+    [fetchFromAPI, fetchFromJSON, seasonId]
   );
 
   useEffect(() => {
-    fetchTeams();
-  }, [fetchTeams]);
+    if (seasonId !== undefined) {
+      fetchTeams();
+    }
+  }, [fetchTeams, seasonId]);
 
   return { teams, loading, error, refetch: fetchTeams, lastUpdated };
 }

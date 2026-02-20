@@ -25,6 +25,7 @@ import AdminCoachesPage from './pages/AdminCoachesPage';
 import AdminSettingsLayout from './pages/AdminSettingsLayout';
 import AdminUsersPage from './pages/AdminUsersPage';
 import AdminRegistrationSettings from './pages/AdminRegistrationSettings';
+import AdminSeasonsSettingsPage from './pages/AdminSeasonsSettingsPage';
 import AdminRegistrationsPage from './pages/AdminRegistrationsPage';
 import AdminTryoutsPage from './pages/AdminTryoutsPage';
 import AdminGamesPage from './pages/AdminGamesPage';
@@ -196,6 +197,7 @@ function App() {
             >
               <Route path="users" element={<AdminUsersPage />} />
               <Route path="registration" element={<AdminRegistrationSettings />} />
+              <Route path="seasons" element={<AdminSeasonsSettingsPage />} />
             </Route>
           </Routes>
         </AuthProvider>
