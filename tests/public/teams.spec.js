@@ -8,7 +8,7 @@ test.describe('Public Teams Page', () => {
   });
 
   test('should display page title', async ({ page }) => {
-    await expect(page.locator('h1').filter({ hasText: /2024–25 Winter Season Teams/i })).toBeVisible();
+    await expect(page.locator('h1').filter({ hasText: /Winter 2025 Season Teams/i })).toBeVisible();
   });
 
   test('should display hero description', async ({ page }) => {
@@ -146,7 +146,7 @@ test.describe('Teams Page - Filter Functionality', () => {
     await page.waitForTimeout(300);
 
     // Clear button should appear
-    await expect(page.getByRole('button', { name: /Clear/i })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Clear', exact: true })).toBeVisible();
   });
 
   test('should filter teams when selecting grade dropdown option', async ({ page }) => {
@@ -163,7 +163,7 @@ test.describe('Teams Page - Filter Functionality', () => {
     await page.waitForTimeout(300);
 
     // Clear button should appear
-    await expect(page.getByRole('button', { name: /Clear/i })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Clear', exact: true })).toBeVisible();
   });
 
   test('should show Clear button only when filters are active', async ({ page }) => {
@@ -173,21 +173,21 @@ test.describe('Teams Page - Filter Functionality', () => {
     await page.waitForTimeout(2000);
 
     // Clear button should NOT be visible initially
-    await expect(page.getByRole('button', { name: /Clear/i })).not.toBeVisible();
+    await expect(page.getByRole('button', { name: 'Clear', exact: true })).not.toBeVisible();
 
-    // Apply a filter
-    await page.getByLabel(/Program filter/i).selectOption('tne');
+    // Apply a filter that returns results (so only filter bar Clear is shown)
+    await page.getByLabel(/Program filter/i).selectOption('express');
     await page.waitForTimeout(300);
 
     // Clear button should now be visible
-    await expect(page.getByRole('button', { name: /Clear/i })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Clear', exact: true })).toBeVisible();
 
     // Click Clear button
-    await page.getByRole('button', { name: /Clear/i }).click();
+    await page.getByRole('button', { name: 'Clear', exact: true }).click();
     await page.waitForTimeout(300);
 
     // Clear button should be hidden again
-    await expect(page.getByRole('button', { name: /Clear/i })).not.toBeVisible();
+    await expect(page.getByRole('button', { name: 'Clear', exact: true })).not.toBeVisible();
   });
 
   test('should combine filters with AND logic', async ({ page }) => {
@@ -205,7 +205,7 @@ test.describe('Teams Page - Filter Functionality', () => {
     await page.waitForTimeout(300);
 
     // Both filters should be active, Clear button visible
-    await expect(page.getByRole('button', { name: /Clear/i })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Clear', exact: true })).toBeVisible();
   });
 });
 
@@ -233,7 +233,7 @@ test.describe('Teams Page - Search Functionality', () => {
     await page.waitForTimeout(300);
 
     // Clear button should appear when search has text
-    await expect(page.getByRole('button', { name: /Clear/i })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Clear', exact: true })).toBeVisible();
   });
 
   test('should show empty state when search has no results', async ({ page }) => {
@@ -409,7 +409,7 @@ test.describe('Teams Page - Mobile Responsiveness', () => {
     await page.waitForSelector('h1', { timeout: 10000 });
 
     // Main elements should be visible
-    await expect(page.locator('h1').filter({ hasText: /2024–25 Winter Season Teams/i })).toBeVisible();
+    await expect(page.locator('h1').filter({ hasText: /Winter 2025 Season Teams/i })).toBeVisible();
     await expect(page.getByPlaceholder(/Search team or player/i)).toBeVisible();
   });
 

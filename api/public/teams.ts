@@ -46,6 +46,7 @@ export async function GET(request: Request) {
       name: team.name,
       grade_level: team.gradeLevel,
       gender: team.gender,
+      tier: team.name.toLowerCase().startsWith('tne') ? 'tne' : 'express',
       practice_location: team.practiceLocation,
       practice_days: team.practiceDays,
       practice_time: team.practiceTime,
