@@ -409,7 +409,7 @@ test.describe('Registration Form - Mobile Responsiveness', () => {
     await page.waitForSelector('h1', { timeout: 15000 });
 
     // Wizard should be visible
-    await expect(page.locator('h1').filter({ hasText: /Team Registration/i })).toBeVisible();
+    await expect(page.locator('h1').filter({ hasText: /Registration/i })).toBeVisible();
 
     // Mobile step indicator should be visible
     await expect(page.getByText(/Step 1 of 4/i)).toBeVisible();

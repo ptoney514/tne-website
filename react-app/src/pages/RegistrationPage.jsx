@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Bell, Shirt, AlertCircle, ChevronDown } from 'lucide-react';
+import { Bell, Shirt, AlertCircle, ChevronDown, ArrowLeft, Calendar, UserPlus } from 'lucide-react';
 import InteriorLayout from '../components/layouts/InteriorLayout';
 import { WizardProvider, useWizard } from '../components/registration/WizardContext';
 import { WizardContent } from '../components/registration/RegistrationWizard';
@@ -8,18 +8,90 @@ import RegistrationSummaryPanel from '../components/registration/ui/Registration
 import { useTeamRegistration } from '../hooks/useTeamRegistration';
 import { useRegistrationStatus } from '../hooks/useRegistrationStatus';
 
+// Type selector cards — entry point for choosing season vs team registration
+function RegistrationTypeSelector({ onSelect, isTryoutsOpen, isRegistrationOpen, tryoutsLabel }) {
+  // If neither is open, show nothing (handled by parent)
+  return (
+    <div className="rounded-3xl bg-white border border-neutral-300 shadow-sm overflow-hidden">
+      <div className="px-5 py-4 border-b border-neutral-200 bg-neutral-50">
+        <h2 className="text-lg font-semibold text-neutral-900">
+          How would you like to register?
+        </h2>
+      </div>
+
+      <div className="px-5 py-6">
+        <div className="grid gap-4 sm:grid-cols-2">
+          {/* Season Registration Card */}
+          {isTryoutsOpen && (
+            <button
+              onClick={() => onSelect('season')}
+              className="group text-left rounded-2xl border-2 border-neutral-200 hover:border-tne-red/50 p-5 transition-all hover:shadow-md"
+            >
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2.5 rounded-xl bg-blue-100 group-hover:bg-blue-200 transition-colors">
+                  <Calendar className="w-5 h-5 text-blue-600" />
+                </div>
+                <h3 className="font-semibold text-neutral-900">Register for a Season</h3>
+              </div>
+              <p className="text-sm text-neutral-600 mb-3">
+                Sign up for tryouts for an upcoming season. No payment required.
+              </p>
+              {tryoutsLabel && (
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-medium mb-3">
+                  <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                  {tryoutsLabel}
+                </div>
+              )}
+              <div className="flex items-center gap-1.5 text-sm font-medium text-tne-red group-hover:gap-2.5 transition-all">
+                Get Started
+                <span aria-hidden="true">&rarr;</span>
+              </div>
+            </button>
+          )}
+
+          {/* Team Registration Card */}
+          {isRegistrationOpen && (
+            <button
+              onClick={() => onSelect('team')}
+              className="group text-left rounded-2xl border-2 border-neutral-200 hover:border-tne-red/50 p-5 transition-all hover:shadow-md"
+            >
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2.5 rounded-xl bg-purple-100 group-hover:bg-purple-200 transition-colors">
+                  <UserPlus className="w-5 h-5 text-purple-600" />
+                </div>
+                <h3 className="font-semibold text-neutral-900">Register for a Team</h3>
+              </div>
+              <p className="text-sm text-neutral-600 mb-3">
+                Already placed on a team? Complete your registration &amp; payment.
+              </p>
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-purple-50 text-purple-700 text-xs font-medium mb-3">
+                <span className="w-1.5 h-1.5 rounded-full bg-purple-500" />
+                Current teams
+              </div>
+              <div className="flex items-center gap-1.5 text-sm font-medium text-tne-red group-hover:gap-2.5 transition-all">
+                Get Started
+                <span aria-hidden="true">&rarr;</span>
+              </div>
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // Sidebar content that uses wizard context
 function SidebarContent() {
-  const { selectedTeam } = useWizard();
+  const { selectedTeam, registrationType } = useWizard();
   const [uniformsExpanded, setUniformsExpanded] = useState(false);
 
   return (
     <div className="space-y-6">
-      {/* Dynamic Registration Summary - shown when team is selected */}
+      {/* Dynamic Registration Summary */}
       <RegistrationSummaryPanel />
 
-      {/* Static Registration Fees - hidden when team is selected */}
-      {!selectedTeam && (
+      {/* Static Registration Fees - shown when no team is selected in team mode, or when on type selector */}
+      {registrationType !== 'season' && !selectedTeam && (
         <div className="rounded-3xl bg-white border border-neutral-300 shadow-sm overflow-hidden">
           <div className="px-5 py-4 border-b border-neutral-200">
             <h2 className="text-lg font-semibold text-neutral-900">
@@ -56,64 +128,80 @@ function SidebarContent() {
         </div>
       )}
 
-      {/* Uniforms - Collapsible */}
-      <div className="rounded-3xl bg-white border border-neutral-300 shadow-sm overflow-hidden">
-        <button
-          onClick={() => setUniformsExpanded(!uniformsExpanded)}
-          className="w-full px-5 py-4 border-b border-neutral-200 flex items-center justify-between hover:bg-neutral-50 transition-colors"
-        >
-          <div className="flex items-center gap-2">
-            <Shirt className="w-4 h-4 text-tne-red" />
-            <h2 className="text-lg font-semibold text-neutral-900">
-              Uniforms
-            </h2>
-          </div>
-          <ChevronDown className={`w-5 h-5 text-neutral-400 transition-transform ${uniformsExpanded ? 'rotate-180' : ''}`} />
-        </button>
-        {uniformsExpanded && (
-          <>
-            <div className="px-5 py-4 space-y-4 text-sm text-neutral-600">
-              <div>
-                <p className="font-medium text-neutral-900 mb-1">Jr 3SSB</p>
-                <p>Uniforms will be ordered through coaches.</p>
+      {/* Uniforms - Collapsible (only in team mode) */}
+      {registrationType !== 'season' && (
+        <div className="rounded-3xl bg-white border border-neutral-300 shadow-sm overflow-hidden">
+          <button
+            onClick={() => setUniformsExpanded(!uniformsExpanded)}
+            className="w-full px-5 py-4 border-b border-neutral-200 flex items-center justify-between hover:bg-neutral-50 transition-colors"
+          >
+            <div className="flex items-center gap-2">
+              <Shirt className="w-4 h-4 text-tne-red" />
+              <h2 className="text-lg font-semibold text-neutral-900">
+                Uniforms
+              </h2>
+            </div>
+            <ChevronDown className={`w-5 h-5 text-neutral-400 transition-transform ${uniformsExpanded ? 'rotate-180' : ''}`} />
+          </button>
+          {uniformsExpanded && (
+            <>
+              <div className="px-5 py-4 space-y-4 text-sm text-neutral-600">
+                <div>
+                  <p className="font-medium text-neutral-900 mb-1">Jr 3SSB</p>
+                  <p>Uniforms will be ordered through coaches.</p>
+                </div>
+                <div>
+                  <p className="font-medium text-neutral-900 mb-1">Express United Boys (3rd-8th)</p>
+                  <p>Reversible gray uniforms (same as last year).</p>
+                  <p className="mt-1">
+                    <span className="font-semibold text-neutral-900">Cost: $110</span>
+                  </p>
+                </div>
+                <div>
+                  <p className="font-medium text-neutral-900 mb-1">Girls</p>
+                  <p>Reversible uniforms (same as last year).</p>
+                  <p className="mt-1">
+                    <span className="font-semibold text-neutral-900">Cost: $75</span>
+                    <span className="text-neutral-500"> — Contact Rachelle Tucker: </span>
+                    <a href="tel:402-210-1568" className="text-tne-red hover:underline">402-210-1568</a>
+                  </p>
+                </div>
               </div>
-              <div>
-                <p className="font-medium text-neutral-900 mb-1">Express United Boys (3rd-8th)</p>
-                <p>Reversible gray uniforms (same as last year).</p>
-                <p className="mt-1">
-                  <span className="font-semibold text-neutral-900">Cost: $110</span>
+              <div className="px-5 py-3 bg-amber-50 border-t border-amber-200">
+                <p className="text-xs text-amber-800 font-medium">
+                  If you haven&apos;t ordered your uniform yet, contact your coach ASAP.
                 </p>
               </div>
-              <div>
-                <p className="font-medium text-neutral-900 mb-1">Girls</p>
-                <p>Reversible uniforms (same as last year).</p>
-                <p className="mt-1">
-                  <span className="font-semibold text-neutral-900">Cost: $75</span>
-                  <span className="text-neutral-500"> — Contact Rachelle Tucker: </span>
-                  <a href="tel:402-210-1568" className="text-tne-red hover:underline">402-210-1568</a>
-                </p>
-              </div>
-            </div>
-            <div className="px-5 py-3 bg-amber-50 border-t border-amber-200">
-              <p className="text-xs text-amber-800 font-medium">
-                If you haven&apos;t ordered your uniform yet, contact your coach ASAP.
-              </p>
-            </div>
-          </>
-        )}
-      </div>
+            </>
+          )}
+        </div>
+      )}
     </div>
   );
 }
 
-// Main wizard content area
-function RegistrationWizardArea({ onSubmit, submitting, submitSuccess, onReset, isRegistrationOpen }) {
-  if (!isRegistrationOpen) {
+// Main wizard content area with type selection
+function RegistrationWizardArea({ onSubmit, submitting, submitSuccess, onReset, isTryoutsOpen, isRegistrationOpen, tryoutsLabel, seasons }) {
+  const { registrationType, setRegistrationType, resetWizard, formData, updateField } = useWizard();
+
+  const handleSelectType = (type) => {
+    setRegistrationType(type);
+  };
+
+  // Auto-populate seasonId when entering season flow with a single available season
+  useEffect(() => {
+    if (registrationType === 'season' && seasons.length === 1 && !formData.seasonId) {
+      updateField('seasonId', seasons[0].id);
+    }
+  }, [registrationType, seasons, formData.seasonId, updateField]);
+
+  // Neither registration type is available
+  if (!isTryoutsOpen && !isRegistrationOpen) {
     return (
       <div id="registration" className="rounded-3xl bg-white border border-neutral-300 shadow-sm overflow-hidden">
         <div className="px-5 py-4 border-b border-neutral-200 bg-neutral-50">
           <h2 className="text-lg font-semibold text-neutral-900">
-            Team Registration
+            Registration
           </h2>
         </div>
         <div className="px-6 py-12 text-center">
@@ -124,7 +212,7 @@ function RegistrationWizardArea({ onSubmit, submitting, submitSuccess, onReset, 
             Registration Is Currently Closed
           </h3>
           <p className="text-neutral-600 mb-6 max-w-md mx-auto">
-            Team registration is not available at this time. Sign up to be
+            Registration is not available at this time. Sign up to be
             notified when the next registration period opens.
           </p>
           <Link
@@ -139,13 +227,58 @@ function RegistrationWizardArea({ onSubmit, submitting, submitSuccess, onReset, 
     );
   }
 
+  // Only one option available — skip selector, go directly
+  const onlyTryouts = isTryoutsOpen && !isRegistrationOpen;
+  const onlyTeam = !isTryoutsOpen && isRegistrationOpen;
+
+  // No registration type selected yet — show selector (or auto-select if only one option)
+  if (!registrationType) {
+    if (onlyTryouts) {
+      // Auto-select season registration
+      handleSelectType('season');
+      return null;
+    }
+    if (onlyTeam) {
+      // Auto-select team registration
+      handleSelectType('team');
+      return null;
+    }
+
+    return (
+      <RegistrationTypeSelector
+        onSelect={handleSelectType}
+        isTryoutsOpen={isTryoutsOpen}
+        isRegistrationOpen={isRegistrationOpen}
+        tryoutsLabel={tryoutsLabel}
+      />
+    );
+  }
+
+  // Back to registration options (only when both options are available)
+  const showBackLink = isTryoutsOpen && isRegistrationOpen;
+
   return (
-    <WizardContent
-      onSubmit={onSubmit}
-      submitting={submitting}
-      submitSuccess={submitSuccess}
-      onReset={onReset}
-    />
+    <div className="space-y-4">
+      {showBackLink && (
+        <button
+          onClick={() => {
+            resetWizard();
+          }}
+          className="inline-flex items-center gap-1.5 text-sm font-medium text-neutral-600 hover:text-neutral-900 transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back to registration options
+        </button>
+      )}
+
+      <WizardContent
+        onSubmit={onSubmit}
+        submitting={submitting}
+        submitSuccess={submitSuccess}
+        onReset={onReset}
+        seasons={seasons}
+      />
+    </div>
   );
 }
 
@@ -158,7 +291,37 @@ export default function RegistrationPage() {
     resetSubmitState,
   } = useTeamRegistration();
 
-  const { isRegistrationOpen } = useRegistrationStatus();
+  const { isRegistrationOpen, isTryoutsOpen, tryoutsLabel } = useRegistrationStatus();
+
+  // Build seasons list from config for the season selector
+  // For now, we use the tryoutsLabel and construct a season object
+  // In the future this could come from a dedicated API
+  const [seasons, setSeasons] = useState([]);
+
+  useEffect(() => {
+    fetch('/data/json/config.json')
+      .then(res => res.json())
+      .then(config => {
+        // Build available seasons for tryout registration
+        if (config.tryouts?.is_open && config.season) {
+          // Use a next season if available, otherwise use current season info
+          const nextSeasonId = config.tryouts?.next_season_id || `spring-${new Date().getFullYear()}`;
+          const nextSeasonName = config.tryouts?.next_season_name || config.tryouts?.label || `Spring ${new Date().getFullYear()}`;
+
+          setSeasons([{
+            id: nextSeasonId,
+            name: nextSeasonName,
+          }]);
+        }
+      })
+      .catch(() => {
+        // Fallback season
+        setSeasons([{
+          id: `spring-${new Date().getFullYear()}`,
+          name: `Spring ${new Date().getFullYear()}`,
+        }]);
+      });
+  }, []);
 
   return (
     <InteriorLayout>
@@ -179,11 +342,11 @@ export default function RegistrationPage() {
 
             <div>
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tight text-white">
-                Team Registration
+                Registration
               </h1>
               <p className="mt-2 text-base sm:text-lg text-white/70 max-w-2xl">
                 Join the TNE United Express family. Register your player for
-                an exciting season of competitive basketball.
+                tryouts or complete your team registration.
               </p>
             </div>
           </div>
@@ -212,7 +375,10 @@ export default function RegistrationPage() {
                   submitting={submitting}
                   submitSuccess={submitSuccess}
                   onReset={resetSubmitState}
+                  isTryoutsOpen={isTryoutsOpen}
                   isRegistrationOpen={isRegistrationOpen}
+                  tryoutsLabel={tryoutsLabel}
+                  seasons={seasons}
                 />
               </div>
 

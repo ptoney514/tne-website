@@ -1,13 +1,14 @@
 import { useState, useCallback } from 'react';
-import { AlertCircle, Check, Shield, Camera, Heart, Send, Loader2, DollarSign } from 'lucide-react';
+import { AlertCircle, Check, Shield, Camera, Heart, Send, Loader2, DollarSign, Info } from 'lucide-react';
 import { useWizard } from '../WizardContext';
-import { validateStep4 } from '../wizardValidation';
+import { validateStep4, validateSeasonStep3 } from '../wizardValidation';
 import SummaryCard from '../ui/SummaryCard';
 import Turnstile from '../ui/Turnstile';
 
 export default function ReviewConfirmStep({ onSubmit, isSubmitting }) {
   const {
     formData,
+    registrationType,
     validationErrors,
     updateField,
     setValidationErrors,
@@ -18,6 +19,8 @@ export default function ReviewConfirmStep({ onSubmit, isSubmitting }) {
   const [submitError, setSubmitError] = useState(null);
   const [turnstileToken, setTurnstileToken] = useState(null);
   const [turnstileError, setTurnstileError] = useState(null);
+
+  const isSeason = registrationType === 'season';
 
   const handleWaiverChange = (field, checked) => {
     updateField(field, checked);
@@ -43,7 +46,7 @@ export default function ReviewConfirmStep({ onSubmit, isSubmitting }) {
   }, []);
 
   const handleSubmit = async () => {
-    const errors = validateStep4(formData);
+    const errors = isSeason ? validateSeasonStep3(formData) : validateStep4(formData);
     if (Object.keys(errors).length > 0) {
       setValidationErrors(errors);
       return;
@@ -62,11 +65,9 @@ export default function ReviewConfirmStep({ onSubmit, isSubmitting }) {
     }
   };
 
-  const allWaiversAccepted =
-    formData.waiverLiability &&
-    formData.waiverMedical &&
-    formData.waiverMedia &&
-    formData.paymentTermsAcknowledged;
+  const allWaiversAccepted = isSeason
+    ? formData.waiverLiability && formData.waiverMedical && formData.waiverMedia
+    : formData.waiverLiability && formData.waiverMedical && formData.waiverMedia && formData.paymentTermsAcknowledged;
 
   return (
     <div className="space-y-6">
@@ -75,7 +76,9 @@ export default function ReviewConfirmStep({ onSubmit, isSubmitting }) {
           Review & Confirm
         </h3>
         <p className="text-sm text-neutral-600 mt-1">
-          Please review your information and accept the waivers to complete registration
+          {isSeason
+            ? 'Please review your information and accept the waivers to complete your season registration'
+            : 'Please review your information and accept the waivers to complete registration'}
         </p>
       </div>
 
@@ -86,8 +89,8 @@ export default function ReviewConfirmStep({ onSubmit, isSubmitting }) {
         </div>
       )}
 
-      {/* Registration Summary */}
-      <SummaryCard />
+      {/* Registration Summary — only for team registration */}
+      {!isSeason && <SummaryCard />}
 
       {/* Player & Parent Summary */}
       <div className="grid gap-4 sm:grid-cols-2">
@@ -102,12 +105,19 @@ export default function ReviewConfirmStep({ onSubmit, isSubmitting }) {
             {formData.playerGrade && `Grade ${formData.playerGrade}`}
             {formData.playerGender && ` • ${formData.playerGender === 'male' ? 'Male' : 'Female'}`}
           </p>
-          <p className="text-sm text-neutral-600">
-            Jersey Size: {formData.jerseySize}
-          </p>
-          {formData.desiredJerseyNumber && (
+          {!isSeason && formData.jerseySize && (
+            <p className="text-sm text-neutral-600">
+              Jersey Size: {formData.jerseySize}
+            </p>
+          )}
+          {!isSeason && formData.desiredJerseyNumber && (
             <p className="text-sm text-neutral-600">
               Desired Jersey #: {formData.desiredJerseyNumber}
+            </p>
+          )}
+          {formData.position && formData.position !== 'none' && (
+            <p className="text-sm text-neutral-600">
+              Position: {formData.position.charAt(0).toUpperCase() + formData.position.slice(1)}
             </p>
           )}
           {formData.lastTeamPlayedFor && (
@@ -143,6 +153,38 @@ export default function ReviewConfirmStep({ onSubmit, isSubmitting }) {
           )}
         </div>
       </div>
+
+      {/* Season Fee Preview — only for season registration */}
+      {isSeason && (
+        <div className="rounded-xl bg-blue-50 border border-blue-200 p-4">
+          <div className="flex items-start gap-3">
+            <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm font-medium text-blue-800 mb-2">Fee Preview (No Payment Due)</p>
+              <p className="text-sm text-blue-700 mb-3">
+                Once your player is placed on a team, the following fees will apply:
+              </p>
+              <div className="space-y-1.5 text-sm text-blue-800">
+                <div className="flex items-center justify-between">
+                  <span>3rd-8th Girls</span>
+                  <span className="font-medium">$450</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span>3rd-8th Boys</span>
+                  <span className="font-medium">$450</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span>5th-8th Boys Jr 3SSB</span>
+                  <span className="font-medium">$1,400</span>
+                </div>
+              </div>
+              <p className="text-xs text-blue-600 mt-3">
+                Payment methods: PayPal, Venmo, Cash App
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Waivers Section */}
       <div className="space-y-4 pt-4 border-t border-neutral-200">
@@ -248,34 +290,36 @@ export default function ReviewConfirmStep({ onSubmit, isSubmitting }) {
           </label>
         </div>
 
-        {/* Payment Terms Acknowledgment */}
-        <div
-          className={`
-            rounded-xl border p-4 transition-colors
-            ${validationErrors.paymentTermsAcknowledged ? 'border-red-300 bg-red-50' : 'border-neutral-200 bg-white'}
-          `}
-        >
-          <label className="flex items-start gap-3 cursor-pointer">
-            <div className="mt-0.5">
-              <input
-                type="checkbox"
-                checked={formData.paymentTermsAcknowledged}
-                onChange={(e) => handleWaiverChange('paymentTermsAcknowledged', e.target.checked)}
-                className="w-5 h-5 text-tne-red border-neutral-300 rounded focus:ring-tne-red/50"
-              />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <DollarSign className="w-4 h-4 text-neutral-500" />
-                <span className="font-medium text-neutral-900">Payment Terms *</span>
+        {/* Payment Terms Acknowledgment — only for team registration */}
+        {!isSeason && (
+          <div
+            className={`
+              rounded-xl border p-4 transition-colors
+              ${validationErrors.paymentTermsAcknowledged ? 'border-red-300 bg-red-50' : 'border-neutral-200 bg-white'}
+            `}
+          >
+            <label className="flex items-start gap-3 cursor-pointer">
+              <div className="mt-0.5">
+                <input
+                  type="checkbox"
+                  checked={formData.paymentTermsAcknowledged}
+                  onChange={(e) => handleWaiverChange('paymentTermsAcknowledged', e.target.checked)}
+                  className="w-5 h-5 text-tne-red border-neutral-300 rounded focus:ring-tne-red/50"
+                />
               </div>
-              <p className="text-sm text-neutral-600 mt-1">
-                I understand that roster placement requires payment confirmation. My player&apos;s spot
-                is not guaranteed until payment is received and verified by TNE United Express.
-              </p>
-            </div>
-          </label>
-        </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <DollarSign className="w-4 h-4 text-neutral-500" />
+                  <span className="font-medium text-neutral-900">Payment Terms *</span>
+                </div>
+                <p className="text-sm text-neutral-600 mt-1">
+                  I understand that roster placement requires payment confirmation. My player&apos;s spot
+                  is not guaranteed until payment is received and verified by TNE United Express.
+                </p>
+              </div>
+            </label>
+          </div>
+        )}
       </div>
 
       {/* Turnstile Captcha */}
@@ -309,12 +353,21 @@ export default function ReviewConfirmStep({ onSubmit, isSubmitting }) {
           <Check className="w-5 h-5 text-emerald-600 flex-shrink-0 mt-0.5" />
           <div>
             <p className="text-sm text-emerald-800">
-              By clicking &quot;Secure Player Spot&quot; below, I confirm that all information provided
-              is accurate and I agree to the above waivers and terms.
-              {formData.paymentPlanType === 'special_request' && (
-                <span className="block mt-2 font-medium">
-                  Note: Your registration will be held pending approval of your special payment request.
-                </span>
+              {isSeason ? (
+                <>
+                  By clicking &quot;Submit Registration&quot; below, I confirm that all information provided
+                  is accurate and I agree to the above waivers.
+                </>
+              ) : (
+                <>
+                  By clicking &quot;Secure Player Spot&quot; below, I confirm that all information provided
+                  is accurate and I agree to the above waivers and terms.
+                  {formData.paymentPlanType === 'special_request' && (
+                    <span className="block mt-2 font-medium">
+                      Note: Your registration will be held pending approval of your special payment request.
+                    </span>
+                  )}
+                </>
               )}
             </p>
           </div>
@@ -344,7 +397,7 @@ export default function ReviewConfirmStep({ onSubmit, isSubmitting }) {
             </>
           ) : (
             <>
-              Secure Player Spot
+              {isSeason ? 'Submit Registration' : 'Secure Player Spot'}
               <Send className="w-4 h-4" />
             </>
           )}

@@ -67,15 +67,7 @@ export function useTeamRegistration() {
       setSubmitSuccess(false);
 
       try {
-        // Determine payment status based on payment plan type
-        let paymentStatus = 'pending';
-        if (registrationData.paymentPlanType === 'full' && registrationData.paymentConfirmed) {
-          paymentStatus = 'pending_verification';
-        } else if (registrationData.paymentPlanType === 'installment') {
-          paymentStatus = 'payment_plan_active';
-        } else if (registrationData.paymentPlanType === 'special_request') {
-          paymentStatus = 'awaiting_approval';
-        }
+        const isSeason = registrationData.registrationType === 'season';
 
         // Combined waiver acceptance check (all three must be true)
         const allWaiversAccepted =
@@ -83,65 +75,112 @@ export function useTeamRegistration() {
           registrationData.waiverMedical &&
           registrationData.waiverMedia;
 
-        // Build registration payload
-        const payload = {
-          registration: {
-            source: 'direct',
-            team_id: registrationData.teamId,
-            player_first_name: registrationData.playerFirstName,
-            player_last_name: registrationData.playerLastName,
-            player_date_of_birth: registrationData.playerDob,
-            player_graduating_year: registrationData.playerGraduatingYear,
-            player_current_grade: registrationData.playerGrade,
-            player_gender: registrationData.playerGender,
-            jersey_size: registrationData.jerseySize,
-            position: registrationData.position || null,
-            medical_notes: registrationData.medicalNotes || null,
-            desired_jersey_number: registrationData.desiredJerseyNumber,
-            last_team_played_for: registrationData.lastTeamPlayedFor,
-            parent_first_name: registrationData.parentFirstName,
-            parent_last_name: registrationData.parentLastName,
-            parent_email: registrationData.parentEmail,
-            parent_phone: registrationData.parentPhone,
-            parent_address_street: registrationData.addressStreet,
-            parent_address_city: registrationData.addressCity,
-            parent_address_state: registrationData.addressState,
-            parent_address_zip: registrationData.addressZip,
-            parent_relationship: registrationData.relationship,
-            parent_home_phone: registrationData.parentHomePhone,
-            parent2_name: registrationData.parent2Name || null,
-            parent2_phone: registrationData.parent2Phone || null,
-            parent2_email: registrationData.parent2Email || null,
-            emergency_contact_name: registrationData.emergencyName,
-            emergency_contact_phone: registrationData.emergencyPhone,
-            emergency_contact_relationship: registrationData.emergencyRelationship || null,
+        let payload;
 
-            // Waivers
-            waiver_accepted: allWaiversAccepted,
-            waiver_accepted_at: allWaiversAccepted ? new Date().toISOString() : null,
-            waiver_liability: registrationData.waiverLiability,
-            waiver_medical: registrationData.waiverMedical,
-            waiver_media: registrationData.waiverMedia,
-            payment_terms_acknowledged: registrationData.paymentTermsAcknowledged || false,
+        if (isSeason) {
+          // Season registration: lighter payload (no payment fields)
+          payload = {
+            registration: {
+              source: 'direct',
+              registration_type: 'season',
+              season_id: registrationData.seasonId,
+              player_first_name: registrationData.playerFirstName,
+              player_last_name: registrationData.playerLastName,
+              player_date_of_birth: registrationData.playerDob,
+              player_graduating_year: registrationData.playerGraduatingYear,
+              player_current_grade: registrationData.playerGrade,
+              player_gender: registrationData.playerGender,
+              position: registrationData.position || null,
+              last_team_played_for: registrationData.lastTeamPlayedFor,
+              parent_first_name: registrationData.parentFirstName,
+              parent_last_name: registrationData.parentLastName,
+              parent_email: registrationData.parentEmail,
+              parent_phone: registrationData.parentPhone,
+              parent_address_street: registrationData.addressStreet,
+              parent_address_city: registrationData.addressCity,
+              parent_address_state: registrationData.addressState,
+              parent_address_zip: registrationData.addressZip,
+              parent_relationship: registrationData.relationship,
+              parent_home_phone: registrationData.parentHomePhone,
+              parent2_name: registrationData.parent2Name || null,
+              parent2_phone: registrationData.parent2Phone || null,
+              parent2_email: registrationData.parent2Email || null,
+              emergency_contact_name: registrationData.emergencyName,
+              emergency_contact_phone: registrationData.emergencyPhone,
+              emergency_contact_relationship: registrationData.emergencyRelationship || null,
+              waiver_accepted: allWaiversAccepted,
+              waiver_accepted_at: allWaiversAccepted ? new Date().toISOString() : null,
+              waiver_liability: registrationData.waiverLiability,
+              waiver_medical: registrationData.waiverMedical,
+              waiver_media: registrationData.waiverMedia,
+              payment_reference_id: registrationData.paymentReferenceId,
+              status: 'registered_for_tryouts',
+            },
+            turnstileToken,
+          };
+        } else {
+          // Team registration: full payload (existing logic)
+          let paymentStatus = 'pending';
+          if (registrationData.paymentPlanType === 'full' && registrationData.paymentConfirmed) {
+            paymentStatus = 'pending_verification';
+          } else if (registrationData.paymentPlanType === 'installment') {
+            paymentStatus = 'payment_plan_active';
+          } else if (registrationData.paymentPlanType === 'special_request') {
+            paymentStatus = 'awaiting_approval';
+          }
 
-            // Payment commitment fields
-            payment_plan_type: registrationData.paymentPlanType,
-            payment_plan_option: registrationData.paymentPlanOption || null,
-            initial_amount_due: registrationData.initialAmountDue,
-            remaining_balance: registrationData.remainingBalance,
-            payment_reference_id: registrationData.paymentReferenceId,
-            payment_confirmed: registrationData.paymentConfirmed || false,
-
-            // Special arrangement fields
-            special_request_reason: registrationData.specialRequestReason || null,
-            special_request_notes: registrationData.specialRequestNotes || null,
-
-            // Status
-            payment_status: paymentStatus,
-            status: registrationData.status || 'pending_payment',
-          },
-          turnstileToken,
-        };
+          payload = {
+            registration: {
+              source: 'direct',
+              registration_type: 'team',
+              team_id: registrationData.teamId,
+              player_first_name: registrationData.playerFirstName,
+              player_last_name: registrationData.playerLastName,
+              player_date_of_birth: registrationData.playerDob,
+              player_graduating_year: registrationData.playerGraduatingYear,
+              player_current_grade: registrationData.playerGrade,
+              player_gender: registrationData.playerGender,
+              jersey_size: registrationData.jerseySize,
+              position: registrationData.position || null,
+              medical_notes: registrationData.medicalNotes || null,
+              desired_jersey_number: registrationData.desiredJerseyNumber,
+              last_team_played_for: registrationData.lastTeamPlayedFor,
+              parent_first_name: registrationData.parentFirstName,
+              parent_last_name: registrationData.parentLastName,
+              parent_email: registrationData.parentEmail,
+              parent_phone: registrationData.parentPhone,
+              parent_address_street: registrationData.addressStreet,
+              parent_address_city: registrationData.addressCity,
+              parent_address_state: registrationData.addressState,
+              parent_address_zip: registrationData.addressZip,
+              parent_relationship: registrationData.relationship,
+              parent_home_phone: registrationData.parentHomePhone,
+              parent2_name: registrationData.parent2Name || null,
+              parent2_phone: registrationData.parent2Phone || null,
+              parent2_email: registrationData.parent2Email || null,
+              emergency_contact_name: registrationData.emergencyName,
+              emergency_contact_phone: registrationData.emergencyPhone,
+              emergency_contact_relationship: registrationData.emergencyRelationship || null,
+              waiver_accepted: allWaiversAccepted,
+              waiver_accepted_at: allWaiversAccepted ? new Date().toISOString() : null,
+              waiver_liability: registrationData.waiverLiability,
+              waiver_medical: registrationData.waiverMedical,
+              waiver_media: registrationData.waiverMedia,
+              payment_terms_acknowledged: registrationData.paymentTermsAcknowledged || false,
+              payment_plan_type: registrationData.paymentPlanType,
+              payment_plan_option: registrationData.paymentPlanOption || null,
+              initial_amount_due: registrationData.initialAmountDue,
+              remaining_balance: registrationData.remainingBalance,
+              payment_reference_id: registrationData.paymentReferenceId,
+              payment_confirmed: registrationData.paymentConfirmed || false,
+              special_request_reason: registrationData.specialRequestReason || null,
+              special_request_notes: registrationData.specialRequestNotes || null,
+              payment_status: paymentStatus,
+              status: registrationData.status || 'pending_payment',
+            },
+            turnstileToken,
+          };
+        }
 
         // Submit to serverless API
         const response = await fetch('/api/register', {

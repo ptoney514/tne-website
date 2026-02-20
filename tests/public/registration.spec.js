@@ -8,7 +8,7 @@ test.describe('Public Registration Page', () => {
   });
 
   test('should display registration page with heading', async ({ page }) => {
-    await expect(page.locator('h1').filter({ hasText: /Team Registration/i })).toBeVisible();
+    await expect(page.locator('h1').filter({ hasText: /Registration/i })).toBeVisible();
   });
 
   test('should display registration fees section', async ({ page }) => {
@@ -633,7 +633,7 @@ test.describe('Registration Wizard - Mobile Responsiveness', () => {
     await page.waitForSelector('h1', { timeout: 10000 });
 
     // Wizard should be visible
-    await expect(page.locator('h1').filter({ hasText: /Team Registration/i })).toBeVisible();
+    await expect(page.locator('h1').filter({ hasText: /Registration/i })).toBeVisible();
     await expect(page.getByRole('button', { name: /Continue/i })).toBeVisible();
   });
 
