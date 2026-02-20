@@ -86,6 +86,39 @@ export function validateStep4(formData) {
   return errors;
 }
 
+// Season registration validations (no team/jersey fields, requires seasonId)
+
+export function validateSeasonStep1(formData) {
+  const errors = {};
+
+  if (!formData.seasonId) errors.seasonId = 'Please select a season';
+  if (!formData.playerFirstName?.trim()) errors.playerFirstName = 'First name is required';
+  if (!formData.playerLastName?.trim()) errors.playerLastName = 'Last name is required';
+  if (!formData.playerDob) errors.playerDob = 'Date of birth is required';
+  if (!formData.playerGrade) errors.playerGrade = 'Grade is required';
+  if (!formData.playerGender) errors.playerGender = 'Gender is required';
+  if (!formData.lastTeamPlayedFor?.trim()) errors.lastTeamPlayedFor = 'Last team played for is required';
+
+  return errors;
+}
+
+export function validateSeasonStep3(formData) {
+  const errors = {};
+
+  if (!formData.waiverLiability) {
+    errors.waiverLiability = 'You must accept the liability waiver';
+  }
+  if (!formData.waiverMedical) {
+    errors.waiverMedical = 'You must accept the medical authorization';
+  }
+  if (!formData.waiverMedia) {
+    errors.waiverMedia = 'You must accept the media release';
+  }
+  // No paymentTermsAcknowledged for season registration
+
+  return errors;
+}
+
 // Calculate graduating year from current grade
 export function calculateGraduatingYear(grade) {
   const currentYear = new Date().getFullYear();

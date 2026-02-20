@@ -59,16 +59,24 @@ function checkRateLimit(ip) {
  */
 function validateRegistration(data) {
   const errors = [];
+  const isSeason = data.registration_type === 'season';
 
-  // Required player fields
-  if (!data.team_id) errors.push('Team is required');
+  // Season-specific validations
+  if (isSeason) {
+    if (!data.season_id) errors.push('Season is required');
+  } else {
+    // Team-specific validations
+    if (!data.team_id) errors.push('Team is required');
+    if (!data.jersey_size) errors.push('Jersey size is required');
+    if (!data.desired_jersey_number?.trim()) errors.push('Desired jersey number is required');
+  }
+
+  // Common player fields
   if (!data.player_first_name?.trim()) errors.push('Player first name is required');
   if (!data.player_last_name?.trim()) errors.push('Player last name is required');
   if (!data.player_date_of_birth) errors.push('Date of birth is required');
   if (!data.player_current_grade) errors.push('Grade is required');
   if (!data.player_gender) errors.push('Gender is required');
-  if (!data.jersey_size) errors.push('Jersey size is required');
-  if (!data.desired_jersey_number?.trim()) errors.push('Desired jersey number is required');
   if (!data.last_team_played_for?.trim()) errors.push('Last team played for is required');
 
   // Required parent fields
@@ -95,14 +103,16 @@ function validateRegistration(data) {
   if (!data.emergency_contact_name?.trim()) errors.push('Emergency contact name is required');
   if (!data.emergency_contact_phone?.trim()) errors.push('Emergency contact phone is required');
 
-  // Payment
-  if (!data.payment_plan_type) errors.push('Payment option is required');
-
-  // Waivers
+  // Waivers (all types)
   if (!data.waiver_liability) errors.push('Liability waiver acceptance is required');
   if (!data.waiver_medical) errors.push('Medical authorization is required');
   if (!data.waiver_media) errors.push('Media release is required');
-  if (!data.payment_terms_acknowledged) errors.push('Payment terms acknowledgment is required');
+
+  // Payment (team only)
+  if (!isSeason) {
+    if (!data.payment_plan_type) errors.push('Payment option is required');
+    if (!data.payment_terms_acknowledged) errors.push('Payment terms acknowledgment is required');
+  }
 
   return errors;
 }

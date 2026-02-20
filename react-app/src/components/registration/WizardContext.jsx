@@ -3,6 +3,12 @@ import { createContext, useContext, useReducer, useEffect, useCallback } from 'r
 const STORAGE_KEY = 'tne_registration_draft';
 
 const initialFormData = {
+  // Registration type: 'season' or 'team'
+  registrationType: '',
+
+  // Season registration fields
+  seasonId: '',
+
   // Step 1: Player & Team Info
   teamId: '',
   playerFirstName: '',
@@ -53,6 +59,7 @@ const initialFormData = {
 const initialState = {
   currentStep: 1,
   totalSteps: 4,
+  registrationType: null, // null = type selector, 'season' or 'team'
   formData: initialFormData,
   validationErrors: {},
   selectedTeam: null,
@@ -78,6 +85,7 @@ const ACTIONS = {
   CLEAR_VALIDATION_ERROR: 'CLEAR_VALIDATION_ERROR',
   SET_SELECTED_TEAM: 'SET_SELECTED_TEAM',
   SET_PAYMENT_REFERENCE_ID: 'SET_PAYMENT_REFERENCE_ID',
+  SET_REGISTRATION_TYPE: 'SET_REGISTRATION_TYPE',
   LOAD_DRAFT: 'LOAD_DRAFT',
   RESET: 'RESET',
 };
@@ -134,15 +142,33 @@ function wizardReducer(state, action) {
     case ACTIONS.SET_PAYMENT_REFERENCE_ID:
       return { ...state, paymentReferenceId: action.payload };
 
-    case ACTIONS.LOAD_DRAFT:
+    case ACTIONS.SET_REGISTRATION_TYPE: {
+      const type = action.payload;
+      return {
+        ...state,
+        registrationType: type,
+        totalSteps: type === 'season' ? 3 : 4,
+        formData: {
+          ...state.formData,
+          registrationType: type,
+        },
+        isDraft: true,
+      };
+    }
+
+    case ACTIONS.LOAD_DRAFT: {
+      const draftType = action.payload.registrationType || action.payload.formData?.registrationType || null;
       return {
         ...state,
         formData: { ...initialFormData, ...action.payload.formData },
         currentStep: action.payload.currentStep || 1,
+        registrationType: draftType,
+        totalSteps: draftType === 'season' ? 3 : 4,
         selectedTeam: action.payload.selectedTeam || null,
         paymentReferenceId: action.payload.paymentReferenceId || state.paymentReferenceId,
         isDraft: true,
       };
+    }
 
     case ACTIONS.RESET:
       return { ...initialState, paymentReferenceId: generateReferenceId() };
@@ -189,6 +215,7 @@ export function WizardProvider({ children, teams = [] }) {
           JSON.stringify({
             formData: state.formData,
             currentStep: state.currentStep,
+            registrationType: state.registrationType,
             selectedTeam: state.selectedTeam,
             paymentReferenceId: state.paymentReferenceId,
             savedAt: new Date().toISOString(),
@@ -198,7 +225,7 @@ export function WizardProvider({ children, teams = [] }) {
         console.error('Failed to save registration draft:', e);
       }
     }
-  }, [state.formData, state.currentStep, state.selectedTeam, state.paymentReferenceId, state.isDraft]);
+  }, [state.formData, state.currentStep, state.registrationType, state.selectedTeam, state.paymentReferenceId, state.isDraft]);
 
   // Update selected team when teamId changes
   useEffect(() => {
@@ -238,6 +265,10 @@ export function WizardProvider({ children, teams = [] }) {
     dispatch({ type: ACTIONS.CLEAR_VALIDATION_ERROR, payload: fieldName });
   }, []);
 
+  const setRegistrationType = useCallback((type) => {
+    dispatch({ type: ACTIONS.SET_REGISTRATION_TYPE, payload: type });
+  }, []);
+
   const clearDraft = useCallback(() => {
     localStorage.removeItem(STORAGE_KEY);
   }, []);
@@ -255,6 +286,7 @@ export function WizardProvider({ children, teams = [] }) {
     prevStep,
     updateField,
     updateFields,
+    setRegistrationType,
     setValidationErrors,
     clearValidationError,
     clearDraft,

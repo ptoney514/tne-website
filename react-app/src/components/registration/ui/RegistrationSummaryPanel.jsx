@@ -1,13 +1,66 @@
 import { useState } from 'react';
-import { ChevronDown, ChevronUp, Users, DollarSign, Shirt, CreditCard } from 'lucide-react';
+import { ChevronDown, ChevronUp, Users, DollarSign, Shirt, CreditCard, Info } from 'lucide-react';
 import { useWizard } from '../WizardContext';
 import { getPaymentPlanDetails } from '../../../constants/payments';
 
 export default function RegistrationSummaryPanel() {
-  const { formData, selectedTeam, currentStep } = useWizard();
+  const { formData, selectedTeam, currentStep, registrationType } = useWizard();
   const [isCollapsed, setIsCollapsed] = useState(false);
 
-  // Only show when team is selected
+  // Season mode: show static fee preview
+  if (registrationType === 'season') {
+    return (
+      <div className="rounded-3xl bg-white border border-neutral-300 shadow-sm overflow-hidden sticky top-24">
+        <button
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          className="w-full px-5 py-4 border-b border-neutral-200 bg-gradient-to-r from-blue-50 to-transparent flex items-center justify-between md:cursor-default"
+          aria-expanded={!isCollapsed}
+        >
+          <div className="flex items-center gap-2">
+            <div className="p-1.5 rounded-lg bg-blue-100">
+              <Info className="w-4 h-4 text-blue-600" />
+            </div>
+            <h2 className="text-lg font-semibold text-neutral-900">Season Fee Preview</h2>
+          </div>
+          <span className="md:hidden text-neutral-400">
+            {isCollapsed ? <ChevronDown className="w-5 h-5" /> : <ChevronUp className="w-5 h-5" />}
+          </span>
+        </button>
+
+        <div className={`${isCollapsed ? 'hidden md:block' : 'block'}`}>
+          <div className="px-5 py-4">
+            <div className="divide-y divide-neutral-100">
+              <div className="py-3 first:pt-0">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="font-medium text-neutral-900 text-sm">3rd-8th Girls</p>
+                  <span className="text-lg font-semibold text-neutral-900">$450</span>
+                </div>
+              </div>
+              <div className="py-3">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="font-medium text-neutral-900 text-sm">3rd-8th Boys</p>
+                  <span className="text-lg font-semibold text-neutral-900">$450</span>
+                </div>
+              </div>
+              <div className="py-3 last:pb-0">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="font-medium text-neutral-900 text-sm">Jr 3SSB</p>
+                  <span className="text-lg font-semibold text-tne-red">$1,400</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="px-5 py-3 bg-blue-50 border-t border-blue-200">
+            <p className="text-xs text-blue-800 font-medium">
+              No payment due until team placement. Fees apply after tryouts.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Team mode: existing dynamic panel (only show when team is selected)
   if (!selectedTeam) return null;
 
   const teamFee = parseFloat(selectedTeam.team_fee) || 0;
