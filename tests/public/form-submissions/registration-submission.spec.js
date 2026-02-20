@@ -10,6 +10,28 @@ import { generateRegistrationData } from '../../fixtures/mockData.js';
  */
 
 /**
+ * Navigate to registration page and select "Team Registration" if type selector appears.
+ * Since both tryouts + team registration are open, the type selector shows first.
+ */
+async function selectTeamRegistration(page) {
+  // Clear any saved registration draft to prevent stale state
+  await page.evaluate(() => localStorage.removeItem('tne_registration_draft'));
+
+  await page.waitForSelector('h1', { timeout: 15000 });
+
+  // Check if type selector is visible (both paths are open)
+  const typeSelector = page.getByText('How would you like to register?');
+  const isSelectorVisible = await typeSelector.isVisible().catch(() => false);
+
+  if (isSelectorVisible) {
+    // Click the "Register for a Team" card
+    await page.getByText('Register for a Team').click();
+    // Wait for team wizard to load
+    await page.waitForSelector('select#teamId', { timeout: 10000 });
+  }
+}
+
+/**
  * Helper to fill Step 1 - Player & Team
  */
 async function fillStep1(page, data) {
@@ -158,7 +180,7 @@ test.describe('Registration Form Submissions', () => {
     });
 
     await page.goto('/register');
-    await page.waitForSelector('h1', { timeout: 15000 });
+    await selectTeamRegistration(page);
   });
 
   // Test 12 varied registrations - verify form flow completes
@@ -209,7 +231,7 @@ test.describe('Registration Form Submissions', () => {
 test.describe('Registration Form - Payment Type Coverage', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/register');
-    await page.waitForSelector('h1', { timeout: 15000 });
+    await selectTeamRegistration(page);
   });
 
   test('should complete registration with Pay in Full', async ({ page }) => {
@@ -301,7 +323,7 @@ test.describe('Registration Form - Payment Type Coverage', () => {
 test.describe('Registration Form - Grade Coverage', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/register');
-    await page.waitForSelector('h1', { timeout: 15000 });
+    await selectTeamRegistration(page);
   });
 
   const grades = ['3', '4', '5', '6', '7', '8'];
@@ -343,7 +365,7 @@ test.describe('Registration Form - Grade Coverage', () => {
 test.describe('Registration Form - Navigation', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/register');
-    await page.waitForSelector('h1', { timeout: 15000 });
+    await selectTeamRegistration(page);
   });
 
   test('should navigate back and preserve data', async ({ page }) => {
@@ -357,7 +379,7 @@ test.describe('Registration Form - Navigation', () => {
     await expect(page.getByText('Parent/Guardian Information')).toBeVisible({ timeout: 5000 });
 
     // Go back to Step 1
-    await page.getByRole('button', { name: /Back/i }).click();
+    await page.getByRole('button', { name: 'Back', exact: true }).click();
 
     // Verify data is preserved
     await expect(page.locator('input#playerFirstName')).toHaveValue(testData.playerFirstName);
@@ -392,9 +414,9 @@ test.describe('Registration Form - Navigation', () => {
     await expect(page.locator('h3:has-text("Review & Confirm")')).toBeVisible({ timeout: 10000 });
 
     // Go back to Step 1
-    await page.getByRole('button', { name: /Back/i }).click(); // to Step 3
-    await page.getByRole('button', { name: /Back/i }).click(); // to Step 2
-    await page.getByRole('button', { name: /Back/i }).click(); // to Step 1
+    await page.getByRole('button', { name: 'Back', exact: true }).click(); // to Step 3
+    await page.getByRole('button', { name: 'Back', exact: true }).click(); // to Step 2
+    await page.getByRole('button', { name: 'Back', exact: true }).click(); // to Step 1
 
     // Verify Step 1 data preserved
     await expect(page.locator('input#playerFirstName')).toHaveValue(testData.playerFirstName);
@@ -406,7 +428,7 @@ test.describe('Registration Form - Mobile Responsiveness', () => {
 
   test('should display correctly on mobile', async ({ page }) => {
     await page.goto('/register');
-    await page.waitForSelector('h1', { timeout: 15000 });
+    await selectTeamRegistration(page);
 
     // Wizard should be visible
     await expect(page.locator('h1').filter({ hasText: /Registration/i })).toBeVisible();

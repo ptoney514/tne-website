@@ -7,6 +7,22 @@ import { test, expect } from '@playwright/test';
  * Tests common validation scenarios and edge cases to prevent regressions.
  */
 
+/**
+ * Navigate to registration page and select "Team Registration" if type selector appears.
+ */
+async function selectTeamRegistration(page) {
+  await page.evaluate(() => localStorage.removeItem('tne_registration_draft'));
+  await page.waitForSelector('h1', { timeout: 15000 });
+
+  const typeSelector = page.getByText('How would you like to register?');
+  const isSelectorVisible = await typeSelector.isVisible().catch(() => false);
+
+  if (isSelectorVisible) {
+    await page.getByText('Register for a Team').click();
+    await page.waitForSelector('select#teamId', { timeout: 10000 });
+  }
+}
+
 test.describe('Email Validation', () => {
   test.describe('Contact Form', () => {
     test.beforeEach(async ({ page }) => {
@@ -66,7 +82,7 @@ test.describe('Email Validation', () => {
   test.describe('Registration Form', () => {
     test.beforeEach(async ({ page }) => {
       await page.goto('/register');
-      await page.waitForSelector('h1', { timeout: 15000 });
+      await selectTeamRegistration(page);
 
       // Complete Step 1 to get to Step 2 where email is validated
       await page.waitForFunction(
@@ -113,7 +129,7 @@ test.describe('Email Validation', () => {
 test.describe('ZIP Code Validation', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/register');
-    await page.waitForSelector('h1', { timeout: 15000 });
+    await selectTeamRegistration(page);
 
     // Complete Step 1
     await page.waitForFunction(
@@ -200,7 +216,7 @@ test.describe('Required Field Validation', () => {
   test.describe('Registration Step 1', () => {
     test.beforeEach(async ({ page }) => {
       await page.goto('/register');
-      await page.waitForSelector('h1', { timeout: 15000 });
+      await selectTeamRegistration(page);
     });
 
     test('should require team selection', async ({ page }) => {
@@ -223,7 +239,7 @@ test.describe('Required Field Validation', () => {
   test.describe('Registration Step 2', () => {
     test.beforeEach(async ({ page }) => {
       await page.goto('/register');
-      await page.waitForSelector('h1', { timeout: 15000 });
+      await selectTeamRegistration(page);
 
       // Complete Step 1
       await page.waitForFunction(
@@ -256,9 +272,10 @@ test.describe('Required Field Validation', () => {
 });
 
 test.describe('Waiver Enforcement', () => {
+  test.setTimeout(60000);
   test.beforeEach(async ({ page }) => {
     await page.goto('/register');
-    await page.waitForSelector('h1', { timeout: 15000 });
+    await selectTeamRegistration(page);
 
     // Complete Steps 1-3 to get to Step 4
     await page.waitForFunction(
@@ -377,7 +394,7 @@ test.describe('Network Error Handling', () => {
 test.describe('Form Data Persistence', () => {
   test('should preserve form data on back navigation in registration', async ({ page }) => {
     await page.goto('/register');
-    await page.waitForSelector('h1', { timeout: 15000 });
+    await selectTeamRegistration(page);
 
     await page.waitForFunction(
       () => document.querySelector('select#teamId')?.options?.length > 1,
@@ -407,7 +424,7 @@ test.describe('Form Data Persistence', () => {
     await page.locator('input#parentFirstName').fill(testParentName);
 
     // Go back
-    await page.getByRole('button', { name: /Back/i }).click();
+    await page.getByRole('button', { name: 'Back', exact: true }).click();
 
     // Verify Step 1 data preserved
     await expect(page.locator('input#playerFirstName')).toHaveValue(testFirstName);
