@@ -19,7 +19,10 @@ export const seasons = pgTable(
     // Admin dashboard controls
     tryoutsOpen: boolean('tryouts_open').default(false),
     tryoutsLabel: text('tryouts_label'),
+    registrationOpen: boolean('registration_open').default(false),
+    registrationLabel: text('registration_label'),
     createdAt: timestamp('created_at').notNull().defaultNow(),
+    updatedAt: timestamp('updated_at').defaultNow(),
   },
   (table) => [
     // Index for quick active season lookup

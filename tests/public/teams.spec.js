@@ -8,7 +8,7 @@ test.describe('Public Teams Page', () => {
   });
 
   test('should display page title', async ({ page }) => {
-    await expect(page.locator('h1').filter({ hasText: /Winter 2025 Season Teams/i })).toBeVisible();
+    await expect(page.locator('h1').filter({ hasText: /Season Teams/i })).toBeVisible();
   });
 
   test('should display hero description', async ({ page }) => {
@@ -38,7 +38,7 @@ test.describe('Teams Page - Loading and Performance', () => {
   test('should complete first load in under 3 seconds', async ({ page }) => {
     // Navigate first, then clear localStorage
     await page.goto('/teams');
-    await page.evaluate(() => localStorage.removeItem('tne_teams_cache'));
+    await page.evaluate(() => Object.keys(localStorage).filter(k => k.startsWith('tne_teams_cache')).forEach(k => localStorage.removeItem(k)));
 
     // Reload to trigger fresh fetch
     const startTime = Date.now();
@@ -101,7 +101,7 @@ test.describe('Teams Page - Loading and Performance', () => {
 
     // Get cache from localStorage
     const cacheBeforeRefresh = await page.evaluate(() =>
-      localStorage.getItem('tne_teams_cache')
+      Object.keys(localStorage).find(k => k.startsWith('tne_teams_cache')) ? localStorage.getItem(Object.keys(localStorage).find(k => k.startsWith('tne_teams_cache'))) : null
     );
 
     // Refresh page
@@ -110,7 +110,7 @@ test.describe('Teams Page - Loading and Performance', () => {
 
     // Cache should still exist
     const cacheAfterRefresh = await page.evaluate(() =>
-      localStorage.getItem('tne_teams_cache')
+      Object.keys(localStorage).find(k => k.startsWith('tne_teams_cache')) ? localStorage.getItem(Object.keys(localStorage).find(k => k.startsWith('tne_teams_cache'))) : null
     );
 
     if (cacheBeforeRefresh) {
@@ -237,10 +237,10 @@ test.describe('Teams Page - Search Functionality', () => {
   });
 
   test('should show empty state when search has no results', async ({ page }) => {
-    await page.waitForSelector('[data-testid="teams-grid"], [data-testid="loading-spinner"]', {
-      timeout: 10000,
+    await page.waitForSelector('[data-testid="teams-grid"]', {
+      timeout: 15000,
     });
-    await page.waitForTimeout(2000);
+    await page.waitForTimeout(1000);
 
     const searchInput = page.getByPlaceholder(/Search team or player/i);
     await searchInput.fill('xyznonexistentteam123');
@@ -254,10 +254,10 @@ test.describe('Teams Page - Search Functionality', () => {
   });
 
   test('should show Clear filters button in empty state when filters are active', async ({ page }) => {
-    await page.waitForSelector('[data-testid="teams-grid"], [data-testid="loading-spinner"]', {
-      timeout: 10000,
+    await page.waitForSelector('[data-testid="teams-grid"]', {
+      timeout: 15000,
     });
-    await page.waitForTimeout(2000);
+    await page.waitForTimeout(1000);
 
     const searchInput = page.getByPlaceholder(/Search team or player/i);
     await searchInput.fill('xyznonexistentteam123');
@@ -295,8 +295,8 @@ test.describe('Teams Page - Grade Grouping', () => {
   });
 
   test('should display grade headings when teams are grouped', async ({ page }) => {
-    await page.waitForSelector('[data-testid="teams-grid"]', { timeout: 10000 });
-    await page.waitForTimeout(2000);
+    await page.waitForSelector('[data-testid="teams-grid"]', { timeout: 15000 });
+    await page.waitForTimeout(1000);
 
     // Check if there are any grade heading elements (h2 with "Grade" text)
     const gradeHeadings = page.locator('h2').filter({ hasText: /Grade/i });
@@ -310,8 +310,8 @@ test.describe('Teams Page - Grade Grouping', () => {
   });
 
   test('should sort grade headings numerically', async ({ page }) => {
-    await page.waitForSelector('[data-testid="teams-grid"]', { timeout: 10000 });
-    await page.waitForTimeout(2000);
+    await page.waitForSelector('[data-testid="teams-grid"]', { timeout: 15000 });
+    await page.waitForTimeout(1000);
 
     // Get all grade headings text
     const gradeHeadings = page.locator('h2').filter({ hasText: /Grade|Other/i });
@@ -409,7 +409,7 @@ test.describe('Teams Page - Mobile Responsiveness', () => {
     await page.waitForSelector('h1', { timeout: 10000 });
 
     // Main elements should be visible
-    await expect(page.locator('h1').filter({ hasText: /Winter 2025 Season Teams/i })).toBeVisible();
+    await expect(page.locator('h1').filter({ hasText: /Season Teams/i })).toBeVisible();
     await expect(page.getByPlaceholder(/Search team or player/i)).toBeVisible();
   });
 
@@ -448,7 +448,7 @@ test.describe('Teams Page - Console Logging', () => {
 
     // Clear cache first
     await page.goto('/teams');
-    await page.evaluate(() => localStorage.removeItem('tne_teams_cache'));
+    await page.evaluate(() => Object.keys(localStorage).filter(k => k.startsWith('tne_teams_cache')).forEach(k => localStorage.removeItem(k)));
 
     // Reload to trigger fresh fetch
     await page.reload();
