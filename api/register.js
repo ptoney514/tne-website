@@ -68,6 +68,8 @@ function validateRegistration(data) {
   if (!data.player_current_grade) errors.push('Grade is required');
   if (!data.player_gender) errors.push('Gender is required');
   if (!data.jersey_size) errors.push('Jersey size is required');
+  if (!data.desired_jersey_number?.trim()) errors.push('Desired jersey number is required');
+  if (!data.last_team_played_for?.trim()) errors.push('Last team played for is required');
 
   // Required parent fields
   if (!data.parent_first_name?.trim()) errors.push('Parent first name is required');
@@ -78,6 +80,7 @@ function validateRegistration(data) {
   }
   if (!data.parent_phone?.trim()) errors.push('Phone is required');
   if (!data.parent_relationship) errors.push('Relationship is required');
+  if (!data.parent_home_phone?.trim()) errors.push('Home phone is required');
 
   // Required address fields
   if (!data.parent_address_street?.trim()) errors.push('Street address is required');

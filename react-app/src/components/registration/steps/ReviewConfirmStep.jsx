@@ -105,6 +105,16 @@ export default function ReviewConfirmStep({ onSubmit, isSubmitting }) {
           <p className="text-sm text-neutral-600">
             Jersey Size: {formData.jerseySize}
           </p>
+          {formData.desiredJerseyNumber && (
+            <p className="text-sm text-neutral-600">
+              Desired Jersey #: {formData.desiredJerseyNumber}
+            </p>
+          )}
+          {formData.lastTeamPlayedFor && (
+            <p className="text-sm text-neutral-600">
+              Last Team: {formData.lastTeamPlayedFor}
+            </p>
+          )}
         </div>
 
         <div className="rounded-xl bg-white border border-neutral-200 p-4">
@@ -115,7 +125,22 @@ export default function ReviewConfirmStep({ onSubmit, isSubmitting }) {
             {formData.parentFirstName} {formData.parentLastName}
           </p>
           <p className="text-sm text-neutral-600">{formData.parentEmail}</p>
-          <p className="text-sm text-neutral-600">{formData.parentPhone}</p>
+          <p className="text-sm text-neutral-600">Cell: {formData.parentPhone}</p>
+          {formData.parentHomePhone && (
+            <p className="text-sm text-neutral-600">Home: {formData.parentHomePhone}</p>
+          )}
+          {formData.parent2Name && (
+            <div className="mt-2 pt-2 border-t border-neutral-100">
+              <p className="text-xs text-neutral-500 uppercase">Parent/Guardian 2</p>
+              <p className="text-sm font-medium text-neutral-900">{formData.parent2Name}</p>
+              {formData.parent2Phone && (
+                <p className="text-sm text-neutral-600">{formData.parent2Phone}</p>
+              )}
+              {formData.parent2Email && (
+                <p className="text-sm text-neutral-600">{formData.parent2Email}</p>
+              )}
+            </div>
+          )}
         </div>
       </div>
 

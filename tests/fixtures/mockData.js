@@ -58,6 +58,18 @@ const messageTemplates = [
   'We are interested in booking your facility for a youth basketball event. Please provide availability.'
 ];
 
+const previousTeams = [
+  'Omaha Stars', 'Lincoln Lightning', 'Bellevue Bulldogs',
+  'Papillion Panthers', 'Elkhorn Eagles', 'Millard Mustangs',
+  'Council Bluffs Cobras', 'La Vista Leopards', 'Ralston Rams',
+  'Gretna Griffins', 'Bennington Badgers', 'None'
+];
+
+const parent2Names = [
+  'Robert Johnson', 'Maria Williams', 'Thomas Brown', 'Linda Jones',
+  'James Garcia', 'Patricia Miller', null, null, null, null, null, null
+];
+
 const specialRequestReasons = [
   'financial_hardship',
   'timing_issue',
@@ -130,13 +142,19 @@ export function generateRegistrationData(index) {
     playerGender: gender,
     jerseySize: jerseySizes[index % jerseySizes.length],
     position: positions[index % positions.length],
+    desiredJerseyNumber: String((index * 7 + 3) % 99 + 1),
+    lastTeamPlayedFor: previousTeams[index % previousTeams.length],
 
     // Parent info
     parentFirstName: firstNames[(index + 3) % firstNames.length],
     parentLastName: lastNames[index % lastNames.length],
     parentEmail: generateTestEmail('reg', index),
     parentPhone: generatePhone(),
+    parentHomePhone: generatePhone(),
     relationship: relationships[index % relationships.length],
+    parent2Name: parent2Names[index % parent2Names.length],
+    parent2Phone: parent2Names[index % parent2Names.length] ? generatePhone() : '',
+    parent2Email: parent2Names[index % parent2Names.length] ? generateTestEmail('parent2', index) : '',
 
     // Address
     addressStreet: streets[index % streets.length],

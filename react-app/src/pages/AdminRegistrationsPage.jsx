@@ -294,6 +294,18 @@ function RegistrationDetailPanel({
                   {registration.position || '-'}
                 </p>
               </div>
+              <div>
+                <p className="text-xs text-stone-500">Desired Jersey #</p>
+                <p className="text-sm font-medium text-stone-900">
+                  {registration.desired_jersey_number || '-'}
+                </p>
+              </div>
+              <div>
+                <p className="text-xs text-stone-500">Last Team</p>
+                <p className="text-sm font-medium text-stone-900">
+                  {registration.last_team_played_for || '-'}
+                </p>
+              </div>
             </div>
             {registration.medical_notes && (
               <div>
@@ -326,7 +338,15 @@ function RegistrationDetailPanel({
               <a href={`tel:${registration.parent_phone}`} className="text-sm text-stone-700">
                 {registration.parent_phone}
               </a>
+              <span className="text-xs text-stone-400">Cell</span>
             </div>
+            {registration.parent_home_phone && (
+              <div className="flex items-center gap-2">
+                <Phone className="w-4 h-4 text-stone-400" />
+                <span className="text-sm text-stone-700">{registration.parent_home_phone}</span>
+                <span className="text-xs text-stone-400">Home</span>
+              </div>
+            )}
             {registration.parent_address_street && (
               <div>
                 <p className="text-xs text-stone-500">Address</p>
@@ -338,6 +358,30 @@ function RegistrationDetailPanel({
             )}
           </div>
         </div>
+
+        {/* Parent/Guardian 2 */}
+        {registration.parent2_name && (
+          <div className="space-y-3">
+            <h3 className="text-sm font-semibold text-stone-900 uppercase tracking-wide">Parent/Guardian 2</h3>
+            <div className="bg-stone-50 rounded-xl p-4 space-y-2">
+              <p className="text-sm font-medium text-stone-900">{registration.parent2_name}</p>
+              {registration.parent2_phone && (
+                <div className="flex items-center gap-2">
+                  <Phone className="w-4 h-4 text-stone-400" />
+                  <span className="text-sm text-stone-700">{registration.parent2_phone}</span>
+                </div>
+              )}
+              {registration.parent2_email && (
+                <div className="flex items-center gap-2">
+                  <Mail className="w-4 h-4 text-stone-400" />
+                  <a href={`mailto:${registration.parent2_email}`} className="text-sm text-tne-red hover:underline">
+                    {registration.parent2_email}
+                  </a>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Emergency Contact */}
         {registration.emergency_contact_name && (
@@ -508,7 +552,9 @@ export default function AdminRegistrationsPage() {
 
     const headers = [
       'Player First Name', 'Player Last Name', 'Grade', 'Gender', 'DOB',
-      'Parent Name', 'Parent Email', 'Parent Phone', 'Address',
+      'Desired Jersey #', 'Last Team Played For',
+      'Parent Name', 'Parent Email', 'Parent Cell Phone', 'Parent Home Phone', 'Address',
+      'Parent 2 Name', 'Parent 2 Phone', 'Parent 2 Email',
       'Team', 'Status', 'Payment Status', 'Submitted At'
     ];
 
@@ -518,10 +564,16 @@ export default function AdminRegistrationsPage() {
       r.player_current_grade,
       r.player_gender,
       r.player_date_of_birth,
+      r.desired_jersey_number || '',
+      r.last_team_played_for || '',
       `${r.parent_first_name} ${r.parent_last_name}`,
       r.parent_email,
       r.parent_phone,
+      r.parent_home_phone || '',
       `${r.parent_address_street || ''}, ${r.parent_address_city || ''}, ${r.parent_address_state || ''} ${r.parent_address_zip || ''}`,
+      r.parent2_name || '',
+      r.parent2_phone || '',
+      r.parent2_email || '',
       r.team?.name || '',
       r.status,
       r.payment_status,

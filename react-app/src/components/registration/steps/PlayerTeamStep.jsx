@@ -288,6 +288,29 @@ export default function PlayerTeamStep() {
             )}
           </div>
 
+          <div data-error={!!validationErrors.desiredJerseyNumber}>
+            <label htmlFor="desiredJerseyNumber" className="block text-sm font-medium text-neutral-700 mb-1">
+              Desired Jersey # *
+            </label>
+            <input
+              type="text"
+              id="desiredJerseyNumber"
+              name="desiredJerseyNumber"
+              value={formData.desiredJerseyNumber}
+              onChange={handleChange}
+              className={inputClass('desiredJerseyNumber')}
+              placeholder="e.g. 23"
+            />
+            {validationErrors.desiredJerseyNumber && (
+              <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+                <AlertCircle className="w-4 h-4" />
+                {validationErrors.desiredJerseyNumber}
+              </p>
+            )}
+          </div>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2">
           <div>
             <label htmlFor="position" className="block text-sm font-medium text-neutral-700 mb-1">
               Position Preference
@@ -305,6 +328,27 @@ export default function PlayerTeamStep() {
                 </option>
               ))}
             </select>
+          </div>
+
+          <div data-error={!!validationErrors.lastTeamPlayedFor}>
+            <label htmlFor="lastTeamPlayedFor" className="block text-sm font-medium text-neutral-700 mb-1">
+              Last Team Played For *
+            </label>
+            <input
+              type="text"
+              id="lastTeamPlayedFor"
+              name="lastTeamPlayedFor"
+              value={formData.lastTeamPlayedFor}
+              onChange={handleChange}
+              className={inputClass('lastTeamPlayedFor')}
+              placeholder="e.g. Omaha Stars"
+            />
+            {validationErrors.lastTeamPlayedFor && (
+              <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+                <AlertCircle className="w-4 h-4" />
+                {validationErrors.lastTeamPlayedFor}
+              </p>
+            )}
           </div>
         </div>
       </div>
