@@ -4,7 +4,7 @@ import { db } from '../lib/db';
 import { players, registrations, seasons, teamRoster, teams } from '../lib/schema';
 
 export const config = {
-  runtime: 'edge',
+  runtime: 'nodejs',
 };
 
 function calculateGraduatingYear(gradeValue: unknown): number {
