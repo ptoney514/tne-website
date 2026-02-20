@@ -47,6 +47,7 @@ export default function ParentContactStep() {
     if (!formData.parentLastName?.trim()) return false;
     if (!formData.parentEmail?.trim()) return false;
     if (!formData.parentPhone?.trim()) return false;
+    if (!formData.parentHomePhone?.trim()) return false;
     if (!formData.relationship) return false;
 
     // Address required fields
@@ -66,7 +67,7 @@ export default function ParentContactStep() {
     const { name, value } = e.target;
 
     // Format phone numbers
-    if (name === 'parentPhone' || name === 'emergencyPhone') {
+    if (name === 'parentPhone' || name === 'parentHomePhone' || name === 'emergencyPhone' || name === 'parent2Phone') {
       updateField(name, formatPhoneNumber(value));
     } else {
       updateField(name, value);
@@ -170,7 +171,7 @@ export default function ParentContactStep() {
         <div className="grid gap-4 sm:grid-cols-2">
           <div data-error={!!validationErrors.parentPhone}>
             <label htmlFor="parentPhone" className="block text-sm font-medium text-neutral-700 mb-1">
-              Phone Number *
+              Cell Phone *
             </label>
             <input
               type="tel"
@@ -189,6 +190,29 @@ export default function ParentContactStep() {
             )}
           </div>
 
+          <div data-error={!!validationErrors.parentHomePhone}>
+            <label htmlFor="parentHomePhone" className="block text-sm font-medium text-neutral-700 mb-1">
+              Home Phone *
+            </label>
+            <input
+              type="tel"
+              id="parentHomePhone"
+              name="parentHomePhone"
+              value={formData.parentHomePhone}
+              onChange={handleChange}
+              className={inputClass('parentHomePhone')}
+              placeholder="(402) 555-0123"
+            />
+            {validationErrors.parentHomePhone && (
+              <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+                <AlertCircle className="w-4 h-4" />
+                {validationErrors.parentHomePhone}
+              </p>
+            )}
+          </div>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2">
           <div data-error={!!validationErrors.relationship}>
             <label htmlFor="relationship" className="block text-sm font-medium text-neutral-700 mb-1">
               Relationship to Player *
@@ -301,6 +325,69 @@ export default function ParentContactStep() {
               <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
                 <AlertCircle className="w-4 h-4" />
                 {validationErrors.addressZip}
+              </p>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Parent/Guardian 2 (Optional) */}
+      <div className="space-y-4 pt-4 border-t border-neutral-200">
+        <h3 className="text-sm font-medium text-neutral-900 uppercase tracking-wide">
+          Parent/Guardian 2 (Optional)
+        </h3>
+        <p className="text-sm text-neutral-500 -mt-2">
+          Provide a second parent or guardian if applicable
+        </p>
+
+        <div data-error={!!validationErrors.parent2Name}>
+          <label htmlFor="parent2Name" className="block text-sm font-medium text-neutral-700 mb-1">
+            Full Name
+          </label>
+          <input
+            type="text"
+            id="parent2Name"
+            name="parent2Name"
+            value={formData.parent2Name}
+            onChange={handleChange}
+            className={inputClass('parent2Name')}
+            placeholder="First and Last Name"
+          />
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div>
+            <label htmlFor="parent2Phone" className="block text-sm font-medium text-neutral-700 mb-1">
+              Cell Phone
+            </label>
+            <input
+              type="tel"
+              id="parent2Phone"
+              name="parent2Phone"
+              value={formData.parent2Phone}
+              onChange={handleChange}
+              className={inputClass('parent2Phone')}
+              placeholder="(402) 555-0123"
+            />
+          </div>
+
+          <div data-error={!!validationErrors.parent2Email}>
+            <label htmlFor="parent2Email" className="block text-sm font-medium text-neutral-700 mb-1">
+              Email
+            </label>
+            <input
+              type="email"
+              id="parent2Email"
+              name="parent2Email"
+              value={formData.parent2Email}
+              onChange={handleChange}
+              className={inputClass('parent2Email')}
+              placeholder="email@example.com"
+            />
+            {validationErrors.parent2Email && (
+              <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+                <AlertCircle className="w-4 h-4" />
+                {validationErrors.parent2Email}
               </p>
             )}
           </div>

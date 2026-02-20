@@ -41,6 +41,8 @@ export const registrations = pgTable(
     jerseySize: text('jersey_size'),
     position: text('position'),
     medicalNotes: text('medical_notes'),
+    desiredJerseyNumber: text('desired_jersey_number'),
+    lastTeamPlayedFor: text('last_team_played_for'),
     // Parent info
     parentFirstName: text('parent_first_name').notNull(),
     parentLastName: text('parent_last_name').notNull(),
@@ -51,6 +53,10 @@ export const registrations = pgTable(
     parentAddressState: text('parent_address_state'),
     parentAddressZip: text('parent_address_zip'),
     parentRelationship: text('parent_relationship'),
+    parentHomePhone: text('parent_home_phone'),
+    parent2Name: text('parent2_name'),
+    parent2Phone: text('parent2_phone'),
+    parent2Email: text('parent2_email'),
     // Emergency contact
     emergencyContactName: text('emergency_contact_name').notNull(),
     emergencyContactPhone: text('emergency_contact_phone').notNull(),

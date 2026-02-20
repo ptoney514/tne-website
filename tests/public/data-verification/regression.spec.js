@@ -81,6 +81,8 @@ test.describe('Email Validation', () => {
       await page.locator('select#playerGrade').selectOption('5');
       await page.locator('input[name="playerGender"][value="male"]').check();
       await page.locator('select#jerseySize').selectOption('YM');
+      await page.locator('input#desiredJerseyNumber').fill('23');
+      await page.locator('input#lastTeamPlayedFor').fill('Omaha Stars');
       await page.getByRole('button', { name: /Continue/i }).click();
 
       await expect(page.getByText('Parent/Guardian Information')).toBeVisible({ timeout: 5000 });
@@ -91,6 +93,7 @@ test.describe('Email Validation', () => {
       await page.locator('input#parentLastName').fill('Parent');
       await page.locator('input#parentEmail').fill('invalid-email');
       await page.locator('input#parentPhone').fill('4025551234');
+      await page.locator('input#parentHomePhone').fill('4025559876');
       await page.locator('select#relationship').selectOption('mother');
       await page.locator('input#addressStreet').fill('123 Main St');
       await page.locator('input#addressCity').fill('Omaha');
@@ -125,6 +128,8 @@ test.describe('ZIP Code Validation', () => {
     await page.locator('select#playerGrade').selectOption('5');
     await page.locator('input[name="playerGender"][value="male"]').check();
     await page.locator('select#jerseySize').selectOption('YM');
+    await page.locator('input#desiredJerseyNumber').fill('23');
+    await page.locator('input#lastTeamPlayedFor').fill('Omaha Stars');
     await page.getByRole('button', { name: /Continue/i }).click();
 
     await expect(page.getByText('Parent/Guardian Information')).toBeVisible({ timeout: 5000 });
@@ -135,6 +140,7 @@ test.describe('ZIP Code Validation', () => {
     await page.locator('input#parentLastName').fill('Parent');
     await page.locator('input#parentEmail').fill('test@example.com');
     await page.locator('input#parentPhone').fill('4025551234');
+    await page.locator('input#parentHomePhone').fill('4025559876');
     await page.locator('select#relationship').selectOption('mother');
     await page.locator('input#addressStreet').fill('123 Main St');
     await page.locator('input#addressCity').fill('Omaha');
@@ -154,6 +160,7 @@ test.describe('ZIP Code Validation', () => {
     await page.locator('input#parentLastName').fill('Parent');
     await page.locator('input#parentEmail').fill('test@example.com');
     await page.locator('input#parentPhone').fill('4025551234');
+    await page.locator('input#parentHomePhone').fill('4025559876');
     await page.locator('select#relationship').selectOption('mother');
     await page.locator('input#addressStreet').fill('123 Main St');
     await page.locator('input#addressCity').fill('Omaha');
@@ -173,6 +180,7 @@ test.describe('ZIP Code Validation', () => {
     await page.locator('input#parentLastName').fill('Parent');
     await page.locator('input#parentEmail').fill('test@example.com');
     await page.locator('input#parentPhone').fill('4025551234');
+    await page.locator('input#parentHomePhone').fill('4025559876');
     await page.locator('select#relationship').selectOption('mother');
     await page.locator('input#addressStreet').fill('123 Main St');
     await page.locator('input#addressCity').fill('Omaha');
@@ -230,6 +238,8 @@ test.describe('Required Field Validation', () => {
       await page.locator('select#playerGrade').selectOption('5');
       await page.locator('input[name="playerGender"][value="male"]').check();
       await page.locator('select#jerseySize').selectOption('YM');
+      await page.locator('input#desiredJerseyNumber').fill('23');
+      await page.locator('input#lastTeamPlayedFor').fill('Omaha Stars');
       await page.getByRole('button', { name: /Continue/i }).click();
 
       await expect(page.getByText('Parent/Guardian Information')).toBeVisible({ timeout: 5000 });
@@ -264,6 +274,8 @@ test.describe('Waiver Enforcement', () => {
     await page.locator('select#playerGrade').selectOption('5');
     await page.locator('input[name="playerGender"][value="male"]').check();
     await page.locator('select#jerseySize').selectOption('YM');
+    await page.locator('input#desiredJerseyNumber').fill('23');
+    await page.locator('input#lastTeamPlayedFor').fill('Omaha Stars');
     await page.getByRole('button', { name: /Continue/i }).click();
 
     // Step 2
@@ -272,6 +284,7 @@ test.describe('Waiver Enforcement', () => {
     await page.locator('input#parentLastName').fill('Parent');
     await page.locator('input#parentEmail').fill('test@example.com');
     await page.locator('input#parentPhone').fill('4025551234');
+    await page.locator('input#parentHomePhone').fill('4025559876');
     await page.locator('select#relationship').selectOption('mother');
     await page.locator('input#addressStreet').fill('123 Main St');
     await page.locator('input#addressCity').fill('Omaha');
@@ -382,6 +395,8 @@ test.describe('Form Data Persistence', () => {
     await page.locator('select#playerGrade').selectOption('6');
     await page.locator('input[name="playerGender"][value="female"]').check();
     await page.locator('select#jerseySize').selectOption('YL');
+    await page.locator('input#desiredJerseyNumber').fill('10');
+    await page.locator('input#lastTeamPlayedFor').fill('Lincoln Lightning');
     await page.getByRole('button', { name: /Continue/i }).click();
 
     // Wait for Step 2

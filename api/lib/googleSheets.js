@@ -135,10 +135,16 @@ export async function appendRegistration(registration) {
       registration.special_request_reason || '',    // special_request_reason
       registration.special_request_notes || '',     // special_request_notes
       registration.source || 'direct',              // registration_source
+      registration.desired_jersey_number || '',      // desired_jersey_number
+      registration.last_team_played_for || '',       // last_team_played_for
+      registration.parent_home_phone || '',          // parent_home_phone
+      registration.parent2_name || '',               // parent2_name
+      registration.parent2_phone || '',              // parent2_phone
+      registration.parent2_email || '',              // parent2_email
     ];
 
     // Append to Google Sheets
-    const range = 'Registrations!A:AD'; // Columns A through AD (30 columns)
+    const range = 'Registrations!A:AJ'; // Columns A through AJ (36 columns)
     const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent(range)}:append?valueInputOption=RAW&insertDataOption=INSERT_ROWS`;
 
     const response = await fetch(url, {

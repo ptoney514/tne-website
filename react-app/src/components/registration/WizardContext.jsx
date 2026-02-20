@@ -12,6 +12,8 @@ const initialFormData = {
   playerGender: '',
   jerseySize: '',
   position: '',
+  desiredJerseyNumber: '',
+  lastTeamPlayedFor: '',
 
   // Step 2: Parent & Emergency Contact
   parentFirstName: '',
@@ -26,6 +28,10 @@ const initialFormData = {
   emergencyName: '',
   emergencyPhone: '',
   emergencyRelationship: '',
+  parentHomePhone: '',
+  parent2Name: '',
+  parent2Phone: '',
+  parent2Email: '',
 
   // Step 3: Payment Commitment
   paymentPlanType: '', // 'full', 'installment', 'special_request'

@@ -34,6 +34,10 @@ async function fillStep1(page, data) {
   if (data.position) {
     await page.locator('select#position').selectOption(data.position);
   }
+
+  // New required fields
+  await page.locator('input#desiredJerseyNumber').fill(data.desiredJerseyNumber || '1');
+  await page.locator('input#lastTeamPlayedFor').fill(data.lastTeamPlayedFor || 'None');
 }
 
 /**
@@ -44,7 +48,20 @@ async function fillStep2(page, data) {
   await page.locator('input#parentLastName').fill(data.parentLastName);
   await page.locator('input#parentEmail').fill(data.parentEmail);
   await page.locator('input#parentPhone').fill(data.parentPhone);
+  await page.locator('input#parentHomePhone').fill(data.parentHomePhone || '4025550000');
   await page.locator('select#relationship').selectOption(data.relationship);
+
+  // Optional Parent 2
+  if (data.parent2Name) {
+    await page.locator('input#parent2Name').fill(data.parent2Name);
+    if (data.parent2Phone) {
+      await page.locator('input#parent2Phone').fill(data.parent2Phone);
+    }
+    if (data.parent2Email) {
+      await page.locator('input#parent2Email').fill(data.parent2Email);
+    }
+  }
+
   await page.locator('input#addressStreet').fill(data.addressStreet);
   await page.locator('input#addressCity').fill(data.addressCity);
   await page.locator('select#addressState').selectOption(data.addressState);
@@ -310,6 +327,8 @@ test.describe('Registration Form - Grade Coverage', () => {
       await page.locator('select#playerGrade').selectOption(grade);
       await page.locator(`input[name="playerGender"][value="${testData.playerGender}"]`).check();
       await page.locator('select#jerseySize').selectOption(testData.jerseySize);
+      await page.locator('input#desiredJerseyNumber').fill(testData.desiredJerseyNumber || '1');
+      await page.locator('input#lastTeamPlayedFor').fill(testData.lastTeamPlayedFor || 'None');
 
       // Verify grade is selected
       await expect(page.locator('select#playerGrade')).toHaveValue(grade);

@@ -12,6 +12,10 @@ test-results/
 .vscode/
 .idea/
 
+# Tool-generated
+.codex/
+.playwright-mcp/
+
 # Environment
 .env
 .env.local

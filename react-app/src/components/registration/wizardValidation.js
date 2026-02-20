@@ -10,6 +10,8 @@ export function validateStep1(formData) {
   if (!formData.playerGrade) errors.playerGrade = 'Grade is required';
   if (!formData.playerGender) errors.playerGender = 'Gender is required';
   if (!formData.jerseySize) errors.jerseySize = 'Jersey size is required';
+  if (!formData.desiredJerseyNumber?.trim()) errors.desiredJerseyNumber = 'Desired jersey number is required';
+  if (!formData.lastTeamPlayedFor?.trim()) errors.lastTeamPlayedFor = 'Last team played for is required';
 
   return errors;
 }
@@ -31,6 +33,10 @@ export function validateStep2(formData) {
   if (!formData.addressZip?.trim()) errors.addressZip = 'ZIP code is required';
   else if (!/^\d{5}$/.test(formData.addressZip)) {
     errors.addressZip = 'Please enter a valid 5-digit ZIP code';
+  }
+  if (!formData.parentHomePhone?.trim()) errors.parentHomePhone = 'Home phone is required';
+  if (formData.parent2Email?.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(formData.parent2Email)) {
+    errors.parent2Email = 'Please enter a valid email address';
   }
   if (!formData.emergencyName?.trim()) errors.emergencyName = 'Emergency contact name is required';
   if (!formData.emergencyPhone?.trim()) errors.emergencyPhone = 'Emergency contact phone is required';
