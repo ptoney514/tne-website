@@ -145,12 +145,21 @@ function ErrorState({ error }) {
   );
 }
 
-function EmptyState({ hasFilters, onClearFilters }) {
+function EmptyState({ hasFilters, onClearFilters, isGirlsProgram }) {
   return (
     <div className="flex flex-col items-center justify-center py-20">
       <Search className="w-8 h-8 text-neutral-300 mb-4" />
-      <p className="text-neutral-700 font-medium mb-1">No teams found</p>
-      <p className="text-neutral-500 text-sm mb-4">Try adjusting your filters or search terms.</p>
+      {isGirlsProgram ? (
+        <>
+          <p className="text-neutral-700 font-medium mb-1">Girls teams are being formed</p>
+          <p className="text-neutral-500 text-sm mb-4">Check back soon for updates!</p>
+        </>
+      ) : (
+        <>
+          <p className="text-neutral-700 font-medium mb-1">No teams found</p>
+          <p className="text-neutral-500 text-sm mb-4">Try adjusting your filters or search terms.</p>
+        </>
+      )}
       {hasFilters && (
         <button
           onClick={onClearFilters}
@@ -235,7 +244,6 @@ export default function TeamsPage() {
   // Grade options
   const gradeOptions = [
     { value: 'all', label: 'All Grades' },
-    { value: '3', label: '3rd Grade' },
     { value: '4', label: '4th Grade' },
     { value: '5', label: '5th Grade' },
     { value: '6', label: '6th Grade' },
@@ -263,7 +271,7 @@ export default function TeamsPage() {
           <div className="flex flex-col gap-4 animate-enter">
             <div>
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tight text-white">
-                2024–25 Winter Season Teams
+                Winter 2025 Season Teams
               </h1>
               <p className="mt-2 text-base sm:text-lg text-white/70 max-w-2xl">
                 View current team rosters and coach assignments.
@@ -331,7 +339,7 @@ export default function TeamsPage() {
           {loading && <LoadingState />}
           {error && <ErrorState error={error} />}
           {!loading && !error && filteredTeams.length === 0 && (
-            <EmptyState hasFilters={hasFilters} onClearFilters={clearFilters} />
+            <EmptyState hasFilters={hasFilters} onClearFilters={clearFilters} isGirlsProgram={programFilter === 'girls'} />
           )}
 
           {/* Grouped Team Grid */}
