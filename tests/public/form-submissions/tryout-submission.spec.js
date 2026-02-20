@@ -9,7 +9,7 @@ import { generateTryoutData } from '../../fixtures/mockData.js';
  * Uses API mocking to simulate Supabase responses.
  */
 
-// Mock tryout sessions data
+// Mock tryout sessions data (Neon API shape)
 function getMockSessions() {
   const today = new Date();
   const formatDate = (daysOffset) => {
@@ -21,47 +21,50 @@ function getMockSessions() {
   return [
     {
       id: 'session-1',
-      session_date: formatDate(14),
+      date: formatDate(14),
       start_time: '09:00',
       end_time: '12:00',
       location: 'Central Recreation Center',
-      grades: '4th-5th',
+      grade_levels: '4th-5th',
       description: '4th-5th Grade Tryouts',
       notes: 'Boys & Girls divisions',
-      is_active: true,
-      spots_available: 30,
+      registration_open: true,
+      max_participants: 30,
+      spots_remaining: 30,
     },
     {
       id: 'session-2',
-      session_date: formatDate(15),
+      date: formatDate(15),
       start_time: '13:00',
       end_time: '16:00',
       location: 'Central Recreation Center',
-      grades: '6th-7th',
+      grade_levels: '6th-7th',
       description: '6th-7th Grade Tryouts',
       notes: 'Boys & Girls divisions',
-      is_active: true,
-      spots_available: 25,
+      registration_open: true,
+      max_participants: 25,
+      spots_remaining: 25,
     },
     {
       id: 'session-3',
-      session_date: formatDate(21),
+      date: formatDate(21),
       start_time: '09:00',
       end_time: '12:00',
       location: 'Gateway High School Gym',
-      grades: '8th',
+      grade_levels: '8th',
       description: '8th Grade Tryouts',
       notes: 'Boys & Girls divisions',
-      is_active: true,
-      spots_available: 20,
+      registration_open: true,
+      max_participants: 20,
+      spots_remaining: 20,
     },
   ];
 }
 
 /**
- * Setup API mocking for tryout tests
+ * Setup API mocking for tryout tests (Neon API routes)
  */
-async function setupSupabaseMocks(page) {
+async function setupTryoutApiMocks(page) {
   // Mock the config.json to enable tryouts
   await page.route('**/data/json/config.json', async (route) => {
     await route.fulfill({
@@ -89,8 +92,8 @@ async function setupSupabaseMocks(page) {
     });
   });
 
-  // Mock the tryout_sessions GET request
-  await page.route('**/rest/v1/tryout_sessions*', async (route) => {
+  // Mock tryout sessions GET request
+  await page.route('**/api/public/tryouts*', async (route) => {
     const method = route.request().method();
 
     if (method === 'GET') {
@@ -104,16 +107,20 @@ async function setupSupabaseMocks(page) {
     }
   });
 
-  // Mock the tryout_signups POST request
-  await page.route('**/rest/v1/tryout_signups*', async (route) => {
+  // Mock tryout signup POST request
+  await page.route('**/api/public/tryout-signup*', async (route) => {
     const method = route.request().method();
 
     if (method === 'POST') {
-      // Return success with empty array (Supabase default for insert without returning)
+      // Mirror the Neon API success shape
       await route.fulfill({
         status: 201,
         contentType: 'application/json',
-        body: JSON.stringify([]),
+        body: JSON.stringify({
+          success: true,
+          message: 'Successfully registered for tryout',
+          signup_id: 'signup-123',
+        }),
       });
     } else {
       await route.continue();
@@ -124,7 +131,7 @@ async function setupSupabaseMocks(page) {
 test.describe('Tryout Form Submissions', () => {
   test.beforeEach(async ({ page }) => {
     // Setup API mocking before navigating
-    await setupSupabaseMocks(page);
+    await setupTryoutApiMocks(page);
 
     await page.goto('/tryouts');
     await page.waitForSelector('h1', { timeout: 15000 });
@@ -192,7 +199,7 @@ test.describe('Tryout Form Submissions', () => {
 
 test.describe('Tryout Form - Validation Tests', () => {
   test.beforeEach(async ({ page }) => {
-    await setupSupabaseMocks(page);
+    await setupTryoutApiMocks(page);
     await page.goto('/tryouts');
     await page.waitForSelector('h1', { timeout: 15000 });
   });
@@ -258,7 +265,7 @@ test.describe('Tryout Form - Validation Tests', () => {
 
 test.describe('Tryout Form - Data Persistence', () => {
   test('should maintain form data on page interactions', async ({ page }) => {
-    await setupSupabaseMocks(page);
+    await setupTryoutApiMocks(page);
     await page.goto('/tryouts');
     await page.waitForSelector('h1', { timeout: 15000 });
 
@@ -294,7 +301,7 @@ test.describe('Tryout Form - Data Persistence', () => {
 
 test.describe('Tryout Form - Grade Coverage', () => {
   test.beforeEach(async ({ page }) => {
-    await setupSupabaseMocks(page);
+    await setupTryoutApiMocks(page);
     await page.goto('/tryouts');
     await page.waitForSelector('h1', { timeout: 15000 });
   });
@@ -351,7 +358,7 @@ test.describe('Tryout Form - Mobile Responsiveness', () => {
   test.use({ viewport: { width: 375, height: 812 } });
 
   test('should display correctly on mobile', async ({ page }) => {
-    await setupSupabaseMocks(page);
+    await setupTryoutApiMocks(page);
     await page.goto('/tryouts');
     await page.waitForSelector('h1', { timeout: 15000 });
 

@@ -4,7 +4,7 @@ import { requireAdmin } from '../lib/auth-middleware';
 import { eq, sql, and } from 'drizzle-orm';
 
 export const config = {
-  runtime: 'edge',
+  runtime: 'nodejs',
 };
 
 export async function GET(request: Request) {

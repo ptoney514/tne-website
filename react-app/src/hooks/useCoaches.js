@@ -63,7 +63,7 @@ export function useCoaches() {
     return coach?.team_assignments || [];
   };
 
-  const getPlayersCoached = async (coachId) => {
+  const getPlayersCoached = async (_coachId) => {
     // This would need a specific endpoint to get accurate count
     return 0;
   };

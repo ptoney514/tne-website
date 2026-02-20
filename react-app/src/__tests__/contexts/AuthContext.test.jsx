@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { AuthProvider, AuthContext } from '../../contexts/AuthContext';
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
 
 // Mock auth-client
 const mockUseSession = vi.fn();
@@ -19,30 +19,27 @@ vi.mock('../../lib/auth-client', () => ({
   },
 }));
 
-// Mock api-client for profile fetch
-vi.mock('../../lib/api-client', () => ({
-  api: {
-    get: vi.fn(),
-    post: vi.fn(),
-    patch: vi.fn(),
-    delete: vi.fn(),
-  },
-}));
-
-import { api } from '../../lib/api-client';
-
 // Test component to consume auth context
 function TestConsumer() {
   const auth = useContext(AuthContext);
+  const [signInResult, setSignInResult] = useState('no-signin-result');
   return (
     <div>
       <div data-testid="loading">{auth.loading ? 'loading' : 'ready'}</div>
       <div data-testid="user">{auth.user?.email || 'no-user'}</div>
       <div data-testid="profile">{auth.profile?.role || 'no-profile'}</div>
       <div data-testid="error">{auth.error || 'no-error'}</div>
-      <button onClick={() => auth.signIn('test@example.com', 'password')}>Sign In</button>
+      <button
+        onClick={async () => {
+          const result = await auth.signIn('test@example.com', 'password');
+          setSignInResult(result?.error || 'success');
+        }}
+      >
+        Sign In
+      </button>
       <button onClick={auth.signOut}>Sign Out</button>
       <div data-testid="is-admin">{auth.isAdmin() ? 'yes' : 'no'}</div>
+      <div data-testid="sign-in-result">{signInResult}</div>
     </div>
   );
 }
@@ -55,7 +52,6 @@ describe('AuthContext', () => {
       data: null,
       isPending: false,
     });
-    api.get.mockResolvedValue(null);
   });
 
   afterEach(() => {
@@ -98,14 +94,12 @@ describe('AuthContext', () => {
 
   describe('session restoration', () => {
     it('should restore user from existing session', async () => {
-      const mockUser = { id: 'user-123', email: 'test@example.com' };
-      const mockProfile = { id: 'user-123', role: 'admin', first_name: 'Test' };
+      const mockUser = { id: 'user-123', email: 'test@example.com', role: 'admin' };
 
       mockUseSession.mockReturnValue({
         data: { user: mockUser, session: { user: mockUser } },
         isPending: false,
       });
-      api.get.mockResolvedValue(mockProfile);
 
       render(
         <AuthProvider>
@@ -126,7 +120,7 @@ describe('AuthContext', () => {
   describe('sign in', () => {
     it('should sign in user successfully', async () => {
       const user = userEvent.setup();
-      const mockUser = { id: 'user-123', email: 'test@example.com' };
+      const mockUser = { id: 'user-123', email: 'test@example.com', role: 'admin' };
 
       mockUseSession.mockReturnValue({
         data: null,
@@ -155,7 +149,9 @@ describe('AuthContext', () => {
       expect(mockSignIn).toHaveBeenCalledWith({
         email: 'test@example.com',
         password: 'password',
+        rememberMe: false,
       });
+      expect(screen.getByTestId('sign-in-result').textContent).toBe('success');
     });
 
     it('should handle sign in error', async () => {
@@ -186,7 +182,7 @@ describe('AuthContext', () => {
       });
 
       await waitFor(() => {
-        expect(screen.getByTestId('error').textContent).toBe('Invalid credentials');
+        expect(screen.getByTestId('sign-in-result').textContent).toBe('Invalid credentials');
       });
     });
   });
@@ -201,7 +197,6 @@ describe('AuthContext', () => {
         data: { user: mockUser, session: { user: mockUser } },
         isPending: false,
       });
-      api.get.mockResolvedValue({ role: 'admin' });
       mockSignOut.mockResolvedValue({ error: null });
 
       const { rerender } = render(
@@ -239,14 +234,12 @@ describe('AuthContext', () => {
 
   describe('role checking utilities', () => {
     it('should correctly identify admin role', async () => {
-      const mockUser = { id: 'user-123', email: 'admin@example.com' };
-      const mockProfile = { id: 'user-123', role: 'admin' };
+      const mockUser = { id: 'user-123', email: 'admin@example.com', role: 'admin' };
 
       mockUseSession.mockReturnValue({
         data: { user: mockUser, session: { user: mockUser } },
         isPending: false,
       });
-      api.get.mockResolvedValue(mockProfile);
 
       render(
         <AuthProvider>
@@ -264,14 +257,12 @@ describe('AuthContext', () => {
     });
 
     it('should return false for non-admin users', async () => {
-      const mockUser = { id: 'user-123', email: 'parent@example.com' };
-      const mockProfile = { id: 'user-123', role: 'parent' };
+      const mockUser = { id: 'user-123', email: 'parent@example.com', role: 'parent' };
 
       mockUseSession.mockReturnValue({
         data: { user: mockUser, session: { user: mockUser } },
         isPending: false,
       });
-      api.get.mockResolvedValue(mockProfile);
 
       render(
         <AuthProvider>

@@ -140,7 +140,10 @@ describe('useRegistrations', () => {
       expect(updated.status).toBe('approved');
     });
 
-    expect(api.patch).toHaveBeenCalledWith('/admin/registrations/reg-1', { status: 'approved' });
+    expect(api.patch).toHaveBeenCalledWith(
+      '/admin/registrations?id=reg-1&action=approve',
+      {}
+    );
   });
 
   it('should update payment status', async () => {
@@ -158,7 +161,7 @@ describe('useRegistrations', () => {
       expect(updated.payment_status).toBe('paid');
     });
 
-    expect(api.patch).toHaveBeenCalledWith('/admin/registrations/reg-1/payment', {
+    expect(api.patch).toHaveBeenCalledWith('/admin/registrations?id=reg-1', {
       payment_status: 'paid',
       amount_paid: 525,
     });
@@ -179,7 +182,7 @@ describe('useRegistrations', () => {
       expect(updated.team_id).toBe('team-2');
     });
 
-    expect(api.patch).toHaveBeenCalledWith('/admin/registrations/reg-1', { team_id: 'team-2' });
+    expect(api.patch).toHaveBeenCalledWith('/admin/registrations?id=reg-1', { team_id: 'team-2' });
   });
 
   it('should delete registration', async () => {
@@ -195,12 +198,12 @@ describe('useRegistrations', () => {
       await result.current.deleteRegistration('reg-1');
     });
 
-    expect(api.delete).toHaveBeenCalledWith('/admin/registrations/reg-1');
+    expect(api.delete).toHaveBeenCalledWith('/admin/registrations?id=reg-1');
   });
 
   it('should convert registration to player', async () => {
-    const newPlayer = { id: 'player-1', first_name: 'John', last_name: 'Doe' };
-    api.post.mockResolvedValue(newPlayer);
+    const approvedRegistration = { ...mockRegistrations[0], status: 'approved' };
+    api.patch.mockResolvedValue(approvedRegistration);
 
     const { result } = renderHook(() => useRegistrations(), { wrapper });
 
@@ -210,12 +213,12 @@ describe('useRegistrations', () => {
 
     await act(async () => {
       const player = await result.current.convertToPlayer(mockRegistrations[0]);
-      expect(player).toEqual(newPlayer);
+      expect(player).toEqual(approvedRegistration);
     });
 
-    expect(api.post).toHaveBeenCalledWith(
-      '/admin/registrations/reg-1/convert',
-      expect.any(Object)
+    expect(api.patch).toHaveBeenCalledWith(
+      '/admin/registrations?id=reg-1&action=approve',
+      {}
     );
   });
 

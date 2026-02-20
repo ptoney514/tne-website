@@ -123,7 +123,11 @@ describe('usePlayers', () => {
       await result.current.assignPlayerToTeam('player-1', 'team-3');
     });
 
-    expect(api.post).toHaveBeenCalledWith('/admin/players/player-1/assign', { teamId: 'team-3' });
+    expect(api.post).toHaveBeenCalledWith('/admin/players', {
+      action: 'assign_team',
+      player_id: 'player-1',
+      team_id: 'team-3',
+    });
   });
 
   it('should provide getPlayerHistory function', async () => {
@@ -185,7 +189,7 @@ describe('useTeamRoster', () => {
     });
 
     expect(result.current.roster).toHaveLength(1);
-    expect(api.get).toHaveBeenCalledWith('/admin/teams/team-1/roster');
+    expect(api.get).toHaveBeenCalledWith('/admin/players?teamId=team-1');
   });
 
   it('should calculate available players', async () => {

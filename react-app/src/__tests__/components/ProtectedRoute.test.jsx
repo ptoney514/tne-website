@@ -4,6 +4,15 @@ import { MemoryRouter } from 'react-router-dom';
 import { ProtectedRoute } from '../../components/ProtectedRoute';
 import { AuthContext } from '../../contexts/AuthContext';
 
+vi.mock('react-router-dom', async () => {
+  const actual = await vi.importActual('react-router-dom');
+
+  return {
+    ...actual,
+    Navigate: ({ to }) => <div data-testid="navigate" data-to={to} />,
+  };
+});
+
 const renderWithAuth = (ui, authValue) => {
   return render(
     <MemoryRouter>
@@ -59,7 +68,7 @@ describe('ProtectedRoute', () => {
       mockAuthValue({ user: null })
     );
 
-    // Content should not be visible (redirected)
+    expect(screen.getByTestId('navigate')).toHaveAttribute('data-to', '/login');
     expect(screen.queryByText('Protected Content')).not.toBeInTheDocument();
   });
 
