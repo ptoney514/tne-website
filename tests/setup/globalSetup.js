@@ -7,14 +7,22 @@
  */
 
 import dotenv from 'dotenv';
+import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default async function globalSetup() {
-  // Load environment variables from .env.local
-  dotenv.config({ path: path.resolve(__dirname, '../../.env.local') });
+  // Load local overrides first, then fallback to repo .env
+  const envLocalPath = path.resolve(__dirname, '../../.env.local');
+  const envPath = path.resolve(__dirname, '../../.env');
+  if (fs.existsSync(envLocalPath)) {
+    dotenv.config({ path: envLocalPath });
+  }
+  if (fs.existsSync(envPath)) {
+    dotenv.config({ path: envPath, override: false });
+  }
 
   console.log('\n[Global Setup] Starting E2E test setup...');
 

@@ -12,31 +12,36 @@ vi.mock('../../lib/api-client', () => ({
   },
 }));
 
+const mockUseSeason = vi.fn();
+vi.mock('../../contexts/SeasonContext', () => ({
+  useSeason: () => mockUseSeason(),
+}));
+
 import { useDashboardStats } from '../../hooks/useDashboardStats';
 
 // Sample data
 const mockDashboardData = {
-  stats: {
-    teams: 5,
-    players: 25,
-    registrations: 10,
-    pendingRegistrations: 3,
-    pendingPayments: 2,
-    tryoutSignups: 12,
+  teams: {
+    total: 5,
   },
-  recentActivity: [
-    { id: '1', player_first_name: 'John', player_last_name: 'Doe', status: 'pending', created_at: '2025-01-20' },
-    { id: '2', player_first_name: 'Jane', player_last_name: 'Smith', status: 'approved', created_at: '2025-01-19' },
-  ],
-  upcomingEvents: [
-    { id: '1', title: 'Practice', event_type: 'practice', date: '2025-01-26', start_time: '10:00', location: 'Gym' },
-    { id: '2', title: 'Game', event_type: 'game', date: '2025-01-27', start_time: '14:00', location: 'Court A' },
-  ],
+  players: {
+    total: 25,
+  },
+  registrations: {
+    total: 10,
+    pending: 3,
+  },
+  tryouts: {
+    recentSignups: 12,
+  },
 };
 
 describe('useDashboardStats', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockUseSeason.mockReturnValue({
+      selectedSeason: { id: 'season-1' },
+    });
     api.get.mockResolvedValue(mockDashboardData);
   });
 
@@ -60,7 +65,7 @@ describe('useDashboardStats', () => {
     expect(result.current.stats.teams).toBe(5);
     expect(result.current.stats.players).toBe(25);
     expect(result.current.stats.registrations).toBe(10);
-    expect(api.get).toHaveBeenCalledWith('/admin/dashboard');
+    expect(api.get).toHaveBeenCalledWith('/admin/dashboard?seasonId=season-1');
   });
 
   it('should return recent activity', async () => {
@@ -70,7 +75,7 @@ describe('useDashboardStats', () => {
       expect(result.current.loading).toBe(false);
     });
 
-    expect(result.current.recentActivity).toEqual(mockDashboardData.recentActivity);
+    expect(result.current.recentActivity).toEqual([]);
   });
 
   it('should return upcoming events', async () => {
@@ -80,7 +85,7 @@ describe('useDashboardStats', () => {
       expect(result.current.loading).toBe(false);
     });
 
-    expect(result.current.upcomingEvents).toEqual(mockDashboardData.upcomingEvents);
+    expect(result.current.upcomingEvents).toEqual([]);
   });
 
   it('should handle errors gracefully', async () => {

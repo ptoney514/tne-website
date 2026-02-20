@@ -1,4 +1,4 @@
-import { createContext, useMemo } from 'react';
+import { createContext, useCallback, useMemo } from 'react';
 import { authClient } from '../lib/auth-client';
 
 // eslint-disable-next-line react-refresh/only-export-components
@@ -9,7 +9,7 @@ export function AuthProvider({ children }) {
   const { data: session, isPending, error: sessionError } = authClient.useSession();
 
   // Sign in with email/password
-  const signIn = async (email, password, rememberMe = false) => {
+  const signIn = useCallback(async (email, password, rememberMe = false) => {
     try {
       const result = await authClient.signIn.email({
         email,
@@ -26,10 +26,10 @@ export function AuthProvider({ children }) {
       const message = err.message || 'Sign in failed. Please try again.';
       return { error: message };
     }
-  };
+  }, []);
 
   // Sign out
-  const signOut = async () => {
+  const signOut = useCallback(async () => {
     try {
       await authClient.signOut();
       return { error: null };
@@ -38,15 +38,18 @@ export function AuthProvider({ children }) {
       // Still consider it a success - user intended to sign out
       return { error: null };
     }
-  };
+  }, []);
 
   // Role checking utilities
   const user = session?.user ?? null;
-  const hasRole = (role) => user?.role === role;
-  const isAdmin = () => hasRole('admin');
-  const isCoach = () => hasRole('coach');
-  const isParent = () => hasRole('parent');
-  const hasAnyRole = (roles) => user?.role ? roles.includes(user.role) : false;
+  const hasRole = useCallback((role) => user?.role === role, [user]);
+  const isAdmin = useCallback(() => hasRole('admin'), [hasRole]);
+  const isCoach = useCallback(() => hasRole('coach'), [hasRole]);
+  const isParent = useCallback(() => hasRole('parent'), [hasRole]);
+  const hasAnyRole = useCallback(
+    (roles) => (user?.role ? roles.includes(user.role) : false),
+    [user]
+  );
 
   const value = useMemo(
     () => ({
@@ -63,7 +66,18 @@ export function AuthProvider({ children }) {
       isParent,
       hasAnyRole,
     }),
-    [user, isPending, sessionError]
+    [
+      user,
+      isPending,
+      sessionError,
+      signIn,
+      signOut,
+      hasRole,
+      isAdmin,
+      isCoach,
+      isParent,
+      hasAnyRole,
+    ]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

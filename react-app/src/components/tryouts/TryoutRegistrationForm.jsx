@@ -48,7 +48,10 @@ export default function TryoutRegistrationForm({
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const result = await onSubmit(formData);
+    const result = await onSubmit({
+      ...formData,
+      sessionId: formData.sessionId || selectedSession?.id || '',
+    });
     if (result.success) {
       setFormData({
         sessionId: '',
@@ -65,6 +68,16 @@ export default function TryoutRegistrationForm({
         relationship: '',
       });
     }
+  };
+
+  const getSessionOptionLabel = (session) => {
+    const date = session.session_date || session.date || 'TBD';
+    const title =
+      session.description
+      || session.grade_levels
+      || session.grades
+      || 'Tryout Session';
+    return `${title} - ${date}`;
   };
 
   if (submitSuccess) {
@@ -129,7 +142,7 @@ export default function TryoutRegistrationForm({
             <select
               id="sessionId"
               name="sessionId"
-              value={formData.sessionId}
+              value={formData.sessionId || selectedSession?.id || ''}
               onChange={handleChange}
               required
               className="block w-full rounded-xl border border-neutral-300 bg-neutral-50 px-4 py-2.5 text-sm text-neutral-900 focus:outline-none focus:ring-2 focus:ring-tne-red/50 focus:border-tne-red/50"
@@ -137,7 +150,7 @@ export default function TryoutRegistrationForm({
               <option value="">Select a tryout date</option>
               {sessions.map((session) => (
                 <option key={session.id} value={session.id}>
-                  {session.description} - {session.session_date}
+                  {getSessionOptionLabel(session)}
                 </option>
               ))}
             </select>

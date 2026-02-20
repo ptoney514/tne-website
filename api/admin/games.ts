@@ -1,7 +1,7 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import { db } from '../lib/db';
 import { games, gameTeams, teams, tournamentDetails, tournamentHotels, tournamentNearbyPlaces, hotels, nearbyPlaces, venues } from '../lib/schema';
-import { eq, and, gte } from 'drizzle-orm';
+import { eq, and, gte, sql } from 'drizzle-orm';
 import { requireAdmin } from '../lib/auth-middleware';
 
 export const config = {
@@ -66,9 +66,13 @@ async function handler(req: VercelRequest, res: VercelResponse) {
               .select({
                 gameId: gameTeams.gameId,
                 teamId: gameTeams.teamId,
+                teamName: teams.name,
+                teamGradeLevel: teams.gradeLevel,
+                teamGender: teams.gender,
               })
               .from(gameTeams)
               .innerJoin(teams, eq(gameTeams.teamId, teams.id))
+              .where(sql`${gameTeams.gameId} IN ${gameIds}`)
           : [];
 
         // Group by game
@@ -83,7 +87,16 @@ async function handler(req: VercelRequest, res: VercelResponse) {
         const result = allGames.map(g => ({
           ...g,
           teams_count: countMap.get(g.id)?.length || 0,
-          game_teams: countMap.get(g.id) || [],
+          game_teams: (countMap.get(g.id) || []).map((assignment) => ({
+            game_id: assignment.gameId,
+            team_id: assignment.teamId,
+            team: {
+              id: assignment.teamId,
+              name: assignment.teamName,
+              grade_level: assignment.teamGradeLevel,
+              gender: assignment.teamGender,
+            },
+          })),
         }));
 
         return res.status(200).json(result);

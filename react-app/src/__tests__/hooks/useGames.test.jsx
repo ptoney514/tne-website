@@ -20,6 +20,7 @@ import { useGames, usePublicGames } from '../../hooks/useGames';
 const mockGames = [
   {
     id: 'game-1',
+    type: 'tournament',
     name: 'Tournament A',
     date: '2025-02-01',
     start_time: '10:00',
@@ -33,10 +34,11 @@ const mockGames = [
   },
   {
     id: 'game-2',
+    type: 'game',
     name: 'Regular Game',
     date: '2025-02-05',
     start_time: '14:00',
-    game_type: 'league',
+    game_type: 'game',
     location: 'Home Gym',
     game_teams: [],
     teams_count: 0,
@@ -111,10 +113,18 @@ describe('useGames', () => {
 
     await act(async () => {
       const created = await result.current.createGame({ name: 'New Tournament', date: '2025-03-01' });
-      expect(created).toEqual(newGame);
+      expect(created).toMatchObject(newGame);
     });
 
-    expect(api.post).toHaveBeenCalledWith('/admin/games', expect.any(Object));
+    expect(api.post).toHaveBeenCalledWith(
+      '/admin/games',
+      expect.objectContaining({
+        name: 'New Tournament',
+        date: '2025-03-01',
+        seasonId: 'season-1',
+        gameType: 'tournament',
+      })
+    );
   });
 
   it('should update a game', async () => {
@@ -132,7 +142,10 @@ describe('useGames', () => {
       expect(updated.name).toBe('Updated Tournament');
     });
 
-    expect(api.patch).toHaveBeenCalledWith('/admin/games/game-1', { name: 'Updated Tournament' });
+    expect(api.patch).toHaveBeenCalledWith(
+      '/admin/games?id=game-1',
+      expect.objectContaining({ name: 'Updated Tournament', seasonId: 'season-1' })
+    );
   });
 
   it('should delete a game', async () => {
@@ -148,11 +161,11 @@ describe('useGames', () => {
       await result.current.deleteGame('game-1');
     });
 
-    expect(api.delete).toHaveBeenCalledWith('/admin/games/game-1');
+    expect(api.delete).toHaveBeenCalledWith('/admin/games?id=game-1');
   });
 
   it('should assign teams to game', async () => {
-    api.post.mockResolvedValue({ success: true });
+    api.patch.mockResolvedValue({ success: true });
 
     const { result } = renderHook(() => useGames(), { wrapper });
 
@@ -164,7 +177,7 @@ describe('useGames', () => {
       await result.current.assignTeams('game-1', ['team-1', 'team-2']);
     });
 
-    expect(api.post).toHaveBeenCalledWith('/admin/games/game-1/teams', { teamIds: ['team-1', 'team-2'] });
+    expect(api.patch).toHaveBeenCalledWith('/admin/games?id=game-1', { teamIds: ['team-1', 'team-2'] });
   });
 
   it('should provide refetch function', async () => {

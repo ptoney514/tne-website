@@ -18,12 +18,20 @@ function formatTime(timeString) {
 }
 
 export default function TryoutSessionCard({ session, onRegister }) {
-  const date = new Date(session.session_date + 'T00:00:00');
-  const dayName = fullDayNames[date.getDay()];
-  const shortMonth = monthNames[date.getMonth()];
-  const dayNum = date.getDate();
+  const sessionDate = session.session_date || session.date || null;
+  const startTime = session.start_time || session.startTime || null;
+  const endTime = session.end_time || session.endTime || null;
+  const gradeLevels = session.grades || session.grade_levels || '';
+  const title = session.description || gradeLevels || 'Tryout Session';
+  const details = session.notes || '';
 
-  const isSpecialGrade = session.grades === '8th';
+  const parsedDate = sessionDate ? new Date(`${sessionDate}T00:00:00`) : null;
+  const hasValidDate = parsedDate && !Number.isNaN(parsedDate.getTime());
+  const dayName = hasValidDate ? fullDayNames[parsedDate.getDay()] : 'Date TBD';
+  const shortMonth = hasValidDate ? monthNames[parsedDate.getMonth()] : '--';
+  const dayNum = hasValidDate ? parsedDate.getDate() : '--';
+
+  const isSpecialGrade = /8th/i.test(gradeLevels);
   const bgColor = isSpecialGrade ? 'bg-neutral-800' : 'bg-tne-red';
 
   return (
@@ -44,20 +52,20 @@ export default function TryoutSessionCard({ session, onRegister }) {
             <div>
               <p className="font-semibold">{dayName}</p>
               <p className="text-xs text-white/80">
-                {formatTime(session.start_time)} - {formatTime(session.end_time)}
+                {formatTime(startTime)} - {formatTime(endTime)}
               </p>
             </div>
           </div>
           <span className="inline-flex items-center rounded-full bg-white/20 px-2 py-0.5 text-[0.65rem] font-medium uppercase tracking-wide">
-            {session.grades === '8th' ? '8th Grade' : 'Open'}
+            {isSpecialGrade ? '8th Grade' : 'Open'}
           </span>
         </div>
       </div>
 
       <div className="px-5 py-4 space-y-3">
         <div>
-          <p className="font-medium text-neutral-900">{session.description}</p>
-          <p className="text-sm text-neutral-600">{session.notes}</p>
+          <p className="font-medium text-neutral-900">{title}</p>
+          <p className="text-sm text-neutral-600">{details}</p>
         </div>
         <div className="flex items-center gap-2 text-xs text-neutral-500">
           <MapPin className="w-3.5 h-3.5" />

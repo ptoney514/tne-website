@@ -67,7 +67,9 @@ export default defineConfig({
   webServer: {
     command: 'cd react-app && npm run dev',
     url: 'http://localhost:5173',
-    reuseExistingServer: !process.env.CI,
+    // Always start this repo's server to avoid accidentally running tests
+    // against another local project listening on the same port.
+    reuseExistingServer: false,
     timeout: 120 * 1000,
   },
 });

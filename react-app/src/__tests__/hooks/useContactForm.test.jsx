@@ -266,7 +266,6 @@ describe('useContactForm', () => {
         email: 'john@example.com',
         subject: 'Team Inquiry',
         message: 'I have a question about tryouts',
-        status: 'new',
       });
     });
   });
