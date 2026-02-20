@@ -11,10 +11,12 @@
     "notes": null
   },
   "tryouts": {
-    "is_open": false,
-    "label": "Winter '25-26 Tryouts",
+    "is_open": true,
+    "label": "Spring 2026 Tryouts",
     "dates": null,
-    "notes": null
+    "notes": null,
+    "next_season_id": "spring-2026",
+    "next_season_name": "Spring 2026"
   },
   "payment": {
     "stripe_enabled": false,

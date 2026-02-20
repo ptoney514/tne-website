@@ -1,10 +1,32 @@
 // @ts-check
 import { test, expect } from '@playwright/test';
 
+/**
+ * Navigate to registration page and select "Team Registration" if type selector appears.
+ * Since both tryouts + team registration are open, the type selector shows first.
+ */
+async function selectTeamRegistration(page) {
+  // Clear any saved registration draft to prevent stale state
+  await page.evaluate(() => localStorage.removeItem('tne_registration_draft'));
+
+  await page.waitForSelector('h1', { timeout: 10000 });
+
+  // Check if type selector is visible (both paths are open)
+  const typeSelector = page.getByText('How would you like to register?');
+  const isSelectorVisible = await typeSelector.isVisible().catch(() => false);
+
+  if (isSelectorVisible) {
+    // Click the "Register for a Team" card
+    await page.getByText('Register for a Team').click();
+    // Wait for team wizard to load
+    await page.waitForSelector('select#teamId', { timeout: 10000 });
+  }
+}
+
 test.describe('Public Registration Page', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/register');
-    await page.waitForSelector('h1', { timeout: 10000 });
+    await selectTeamRegistration(page);
   });
 
   test('should display registration page with heading', async ({ page }) => {
@@ -25,7 +47,7 @@ test.describe('Public Registration Page', () => {
 test.describe('Registration Wizard - Step 1: Player & Team', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/register');
-    await page.waitForSelector('h1', { timeout: 10000 });
+    await selectTeamRegistration(page);
   });
 
   test('should display all Step 1 form fields', async ({ page }) => {
@@ -100,9 +122,10 @@ test.describe('Registration Wizard - Step 1: Player & Team', () => {
 });
 
 test.describe('Registration Wizard - Complete Flow E2E', () => {
+  test.setTimeout(60000);
   test('should complete Step 1 and navigate to Step 2', async ({ page }) => {
     await page.goto('/register');
-    await page.waitForSelector('h1', { timeout: 10000 });
+    await selectTeamRegistration(page);
 
     // Wait for teams to load
     await page.waitForFunction(
@@ -127,12 +150,12 @@ test.describe('Registration Wizard - Complete Flow E2E', () => {
     // Verify we're on Step 2
     await expect(page.getByText('Parent/Guardian Information')).toBeVisible({ timeout: 5000 });
     await expect(page.getByRole('heading', { name: 'Emergency Contact' })).toBeVisible();
-    await expect(page.getByRole('button', { name: /Back/i })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Back', exact: true })).toBeVisible();
   });
 
   test('should complete Step 2 and navigate to Step 3 (Payment)', async ({ page }) => {
     await page.goto('/register');
-    await page.waitForSelector('h1', { timeout: 10000 });
+    await selectTeamRegistration(page);
 
     // Wait for teams to load
     await page.waitForFunction(
@@ -182,7 +205,7 @@ test.describe('Registration Wizard - Complete Flow E2E', () => {
 
   test('should select payment option and navigate to Step 4 (Review)', async ({ page }) => {
     await page.goto('/register');
-    await page.waitForSelector('h1', { timeout: 10000 });
+    await selectTeamRegistration(page);
 
     // Wait for teams to load
     await page.waitForFunction(
@@ -240,7 +263,7 @@ test.describe('Registration Wizard - Complete Flow E2E', () => {
 
   test('should require all waivers before submission', async ({ page }) => {
     await page.goto('/register');
-    await page.waitForSelector('h1', { timeout: 10000 });
+    await selectTeamRegistration(page);
 
     // Wait for teams to load
     await page.waitForFunction(
@@ -303,7 +326,7 @@ test.describe('Registration Wizard - Complete Flow E2E', () => {
 test.describe('Registration Wizard - Navigation', () => {
   test('should navigate back and preserve entered data', async ({ page }) => {
     await page.goto('/register');
-    await page.waitForSelector('h1', { timeout: 10000 });
+    await selectTeamRegistration(page);
 
     // Wait for teams to load
     await page.waitForFunction(
@@ -327,7 +350,7 @@ test.describe('Registration Wizard - Navigation', () => {
     await expect(page.getByText('Parent/Guardian Information')).toBeVisible({ timeout: 5000 });
 
     // Go back to Step 1
-    await page.getByRole('button', { name: /Back/i }).click();
+    await page.getByRole('button', { name: 'Back', exact: true }).click();
 
     // Verify data is preserved
     await expect(page.locator('input#playerFirstName')).toHaveValue('TestFirst');
@@ -339,7 +362,7 @@ test.describe('Registration Wizard - Navigation', () => {
 test.describe('Registration Wizard - Validation', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/register');
-    await page.waitForSelector('h1', { timeout: 10000 });
+    await selectTeamRegistration(page);
   });
 
   test('should validate required fields in Step 1', async ({ page }) => {
@@ -558,9 +581,10 @@ test.describe('Registration Wizard - Validation', () => {
 });
 
 test.describe('Registration Wizard - Payment Options', () => {
+  test.setTimeout(60000);
   test.beforeEach(async ({ page }) => {
     await page.goto('/register');
-    await page.waitForSelector('h1', { timeout: 10000 });
+    await selectTeamRegistration(page);
 
     // Wait for teams to load
     await page.waitForFunction(
@@ -630,7 +654,7 @@ test.describe('Registration Wizard - Mobile Responsiveness', () => {
   test('should display wizard correctly on mobile', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 812 });
     await page.goto('/register');
-    await page.waitForSelector('h1', { timeout: 10000 });
+    await selectTeamRegistration(page);
 
     // Wizard should be visible
     await expect(page.locator('h1').filter({ hasText: /Registration/i })).toBeVisible();
@@ -640,7 +664,7 @@ test.describe('Registration Wizard - Mobile Responsiveness', () => {
   test('should show mobile step indicator', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 812 });
     await page.goto('/register');
-    await page.waitForSelector('h1', { timeout: 10000 });
+    await selectTeamRegistration(page);
 
     // Mobile step indicator should show step count
     await expect(page.getByText(/Step 1 of 4/i)).toBeVisible();
