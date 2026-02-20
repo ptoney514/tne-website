@@ -11,6 +11,7 @@
     "test:e2e:submissions": "npx playwright test --project=form-submissions",
     "test:e2e:verify": "npx playwright test --project=data-verification",
     "test:e2e:public": "npx playwright test --project=public-pages",
+    "test:smoke": "npx playwright test --project=smoke",
     "lint:react": "cd react-app && npm run lint",
     "validate:data": "node scripts/validate-json-schema.js",
     "build:react": "npm run validate:data && cd react-app && npm run build",
