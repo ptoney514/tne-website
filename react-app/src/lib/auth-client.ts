@@ -1,8 +1,9 @@
 import { createAuthClient } from 'better-auth/react';
 
 // Create the Better Auth client for React
+// Use VITE_APP_URL if set, otherwise derive from current origin (works in both dev and production)
 export const authClient = createAuthClient({
-  baseURL: import.meta.env.VITE_APP_URL || 'http://localhost:5173',
+  baseURL: import.meta.env.VITE_APP_URL || (typeof window !== 'undefined' ? window.location.origin : ''),
 });
 
 // Export individual hooks and methods for convenience
