@@ -64,11 +64,13 @@ export const auth = betterAuth({
     max: 10, // 10 requests per window
   },
 
-  // Trusted origins (update for production)
+  // Trusted origins
   trustedOrigins: [
     'http://localhost:3000',
     'http://localhost:5173',
     process.env.VITE_APP_URL || '',
+    process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : '',
+    process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : '',
   ].filter(Boolean),
 });
 
