@@ -106,7 +106,7 @@ export default function MobileDrawer({ isOpen, onClose, showPayLink = false }) {
               onClick={onClose}
               className="block w-full text-center px-4 py-3 text-sm font-semibold uppercase tracking-wider rounded-xl bg-tne-red text-white hover:bg-tne-red-dark transition-colors shadow-lg shadow-tne-red/25"
             >
-              Register for Tryouts
+              Register Today
             </Link>
           ) : isRegistrationOpen ? (
             <Link
