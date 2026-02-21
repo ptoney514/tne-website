@@ -11,8 +11,8 @@ import 'dotenv/config';
 import { neon } from '@neondatabase/serverless';
 import { drizzle } from 'drizzle-orm/neon-http';
 import { eq } from 'drizzle-orm';
-import * as schema from '../api/lib/schema';
-import { auth } from '../api/lib/auth';
+import * as schema from '../lib/schema';
+import { auth } from '../lib/auth';
 
 const sql = neon(process.env.DATABASE_URL!);
 const db = drizzle(sql, { schema });
