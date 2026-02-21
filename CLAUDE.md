@@ -4,22 +4,24 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-TNE United Express youth basketball website - currently static HTML + Tailwind CSS, with Supabase backend planned for Phase 2.
+TNE United Express youth basketball website — built with Next.js App Router, Neon PostgreSQL (via Drizzle ORM), and Better Auth for authentication.
 
 ## Tech Stack
 
-- **Frontend**: HTML + Tailwind CSS (CDN)
-- **Icons**: Lucide (`<script src="https://unpkg.com/lucide@latest"></script>`)
+- **Framework**: Next.js 15 (App Router)
+- **UI**: React 19, Tailwind CSS 4 (PostCSS)
+- **Icons**: `lucide-react`
 - **Fonts**: Bebas Neue (headlines), Inter (body), Space Mono (labels/badges)
-- **Backend (planned)**: Supabase
-- **Hosting (planned)**: Vercel
+- **Database**: Neon PostgreSQL + Drizzle ORM
+- **Auth**: Better Auth (email/password, role-based)
+- **Hosting**: Vercel
 
 ## Development
 
-No build step required. Open HTML files directly in browser:
 ```bash
-open src/pages/index.html
-open src/pages/teams.html
+npm run dev          # Next.js dev server on localhost:3000
+npm run build        # Production build
+npm run db:studio    # Drizzle Studio (database browser)
 ```
 
 ## Brand Colors
@@ -31,25 +33,50 @@ open src/pages/teams.html
 | Red Dark | `#C41230` | `tne-red-dark` |
 | Black | `#050505` | `bg-[#050505]` |
 
-Custom colors are defined in the Tailwind config at the top of each HTML file.
+Custom colors are defined in `app/globals.css` via CSS custom properties (`@theme`).
 
 ## Design System Rules
 
-**Source of truth**: [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md) and existing HTML files.
+**Source of truth**: [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md) and existing React components.
 
 Key patterns:
 - **Copy components exactly** from DESIGN_SYSTEM.md or source files - do not improvise
 - Use **Teams page navbar style** (sticky, backdrop-blur) for interior pages, not the Homepage glass nav
 - Follow **dark hero + light content** pattern for page structure
 - Use `rounded-3xl` for cards, `rounded-2xl` for inner elements
-- Initialize Lucide icons with: `lucide.createIcons({ attrs: { strokeWidth: 1.5 } });`
+- Import icons from `lucide-react` (e.g., `import { ArrowLeft } from 'lucide-react'`)
 
 ## File Structure
 
 ```
-src/pages/
-├── index.html     # Homepage (complete)
-└── teams.html     # Teams list page (complete)
+app/
+├── layout.jsx              # Root layout
+├── page.jsx                # Homepage (redirect)
+├── globals.css             # Tailwind config + custom styles
+├── (public)/               # Public route group
+│   ├── teams/page.jsx      # Teams list
+│   ├── teams/[teamId]/     # Team detail
+│   ├── schedule/page.jsx   # Schedule
+│   ├── tryouts/page.jsx    # Tryouts & registration
+│   ├── about/page.jsx      # About
+│   ├── contact/page.jsx    # Contact
+│   ├── tournaments/        # Tournament detail
+│   ├── login/page.jsx      # Login
+│   ├── signup/page.jsx     # Sign up
+│   └── ...                 # Other public pages
+├── admin/                  # Admin route group
+│   ├── page.jsx            # Dashboard
+│   ├── teams/              # Team management
+│   ├── players/            # Player management
+│   ├── tournaments/        # Tournament management
+│   └── ...                 # Other admin pages
+└── api/                    # API routes
+    └── auth/[...all]/      # Better Auth handler
+
+components/                 # Shared React components
+lib/                        # Auth config, DB client, utilities
+db/                         # Drizzle schema & migrations
+data/json/                  # Static JSON data files
 ```
 
 ## Project Tracking
@@ -96,9 +123,9 @@ npm run pr-check
 ```
 
 This runs:
-1. `npm run lint:react` - ESLint on React app
-2. `npm run build:react` - Vite production build
-3. `npm run test` - Playwright E2E tests
+1. `eslint .` - Lint check
+2. `next build` - Next.js production build
+3. `npx playwright test` - Playwright E2E tests
 
 **All checks must pass before creating a PR.**
 
@@ -107,6 +134,7 @@ Individual commands:
 npm test              # Run E2E tests
 npm run test:headed   # Run tests with browser visible (debugging)
 npm run test:ui       # Interactive test UI
+npm run test:unit     # Vitest unit tests
 ```
 
 ## Development Pattern: Tests-as-You-Go
@@ -120,7 +148,7 @@ Run before committing:
 - `/pre-commit` - Quick review of staged changes
 - `npm run pr-check` - Full validation (lint, build, test)
 
-## Remaining Pages to Build
+## Remaining Work
 
 See GitHub Issues for full tracking:
 - [#1](https://github.com/ptoney514/tne-website/issues/1) Schedule page
@@ -131,5 +159,4 @@ See GitHub Issues for full tracking:
 - [#6](https://github.com/ptoney514/tne-website/issues/6) Admin Dashboard
 - [#7](https://github.com/ptoney514/tne-website/issues/7) Admin Team Management
 - [#8](https://github.com/ptoney514/tne-website/issues/8) Admin Tournament Manager
-- [#9](https://github.com/ptoney514/tne-website/issues/9) Supabase Setup
 - [#10](https://github.com/ptoney514/tne-website/issues/10) Vercel Deployment

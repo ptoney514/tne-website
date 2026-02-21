@@ -46,7 +46,7 @@
 
 | Feature | Issue | Status |
 |---------|-------|--------|
-| Supabase Setup | [#9](https://github.com/ptoney514/tne-website/issues/9) | Open |
+| Neon + Better Auth | [#9](https://github.com/ptoney514/tne-website/issues/9) | Complete (migrated from Supabase) |
 | Vercel Deployment | [#10](https://github.com/ptoney514/tne-website/issues/10) | Open |
 
 ---
@@ -66,11 +66,13 @@
 
 ## Already Complete
 
-- Homepage (HTML + React)
-- Teams list page (HTML + React)
-- Team detail page (React)
+- Homepage (Next.js)
+- Teams list page (Next.js)
+- Team detail page (Next.js)
 - Design system documentation
 - Brand colors and typography defined
+- Neon PostgreSQL + Drizzle ORM setup
+- Better Auth integration (email/password, roles)
 
 ---
 
@@ -143,4 +145,4 @@ gh api repos/ptoney514/tne-website/milestones/1
 
 ---
 
-*Last updated: December 22, 2025*
+*Last updated: February 21, 2026*

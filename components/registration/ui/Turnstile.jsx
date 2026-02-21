@@ -7,7 +7,7 @@ import { useEffect, useRef, useState, useCallback } from 'react';
  * Returns token via onSuccess callback.
  *
  * Environment variables:
- * - VITE_TURNSTILE_SITE_KEY: Cloudflare Turnstile site key
+ * - NEXT_PUBLIC_TURNSTILE_SITE_KEY: Cloudflare Turnstile site key
  *
  * For development, use Cloudflare's test keys:
  * - Always passes: 1x00000000000000000000AA

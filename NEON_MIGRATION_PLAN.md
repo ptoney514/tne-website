@@ -509,7 +509,7 @@ export const auth = betterAuth({
 import { createAuthClient } from 'better-auth/react';
 
 const authClient = createAuthClient({
-  baseURL: import.meta.env.VITE_APP_URL,
+  baseURL: process.env.NEXT_PUBLIC_APP_URL,
 });
 
 export function AuthProvider({ children }) {
@@ -748,14 +748,14 @@ supabase-contact-submissions.sql  # Keep for reference, but deprecated
 
 ## Environment Variables Comparison
 
-### Current (Supabase)
+### Old (Supabase — no longer used)
 
 ```env
-# Frontend
+# Frontend (old)
 VITE_SUPABASE_URL=https://xxx.supabase.co
 VITE_SUPABASE_ANON_KEY=eyJ...
 
-# Backend
+# Backend (old)
 SUPABASE_URL=https://xxx.supabase.co
 SUPABASE_ANON_KEY=eyJ...
 SUPABASE_SERVICE_ROLE_KEY=eyJ...
@@ -768,7 +768,7 @@ SUPABASE_SERVICE_ROLE_KEY=eyJ...
 DATABASE_URL=postgresql://user:pass@ep-xxx.us-east-2.aws.neon.tech/neondb?sslmode=require
 
 # Frontend
-VITE_APP_URL=https://tneexpress.com   # For auth client
+NEXT_PUBLIC_APP_URL=https://tneexpress.com   # For auth client
 
 # Backend
 DATABASE_URL_UNPOOLED=postgresql://...  # For migrations
