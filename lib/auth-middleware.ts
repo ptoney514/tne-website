@@ -1,4 +1,7 @@
 import { auth } from './auth';
+import { db } from '@/lib/db';
+import { coaches, teams } from '@/lib/schema';
+import { and, eq, or, inArray } from 'drizzle-orm';
 
 type UserRole = 'admin' | 'coach' | 'parent';
 
@@ -108,4 +111,28 @@ export async function isAdmin(request: Request): Promise<boolean> {
 export async function hasRole(request: Request, roles: UserRole[]): Promise<boolean> {
   const session = await optionalAuth(request);
   return session ? roles.includes(session.user.role) : false;
+}
+
+/**
+ * Resolve a user ID to the team IDs they coach.
+ * Follows the chain: user.id → coaches.profileId → coaches.id → teams.headCoachId/assistantCoachId → teams.id
+ */
+export async function getCoachTeamIds(userId: string): Promise<string[]> {
+  const coachRecords = await db
+    .select({ id: coaches.id })
+    .from(coaches)
+    .where(and(eq(coaches.profileId, userId), eq(coaches.isActive, true)));
+
+  if (coachRecords.length === 0) return [];
+  const coachIds = coachRecords.map(c => c.id);
+
+  const teamRecords = await db
+    .select({ id: teams.id })
+    .from(teams)
+    .where(or(
+      inArray(teams.headCoachId, coachIds),
+      inArray(teams.assistantCoachId, coachIds)
+    ));
+
+  return teamRecords.map(t => t.id);
 }

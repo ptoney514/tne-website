@@ -9,12 +9,18 @@ import {
   teamRoster,
   seasons,
 } from '@/lib/schema';
-import { requireAdmin } from '@/lib/auth-middleware';
-import { eq, sql, and, gte, lte } from 'drizzle-orm';
+import { requireAdmin, requireRole, getCoachTeamIds } from '@/lib/auth-middleware';
+import { eq, sql, and, gte, lte, inArray } from 'drizzle-orm';
 
 export async function GET(request: NextRequest) {
   try {
-    await requireAdmin(request);
+    const session = await requireRole(request, ['admin', 'coach']);
+    const isCoach = session.user.role === 'coach';
+
+    let coachTeamIds: string[] = [];
+    if (isCoach) {
+      coachTeamIds = await getCoachTeamIds(session.user.id);
+    }
 
     const seasonId = request.nextUrl.searchParams.get('seasonId');
 
@@ -32,6 +38,83 @@ export async function GET(request: NextRequest) {
       currentSeasonId = currentSeason?.id;
     }
 
+    if (isCoach) {
+      // Scoped stats for coaches
+      const teamConditions = [];
+      if (currentSeasonId) teamConditions.push(eq(teams.seasonId, currentSeasonId));
+      teamConditions.push(eq(teams.isActive, true));
+      if (coachTeamIds.length > 0) teamConditions.push(inArray(teams.id, coachTeamIds));
+
+      const [totalTeamsResult, rosterCountResult, registrationsByStatusResult] = await Promise.all([
+        coachTeamIds.length > 0
+          ? db
+              .select({ count: sql<number>`count(*)::int` })
+              .from(teams)
+              .where(and(...teamConditions))
+          : [{ count: 0 }],
+
+        coachTeamIds.length > 0
+          ? db
+              .select({ count: sql<number>`count(*)::int` })
+              .from(teamRoster)
+              .where(and(eq(teamRoster.isActive, true), inArray(teamRoster.teamId, coachTeamIds)))
+          : [{ count: 0 }],
+
+        coachTeamIds.length > 0
+          ? db
+              .select({
+                status: registrations.status,
+                count: sql<number>`count(*)::int`,
+              })
+              .from(registrations)
+              .where(inArray(registrations.teamId, coachTeamIds))
+              .groupBy(registrations.status)
+          : [],
+      ]);
+
+      const regByStatus = registrationsByStatusResult.reduce(
+        (acc, r) => {
+          acc[r.status] = r.count;
+          return acc;
+        },
+        {} as Record<string, number>
+      );
+
+      const stats = {
+        teams: {
+          total: totalTeamsResult[0]?.count || 0,
+          label: 'Active Teams',
+        },
+        players: {
+          total: rosterCountResult[0]?.count || 0,
+          onRoster: rosterCountResult[0]?.count || 0,
+          label: 'Active Players',
+        },
+        coaches: {
+          total: 0,
+          label: 'Active Coaches',
+        },
+        registrations: {
+          pending: regByStatus['pending'] || 0,
+          approved: regByStatus['approved'] || 0,
+          rejected: regByStatus['rejected'] || 0,
+          total:
+            (regByStatus['pending'] || 0) +
+            (regByStatus['approved'] || 0) +
+            (regByStatus['rejected'] || 0),
+          label: 'Registrations',
+        },
+        tryouts: {
+          recentSignups: 0,
+          label: 'Tryout Signups (30d)',
+        },
+        current_season_id: currentSeasonId,
+      };
+
+      return NextResponse.json(stats);
+    }
+
+    // Admin: full stats (unchanged)
     // Run all counts in parallel
     const [
       totalTeamsResult,

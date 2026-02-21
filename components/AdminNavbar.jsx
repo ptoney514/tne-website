@@ -211,6 +211,7 @@ export default function AdminNavbar() {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isSigningOut, setIsSigningOut] = useState(false);
+  const isAdmin = profile?.role === 'admin';
 
   const isMobileActive = (path) => pathname === path || pathname.startsWith(path + '/');
 
@@ -251,10 +252,12 @@ export default function AdminNavbar() {
             <div className="hidden md:flex items-center gap-1">
               <AdminNavLink href="/admin/teams">Teams</AdminNavLink>
               <AdminNavLink href="/admin/players">Players</AdminNavLink>
-              <AdminNavLink href="/admin/coaches">Coaches</AdminNavLink>
-              <AdminNavLink href="/admin/tryouts" badge={stats.tryoutSignups}>
-                Tryouts
-              </AdminNavLink>
+              {isAdmin && <AdminNavLink href="/admin/coaches">Coaches</AdminNavLink>}
+              {isAdmin && (
+                <AdminNavLink href="/admin/tryouts" badge={stats.tryoutSignups}>
+                  Tryouts
+                </AdminNavLink>
+              )}
               <AdminNavLink href="/admin/registrations" badge={stats.pendingRegistrations}>
                 Registrations
               </AdminNavLink>
@@ -274,12 +277,14 @@ export default function AdminNavbar() {
           {/* Right: Season + Settings + User */}
           <div className="hidden md:flex items-center gap-3">
             <SeasonDropdown />
-            <button
-              onClick={() => router.push('/admin/settings')}
-              className="p-2 rounded-lg text-stone-400 hover:text-stone-600 hover:bg-stone-100 transition-colors"
-            >
-              <SettingsIcon />
-            </button>
+            {isAdmin && (
+              <button
+                onClick={() => router.push('/admin/settings')}
+                className="p-2 rounded-lg text-stone-400 hover:text-stone-600 hover:bg-stone-100 transition-colors"
+              >
+                <SettingsIcon />
+              </button>
+            )}
             <UserDropdown profile={profile} onSignOut={handleSignOut} />
           </div>
 
@@ -315,29 +320,33 @@ export default function AdminNavbar() {
             >
               Players
             </Link>
-            <Link
-              href="/admin/coaches"
-              onClick={() => setMobileMenuOpen(false)}
-              className={`block px-3 py-2 rounded-lg text-sm font-medium ${
-                isMobileActive('/admin/coaches') ? 'bg-tne-red text-white' : 'text-stone-600 hover:bg-stone-100'
-              }`}
-            >
-              Coaches
-            </Link>
-            <Link
-              href="/admin/tryouts"
-              onClick={() => setMobileMenuOpen(false)}
-              className={`flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium ${
-                isMobileActive('/admin/tryouts') ? 'bg-tne-red text-white' : 'text-stone-600 hover:bg-stone-100'
-              }`}
-            >
-              Tryouts
-              {stats.tryoutSignups > 0 && (
-                <span className="px-2 py-0.5 rounded-full bg-tne-red text-white text-xs font-bold">
-                  {stats.tryoutSignups}
-                </span>
-              )}
-            </Link>
+            {isAdmin && (
+              <Link
+                href="/admin/coaches"
+                onClick={() => setMobileMenuOpen(false)}
+                className={`block px-3 py-2 rounded-lg text-sm font-medium ${
+                  isMobileActive('/admin/coaches') ? 'bg-tne-red text-white' : 'text-stone-600 hover:bg-stone-100'
+                }`}
+              >
+                Coaches
+              </Link>
+            )}
+            {isAdmin && (
+              <Link
+                href="/admin/tryouts"
+                onClick={() => setMobileMenuOpen(false)}
+                className={`flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium ${
+                  isMobileActive('/admin/tryouts') ? 'bg-tne-red text-white' : 'text-stone-600 hover:bg-stone-100'
+                }`}
+              >
+                Tryouts
+                {stats.tryoutSignups > 0 && (
+                  <span className="px-2 py-0.5 rounded-full bg-tne-red text-white text-xs font-bold">
+                    {stats.tryoutSignups}
+                  </span>
+                )}
+              </Link>
+            )}
             <Link
               href="/admin/registrations"
               onClick={() => setMobileMenuOpen(false)}
@@ -382,15 +391,17 @@ export default function AdminNavbar() {
               AI Chat Analytics
             </Link>
             */}
-            <Link
-              href="/admin/settings"
-              onClick={() => setMobileMenuOpen(false)}
-              className={`block px-3 py-2 rounded-lg text-sm font-medium ${
-                isMobileActive('/admin/settings') ? 'bg-tne-red text-white' : 'text-stone-600 hover:bg-stone-100'
-              }`}
-            >
-              Settings
-            </Link>
+            {isAdmin && (
+              <Link
+                href="/admin/settings"
+                onClick={() => setMobileMenuOpen(false)}
+                className={`block px-3 py-2 rounded-lg text-sm font-medium ${
+                  isMobileActive('/admin/settings') ? 'bg-tne-red text-white' : 'text-stone-600 hover:bg-stone-100'
+                }`}
+              >
+                Settings
+              </Link>
+            )}
           </div>
           <div className="px-4 py-3 border-t border-stone-100">
             <SeasonDropdown />

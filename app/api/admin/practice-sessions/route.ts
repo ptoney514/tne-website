@@ -2,17 +2,29 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { practiceSessions, practiceSessionTeams, teams, seasons } from '@/lib/schema';
 import { eq, and } from 'drizzle-orm';
-import { requireAdmin } from '@/lib/auth-middleware';
+import { requireAdmin, requireRole, getCoachTeamIds } from '@/lib/auth-middleware';
 
 export async function GET(request: NextRequest) {
   try {
-    await requireAdmin(request);
+    const session = await requireRole(request, ['admin', 'coach']);
+    const isCoach = session.user.role === 'coach';
+
+    let coachTeamIds: string[] = [];
+    if (isCoach) {
+      coachTeamIds = await getCoachTeamIds(session.user.id);
+      if (coachTeamIds.length === 0) return NextResponse.json([]);
+    }
 
     const id = request.nextUrl.searchParams.get('id');
     const teamId = request.nextUrl.searchParams.get('teamId');
 
     // Get practice sessions for a specific team
     if (teamId) {
+      // Coach can only access their own teams
+      if (isCoach && !coachTeamIds.includes(teamId)) {
+        return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+      }
+
       const teamPractices = await db
         .select({
           id: practiceSessionTeams.id,
@@ -78,11 +90,18 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    const result = allPractices.map(p => ({
+    let result = allPractices.map(p => ({
       ...p.practice,
       season: p.season,
       practice_session_teams: assignmentMap.get(p.practice.id) || [],
     }));
+
+    // Coach: filter to practices that include at least one of their teams
+    if (isCoach) {
+      result = result.filter(p =>
+        p.practice_session_teams.some((t: { id: string }) => coachTeamIds.includes(t.id))
+      );
+    }
 
     return NextResponse.json(result);
   } catch (error) {

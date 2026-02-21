@@ -2,11 +2,18 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { games, gameTeams, teams, tournamentDetails, tournamentHotels, tournamentNearbyPlaces } from '@/lib/schema';
 import { eq, and, sql } from 'drizzle-orm';
-import { requireAdmin } from '@/lib/auth-middleware';
+import { requireAdmin, requireRole, getCoachTeamIds } from '@/lib/auth-middleware';
 
 export async function GET(request: NextRequest) {
   try {
-    await requireAdmin(request);
+    const session = await requireRole(request, ['admin', 'coach']);
+    const isCoach = session.user.role === 'coach';
+
+    let coachTeamIds: string[] = [];
+    if (isCoach) {
+      coachTeamIds = await getCoachTeamIds(session.user.id);
+      if (coachTeamIds.length === 0) return NextResponse.json([]);
+    }
 
     const id = request.nextUrl.searchParams.get('id');
     const seasonId = request.nextUrl.searchParams.get('seasonId');
@@ -33,6 +40,14 @@ export async function GET(request: NextRequest) {
         .from(gameTeams)
         .innerJoin(teams, eq(gameTeams.teamId, teams.id))
         .where(eq(gameTeams.gameId, id));
+
+      // Coach: verify game involves at least one of their teams
+      if (isCoach) {
+        const involvesCoachTeam = teamAssignments.some(t => coachTeamIds.includes(t.team.id));
+        if (!involvesCoachTeam) {
+          return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+        }
+      }
 
       return NextResponse.json({
         ...game[0],
@@ -80,7 +95,7 @@ export async function GET(request: NextRequest) {
       countMap.get(t.gameId)!.push(t);
     }
 
-    const result = allGames.map(g => ({
+    let result = allGames.map(g => ({
       ...g,
       teams_count: countMap.get(g.id)?.length || 0,
       game_teams: (countMap.get(g.id) || []).map((assignment) => ({
@@ -94,6 +109,13 @@ export async function GET(request: NextRequest) {
         },
       })),
     }));
+
+    // Coach: filter to games that include at least one of their teams
+    if (isCoach) {
+      result = result.filter(g =>
+        g.game_teams.some((t: { team_id: string }) => coachTeamIds.includes(t.team_id))
+      );
+    }
 
     return NextResponse.json(result);
   } catch (error) {
