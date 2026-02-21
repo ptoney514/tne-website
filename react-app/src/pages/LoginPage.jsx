@@ -61,8 +61,10 @@ export default function LoginPage() {
           navigate(from, { replace: true });
         } else {
           // Redirect based on user role from result
-          if (result.user?.role === 'admin') {
+          if (result.data?.user?.role === 'admin') {
             navigate('/admin', { replace: true });
+          } else if (result.data?.user?.role === 'coach') {
+            navigate('/coach', { replace: true });
           } else {
             navigate('/', { replace: true });
           }
@@ -200,6 +202,10 @@ export default function LoginPage() {
             <Link to="/" className="hover:text-white transition-colors">
               Back to home
             </Link>
+          </p>
+          <p className="text-center text-sm text-white/50 mt-2">
+            Don&apos;t have an account?{' '}
+            <Link to="/signup" className="text-[#E31837] hover:text-white transition-colors">Sign up</Link>
           </p>
         </div>
       </main>

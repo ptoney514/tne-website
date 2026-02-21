@@ -75,6 +75,15 @@ export default defineConfig({
         baseURL,
       },
     },
+    // Auth API diagnostic tests
+    {
+      name: 'auth-api',
+      testMatch: /auth\/.*\.spec\.js/,
+      use: {
+        ...devices['Desktop Chrome'],
+        baseURL,
+      },
+    },
   ],
   webServer: isRemote
     ? undefined

@@ -28,6 +28,17 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
+  // Sign up with email/password
+  const signUp = useCallback(async (email, password, name, firstName, lastName) => {
+    try {
+      const result = await authClient.signUp.email({ email, password, name, firstName, lastName });
+      if (result.error) return { error: result.error.message || 'Sign up failed' };
+      return { data: result.data };
+    } catch (err) {
+      return { error: err.message || 'Sign up failed. Please try again.' };
+    }
+  }, []);
+
   // Sign out
   const signOut = useCallback(async () => {
     try {
@@ -59,6 +70,7 @@ export function AuthProvider({ children }) {
       loading: isPending,
       error: sessionError?.message || null,
       signIn,
+      signUp,
       signOut,
       hasRole,
       isAdmin,
@@ -71,6 +83,7 @@ export function AuthProvider({ children }) {
       isPending,
       sessionError,
       signIn,
+      signUp,
       signOut,
       hasRole,
       isAdmin,

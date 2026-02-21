@@ -38,9 +38,16 @@ export function useUsers() {
   }, []);
 
   const fetchInvites = useCallback(async () => {
-    // Invites would need a separate endpoint
-    // For now, leave empty
-    setInvites([]);
+    try {
+      const data = await api.get('/admin/invites');
+      setInvites(data || []);
+      setStats((prev) => ({
+        ...prev,
+        pending: (data || []).filter((i) => i.status === 'pending').length,
+      }));
+    } catch {
+      setInvites([]);
+    }
   }, []);
 
   useEffect(() => {
@@ -66,14 +73,13 @@ export function useUsers() {
   };
 
   const createInvite = async (inviteData) => {
-    // Would need a separate endpoint for invites
-    console.log('createInvite not yet implemented', inviteData);
+    const data = await api.post('/admin/invites', inviteData);
     await fetchInvites();
-    return {};
+    return data;
   };
 
   const cancelInvite = async (id) => {
-    console.log('cancelInvite not yet implemented', id);
+    await api.patch(`/admin/invites?id=${id}`, { status: 'revoked' });
     await fetchInvites();
   };
 

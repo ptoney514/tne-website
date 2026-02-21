@@ -23,6 +23,8 @@
     "db:studio": "drizzle-kit studio",
     "db:seed": "npx tsx scripts/seed-dev-data.ts",
     "db:seed:winter-2025": "npx tsx scripts/seed-winter-2025.ts",
+    "db:seed:users": "npx tsx scripts/seed-test-users.ts",
+    "db:create-admin": "npx tsx scripts/create-admin.ts",
     "db:migrate-from-supabase": "npx tsx scripts/migrate-from-supabase.ts"
   },
   "dependencies": {
