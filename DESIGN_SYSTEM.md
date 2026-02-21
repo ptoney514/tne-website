@@ -72,11 +72,14 @@ Result: Clean, modern Inter headline with normal case
 
 ## 1. Tech Stack & Dependencies
 
+> **Note:** The HTML/CDN snippets below are **legacy reference only** from the original static HTML build. The project now uses **Next.js** with `lucide-react` for icons and **Tailwind CSS 4 via PostCSS** (not CDN). Brand colors are defined in `app/globals.css` using CSS custom properties. The design tokens, typography rules, and component patterns in this document remain valid as visual reference.
+
 ```html
+<!-- LEGACY REFERENCE — do not copy into the Next.js app -->
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
+
     <!-- Tailwind CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -94,10 +97,10 @@ Result: Clean, modern Inter headline with normal case
             }
         }
     </script>
-    
+
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    
+
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

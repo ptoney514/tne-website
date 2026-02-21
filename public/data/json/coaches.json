@@ -1,0 +1,75 @@
+{
+  "coaches": [
+    {
+      "id": "coach-foster",
+      "first_name": "Coach",
+      "last_name": "Foster",
+      "email": "foster@tneunited.placeholder",
+      "phone": null,
+      "role": "head",
+      "bio": null,
+      "certifications": []
+    },
+    {
+      "id": "coach-grixby",
+      "first_name": "Coach",
+      "last_name": "Grixby",
+      "email": "grixby@tneunited.placeholder",
+      "phone": null,
+      "role": "head",
+      "bio": null,
+      "certifications": []
+    },
+    {
+      "id": "coach-evans",
+      "first_name": "Coach",
+      "last_name": "Evans",
+      "email": "evans@tneunited.placeholder",
+      "phone": null,
+      "role": "assistant",
+      "bio": null,
+      "certifications": []
+    },
+    {
+      "id": "coach-perry",
+      "first_name": "Coach",
+      "last_name": "Perry",
+      "email": "perry@tneunited.placeholder",
+      "phone": null,
+      "role": "head",
+      "bio": null,
+      "certifications": []
+    },
+    {
+      "id": "coach-todd",
+      "first_name": "Coach",
+      "last_name": "Todd",
+      "email": "todd@tneunited.placeholder",
+      "phone": null,
+      "role": "head",
+      "bio": null,
+      "certifications": []
+    },
+    {
+      "id": "coach-scott",
+      "first_name": "Coach",
+      "last_name": "Scott",
+      "email": "scott@tneunited.placeholder",
+      "phone": null,
+      "role": "head",
+      "bio": null,
+      "certifications": []
+    },
+    {
+      "id": "coach-mitchell",
+      "first_name": "Alvin",
+      "last_name": "Mitchell",
+      "email": "amitch2am@gmail.com",
+      "phone": null,
+      "role": "head",
+      "bio": null,
+      "certifications": []
+    }
+  ],
+  "updated_at": "2026-02-20T00:00:00.000Z"
+}

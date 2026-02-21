@@ -1,0 +1,33 @@
+{
+  "season": {
+    "id": "winter-2025",
+    "name": "Winter 2025",
+    "is_active": true
+  },
+  "registration": {
+    "is_open": true,
+    "label": "Winter 2025",
+    "deadline": null,
+    "notes": null
+  },
+  "tryouts": {
+    "is_open": true,
+    "label": "Spring 2026 Tryouts",
+    "dates": null,
+    "notes": null,
+    "next_season_id": "spring-2026",
+    "next_season_name": "Spring 2026"
+  },
+  "payment": {
+    "stripe_enabled": false,
+    "paypal_enabled": true,
+    "venmo_enabled": true,
+    "zelle_enabled": true,
+    "installment_plans_enabled": true
+  },
+  "contact": {
+    "email": "info@tneunited.com",
+    "phone": null
+  },
+  "updated_at": "2026-02-20T00:00:00.000Z"
+}

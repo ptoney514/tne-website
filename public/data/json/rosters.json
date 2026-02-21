@@ -1,0 +1,743 @@
+{
+  "rosters": [
+    {
+      "team_id": "express-united-4th-foster",
+      "players": [
+        {
+          "id": "player-1",
+          "first_name": "Callan",
+          "last_name": "Kapels",
+          "jersey_number": null,
+          "position": null,
+          "grade": "4th",
+          "graduating_year": 2034
+        },
+        {
+          "id": "player-2",
+          "first_name": "Amare",
+          "last_name": "Detrick",
+          "jersey_number": null,
+          "position": null,
+          "grade": "4th",
+          "graduating_year": 2034
+        },
+        {
+          "id": "player-3",
+          "first_name": "Ace",
+          "last_name": "Mitchell",
+          "jersey_number": null,
+          "position": null,
+          "grade": "4th",
+          "graduating_year": 2034
+        },
+        {
+          "id": "player-4",
+          "first_name": "Jewelz",
+          "last_name": "Shields",
+          "jersey_number": null,
+          "position": null,
+          "grade": "4th",
+          "graduating_year": 2034
+        },
+        {
+          "id": "player-5",
+          "first_name": "Merrik",
+          "last_name": "Pringle",
+          "jersey_number": null,
+          "position": null,
+          "grade": "4th",
+          "graduating_year": 2034
+        },
+        {
+          "id": "player-6",
+          "first_name": "Kamari",
+          "last_name": "Douglas",
+          "jersey_number": null,
+          "position": null,
+          "grade": "4th",
+          "graduating_year": 2034
+        },
+        {
+          "id": "player-7",
+          "first_name": "Elijah",
+          "last_name": "King",
+          "jersey_number": null,
+          "position": null,
+          "grade": "4th",
+          "graduating_year": 2034
+        }
+      ]
+    },
+    {
+      "team_id": "express-united-4th-grixbyevans",
+      "players": [
+        {
+          "id": "player-8",
+          "first_name": "Elijah",
+          "last_name": "Edmonds",
+          "jersey_number": null,
+          "position": null,
+          "grade": "4th",
+          "graduating_year": 2034
+        },
+        {
+          "id": "player-9",
+          "first_name": "Aaron",
+          "last_name": "Evans",
+          "jersey_number": null,
+          "position": null,
+          "grade": "4th",
+          "graduating_year": 2034
+        },
+        {
+          "id": "player-10",
+          "first_name": "Carlos",
+          "last_name": "Gonzalaus",
+          "jersey_number": null,
+          "position": null,
+          "grade": "4th",
+          "graduating_year": 2034
+        },
+        {
+          "id": "player-11",
+          "first_name": "Layland",
+          "last_name": "Smith",
+          "jersey_number": null,
+          "position": null,
+          "grade": "4th",
+          "graduating_year": 2034
+        },
+        {
+          "id": "player-12",
+          "first_name": "Jackson",
+          "last_name": "Boyd",
+          "jersey_number": null,
+          "position": null,
+          "grade": "4th",
+          "graduating_year": 2034
+        },
+        {
+          "id": "player-13",
+          "first_name": "Axel",
+          "last_name": "Zuck",
+          "jersey_number": null,
+          "position": null,
+          "grade": "4th",
+          "graduating_year": 2034
+        },
+        {
+          "id": "player-14",
+          "first_name": "Yohan",
+          "last_name": "Grixby",
+          "jersey_number": null,
+          "position": null,
+          "grade": "4th",
+          "graduating_year": 2034
+        },
+        {
+          "id": "player-15",
+          "first_name": "Javi",
+          "last_name": "Shaw",
+          "jersey_number": null,
+          "position": null,
+          "grade": "4th",
+          "graduating_year": 2034
+        }
+      ]
+    },
+    {
+      "team_id": "express-united-5th-perry",
+      "players": [
+        {
+          "id": "player-16",
+          "first_name": "Landon",
+          "last_name": "Boyd",
+          "jersey_number": null,
+          "position": null,
+          "grade": "5th",
+          "graduating_year": 2033
+        },
+        {
+          "id": "player-17",
+          "first_name": "Kalin",
+          "last_name": "Detrick",
+          "jersey_number": null,
+          "position": null,
+          "grade": "5th",
+          "graduating_year": 2033
+        },
+        {
+          "id": "player-18",
+          "first_name": "Camden",
+          "last_name": "Hopkins",
+          "jersey_number": null,
+          "position": null,
+          "grade": "5th",
+          "graduating_year": 2033
+        },
+        {
+          "id": "player-19",
+          "first_name": "Zeb",
+          "last_name": "Hardin",
+          "jersey_number": null,
+          "position": null,
+          "grade": "5th",
+          "graduating_year": 2033
+        },
+        {
+          "id": "player-20",
+          "first_name": "Declan",
+          "last_name": "Jimenez-Creegan",
+          "jersey_number": null,
+          "position": null,
+          "grade": "5th",
+          "graduating_year": 2033
+        },
+        {
+          "id": "player-21",
+          "first_name": "Isaiah",
+          "last_name": "Criswell",
+          "jersey_number": null,
+          "position": null,
+          "grade": "5th",
+          "graduating_year": 2033
+        },
+        {
+          "id": "player-22",
+          "first_name": "Cain",
+          "last_name": "Hicks",
+          "jersey_number": null,
+          "position": null,
+          "grade": "5th",
+          "graduating_year": 2033
+        },
+        {
+          "id": "player-23",
+          "first_name": "Taj",
+          "last_name": "Jones",
+          "jersey_number": null,
+          "position": null,
+          "grade": "5th",
+          "graduating_year": 2033
+        },
+        {
+          "id": "player-24",
+          "first_name": "Zion",
+          "last_name": "Gibbs",
+          "jersey_number": null,
+          "position": null,
+          "grade": "5th",
+          "graduating_year": 2033
+        },
+        {
+          "id": "player-25",
+          "first_name": "Xavier",
+          "last_name": "Crawford",
+          "jersey_number": null,
+          "position": null,
+          "grade": "5th",
+          "graduating_year": 2033
+        },
+        {
+          "id": "player-26",
+          "first_name": "Ra'Mond",
+          "last_name": "Perry",
+          "jersey_number": null,
+          "position": null,
+          "grade": "5th",
+          "graduating_year": 2033
+        }
+      ]
+    },
+    {
+      "team_id": "express-united-6th-todd",
+      "players": [
+        {
+          "id": "player-27",
+          "first_name": "Elijah",
+          "last_name": "Worlds",
+          "jersey_number": null,
+          "position": null,
+          "grade": "6th",
+          "graduating_year": 2032
+        },
+        {
+          "id": "player-28",
+          "first_name": "Adyn",
+          "last_name": "Nicholas",
+          "jersey_number": null,
+          "position": null,
+          "grade": "6th",
+          "graduating_year": 2032
+        },
+        {
+          "id": "player-29",
+          "first_name": "Ahnor",
+          "last_name": "Jackson",
+          "jersey_number": null,
+          "position": null,
+          "grade": "6th",
+          "graduating_year": 2032
+        },
+        {
+          "id": "player-30",
+          "first_name": "Atiyyah",
+          "last_name": "Sandlin-El",
+          "jersey_number": null,
+          "position": null,
+          "grade": "6th",
+          "graduating_year": 2032
+        },
+        {
+          "id": "player-31",
+          "first_name": "Avery",
+          "last_name": "Tyler",
+          "jersey_number": null,
+          "position": null,
+          "grade": "6th",
+          "graduating_year": 2032
+        },
+        {
+          "id": "player-32",
+          "first_name": "Bryson",
+          "last_name": "Thorpe",
+          "jersey_number": null,
+          "position": null,
+          "grade": "6th",
+          "graduating_year": 2032
+        },
+        {
+          "id": "player-33",
+          "first_name": "Cam",
+          "last_name": "Berry",
+          "jersey_number": null,
+          "position": null,
+          "grade": "6th",
+          "graduating_year": 2032
+        },
+        {
+          "id": "player-34",
+          "first_name": "Mason",
+          "last_name": "Pugh",
+          "jersey_number": null,
+          "position": null,
+          "grade": "6th",
+          "graduating_year": 2032
+        },
+        {
+          "id": "player-35",
+          "first_name": "Samajai",
+          "last_name": "Critten",
+          "jersey_number": null,
+          "position": null,
+          "grade": "6th",
+          "graduating_year": 2032
+        },
+        {
+          "id": "player-36",
+          "first_name": "AJ",
+          "last_name": "Tanner",
+          "jersey_number": null,
+          "position": null,
+          "grade": "6th",
+          "graduating_year": 2032
+        }
+      ]
+    },
+    {
+      "team_id": "express-united-6th-scott",
+      "players": [
+        {
+          "id": "player-37",
+          "first_name": "Chris",
+          "last_name": "Bailey",
+          "jersey_number": null,
+          "position": null,
+          "grade": "6th",
+          "graduating_year": 2032
+        },
+        {
+          "id": "player-38",
+          "first_name": "Jalen",
+          "last_name": "Faulkner",
+          "jersey_number": null,
+          "position": null,
+          "grade": "6th",
+          "graduating_year": 2032
+        },
+        {
+          "id": "player-39",
+          "first_name": "Mathius",
+          "last_name": "Flye",
+          "jersey_number": null,
+          "position": null,
+          "grade": "6th",
+          "graduating_year": 2032
+        },
+        {
+          "id": "player-40",
+          "first_name": "Preston",
+          "last_name": "Moshier",
+          "jersey_number": null,
+          "position": null,
+          "grade": "6th",
+          "graduating_year": 2032
+        },
+        {
+          "id": "player-41",
+          "first_name": "Rakim",
+          "last_name": "Frampton",
+          "jersey_number": null,
+          "position": null,
+          "grade": "6th",
+          "graduating_year": 2032
+        },
+        {
+          "id": "player-42",
+          "first_name": "Sean",
+          "last_name": "Jackson",
+          "jersey_number": null,
+          "position": null,
+          "grade": "6th",
+          "graduating_year": 2032
+        },
+        {
+          "id": "player-43",
+          "first_name": "Titus",
+          "last_name": "Adams",
+          "jersey_number": null,
+          "position": null,
+          "grade": "6th",
+          "graduating_year": 2032
+        },
+        {
+          "id": "player-44",
+          "first_name": "Brighton",
+          "last_name": "Clark",
+          "jersey_number": null,
+          "position": null,
+          "grade": "6th",
+          "graduating_year": 2032
+        },
+        {
+          "id": "player-45",
+          "first_name": "Dupree",
+          "last_name": "Davis",
+          "jersey_number": null,
+          "position": null,
+          "grade": "6th",
+          "graduating_year": 2032
+        }
+      ]
+    },
+    {
+      "team_id": "express-united-7th",
+      "players": [
+        {
+          "id": "player-46",
+          "first_name": "Emmanuel",
+          "last_name": "Adams",
+          "jersey_number": null,
+          "position": null,
+          "grade": "7th",
+          "graduating_year": 2031
+        },
+        {
+          "id": "player-47",
+          "first_name": "Jamison",
+          "last_name": "Pitzl",
+          "jersey_number": null,
+          "position": null,
+          "grade": "7th",
+          "graduating_year": 2031
+        },
+        {
+          "id": "player-48",
+          "first_name": "Jay",
+          "last_name": "Garrison",
+          "jersey_number": null,
+          "position": null,
+          "grade": "7th",
+          "graduating_year": 2031
+        },
+        {
+          "id": "player-49",
+          "first_name": "Jeremiah",
+          "last_name": "Shaw",
+          "jersey_number": null,
+          "position": null,
+          "grade": "7th",
+          "graduating_year": 2031
+        },
+        {
+          "id": "player-50",
+          "first_name": "Josh",
+          "last_name": "Cannon",
+          "jersey_number": null,
+          "position": null,
+          "grade": "7th",
+          "graduating_year": 2031
+        },
+        {
+          "id": "player-51",
+          "first_name": "Reis",
+          "last_name": "Parker",
+          "jersey_number": null,
+          "position": null,
+          "grade": "7th",
+          "graduating_year": 2031
+        },
+        {
+          "id": "player-52",
+          "first_name": "Isaac",
+          "last_name": "Jones",
+          "jersey_number": null,
+          "position": null,
+          "grade": "7th",
+          "graduating_year": 2031
+        }
+      ]
+    },
+    {
+      "team_id": "express-united-7th-mitchell",
+      "players": [
+        {
+          "id": "player-53",
+          "first_name": "Marcell",
+          "last_name": "Riley",
+          "jersey_number": null,
+          "position": null,
+          "grade": "7th",
+          "graduating_year": 2031
+        },
+        {
+          "id": "player-54",
+          "first_name": "Xander",
+          "last_name": "Heyen",
+          "jersey_number": null,
+          "position": null,
+          "grade": "7th",
+          "graduating_year": 2031
+        },
+        {
+          "id": "player-55",
+          "first_name": "Blake",
+          "last_name": "Wojtalewicz",
+          "jersey_number": null,
+          "position": null,
+          "grade": "7th",
+          "graduating_year": 2031
+        },
+        {
+          "id": "player-56",
+          "first_name": "Kai",
+          "last_name": "Mitchell",
+          "jersey_number": null,
+          "position": null,
+          "grade": "7th",
+          "graduating_year": 2031
+        },
+        {
+          "id": "player-57",
+          "first_name": "Max",
+          "last_name": "Preasha",
+          "jersey_number": null,
+          "position": null,
+          "grade": "7th",
+          "graduating_year": 2031
+        },
+        {
+          "id": "player-58",
+          "first_name": "Monroe",
+          "last_name": "Love Jr",
+          "jersey_number": null,
+          "position": null,
+          "grade": "7th",
+          "graduating_year": 2031
+        },
+        {
+          "id": "player-59",
+          "first_name": "Rajon",
+          "last_name": "Bailey",
+          "jersey_number": null,
+          "position": null,
+          "grade": "7th",
+          "graduating_year": 2031
+        }
+      ]
+    },
+    {
+      "team_id": "express-united-8th",
+      "players": [
+        {
+          "id": "player-60",
+          "first_name": "Ray",
+          "last_name": "Perry",
+          "jersey_number": null,
+          "position": null,
+          "grade": "8th",
+          "graduating_year": 2030
+        },
+        {
+          "id": "player-61",
+          "first_name": "Treason",
+          "last_name": "Adams",
+          "jersey_number": null,
+          "position": null,
+          "grade": "8th",
+          "graduating_year": 2030
+        },
+        {
+          "id": "player-62",
+          "first_name": "Zaegan",
+          "last_name": "Crockett",
+          "jersey_number": null,
+          "position": null,
+          "grade": "8th",
+          "graduating_year": 2030
+        },
+        {
+          "id": "player-63",
+          "first_name": "Brooks",
+          "last_name": "Jacobs",
+          "jersey_number": null,
+          "position": null,
+          "grade": "8th",
+          "graduating_year": 2030
+        },
+        {
+          "id": "player-64",
+          "first_name": "DJ",
+          "last_name": "Tate",
+          "jersey_number": null,
+          "position": null,
+          "grade": "8th",
+          "graduating_year": 2030
+        },
+        {
+          "id": "player-65",
+          "first_name": "Case",
+          "last_name": "Homan",
+          "jersey_number": null,
+          "position": null,
+          "grade": "8th",
+          "graduating_year": 2030
+        },
+        {
+          "id": "player-66",
+          "first_name": "TJ",
+          "last_name": "Wright",
+          "jersey_number": null,
+          "position": null,
+          "grade": "8th",
+          "graduating_year": 2030
+        },
+        {
+          "id": "player-67",
+          "first_name": "Myles",
+          "last_name": "Sawyer",
+          "jersey_number": null,
+          "position": null,
+          "grade": "8th",
+          "graduating_year": 2030
+        },
+        {
+          "id": "player-68",
+          "first_name": "Jacen",
+          "last_name": "Davis",
+          "jersey_number": null,
+          "position": null,
+          "grade": "8th",
+          "graduating_year": 2030
+        },
+        {
+          "id": "player-69",
+          "first_name": "Corderro",
+          "last_name": "Hall",
+          "jersey_number": null,
+          "position": null,
+          "grade": "8th",
+          "graduating_year": 2030
+        }
+      ]
+    },
+    {
+      "team_id": "express-united-8th-mitchell",
+      "players": [
+        {
+          "id": "player-70",
+          "first_name": "Armand",
+          "last_name": "Collins",
+          "jersey_number": null,
+          "position": null,
+          "grade": "8th",
+          "graduating_year": 2030
+        },
+        {
+          "id": "player-71",
+          "first_name": "Carter",
+          "last_name": "Davis",
+          "jersey_number": null,
+          "position": null,
+          "grade": "8th",
+          "graduating_year": 2030
+        },
+        {
+          "id": "player-72",
+          "first_name": "Henry",
+          "last_name": "Kittel",
+          "jersey_number": null,
+          "position": null,
+          "grade": "8th",
+          "graduating_year": 2030
+        },
+        {
+          "id": "player-73",
+          "first_name": "Traysen",
+          "last_name": "Pringle",
+          "jersey_number": null,
+          "position": null,
+          "grade": "8th",
+          "graduating_year": 2030
+        },
+        {
+          "id": "player-74",
+          "first_name": "Hamin",
+          "last_name": "Cawthon",
+          "jersey_number": null,
+          "position": null,
+          "grade": "8th",
+          "graduating_year": 2030
+        },
+        {
+          "id": "player-75",
+          "first_name": "Skyler",
+          "last_name": "Say",
+          "jersey_number": null,
+          "position": null,
+          "grade": "8th",
+          "graduating_year": 2030
+        },
+        {
+          "id": "player-76",
+          "first_name": "Darius",
+          "last_name": "Thompson",
+          "jersey_number": null,
+          "position": null,
+          "grade": "8th",
+          "graduating_year": 2030
+        },
+        {
+          "id": "player-77",
+          "first_name": "Jordan",
+          "last_name": "Mitchell",
+          "jersey_number": null,
+          "position": null,
+          "grade": "8th",
+          "graduating_year": 2030
+        }
+      ]
+    }
+  ],
+  "updated_at": "2026-02-20T00:00:00.000Z"
+}

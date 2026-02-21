@@ -1,6 +1,6 @@
 import { defineConfig, devices } from '@playwright/test';
 
-const baseURL = process.env.PLAYWRIGHT_TEST_BASE_URL || 'http://localhost:5173';
+const baseURL = process.env.PLAYWRIGHT_TEST_BASE_URL || 'http://localhost:3000';
 const isRemote = !!process.env.PLAYWRIGHT_TEST_BASE_URL;
 
 export default defineConfig({
@@ -19,16 +19,7 @@ export default defineConfig({
     trace: 'on-first-retry',
   },
   projects: [
-    // Static HTML pages (existing tests)
-    {
-      name: 'static-pages',
-      testMatch: /pages\.spec\.js/,
-      use: {
-        ...devices['Desktop Chrome'],
-        baseURL: 'file://' + process.cwd(),
-      },
-    },
-    // React app (public pages - existing tests)
+    // React app (public pages)
     {
       name: 'public-pages',
       testMatch: /public\/(?!form-submissions|data-verification).*\.spec\.js/,
@@ -75,14 +66,21 @@ export default defineConfig({
         baseURL,
       },
     },
+    // Auth API diagnostic tests
+    {
+      name: 'auth-api',
+      testMatch: /auth\/.*\.spec\.js/,
+      use: {
+        ...devices['Desktop Chrome'],
+        baseURL,
+      },
+    },
   ],
   webServer: isRemote
     ? undefined
     : {
-        command: 'cd react-app && npm run dev',
-        url: 'http://localhost:5173',
-        // Always start this repo's server to avoid accidentally running tests
-        // against another local project listening on the same port.
+        command: 'npm run dev',
+        url: 'http://localhost:3000',
         reuseExistingServer: false,
         timeout: 120 * 1000,
       },

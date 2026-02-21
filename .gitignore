@@ -1,6 +1,11 @@
 # Dependencies
 node_modules/
 
+# Next.js
+.next/
+out/
+tsconfig.tsbuildinfo
+
 # Playwright
 playwright-report/
 test-results/
@@ -21,11 +26,6 @@ test-results/
 .env.local
 .vercel
 
-# Large media files (stored on Cloudflare R2)
-src/assets/images/media/videos/
-
-# Supabase CLI temp files
-supabase/.temp/
 
 # Seed data (may contain PII, generate locally)
 data/team-data.xlsx

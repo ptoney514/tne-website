@@ -15,7 +15,7 @@ import 'dotenv/config';
 import { neon } from '@neondatabase/serverless';
 import { drizzle } from 'drizzle-orm/neon-http';
 import { eq } from 'drizzle-orm';
-import * as schema from '../api/lib/schema';
+import * as schema from '../lib/schema';
 
 // Load roster data
 import rostersData from '../data/json/rosters.json' assert { type: 'json' };

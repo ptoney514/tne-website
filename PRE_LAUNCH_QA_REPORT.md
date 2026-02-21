@@ -1,5 +1,7 @@
 # Pre-Launch QA Report
 
+> **Historical Document:** This report was generated on January 25, 2026, before the migration from Vite SPA + Supabase to Next.js App Router + Neon + Better Auth. File paths, architecture references, and some issues described below are outdated. Retained as a point-in-time snapshot.
+
 **Date:** January 25, 2026
 **Project:** TNE United Express Website
 **Status:** Most Issues Fixed - Ready for Review
