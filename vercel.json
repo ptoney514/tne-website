@@ -3,6 +3,11 @@
   "outputDirectory": "react-app/dist",
   "installCommand": "npm install",
   "framework": "vite",
+  "functions": {
+    "api/auth/[...betterauth].ts": {
+      "includeFiles": "api/lib/**"
+    }
+  },
   "rewrites": [
     { "source": "/api/auth/(.*)", "destination": "/api/auth/[...betterauth]" },
     { "source": "/api/:path*", "destination": "/api/:path*" },
