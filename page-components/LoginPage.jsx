@@ -62,10 +62,8 @@ export default function LoginPage() {
           router.replace(from);
         } else {
           // Redirect based on user role from result
-          if (result.data?.user?.role === 'admin') {
+          if (result.data?.user?.role === 'admin' || result.data?.user?.role === 'coach') {
             router.replace('/admin');
-          } else if (result.data?.user?.role === 'coach') {
-            router.replace('/coach');
           } else {
             router.replace('/');
           }

@@ -17,7 +17,6 @@ import {
 // Role option descriptions
 const ROLE_OPTIONS = [
   { value: 'admin', label: 'Admin', description: 'Full access to all settings and data' },
-  { value: 'director', label: 'Director', description: 'Manage teams, players, and program operations' },
   { value: 'coach', label: 'Coach', description: 'Manage assigned teams and rosters' },
   { value: 'parent', label: 'Parent', description: 'View player info and registrations' },
 ];
