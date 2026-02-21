@@ -5,7 +5,7 @@ import { SeasonProvider } from '@/contexts/SeasonContext';
 
 export default function AdminLayout({ children }) {
   return (
-    <ProtectedRoute allowedRoles={['admin']}>
+    <ProtectedRoute allowedRoles={['admin', 'coach']}>
       <SeasonProvider>
         {children}
       </SeasonProvider>
