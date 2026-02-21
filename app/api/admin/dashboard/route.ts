@@ -9,7 +9,7 @@ import {
   teamRoster,
   seasons,
 } from '@/lib/schema';
-import { requireAdmin, requireRole, getCoachTeamIds } from '@/lib/auth-middleware';
+import { requireRole, getCoachTeamIds } from '@/lib/auth-middleware';
 import { eq, sql, and, gte, lte, inArray } from 'drizzle-orm';
 
 export async function GET(request: NextRequest) {

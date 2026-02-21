@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { teams, coaches, seasons, teamRoster } from '@/lib/schema';
 import { requireAdmin, requireRole, getCoachTeamIds } from '@/lib/auth-middleware';
-import { eq, sql, inArray } from 'drizzle-orm';
+import { and, eq, sql, inArray } from 'drizzle-orm';
 
 export async function GET(request: NextRequest) {
   try {
@@ -21,9 +21,7 @@ export async function GET(request: NextRequest) {
     const conditions = [];
     if (seasonId) conditions.push(eq(teams.seasonId, seasonId));
     if (isCoach) conditions.push(inArray(teams.id, coachTeamIds));
-    const whereClause = conditions.length > 0
-      ? conditions.length === 1 ? conditions[0] : sql`${conditions[0]} AND ${conditions[1]}`
-      : sql`true`;
+    const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
     // Fetch teams with joins
     const teamsData = await db

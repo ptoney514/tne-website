@@ -52,6 +52,22 @@ export async function GET(request: NextRequest) {
       if (practice.length === 0) {
         return NextResponse.json({ error: 'Practice session not found' }, { status: 404 });
       }
+
+      // Coach: verify practice involves at least one of their teams
+      if (isCoach) {
+        const practiceTeamAssignments = await db
+          .select({ teamId: practiceSessionTeams.teamId })
+          .from(practiceSessionTeams)
+          .where(eq(practiceSessionTeams.practiceSessionId, id));
+
+        const involvesCoachTeam = practiceTeamAssignments.some(
+          t => coachTeamIds.includes(t.teamId)
+        );
+        if (!involvesCoachTeam) {
+          return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+        }
+      }
+
       return NextResponse.json(practice[0]);
     }
 
