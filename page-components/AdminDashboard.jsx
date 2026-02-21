@@ -553,6 +553,7 @@ export default function AdminDashboard() {
   const { stats, recentActivity, upcomingEvents, loading, error, refetch } = useDashboardStats();
   const { selectedSeason, refetch: refetchSeasons } = useSeason();
   const [showUploadModal, setShowUploadModal] = useState(false);
+  const isAdmin = profile?.role === 'admin';
 
   const handleControlUpdate = () => {
     refetchSeasons();
@@ -658,7 +659,7 @@ export default function AdminDashboard() {
                 <span>{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</span>
               </div>
               <h1 className="text-3xl lg:text-4xl font-bebas tracking-tight text-stone-900">
-                {getGreeting()}, {profile?.first_name || 'Admin'}
+                {getGreeting()}, {profile?.first_name || (isAdmin ? 'Admin' : 'Coach')}
               </h1>
             </div>
             <button
@@ -683,25 +684,27 @@ export default function AdminDashboard() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-8">
 
             {/* Control Panel */}
-            <div className="lg:col-span-5">
-              <div className="flex items-center gap-2 mb-3">
-                <Zap className="w-4 h-4 text-tne-red" />
-                <h2 className="text-xs font-mono text-stone-500 uppercase tracking-widest">Control Panel</h2>
+            {isAdmin && (
+              <div className="lg:col-span-5">
+                <div className="flex items-center gap-2 mb-3">
+                  <Zap className="w-4 h-4 text-tne-red" />
+                  <h2 className="text-xs font-mono text-stone-500 uppercase tracking-widest">Control Panel</h2>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <TryoutsControl
+                    season={selectedSeason}
+                    onUpdate={handleControlUpdate}
+                  />
+                  <RegistrationControl
+                    season={selectedSeason}
+                    onUpdate={handleControlUpdate}
+                  />
+                </div>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <TryoutsControl
-                  season={selectedSeason}
-                  onUpdate={handleControlUpdate}
-                />
-                <RegistrationControl
-                  season={selectedSeason}
-                  onUpdate={handleControlUpdate}
-                />
-              </div>
-            </div>
+            )}
 
             {/* Stats Grid */}
-            <div className="lg:col-span-7">
+            <div className={isAdmin ? 'lg:col-span-7' : 'lg:col-span-12'}>
               <div className="flex items-center gap-2 mb-3">
                 <Activity className="w-4 h-4 text-stone-400" />
                 <h2 className="text-xs font-mono text-stone-500 uppercase tracking-widest">Overview</h2>
@@ -728,13 +731,15 @@ export default function AdminDashboard() {
                   icon={ClipboardList}
                   href="/admin/registrations"
                 />
-                <StatCard
-                  label="Tryouts"
-                  value={stats.tryoutSignups}
-                  loading={loading}
-                  icon={CalendarCheck}
-                  href="/admin/tryouts"
-                />
+                {isAdmin && (
+                  <StatCard
+                    label="Tryouts"
+                    value={stats.tryoutSignups}
+                    loading={loading}
+                    icon={CalendarCheck}
+                    href="/admin/tryouts"
+                  />
+                )}
               </div>
             </div>
           </div>
@@ -742,35 +747,37 @@ export default function AdminDashboard() {
           {/* ============================================
               QUICK ACTIONS
               ============================================ */}
-          <div className="mb-8">
-            <div className="flex items-center gap-2 mb-3">
-              <FileSpreadsheet className="w-4 h-4 text-stone-400" />
-              <h2 className="text-xs font-mono text-stone-500 uppercase tracking-widest">Quick Actions</h2>
+          {isAdmin && (
+            <div className="mb-8">
+              <div className="flex items-center gap-2 mb-3">
+                <FileSpreadsheet className="w-4 h-4 text-stone-400" />
+                <h2 className="text-xs font-mono text-stone-500 uppercase tracking-widest">Quick Actions</h2>
+              </div>
+              <div className="flex flex-wrap gap-3">
+                <button
+                  onClick={() => setShowUploadModal(true)}
+                  className="flex items-center gap-2 px-4 py-3 rounded-xl bg-tne-red text-white font-medium text-sm hover:bg-tne-red-dark transition-colors shadow-sm"
+                >
+                  <Upload className="w-4 h-4" />
+                  Upload Team Data
+                </button>
+                <button
+                  onClick={handleExportCurrentData}
+                  className="flex items-center gap-2 px-4 py-3 rounded-xl bg-white border border-stone-200 text-stone-700 font-medium text-sm hover:bg-stone-50 hover:border-stone-300 transition-colors"
+                >
+                  <Download className="w-4 h-4" />
+                  Download Current Data
+                </button>
+                <button
+                  onClick={handleDownloadTemplate}
+                  className="flex items-center gap-2 px-4 py-3 rounded-xl bg-white border border-stone-200 text-stone-700 font-medium text-sm hover:bg-stone-50 hover:border-stone-300 transition-colors"
+                >
+                  <FileSpreadsheet className="w-4 h-4" />
+                  Download Template
+                </button>
+              </div>
             </div>
-            <div className="flex flex-wrap gap-3">
-              <button
-                onClick={() => setShowUploadModal(true)}
-                className="flex items-center gap-2 px-4 py-3 rounded-xl bg-tne-red text-white font-medium text-sm hover:bg-tne-red-dark transition-colors shadow-sm"
-              >
-                <Upload className="w-4 h-4" />
-                Upload Team Data
-              </button>
-              <button
-                onClick={handleExportCurrentData}
-                className="flex items-center gap-2 px-4 py-3 rounded-xl bg-white border border-stone-200 text-stone-700 font-medium text-sm hover:bg-stone-50 hover:border-stone-300 transition-colors"
-              >
-                <Download className="w-4 h-4" />
-                Download Current Data
-              </button>
-              <button
-                onClick={handleDownloadTemplate}
-                className="flex items-center gap-2 px-4 py-3 rounded-xl bg-white border border-stone-200 text-stone-700 font-medium text-sm hover:bg-stone-50 hover:border-stone-300 transition-colors"
-              >
-                <FileSpreadsheet className="w-4 h-4" />
-                Download Template
-              </button>
-            </div>
-          </div>
+          )}
 
           {/* ============================================
               ALERTS

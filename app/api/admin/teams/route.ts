@@ -1,14 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { teams, coaches, seasons, teamRoster } from '@/lib/schema';
-import { requireAdmin } from '@/lib/auth-middleware';
-import { eq, sql } from 'drizzle-orm';
+import { requireAdmin, requireRole, getCoachTeamIds } from '@/lib/auth-middleware';
+import { and, eq, sql, inArray } from 'drizzle-orm';
 
 export async function GET(request: NextRequest) {
   try {
-    await requireAdmin(request);
+    const session = await requireRole(request, ['admin', 'coach']);
+    const isCoach = session.user.role === 'coach';
+
+    let coachTeamIds: string[] = [];
+    if (isCoach) {
+      coachTeamIds = await getCoachTeamIds(session.user.id);
+      if (coachTeamIds.length === 0) return NextResponse.json([]);
+    }
 
     const seasonId = request.nextUrl.searchParams.get('seasonId');
+
+    // Build WHERE conditions
+    const conditions = [];
+    if (seasonId) conditions.push(eq(teams.seasonId, seasonId));
+    if (isCoach) conditions.push(inArray(teams.id, coachTeamIds));
+    const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
     // Fetch teams with joins
     const teamsData = await db
@@ -35,11 +48,11 @@ export async function GET(request: NextRequest) {
       .from(teams)
       .leftJoin(seasons, eq(teams.seasonId, seasons.id))
       .leftJoin(coaches, eq(teams.headCoachId, coaches.id))
-      .where(seasonId ? eq(teams.seasonId, seasonId) : sql`true`)
+      .where(whereClause)
       .orderBy(teams.gradeLevel);
 
-    // Get roster counts
-    const rosterCounts = await db
+    // Get roster counts (scoped to coach's teams if applicable)
+    const rosterQuery = db
       .select({
         teamId: teamRoster.teamId,
         count: sql<number>`count(*)::int`,
@@ -47,6 +60,10 @@ export async function GET(request: NextRequest) {
       .from(teamRoster)
       .where(eq(teamRoster.isActive, true))
       .groupBy(teamRoster.teamId);
+
+    const rosterCounts = isCoach
+      ? (await rosterQuery).filter(r => coachTeamIds.includes(r.teamId))
+      : await rosterQuery;
 
     const countMap = rosterCounts.reduce(
       (acc, r) => {

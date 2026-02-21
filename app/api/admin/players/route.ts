@@ -1,12 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { players, teamRoster, teams, seasons } from '@/lib/schema';
-import { requireAdmin } from '@/lib/auth-middleware';
+import { requireAdmin, requireRole, getCoachTeamIds } from '@/lib/auth-middleware';
 import { eq, sql } from 'drizzle-orm';
 
 export async function GET(request: NextRequest) {
   try {
-    await requireAdmin(request);
+    const session = await requireRole(request, ['admin', 'coach']);
+    const isCoach = session.user.role === 'coach';
+
+    let coachTeamIds: string[] = [];
+    if (isCoach) {
+      coachTeamIds = await getCoachTeamIds(session.user.id);
+      if (coachTeamIds.length === 0) return NextResponse.json([]);
+    }
 
     const teamId = request.nextUrl.searchParams.get('teamId');
     const seasonId = request.nextUrl.searchParams.get('seasonId');
@@ -104,6 +111,16 @@ export async function GET(request: NextRequest) {
         .map((r) => r.playerId);
       filteredPlayers = playersData.filter((p) =>
         playerIdsInSeason.includes(p.id)
+      );
+    }
+
+    // Scope to coach's teams if coach role
+    if (isCoach) {
+      const playerIdsOnCoachTeams = rosterData
+        .filter((r) => coachTeamIds.includes(r.teamId) && r.isActive)
+        .map((r) => r.playerId);
+      filteredPlayers = filteredPlayers.filter((p) =>
+        playerIdsOnCoachTeams.includes(p.id)
       );
     }
 

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { and, desc, eq } from 'drizzle-orm';
-import { requireAdmin } from '@/lib/auth-middleware';
+import { and, desc, eq, inArray } from 'drizzle-orm';
+import { requireAdmin, requireRole, getCoachTeamIds } from '@/lib/auth-middleware';
 import { db } from '@/lib/db';
 import { players, registrations, seasons, teamRoster, teams } from '@/lib/schema';
 
@@ -20,7 +20,14 @@ function normalizeStatus(status: unknown): 'pending' | 'approved' | 'rejected' {
 
 export async function GET(request: NextRequest) {
   try {
-    await requireAdmin(request);
+    const session = await requireRole(request, ['admin', 'coach']);
+    const isCoach = session.user.role === 'coach';
+
+    let coachTeamIds: string[] = [];
+    if (isCoach) {
+      coachTeamIds = await getCoachTeamIds(session.user.id);
+      if (coachTeamIds.length === 0) return NextResponse.json([]);
+    }
 
     const seasonId = request.nextUrl.searchParams.get('seasonId');
     const teamId = request.nextUrl.searchParams.get('teamId');
@@ -30,6 +37,7 @@ export async function GET(request: NextRequest) {
     if (seasonId) conditions.push(eq(teams.seasonId, seasonId));
     if (teamId) conditions.push(eq(registrations.teamId, teamId));
     if (status) conditions.push(eq(registrations.status, normalizeStatus(status)));
+    if (isCoach) conditions.push(inArray(registrations.teamId, coachTeamIds));
 
     const baseQuery = db
       .select({
