@@ -8,11 +8,11 @@ import * as schema from './schema';
  * Checks (in order): APP_URL -> BETTER_AUTH_URL -> Vercel auto-vars -> localhost fallback.
  */
 function resolveBaseURL(): string {
-  if (process.env.APP_URL) return process.env.APP_URL;
-  if (process.env.BETTER_AUTH_URL) return process.env.BETTER_AUTH_URL;
+  if (process.env.APP_URL) return process.env.APP_URL.trim();
+  if (process.env.BETTER_AUTH_URL) return process.env.BETTER_AUTH_URL.trim();
   if (process.env.VERCEL_PROJECT_PRODUCTION_URL)
-    return `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`;
-  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
+    return `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL.trim()}`;
+  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL.trim()}`;
   return 'http://localhost:3000';
 }
 
@@ -25,18 +25,18 @@ function buildTrustedOrigins(): string[] {
     'http://localhost:5173',
   ]);
 
-  if (process.env.APP_URL) origins.add(process.env.APP_URL);
-  if (process.env.BETTER_AUTH_URL) origins.add(process.env.BETTER_AUTH_URL);
-  if (process.env.VERCEL_URL) origins.add(`https://${process.env.VERCEL_URL}`);
+  if (process.env.APP_URL) origins.add(process.env.APP_URL.trim());
+  if (process.env.BETTER_AUTH_URL) origins.add(process.env.BETTER_AUTH_URL.trim());
+  if (process.env.VERCEL_URL) origins.add(`https://${process.env.VERCEL_URL.trim()}`);
   if (process.env.VERCEL_PROJECT_PRODUCTION_URL)
-    origins.add(`https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`);
+    origins.add(`https://${process.env.VERCEL_PROJECT_PRODUCTION_URL.trim()}`);
 
   return [...origins];
 }
 
 export const auth = betterAuth({
   baseURL: resolveBaseURL(),
-  secret: process.env.BETTER_AUTH_SECRET,
+  secret: process.env.BETTER_AUTH_SECRET?.trim(),
 
   database: drizzleAdapter(db, {
     provider: 'pg',
