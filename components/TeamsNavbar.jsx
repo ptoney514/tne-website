@@ -50,7 +50,7 @@ function UserDropdown({ profile, onSignOut }) {
           {/* Menu Items */}
           <div className="py-1">
             <Link
-              to="/profile"
+              href="/profile"
               onClick={() => setIsOpen(false)}
               className="flex items-center gap-2 px-4 py-2.5 text-sm text-white/80 hover:bg-white/5 hover:text-white transition-colors"
             >
@@ -59,7 +59,7 @@ function UserDropdown({ profile, onSignOut }) {
             </Link>
             {profile?.role === 'admin' && (
               <Link
-                to="/admin"
+                href="/admin"
                 onClick={() => setIsOpen(false)}
                 className="flex items-center gap-2 px-4 py-2.5 text-sm text-white/80 hover:bg-white/5 hover:text-white transition-colors"
               >
@@ -117,7 +117,7 @@ function MobileMenu({ isOpen, onClose }) {
 
         <nav className="p-4 space-y-1">
           <Link
-            to="/teams"
+            href="/teams"
             onClick={onClose}
             className={`block px-4 py-3 rounded-lg text-sm font-medium uppercase tracking-wider transition-colors ${
               isActive('/teams') ? 'bg-tne-red/20 text-tne-red' : 'text-white/80 hover:bg-white/5 hover:text-white'
@@ -126,7 +126,7 @@ function MobileMenu({ isOpen, onClose }) {
             Teams
           </Link>
           <Link
-            to="/schedule"
+            href="/schedule"
             onClick={onClose}
             className={`block px-4 py-3 rounded-lg text-sm font-medium uppercase tracking-wider transition-colors ${
               isActive('/schedule') ? 'bg-tne-red/20 text-tne-red' : 'text-white/80 hover:bg-white/5 hover:text-white'
@@ -135,7 +135,7 @@ function MobileMenu({ isOpen, onClose }) {
             Tournaments
           </Link>
           <Link
-            to="/payments"
+            href="/payments"
             onClick={onClose}
             className={`block px-4 py-3 rounded-lg text-sm font-medium uppercase tracking-wider transition-colors ${
               isActive('/payments') ? 'bg-tne-red/20 text-tne-red' : 'text-white/80 hover:bg-white/5 hover:text-white'
@@ -144,7 +144,7 @@ function MobileMenu({ isOpen, onClose }) {
             Payments
           </Link>
           <Link
-            to="/about"
+            href="/about"
             onClick={onClose}
             className={`block px-4 py-3 rounded-lg text-sm font-medium uppercase tracking-wider transition-colors ${
               isActive('/about') ? 'bg-tne-red/20 text-tne-red' : 'text-white/80 hover:bg-white/5 hover:text-white'
@@ -153,7 +153,7 @@ function MobileMenu({ isOpen, onClose }) {
             About
           </Link>
           <Link
-            to="/contact"
+            href="/contact"
             onClick={onClose}
             className={`block px-4 py-3 rounded-lg text-sm font-medium uppercase tracking-wider transition-colors ${
               isActive('/contact') ? 'bg-tne-red/20 text-tne-red' : 'text-white/80 hover:bg-white/5 hover:text-white'
@@ -165,14 +165,14 @@ function MobileMenu({ isOpen, onClose }) {
 
         <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-white/10 space-y-3">
           <Link
-            to="/tryouts"
+            href="/tryouts"
             onClick={onClose}
             className="block w-full py-3 text-center text-sm font-semibold uppercase tracking-wider rounded-lg bg-tne-red text-white hover:bg-tne-red-dark transition-colors"
           >
             Register
           </Link>
           <Link
-            to="/login"
+            href="/login"
             onClick={onClose}
             className="block w-full py-3 text-center text-sm font-medium uppercase tracking-wider rounded-lg border border-white/20 text-white/80 hover:bg-white/5 hover:text-white transition-colors"
           >
@@ -215,7 +215,7 @@ export default function TeamsNavbar() {
           {/* Nav Links - Centered */}
           <div className="hidden md:flex items-center gap-1 absolute left-1/2 -translate-x-1/2">
             <Link
-              to="/teams"
+              href="/teams"
               className={`text-[13px] font-semibold font-mono uppercase tracking-wider px-4 py-2 rounded-full transition-all ${
                 isActive('/teams')
                   ? 'text-white bg-white/10'
@@ -225,7 +225,7 @@ export default function TeamsNavbar() {
               Teams
             </Link>
             <Link
-              to="/schedule"
+              href="/schedule"
               className={`text-[13px] font-semibold font-mono uppercase tracking-wider px-4 py-2 rounded-full transition-all ${
                 isActive('/schedule')
                   ? 'text-white bg-white/10'
@@ -235,7 +235,7 @@ export default function TeamsNavbar() {
               Tournaments
             </Link>
             <Link
-              to="/payments"
+              href="/payments"
               className={`text-[13px] font-semibold font-mono uppercase tracking-wider px-4 py-2 rounded-full transition-all ${
                 isActive('/payments')
                   ? 'text-white bg-white/10'
@@ -245,7 +245,7 @@ export default function TeamsNavbar() {
               Payments
             </Link>
             <Link
-              to="/about"
+              href="/about"
               className={`text-[13px] font-semibold font-mono uppercase tracking-wider px-4 py-2 rounded-full transition-all ${
                 isActive('/about')
                   ? 'text-white bg-white/10'
@@ -255,7 +255,7 @@ export default function TeamsNavbar() {
               About
             </Link>
             <Link
-              to="/contact"
+              href="/contact"
               className={`text-[13px] font-semibold font-mono uppercase tracking-wider px-4 py-2 rounded-full transition-all ${
                 isActive('/contact')
                   ? 'text-white bg-white/10'
@@ -273,13 +273,13 @@ export default function TeamsNavbar() {
             ) : (
               <>
                 <Link
-                  to="/login"
+                  href="/login"
                   className="text-[13px] font-semibold font-mono uppercase tracking-wider px-5 py-2 rounded-full border border-white/20 text-white/80 hover:text-white hover:border-white/40 transition-colors"
                 >
                   Login
                 </Link>
                 <Link
-                  to="/tryouts"
+                  href="/tryouts"
                   className="text-[13px] font-semibold font-mono uppercase tracking-wider px-5 py-2 rounded-full bg-tne-red text-white hover:bg-tne-red-dark transition-colors shadow-lg shadow-tne-red/25"
                 >
                   Register

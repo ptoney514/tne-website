@@ -91,6 +91,48 @@ test.describe('Login Flow - Network Verification', () => {
   });
 });
 
+test.describe('Login Flow - Lockout Behavior', () => {
+  test.beforeEach(async ({ request }) => {
+    const res = await request.get('/api/auth/ok').catch(() => null);
+    const ct = res ? (res.headers()['content-type'] || '') : '';
+    if (!res || !ct.includes('application/json')) test.skip();
+  });
+
+  test('lockout after 5 rapid failed login attempts', async ({ page }) => {
+    test.setTimeout(60000);
+
+    await page.goto('/login');
+    await page.waitForLoadState('networkidle');
+
+    const emailInput = page.locator('input[type="email"]');
+    const passwordInput = page.locator('input[type="password"]');
+    const signInButton = page.getByRole('button', { name: /Sign In|Please wait/i });
+
+    // Submit wrong credentials 5 times, waiting for button to be ready each time
+    for (let i = 0; i < 5; i++) {
+      await signInButton.waitFor({ state: 'visible', timeout: 10000 });
+      await emailInput.fill('fake@example.com');
+      await passwordInput.fill('wrongpassword');
+      await signInButton.click();
+      // Wait for the response to come back (button re-enables or lockout triggers)
+      await page.waitForTimeout(1500);
+    }
+
+    // After rapid failures, expect either a lockout message or a rate-limit indicator
+    const lockoutVisible = await page
+      .locator('text=/too many|locked|rate.limit|please wait|try again later/i')
+      .isVisible({ timeout: 10000 })
+      .catch(() => false);
+
+    const buttonDisabled = await signInButton.isDisabled().catch(() => false);
+    const buttonText = await signInButton.textContent().catch(() => '');
+    const showsWaitMessage = /please wait|loading|locked/i.test(buttonText || '');
+
+    // At least one lockout indicator should be present
+    expect(lockoutVisible || buttonDisabled || showsWaitMessage).toBe(true);
+  });
+});
+
 test.describe('Login Flow - Error Handling', () => {
   test.beforeEach(async ({ request }) => {
     // These tests require a running auth backend (Vercel serverless functions)
