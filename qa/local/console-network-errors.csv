@@ -1,0 +1,15 @@
+Route,Role,ErrorType,Message
+/admin,admin,Network 500,/api/admin/dashboard - NeonDbError: column "registration_open" does not exist
+/admin,admin,Network 500,/api/public/seasons - NeonDbError: column "registration_open" does not exist
+/admin,admin,Network 500,/api/admin/seasons - NeonDbError: column "registration_open" does not exist
+/admin,admin,Network 429,/api/auth/get-session - Too Many Requests (after rapid navigation)
+/admin/coaches,admin,Network 500,/api/admin/coaches - Server error (likely schema related)
+/admin/tryouts,admin,Network 500,/api/admin/tryouts - Server error
+/admin/practices,admin,Network 500,/api/admin/practice-sessions - Server error
+/admin/venues,admin,Network 500,/api/admin/venues - Server error
+/admin/hotels,admin,Network 500,/api/admin/hotels - Server error
+/admin/settings/users,admin,Network 500,/api/admin/users - Server error
+/admin/settings/users,admin,Network 500,/api/admin/invites - Server error
+/admin/settings/seasons,admin,Network 500,/api/admin/seasons - NeonDbError: column "registration_open" does not exist
+/admin/settings/registration,admin,Network 500,/api/admin/seasons (via season context) - NeonDbError: column "registration_open" does not exist
+/login,all,Network 429,/api/auth/get-session - Rate limit after ~10-15 rapid requests

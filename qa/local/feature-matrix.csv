@@ -1,0 +1,17 @@
+Route,Page Name,Page Loads,API Works,Create,Read,Edit,Delete,Search/Filter,Error Handling,Desktop Screenshot,Mobile Screenshot,Severity,Notes
+/admin,Dashboard,Yes,No (500),N/A,Partial,No (disabled),N/A,N/A,Error banner shown,Yes,Yes,P1,API 500 - toggles disabled - no season data
+/admin/teams,Teams,Yes,Partial,Blocked,Yes,Not tested,Not tested,Yes (UI renders),N/A,Yes,Yes,P1,Season dropdown empty blocks create flow
+/admin/teams/[id]/roster,Team Roster,Yes,Partial,Not tested,Yes,Not tested,N/A,N/A,N/A,Yes (in teams/),Yes (in teams/),P2,Roster view works for existing teams
+/admin/players,Players,Yes,Partial,Not tested,Yes,Not tested,Not tested,Yes (UI renders),N/A,Yes,Yes,P2,Shows 1 player - needs deeper CRUD testing
+/admin/coaches,Coaches,No (spinner),No (500),No,No,No,No,No,FAIL - infinite spinner,Yes,Yes,P0,No error fallback - stuck loading forever
+/admin/tryouts,Tryouts,No (spinner),No (500),N/A,No,No,No,No,FAIL - infinite spinner,Yes,Yes,P0,No error fallback - stuck loading forever
+/admin/registrations,Registrations,Yes,Yes (empty),N/A,Yes (empty),Not tested,N/A,Yes (UI renders),Empty state works,Yes,Yes,P3,No data to test workflows
+/admin/games,Tournament Schedule,Yes,Yes (empty),Not tested,Yes (empty),N/A,N/A,N/A,Empty state works,Yes,Yes,P3,Add Tournament button present
+/admin/games/[id],Tournament Detail,Not tested,Not tested,N/A,Not tested,Not tested,Not tested,N/A,Not tested,No,No,N/A,No tournament data to navigate to
+/admin/practices,Practices,Partial,No (500),Not tested,Error state,Not tested,Not tested,N/A,Error banner + empty state,Yes,Yes,P1,API 500 but graceful error handling
+/admin/venues,Venues,Partial,No (500),Not tested,Error state,Not tested,Not tested,N/A,Error banner + empty state,Yes,Yes,P1,API 500 but graceful error handling
+/admin/hotels,Hotels,Partial,No (500),Not tested,Error state,Not tested,Not tested,N/A,Error banner + empty state,Yes,Yes,P1,API 500 but graceful error handling
+/admin/settings,Settings Hub,Yes,N/A,N/A,Yes,N/A,N/A,N/A,N/A,Yes,No,PASS,Sidebar nav renders with Coming Soon labels
+/admin/settings/users,User Management,No (spinner),No (500),No,No,No,N/A,No,FAIL - infinite spinner,Yes,Yes,P1,Users and invites APIs both 500
+/admin/settings/registration,Registration Settings,Yes,Blocked,N/A,Partial,Not tested,N/A,N/A,Shows no seasons message,Yes,Yes,P2,Needs season to configure
+/admin/settings/seasons,Seasons,Partial,No (500),Not tested,Error state,Not tested,Not tested,N/A,Error banner + empty state,Yes,Yes,P0,ROOT CAUSE of cascading failures
