@@ -2,14 +2,6 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import MobileDrawer from '@/components/MobileDrawer';
 
-// Mock the hooks and assets
-vi.mock('@/hooks/useRegistrationStatus', () => ({
-  useRegistrationStatus: vi.fn(() => ({
-    isTryoutsOpen: false,
-    isRegistrationOpen: false,
-  })),
-}));
-
 vi.mock('@/assets/tne-logo-white-transparent.png', () => ({
   default: 'mocked-logo.png',
 }));
@@ -18,22 +10,17 @@ vi.mock('@/constants/navigation', () => ({
   navLinks: [
     { path: '/teams', label: 'Teams' },
     { path: '/schedule', label: 'Tournaments' },
+    { path: '/tryouts', label: 'Tryouts' },
     { path: '/about', label: 'About' },
     { path: '/contact', label: 'Contact' },
   ],
 }));
-
-import { useRegistrationStatus } from '@/hooks/useRegistrationStatus';
 
 describe('MobileDrawer', () => {
   const mockOnClose = vi.fn();
 
   beforeEach(() => {
     vi.clearAllMocks();
-    useRegistrationStatus.mockReturnValue({
-      isTryoutsOpen: false,
-      isRegistrationOpen: false,
-    });
     // Reset body overflow
     document.body.style.overflow = '';
   });
@@ -56,21 +43,14 @@ describe('MobileDrawer', () => {
   });
 
   describe('navigation links', () => {
-    it('should render all navigation links', () => {
+    it('should render all navigation links including Tryouts', () => {
       render(<MobileDrawer isOpen={true} onClose={mockOnClose} />);
 
       expect(screen.getByRole('link', { name: /teams/i })).toBeInTheDocument();
       expect(screen.getByRole('link', { name: /tournaments/i })).toBeInTheDocument();
+      expect(screen.getByRole('link', { name: /^tryouts$/i })).toBeInTheDocument();
       expect(screen.getByRole('link', { name: /about/i })).toBeInTheDocument();
       expect(screen.getByRole('link', { name: /contact/i })).toBeInTheDocument();
-    });
-
-    it('should highlight active link', () => {
-      render(<MobileDrawer isOpen={true} onClose={mockOnClose} />);
-
-      // With next/navigation mocked to usePathname => '/', active link detection depends on component logic
-      const teamsLink = screen.getByRole('link', { name: /teams/i });
-      // The link highlighting depends on the pathname mock
     });
 
     it('should call onClose when link is clicked', () => {
@@ -97,45 +77,22 @@ describe('MobileDrawer', () => {
         <MobileDrawer isOpen={true} onClose={mockOnClose} showPayLink={false} />
       );
 
-      // Payments is in navLinks by default, so we need to check it's not duplicated
+      // Payments is not in our mocked navLinks, so it shouldn't appear
       const paymentsLinks = screen.queryAllByRole('link', { name: /^payments$/i });
       expect(paymentsLinks.length).toBe(0);
     });
   });
 
-  describe('registration buttons', () => {
-    it('should show tryouts button when tryouts are open', () => {
-      useRegistrationStatus.mockReturnValue({
-        isTryoutsOpen: true,
-        isRegistrationOpen: false,
-      });
-
+  describe('register now button', () => {
+    it('should always show Register Now button', () => {
       render(<MobileDrawer isOpen={true} onClose={mockOnClose} />);
-
-      expect(screen.getByRole('link', { name: /register today/i })).toBeInTheDocument();
+      expect(screen.getByRole('link', { name: /register now/i })).toBeInTheDocument();
     });
 
-    it('should show register button when registration is open', () => {
-      useRegistrationStatus.mockReturnValue({
-        isTryoutsOpen: false,
-        isRegistrationOpen: true,
-      });
-
+    it('should link Register Now to /register', () => {
       render(<MobileDrawer isOpen={true} onClose={mockOnClose} />);
-
-      expect(screen.getByRole('link', { name: /^register$/i })).toBeInTheDocument();
-    });
-
-    it('should prioritize tryouts over registration', () => {
-      useRegistrationStatus.mockReturnValue({
-        isTryoutsOpen: true,
-        isRegistrationOpen: true,
-      });
-
-      render(<MobileDrawer isOpen={true} onClose={mockOnClose} />);
-
-      expect(screen.getByRole('link', { name: /register today/i })).toBeInTheDocument();
-      expect(screen.queryByRole('link', { name: /^register$/i })).not.toBeInTheDocument();
+      const registerLink = screen.getByRole('link', { name: /register now/i });
+      expect(registerLink).toHaveAttribute('href', '/register');
     });
 
     it('should show login button', () => {

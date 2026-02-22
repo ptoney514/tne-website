@@ -3,11 +3,9 @@ import Link from 'next/link';
 import { Menu } from 'lucide-react';
 import tneLogoWhite from '@/assets/tne-logo-white-transparent.png';
 import MobileDrawer from './MobileDrawer';
-import { useRegistrationStatus } from '@/hooks/useRegistrationStatus';
 
 export default function HomeNavbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { isTryoutsOpen, isRegistrationOpen } = useRegistrationStatus();
 
   return (
     <>
@@ -28,7 +26,7 @@ export default function HomeNavbar() {
         </Link>
 
         <div className="glass-nav flex max-w-4xl border-white/10 border rounded-full mx-auto px-4 py-2 shadow-2xl items-center justify-between">
-          {/* Left Links - Teams & Schedule */}
+          {/* Left Links - Teams, Tournaments & Tryouts */}
           <div className="hidden md:flex items-center gap-2 pl-2">
             <Link
               href="/teams"
@@ -41,6 +39,12 @@ export default function HomeNavbar() {
               className="text-[13px] hover:text-white uppercase hover:bg-white/10 transition-all font-semibold text-white/90 tracking-wider font-mono rounded-full px-4 py-2"
             >
               Tournaments
+            </Link>
+            <Link
+              href="/tryouts"
+              className="text-[13px] hover:text-white uppercase hover:bg-white/10 transition-all font-semibold text-white/90 tracking-wider font-mono rounded-full px-4 py-2"
+            >
+              Tryouts
             </Link>
           </div>
 
@@ -63,21 +67,12 @@ export default function HomeNavbar() {
             >
               About
             </Link>
-            {isTryoutsOpen ? (
-              <Link
-                href="/tryouts"
-                className="text-[13px] uppercase transition-all font-semibold text-white tracking-wider font-mono bg-tne-red hover:bg-tne-red-dark rounded-full px-5 py-2 shadow-lg shadow-tne-red/25"
-              >
-                Register Today
-              </Link>
-            ) : isRegistrationOpen ? (
-              <Link
-                href="/register"
-                className="text-[13px] uppercase transition-all font-semibold text-white tracking-wider font-mono bg-tne-red hover:bg-tne-red-dark rounded-full px-5 py-2 shadow-lg shadow-tne-red/25"
-              >
-                Register
-              </Link>
-            ) : null}
+            <Link
+              href="/register"
+              className="text-[13px] uppercase transition-all font-semibold text-white tracking-wider font-mono bg-tne-red hover:bg-tne-red-dark rounded-full px-5 py-2 shadow-lg shadow-tne-red/25"
+            >
+              Register Now
+            </Link>
           </div>
 
           {/* Mobile Menu */}

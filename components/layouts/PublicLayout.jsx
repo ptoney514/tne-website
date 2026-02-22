@@ -3,7 +3,6 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Menu, Facebook, Twitter } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
-import { useRegistrationStatus } from '@/hooks/useRegistrationStatus';
 import MobileDrawer from '../MobileDrawer';
 import tneLogoWhite from '@/assets/tne-logo-white-transparent.png';
 import { navLinks, navLinkStyles } from '@/constants/navigation';
@@ -12,7 +11,6 @@ function PublicNavbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const pathname = usePathname();
   const { user } = useAuth();
-  const { isTryoutsOpen, isRegistrationOpen } = useRegistrationStatus();
 
   const isActive = (path) => pathname === path;
 
@@ -63,21 +61,12 @@ function PublicNavbar() {
                   >
                     Login
                   </Link>
-                  {isTryoutsOpen ? (
-                    <Link
-                      href="/tryouts"
-                      className={`px-4 py-1.5 ${navLinkStyles.base} rounded-full bg-tne-red text-white hover:bg-tne-red-dark transition-colors`}
-                    >
-                      Tryouts
-                    </Link>
-                  ) : isRegistrationOpen ? (
-                    <Link
-                      href="/register"
-                      className={`px-4 py-1.5 ${navLinkStyles.base} rounded-full bg-tne-red text-white hover:bg-tne-red-dark transition-colors`}
-                    >
-                      Register
-                    </Link>
-                  ) : null}
+                  <Link
+                    href="/register"
+                    className={`px-4 py-1.5 ${navLinkStyles.base} rounded-full bg-tne-red text-white hover:bg-tne-red-dark transition-colors`}
+                  >
+                    Register Now
+                  </Link>
                 </>
               )}
             </div>

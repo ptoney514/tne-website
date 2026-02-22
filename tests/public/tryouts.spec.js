@@ -22,6 +22,35 @@ test.describe('Public Tryouts Page', () => {
   });
 });
 
+test.describe('Tryouts Page - Upcoming Sessions Section (moved to top)', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/tryouts');
+    await page.waitForSelector('h1', { timeout: 10000 });
+  });
+
+  test('should display sessions or coming soon state', async ({ page }) => {
+    // Wait for data to load
+    await page.waitForTimeout(2000);
+
+    // Either shows sessions heading or coming soon state
+    const hasComingSoon = await page.getByText(/Tryout Dates Coming Soon/i).isVisible().catch(() => false);
+    const hasSessions = await page.getByRole('heading', { name: /Upcoming Tryout Sessions/i }).isVisible().catch(() => false);
+
+    // One of these should be true
+    expect(hasComingSoon || hasSessions).toBe(true);
+  });
+
+  test('should display Get Notified link or button', async ({ page }) => {
+    await page.waitForTimeout(2000);
+
+    // Either in sessions header or coming soon state
+    const hasNotifyLink = await page.getByRole('link', { name: /Get notified/i }).isVisible().catch(() => false);
+    const hasNotifyButton = await page.getByRole('link', { name: /Get Notified/i }).isVisible().catch(() => false);
+
+    expect(hasNotifyLink || hasNotifyButton).toBe(true);
+  });
+});
+
 test.describe('Tryouts Page - What to Expect Section', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/tryouts');
@@ -171,33 +200,6 @@ test.describe('Tryouts Page - Training Programs Section', () => {
   test('should display inquiry buttons', async ({ page }) => {
     await expect(page.getByRole('link', { name: /Inquire About Skills Camp/i })).toBeVisible();
     await expect(page.getByRole('link', { name: /Inquire About Training/i })).toBeVisible();
-  });
-});
-
-test.describe('Tryouts Page - Upcoming Sessions Section', () => {
-  test.beforeEach(async ({ page }) => {
-    await page.goto('/tryouts');
-    await page.waitForSelector('h1', { timeout: 10000 });
-  });
-
-  test('should display Upcoming Tryout Sessions heading', async ({ page }) => {
-    await expect(page.getByRole('heading', { name: /Upcoming Tryout Sessions/i })).toBeVisible();
-  });
-
-  test('should display sessions or empty state', async ({ page }) => {
-    // Wait for data to load
-    await page.waitForTimeout(2000);
-
-    // Either shows sessions or empty state
-    const hasEmptyState = await page.getByText(/No Upcoming Tryouts Scheduled/i).isVisible().catch(() => false);
-    const hasSessions = await page.locator('[data-testid="tryout-session-card"]').count().catch(() => 0);
-
-    // One of these should be true
-    expect(hasEmptyState || hasSessions >= 0).toBe(true);
-  });
-
-  test('should display Get notified link', async ({ page }) => {
-    await expect(page.getByRole('link', { name: /Get notified of future tryouts/i })).toBeVisible();
   });
 });
 

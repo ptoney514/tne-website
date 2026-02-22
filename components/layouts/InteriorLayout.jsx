@@ -2,14 +2,12 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Menu, X } from 'lucide-react';
-import { useRegistrationStatus } from '@/hooks/useRegistrationStatus';
 import tneLogoWhite from '@/assets/tne-logo-white-transparent.png';
 import { navLinks } from '@/constants/navigation';
 import HomeFooter from '../HomeFooter';
 
 function MobileMenu({ isOpen, onClose }) {
   const pathname = usePathname();
-  const { isTryoutsOpen, isRegistrationOpen } = useRegistrationStatus();
 
   if (!isOpen) return null;
 
@@ -49,23 +47,13 @@ function MobileMenu({ isOpen, onClose }) {
         </nav>
 
         <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-white/10 space-y-3">
-          {isTryoutsOpen ? (
-            <Link
-              href="/tryouts"
-              onClick={onClose}
-              className="block w-full py-3 text-center text-sm font-semibold uppercase tracking-wider rounded-lg bg-tne-red text-white hover:bg-tne-red-dark transition-colors"
-            >
-              Tryouts
-            </Link>
-          ) : isRegistrationOpen ? (
-            <Link
-              href="/register"
-              onClick={onClose}
-              className="block w-full py-3 text-center text-sm font-semibold uppercase tracking-wider rounded-lg bg-tne-red text-white hover:bg-tne-red-dark transition-colors"
-            >
-              Register
-            </Link>
-          ) : null}
+          <Link
+            href="/register"
+            onClick={onClose}
+            className="block w-full py-3 text-center text-sm font-semibold uppercase tracking-wider rounded-lg bg-tne-red text-white hover:bg-tne-red-dark transition-colors"
+          >
+            Register Now
+          </Link>
         </div>
       </div>
     </div>
@@ -73,7 +61,6 @@ function MobileMenu({ isOpen, onClose }) {
 }
 
 function InteriorNavbar() {
-  const { isTryoutsOpen, isRegistrationOpen } = useRegistrationStatus();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const pathname = usePathname();
 
@@ -112,23 +99,14 @@ function InteriorNavbar() {
             ))}
           </div>
 
-          {/* Right: CTA Buttons */}
+          {/* Right: CTA Button */}
           <div className="hidden md:flex items-center gap-3 z-10">
-            {isTryoutsOpen ? (
-              <Link
-                href="/tryouts"
-                className="text-[13px] font-semibold font-mono uppercase tracking-wider px-5 py-2 rounded-full bg-tne-red text-white hover:bg-tne-red-dark transition-colors shadow-lg shadow-tne-red/25"
-              >
-                Tryouts
-              </Link>
-            ) : isRegistrationOpen ? (
-              <Link
-                href="/register"
-                className="text-[13px] font-semibold font-mono uppercase tracking-wider px-5 py-2 rounded-full bg-tne-red text-white hover:bg-tne-red-dark transition-colors shadow-lg shadow-tne-red/25"
-              >
-                Register
-              </Link>
-            ) : null}
+            <Link
+              href="/register"
+              className="text-[13px] font-semibold font-mono uppercase tracking-wider px-5 py-2 rounded-full bg-tne-red text-white hover:bg-tne-red-dark transition-colors shadow-lg shadow-tne-red/25"
+            >
+              Register Now
+            </Link>
           </div>
 
           {/* Mobile Menu Button */}

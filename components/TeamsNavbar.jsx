@@ -135,6 +135,15 @@ function MobileMenu({ isOpen, onClose }) {
             Tournaments
           </Link>
           <Link
+            href="/tryouts"
+            onClick={onClose}
+            className={`block px-4 py-3 rounded-lg text-sm font-medium uppercase tracking-wider transition-colors ${
+              isActive('/tryouts') ? 'bg-tne-red/20 text-tne-red' : 'text-white/80 hover:bg-white/5 hover:text-white'
+            }`}
+          >
+            Tryouts
+          </Link>
+          <Link
             href="/payments"
             onClick={onClose}
             className={`block px-4 py-3 rounded-lg text-sm font-medium uppercase tracking-wider transition-colors ${
@@ -165,11 +174,11 @@ function MobileMenu({ isOpen, onClose }) {
 
         <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-white/10 space-y-3">
           <Link
-            href="/tryouts"
+            href="/register"
             onClick={onClose}
             className="block w-full py-3 text-center text-sm font-semibold uppercase tracking-wider rounded-lg bg-tne-red text-white hover:bg-tne-red-dark transition-colors"
           >
-            Register
+            Register Now
           </Link>
           <Link
             href="/login"
@@ -235,6 +244,16 @@ export default function TeamsNavbar() {
               Tournaments
             </Link>
             <Link
+              href="/tryouts"
+              className={`text-[13px] font-semibold font-mono uppercase tracking-wider px-4 py-2 rounded-full transition-all ${
+                isActive('/tryouts')
+                  ? 'text-white bg-white/10'
+                  : 'text-white/70 hover:text-white hover:bg-white/5'
+              }`}
+            >
+              Tryouts
+            </Link>
+            <Link
               href="/payments"
               className={`text-[13px] font-semibold font-mono uppercase tracking-wider px-4 py-2 rounded-full transition-all ${
                 isActive('/payments')
@@ -279,10 +298,10 @@ export default function TeamsNavbar() {
                   Login
                 </Link>
                 <Link
-                  href="/tryouts"
+                  href="/register"
                   className="text-[13px] font-semibold font-mono uppercase tracking-wider px-5 py-2 rounded-full bg-tne-red text-white hover:bg-tne-red-dark transition-colors shadow-lg shadow-tne-red/25"
                 >
-                  Register
+                  Register Now
                 </Link>
               </>
             )}

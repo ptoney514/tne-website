@@ -18,6 +18,7 @@ import {
   MapPin,
   Video,
   PlayCircle,
+  Sparkles,
 } from 'lucide-react';
 import InteriorLayout from '@/components/layouts/InteriorLayout';
 import TryoutSessionCard from '@/components/tryouts/TryoutSessionCard';
@@ -283,7 +284,7 @@ export default function TryoutsPage() {
             <div className="inline-flex items-center gap-2 rounded-md bg-white/5 border border-white/10 px-3 py-1.5 w-fit">
               <span className="inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.8)]" />
               <span className="font-mono uppercase tracking-[0.22em] text-[0.7rem] text-white/80">
-                2025-2026 Fall/Winter Season
+                {tryoutsLabel || '2025-2026 Fall/Winter Season'}
               </span>
             </div>
 
@@ -327,7 +328,140 @@ export default function TryoutsPage() {
 
       {/* Main Content */}
       <main className="flex-1 w-full">
-        {/* Section 1: What to Expect */}
+        {/* Section 1: Upcoming Tryout Sessions — moved to top */}
+        <section
+          id="upcoming-tryouts"
+          className="bg-[#050505] w-full border-b border-white/5 py-16 sm:py-20"
+        >
+          <div className="max-w-6xl mx-auto px-4 sm:px-6">
+            {loading ? (
+              <div className="space-y-4">
+                {[1, 2].map((i) => (
+                  <div
+                    key={i}
+                    className="rounded-2xl bg-white/5 border border-white/10 h-32 animate-pulse"
+                  />
+                ))}
+              </div>
+            ) : sessions.length === 0 ? (
+              /* Enhanced Coming Soon State */
+              <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-white/[0.04] to-transparent">
+                {/* Background glow effects */}
+                <div className="absolute top-0 right-0 w-72 h-72 bg-tne-red/10 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/4" />
+                <div className="absolute bottom-0 left-0 w-56 h-56 bg-tne-maroon/10 rounded-full blur-[80px] translate-y-1/3 -translate-x-1/4" />
+
+                <div className="relative px-6 py-12 sm:px-10 sm:py-16 text-center">
+                  {/* Season badge */}
+                  {tryoutsLabel && (
+                    <div className="inline-flex items-center gap-2 rounded-full bg-white/5 border border-white/10 px-4 py-1.5 mb-6">
+                      <Sparkles className="w-3.5 h-3.5 text-tne-red" />
+                      <span className="text-[0.7rem] font-mono uppercase tracking-[0.22em] text-white/60">
+                        {tryoutsLabel}
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Icon */}
+                  <div className="mx-auto mb-6 w-16 h-16 rounded-2xl bg-gradient-to-br from-tne-red/20 to-tne-maroon/20 border border-tne-red/20 flex items-center justify-center">
+                    <CalendarCheck className="w-8 h-8 text-tne-red" />
+                  </div>
+
+                  {/* Heading */}
+                  <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight text-white mb-3">
+                    Tryout Dates Coming Soon
+                  </h2>
+                  <p className="text-base text-white/50 max-w-lg mx-auto mb-4">
+                    We're finalizing the schedule for the upcoming season. Get a head start by
+                    preparing now — players who come ready stand out on tryout day.
+                  </p>
+
+                  {/* Helpful tips */}
+                  <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 text-sm text-white/40 mb-8">
+                    <div className="flex items-center gap-2">
+                      <Check className="w-4 h-4 text-tne-red/60" />
+                      <span>Review grade-level drills below</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Check className="w-4 h-4 text-tne-red/60" />
+                      <span>Sign up to get notified first</span>
+                    </div>
+                  </div>
+
+                  {/* CTAs */}
+                  <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+                    <Link
+                      href="/contact"
+                      className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-tne-red text-white text-sm font-medium hover:bg-tne-red-dark transition-colors shadow-lg shadow-tne-red/20"
+                    >
+                      <Bell className="w-4 h-4" />
+                      Get Notified
+                    </Link>
+                    <a
+                      href="#prepare"
+                      className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-white/15 text-white/80 text-sm font-medium hover:bg-white/5 hover:text-white transition-colors"
+                    >
+                      <Target className="w-4 h-4" />
+                      Start Preparing
+                    </a>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              /* Sessions exist */
+              <>
+                {/* Section Header */}
+                <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
+                  <div>
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className="w-1.5 h-1.5 rounded-full bg-tne-red shadow-[0_0_8px_rgba(227,24,55,0.5)]" />
+                      <span className="text-xs font-mono uppercase tracking-[0.2em] text-tne-red/80">
+                        Register Now
+                      </span>
+                    </div>
+                    <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight text-white">
+                      Upcoming Tryout Sessions
+                    </h2>
+                  </div>
+                  <Link
+                    href="/contact"
+                    className="inline-flex items-center gap-2 text-sm font-medium text-tne-red hover:text-red-400 transition-colors"
+                  >
+                    <Bell className="w-4 h-4" />
+                    Get notified of future tryouts
+                  </Link>
+                </div>
+
+                {/* Session Cards */}
+                <div className="space-y-4">
+                  {sessions.map((session) => (
+                    <TryoutSessionCard
+                      key={session.id}
+                      session={session}
+                      onRegister={handleRegisterClick}
+                    />
+                  ))}
+                </div>
+
+                {/* Registration Form */}
+                {isTryoutsOpen && sessions.length > 0 && (
+                  <div id="registration" className="mt-12">
+                    <TryoutRegistrationForm
+                      sessions={sessions}
+                      selectedSession={selectedSession}
+                      onSubmit={submitSignup}
+                      submitting={submitting}
+                      submitSuccess={submitSuccess}
+                      submitError={submitError}
+                      onReset={resetSubmitState}
+                    />
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        </section>
+
+        {/* Section 2: What to Expect */}
         <section className="bg-neutral-50 py-12 sm:py-16">
           <div className="max-w-6xl mx-auto px-4 sm:px-6">
             {/* Section Header */}
@@ -377,7 +511,7 @@ export default function TryoutsPage() {
           </div>
         </section>
 
-        {/* Section 2: Prepare Like the Best */}
+        {/* Section 3: Prepare Like the Best */}
         <section id="prepare" className="bg-[#050505] w-full border-t border-white/5 py-16 sm:py-20">
           <div className="max-w-6xl mx-auto px-4 sm:px-6">
             {/* Section Header */}
@@ -434,7 +568,7 @@ export default function TryoutsPage() {
           </div>
         </section>
 
-        {/* Section 3: Training Programs */}
+        {/* Section 4: Training Programs */}
         <section className="bg-neutral-50 w-full border-t border-neutral-200 py-16 sm:py-20">
           <div className="max-w-6xl mx-auto px-4 sm:px-6">
             {/* Section Header */}
@@ -546,90 +680,6 @@ export default function TryoutsPage() {
                 </div>
               </div>
             </div>
-          </div>
-        </section>
-
-        {/* Section 4: Upcoming Tryouts */}
-        <section
-          id="upcoming-tryouts"
-          className="bg-white w-full border-t border-neutral-200 py-16 sm:py-20"
-        >
-          <div className="max-w-6xl mx-auto px-4 sm:px-6">
-            {/* Section Header */}
-            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
-              <div>
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-1.5 h-1.5 rounded-full bg-tne-red" />
-                  <span className="text-xs font-mono uppercase tracking-[0.2em] text-neutral-500">
-                    Register Now
-                  </span>
-                </div>
-                <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight text-neutral-900">
-                  Upcoming Tryout Sessions
-                </h2>
-              </div>
-              <Link
-                href="/contact"
-                className="inline-flex items-center gap-2 text-sm font-medium text-tne-red hover:text-tne-red-dark transition-colors"
-              >
-                <Bell className="w-4 h-4" />
-                Get notified of future tryouts
-              </Link>
-            </div>
-
-            {/* Tryout Sessions */}
-            {loading ? (
-              <div className="space-y-4">
-                {[1, 2].map((i) => (
-                  <div
-                    key={i}
-                    className="rounded-2xl bg-neutral-100 border border-neutral-200 h-32 animate-pulse"
-                  />
-                ))}
-              </div>
-            ) : sessions.length === 0 ? (
-              <div className="rounded-2xl bg-neutral-50 border border-neutral-200 p-8 text-center">
-                <CalendarCheck className="w-12 h-12 text-neutral-300 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-neutral-900 mb-2">
-                  No Upcoming Tryouts Scheduled
-                </h3>
-                <p className="text-neutral-500 mb-6">
-                  Check back later for new tryout dates or sign up to be notified.
-                </p>
-                <Link
-                  href="/contact"
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border border-neutral-300 text-neutral-700 text-sm font-medium hover:bg-neutral-100 transition-colors"
-                >
-                  <Bell className="w-4 h-4" />
-                  Get Notified
-                </Link>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {sessions.map((session) => (
-                  <TryoutSessionCard
-                    key={session.id}
-                    session={session}
-                    onRegister={handleRegisterClick}
-                  />
-                ))}
-              </div>
-            )}
-
-            {/* Registration Form */}
-            {isTryoutsOpen && sessions.length > 0 && (
-              <div id="registration" className="mt-12">
-                <TryoutRegistrationForm
-                  sessions={sessions}
-                  selectedSession={selectedSession}
-                  onSubmit={submitSignup}
-                  submitting={submitting}
-                  submitSuccess={submitSuccess}
-                  submitError={submitError}
-                  onReset={resetSubmitState}
-                />
-              </div>
-            )}
           </div>
         </section>
 

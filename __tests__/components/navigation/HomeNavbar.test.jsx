@@ -2,28 +2,13 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import HomeNavbar from '@/components/HomeNavbar';
 
-// Mock the hooks and assets
-vi.mock('@/hooks/useRegistrationStatus', () => ({
-  useRegistrationStatus: vi.fn(() => ({
-    isTryoutsOpen: false,
-    isRegistrationOpen: false,
-  })),
-}));
-
 vi.mock('@/assets/tne-logo-white-transparent.png', () => ({
   default: 'mocked-logo.png',
 }));
 
-// Import the mock to control it in tests
-import { useRegistrationStatus } from '@/hooks/useRegistrationStatus';
-
 describe('HomeNavbar', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    useRegistrationStatus.mockReturnValue({
-      isTryoutsOpen: false,
-      isRegistrationOpen: false,
-    });
   });
 
   describe('rendering', () => {
@@ -41,6 +26,7 @@ describe('HomeNavbar', () => {
       render(<HomeNavbar />);
       expect(screen.getByRole('link', { name: /teams/i })).toBeInTheDocument();
       expect(screen.getByRole('link', { name: /tournaments/i })).toBeInTheDocument();
+      expect(screen.getByRole('link', { name: /tryouts/i })).toBeInTheDocument();
       expect(screen.getByRole('link', { name: /payments/i })).toBeInTheDocument();
       expect(screen.getByRole('link', { name: /about/i })).toBeInTheDocument();
     });
@@ -64,6 +50,12 @@ describe('HomeNavbar', () => {
       expect(tournamentsLink).toHaveAttribute('href', '/schedule');
     });
 
+    it('should have correct href for Tryouts link', () => {
+      render(<HomeNavbar />);
+      const tryoutsLink = screen.getByRole('link', { name: /^tryouts$/i });
+      expect(tryoutsLink).toHaveAttribute('href', '/tryouts');
+    });
+
     it('should have correct href for Payments link', () => {
       render(<HomeNavbar />);
       const paymentsLink = screen.getByRole('link', { name: /payments/i });
@@ -77,47 +69,16 @@ describe('HomeNavbar', () => {
     });
   });
 
-  describe('registration buttons', () => {
-    it('should show Register Today button when tryouts are open', () => {
-      useRegistrationStatus.mockReturnValue({
-        isTryoutsOpen: true,
-        isRegistrationOpen: false,
-      });
-
+  describe('register now button', () => {
+    it('should always show Register Now button', () => {
       render(<HomeNavbar />);
-      expect(screen.getByRole('link', { name: /register today/i })).toBeInTheDocument();
+      expect(screen.getByRole('link', { name: /register now/i })).toBeInTheDocument();
     });
 
-    it('should show Register button when registration is open (not tryouts)', () => {
-      useRegistrationStatus.mockReturnValue({
-        isTryoutsOpen: false,
-        isRegistrationOpen: true,
-      });
-
+    it('should link Register Now to /register', () => {
       render(<HomeNavbar />);
-      expect(screen.getByRole('link', { name: /^register$/i })).toBeInTheDocument();
-    });
-
-    it('should not show registration button when both are closed', () => {
-      useRegistrationStatus.mockReturnValue({
-        isTryoutsOpen: false,
-        isRegistrationOpen: false,
-      });
-
-      render(<HomeNavbar />);
-      expect(screen.queryByRole('link', { name: /register/i })).not.toBeInTheDocument();
-    });
-
-    it('should prioritize tryouts over registration', () => {
-      useRegistrationStatus.mockReturnValue({
-        isTryoutsOpen: true,
-        isRegistrationOpen: true,
-      });
-
-      render(<HomeNavbar />);
-      expect(screen.getByRole('link', { name: /register today/i })).toBeInTheDocument();
-      // Should not show regular register when tryouts is open
-      expect(screen.queryByRole('link', { name: /^register$/i })).not.toBeInTheDocument();
+      const registerLink = screen.getByRole('link', { name: /register now/i });
+      expect(registerLink).toHaveAttribute('href', '/register');
     });
   });
 
