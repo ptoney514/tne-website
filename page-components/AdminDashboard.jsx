@@ -673,8 +673,11 @@ export default function AdminDashboard() {
 
           {/* Error State */}
           {error && (
-            <div className="mb-6 px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm">
-              Failed to load dashboard data: {error}
+            <div className="mb-6 px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm flex items-center gap-2">
+              <span className="flex-1">Failed to load dashboard data: {error}</span>
+              <button onClick={refetch} className="ml-auto text-red-800 underline hover:text-red-900 font-medium whitespace-nowrap">
+                Retry
+              </button>
             </div>
           )}
 

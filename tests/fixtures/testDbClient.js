@@ -8,7 +8,7 @@
 import { neon } from '@neondatabase/serverless';
 import { drizzle } from 'drizzle-orm/neon-http';
 import { eq, like, desc, sql } from 'drizzle-orm';
-import * as schema from '../../api/lib/schema/index.js';
+import * as schema from '../../lib/schema/index.ts';
 
 // Get environment variables
 const databaseUrl = process.env.DATABASE_URL;

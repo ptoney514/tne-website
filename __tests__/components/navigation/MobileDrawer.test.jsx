@@ -112,7 +112,7 @@ describe('MobileDrawer', () => {
 
       render(<MobileDrawer isOpen={true} onClose={mockOnClose} />);
 
-      expect(screen.getByRole('link', { name: /register for tryouts/i })).toBeInTheDocument();
+      expect(screen.getByRole('link', { name: /register today/i })).toBeInTheDocument();
     });
 
     it('should show register button when registration is open', () => {
@@ -134,7 +134,7 @@ describe('MobileDrawer', () => {
 
       render(<MobileDrawer isOpen={true} onClose={mockOnClose} />);
 
-      expect(screen.getByRole('link', { name: /register for tryouts/i })).toBeInTheDocument();
+      expect(screen.getByRole('link', { name: /register today/i })).toBeInTheDocument();
       expect(screen.queryByRole('link', { name: /^register$/i })).not.toBeInTheDocument();
     });
 

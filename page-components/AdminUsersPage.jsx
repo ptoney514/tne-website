@@ -7,7 +7,6 @@ import {
   Search,
   RefreshCw,
   Download,
-  Loader2,
   ChevronDown,
   Mail,
   Users,
@@ -347,33 +346,51 @@ export default function AdminUsersPage() {
             </div>
           </div>
 
+          {/* Error Banner */}
+          {error && (
+            <div className="mx-4 mt-3 px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 flex-shrink-0" />
+              <span className="flex-1">Failed to load users: {error}</span>
+              <button onClick={refetch} className="ml-auto text-red-800 underline hover:text-red-900 font-medium whitespace-nowrap">
+                Retry
+              </button>
+            </div>
+          )}
+
           {/* Table */}
           <div className="flex-1 overflow-auto bg-white">
-            {error && (
-              <div className="m-4 px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm flex items-center gap-2">
-                <AlertCircle className="w-4 h-4" />
-                Failed to load users: {error}
-              </div>
-            )}
-
             {loading ? (
-              <div className="flex items-center justify-center py-16">
-                <Loader2 className="w-8 h-8 text-stone-400 animate-spin" />
+              <div className="p-4 space-y-3">
+                {[...Array(8)].map((_, i) => (
+                  <div key={i} className="h-14 bg-stone-100 rounded animate-pulse" />
+                ))}
               </div>
             ) : filteredUsers.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-16 text-center">
                 <Users className="w-12 h-12 text-stone-300 mb-4" />
                 <h3 className="text-lg font-medium text-stone-900 mb-2">
-                  {searchTerm || roleFilter !== 'all' || statusFilter !== 'all'
-                    ? 'No users found'
-                    : 'No users yet'}
+                  {error
+                    ? 'Unable to load users'
+                    : searchTerm || roleFilter !== 'all' || statusFilter !== 'all'
+                      ? 'No users found'
+                      : 'No users yet'}
                 </h3>
                 <p className="text-stone-500 mb-6">
-                  {searchTerm || roleFilter !== 'all' || statusFilter !== 'all'
-                    ? 'Try adjusting your filters'
-                    : 'Invite your first user to get started'}
+                  {error
+                    ? 'There was a problem loading data'
+                    : searchTerm || roleFilter !== 'all' || statusFilter !== 'all'
+                      ? 'Try adjusting your filters'
+                      : 'Invite your first user to get started'}
                 </p>
-                {!searchTerm && roleFilter === 'all' && statusFilter === 'all' && (
+                {error ? (
+                  <button
+                    onClick={refetch}
+                    className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-tne-red hover:bg-tne-red-dark text-white font-medium transition-colors"
+                  >
+                    <RefreshCw className="w-4 h-4" />
+                    Retry
+                  </button>
+                ) : !searchTerm && roleFilter === 'all' && statusFilter === 'all' && (
                   <button
                     onClick={() => setInviteModalOpen(true)}
                     className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-tne-red hover:bg-tne-red-dark text-white font-medium transition-colors"

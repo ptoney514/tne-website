@@ -94,7 +94,13 @@ describe('AuthContext', () => {
 
   describe('session restoration', () => {
     it('should restore user from existing session', async () => {
-      const mockUser = { id: 'user-123', email: 'test@example.com', role: 'admin' };
+      const mockUser = { id: 'user-123', email: 'test@example.com' };
+
+      // Mock the profile API call
+      vi.spyOn(global, 'fetch').mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ role: 'admin', firstName: 'Test', lastName: 'User' }),
+      });
 
       mockUseSession.mockReturnValue({
         data: { user: mockUser, session: { user: mockUser } },
@@ -234,7 +240,13 @@ describe('AuthContext', () => {
 
   describe('role checking utilities', () => {
     it('should correctly identify admin role', async () => {
-      const mockUser = { id: 'user-123', email: 'admin@example.com', role: 'admin' };
+      const mockUser = { id: 'user-123', email: 'admin@example.com' };
+
+      // Mock the profile API call
+      vi.spyOn(global, 'fetch').mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ role: 'admin', firstName: 'Admin', lastName: 'User' }),
+      });
 
       mockUseSession.mockReturnValue({
         data: { user: mockUser, session: { user: mockUser } },
