@@ -20,7 +20,7 @@ export default function HomeNavbar() {
           <div className="relative">
             <div className="absolute inset-0 bg-black/40 rounded-full blur-xl scale-90" />
             <img
-              src={tneLogoWhite}
+              src={tneLogoWhite.src}
               alt="TNE United Express"
               className="relative h-[88px] w-[88px] object-contain drop-shadow-2xl"
             />

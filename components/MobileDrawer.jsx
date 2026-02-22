@@ -55,7 +55,7 @@ export default function MobileDrawer({ isOpen, onClose, showPayLink = false }) {
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-white/10">
           <img
-            src={tneLogoWhite}
+            src={tneLogoWhite.src}
             alt="TNE"
             className="h-12 w-12 object-contain"
           />

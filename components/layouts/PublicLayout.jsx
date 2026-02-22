@@ -23,7 +23,7 @@ function PublicNavbar() {
           {/* Brand */}
           <Link href="/" className="flex items-center gap-3 hover:opacity-90 transition-opacity z-10">
             <img
-              src={tneLogoWhite}
+              src={tneLogoWhite.src}
               alt="TNE United Express"
               className="h-12 w-12 object-contain"
             />
@@ -106,7 +106,7 @@ function PublicFooter() {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col gap-6 sm:gap-4 sm:flex-row sm:items-center sm:justify-between text-xs sm:text-sm text-white/45">
         <div className="flex items-center gap-3">
           <img
-            src={tneLogoWhite}
+            src={tneLogoWhite.src}
             alt="TNE"
             className="h-12 w-12 object-contain"
           />
