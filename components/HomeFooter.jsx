@@ -10,7 +10,7 @@ export default function HomeFooter({ hideStatusBadge = false }) {
           <div className="col-span-2 lg:col-span-2 pr-8">
             <Link href="/" className="inline-block mb-6">
               <img
-                src={tneLogoWhite}
+                src={tneLogoWhite.src}
                 alt="TNE United Express"
                 className="h-16 w-16 object-contain"
               />

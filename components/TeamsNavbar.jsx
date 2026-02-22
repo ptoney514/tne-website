@@ -203,7 +203,7 @@ export default function TeamsNavbar() {
           {/* Left: Logo + Brand Text */}
           <Link href="/" className="flex items-center gap-3 hover:opacity-90 transition-opacity z-10">
             <img
-              src={tneLogoWhite}
+              src={tneLogoWhite.src}
               alt="TNE United Express"
               className="h-[88px] w-[88px] object-contain"
             />

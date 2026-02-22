@@ -1,13 +1,19 @@
 import { createAuthClient } from 'better-auth/react';
 import { inferAdditionalFields } from 'better-auth/client/plugins';
-import type { auth } from './auth';
 
 // Create the Better Auth client for React
 // Use NEXT_PUBLIC_APP_URL if set, otherwise derive from current origin (works in both dev and production)
 export const authClient = createAuthClient({
   baseURL: process.env.NEXT_PUBLIC_APP_URL || (typeof window !== 'undefined' ? window.location.origin : ''),
   plugins: [
-    inferAdditionalFields<typeof auth>(),
+    inferAdditionalFields({
+      user: {
+        firstName: { type: 'string' },
+        lastName: { type: 'string' },
+        phone: { type: 'string' },
+        role: { type: 'string' },
+      },
+    }),
   ],
 });
 
