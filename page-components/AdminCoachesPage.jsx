@@ -619,6 +619,17 @@ export default function AdminCoachesPage() {
           </div>
         </div>
 
+        {/* Error Banner */}
+        {error && (
+          <div className="mb-4 px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 flex-shrink-0" />
+            <span className="flex-1">Failed to load coaches: {error}</span>
+            <button onClick={refetch} className="ml-auto text-red-800 underline hover:text-red-900 font-medium whitespace-nowrap">
+              Retry
+            </button>
+          </div>
+        )}
+
         {/* Filter Card */}
         <div className="bg-white rounded-2xl border border-stone-200 shadow-sm p-4 mb-4">
           <div className="flex flex-col lg:flex-row lg:items-center gap-4">
@@ -708,13 +719,6 @@ export default function AdminCoachesPage() {
 
         {/* Coaches Table */}
         <div className="bg-white rounded-2xl border border-stone-200 shadow-sm overflow-hidden">
-            {error && (
-              <div className="m-4 px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm flex items-center gap-2">
-                <AlertCircle className="w-4 h-4" />
-                Failed to load coaches: {error}
-              </div>
-            )}
-
             {loading ? (
               <div className="p-4 space-y-3">
                 {[...Array(8)].map((_, i) => (
@@ -733,11 +737,21 @@ export default function AdminCoachesPage() {
                     : 'No coaches yet'}
                 </h3>
                 <p className="text-stone-500 mb-6">
-                  {hasActiveFilters
-                    ? 'Try adjusting your filters'
-                    : 'Add your first coach to get started'}
+                  {error
+                    ? 'There was a problem loading data'
+                    : hasActiveFilters
+                      ? 'Try adjusting your filters'
+                      : 'Add your first coach to get started'}
                 </p>
-                {!hasActiveFilters && (
+                {error ? (
+                  <button
+                    onClick={refetch}
+                    className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-tne-red hover:bg-tne-red-dark text-white font-medium transition-colors"
+                  >
+                    <RefreshCw className="w-4 h-4" />
+                    Retry
+                  </button>
+                ) : !hasActiveFilters && (
                   <button
                     onClick={handleCreate}
                     className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-tne-red hover:bg-tne-red-dark text-white font-medium transition-colors"

@@ -546,6 +546,17 @@ export default function AdminTryoutsPage() {
           </div>
         </div>
 
+        {/* Error Banner */}
+        {error && (
+          <div className="mb-4 px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 flex-shrink-0" />
+            <span className="flex-1">Failed to load signups: {error}</span>
+            <button onClick={refetch} className="ml-auto text-red-800 underline hover:text-red-900 font-medium whitespace-nowrap">
+              Retry
+            </button>
+          </div>
+        )}
+
         {/* Filter Card */}
         <div className="bg-white rounded-2xl border border-stone-200 shadow-sm p-4 mb-4">
           <div className="flex flex-col lg:flex-row lg:items-center gap-4">
@@ -644,13 +655,6 @@ export default function AdminTryoutsPage() {
 
         {/* Signups Table */}
         <div className="bg-white rounded-2xl border border-stone-200 shadow-sm overflow-hidden">
-            {error && (
-              <div className="m-4 px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm flex items-center gap-2">
-                <AlertCircle className="w-4 h-4" />
-                Failed to load signups: {error}
-              </div>
-            )}
-
             {loading ? (
               <div className="p-4 space-y-3">
                 {[...Array(10)].map((_, i) => (
@@ -661,11 +665,20 @@ export default function AdminTryoutsPage() {
               <div className="flex flex-col items-center justify-center py-16 text-center">
                 <Calendar className="w-12 h-12 text-stone-300 mb-4" />
                 <h3 className="text-lg font-medium text-stone-900 mb-2">
-                  {hasActiveFilters ? 'No signups found' : 'No tryout signups yet'}
+                  {error ? 'Unable to load signups' : hasActiveFilters ? 'No signups found' : 'No tryout signups yet'}
                 </h3>
                 <p className="text-stone-500 mb-6">
-                  {hasActiveFilters ? 'Try adjusting your filters' : 'Signups will appear here when submitted'}
+                  {error ? 'There was a problem loading data' : hasActiveFilters ? 'Try adjusting your filters' : 'Signups will appear here when submitted'}
                 </p>
+                {error && (
+                  <button
+                    onClick={refetch}
+                    className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-tne-red hover:bg-tne-red-dark text-white font-medium transition-colors"
+                  >
+                    <RefreshCw className="w-4 h-4" />
+                    Retry
+                  </button>
+                )}
               </div>
             ) : (
               <div className="overflow-x-auto">

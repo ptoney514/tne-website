@@ -205,29 +205,25 @@ function AdminNavLink({ href, children, badge }) {
 }
 
 export default function AdminNavbar() {
-  const { profile, signOut } = useAuth();
+  const { profile, signOut, loading: authLoading } = useAuth();
   const { stats } = useDashboardStats();
   const router = useRouter();
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isSigningOut, setIsSigningOut] = useState(false);
-  const isAdmin = profile?.role === 'admin';
+  const isAdmin = !authLoading && profile?.role === 'admin';
 
   const isMobileActive = (path) => pathname === path || pathname.startsWith(path + '/');
 
   const handleSignOut = async () => {
-    if (isSigningOut) return; // Prevent multiple clicks
+    if (isSigningOut) return;
     setIsSigningOut(true);
     try {
       await signOut();
-      // Small delay to ensure state is cleared before redirect
-      setTimeout(() => {
-        window.location.href = '/';
-      }, 100);
     } catch {
-      // If signOut fails, still redirect (local state is cleared)
-      window.location.href = '/';
+      // local state already cleared
     }
+    window.location.replace('/login');
   };
 
   return (

@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
@@ -18,11 +18,21 @@ export default function LoginPage() {
   const [isLockedOut, setIsLockedOut] = useState(false);
   const failedAttempts = useRef(0);
 
-  const { signIn } = useAuth();
+  const { signIn, user, loading: authLoading } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
 
   const from = searchParams.get('from') || '/';
+
+  // Redirect authenticated users away from login page
+  useEffect(() => {
+    if (!authLoading && user) {
+      const dest = from && from !== '/login' && from !== '/'
+        ? from
+        : (user.role === 'admin' || user.role === 'coach') ? '/admin' : '/';
+      router.replace(dest);
+    }
+  }, [authLoading, user, router, from]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -53,7 +63,6 @@ export default function LoginPage() {
         } else {
           setError(result.error);
         }
-        setIsSubmitting(false);
       } else {
         failedAttempts.current = 0;
 
@@ -71,9 +80,19 @@ export default function LoginPage() {
       }
     } catch {
       setError('An unexpected error occurred. Please try again.');
+    } finally {
       setIsSubmitting(false);
     }
   };
+
+  // Show spinner while checking auth or redirecting authenticated user
+  if (authLoading || user) {
+    return (
+      <div className="bg-[#050505] min-h-screen flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="bg-[#050505] text-white antialiased min-h-screen flex flex-col font-sans">
