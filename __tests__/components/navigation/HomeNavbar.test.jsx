@@ -78,14 +78,14 @@ describe('HomeNavbar', () => {
   });
 
   describe('registration buttons', () => {
-    it('should show Register for Tryouts button when tryouts are open', () => {
+    it('should show Register Today button when tryouts are open', () => {
       useRegistrationStatus.mockReturnValue({
         isTryoutsOpen: true,
         isRegistrationOpen: false,
       });
 
       render(<HomeNavbar />);
-      expect(screen.getByRole('link', { name: /register for tryouts/i })).toBeInTheDocument();
+      expect(screen.getByRole('link', { name: /register today/i })).toBeInTheDocument();
     });
 
     it('should show Register button when registration is open (not tryouts)', () => {
@@ -115,7 +115,7 @@ describe('HomeNavbar', () => {
       });
 
       render(<HomeNavbar />);
-      expect(screen.getByRole('link', { name: /register for tryouts/i })).toBeInTheDocument();
+      expect(screen.getByRole('link', { name: /register today/i })).toBeInTheDocument();
       // Should not show regular register when tryouts is open
       expect(screen.queryByRole('link', { name: /^register$/i })).not.toBeInTheDocument();
     });

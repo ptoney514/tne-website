@@ -3,15 +3,13 @@ import { render, screen } from '@testing-library/react';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { AuthContext } from '@/contexts/AuthContext';
 
+const mockReplace = vi.fn();
+
 vi.mock('next/navigation', () => ({
-  useRouter: () => ({ push: vi.fn(), replace: vi.fn(), back: vi.fn() }),
+  useRouter: () => ({ push: vi.fn(), replace: mockReplace, back: vi.fn() }),
   useParams: () => ({}),
   useSearchParams: () => [new URLSearchParams()],
-  usePathname: () => '/',
-  redirect: (to) => {
-    // Render a testable element for redirect
-    throw new Error(`REDIRECT:${to}`);
-  },
+  usePathname: () => '/admin',
 }));
 
 const renderWithAuth = (ui, authValue) => {
@@ -67,7 +65,7 @@ describe('ProtectedRoute', () => {
       mockAuthValue({ user: null })
     );
 
-    expect(screen.getByTestId('navigate')).toHaveAttribute('data-to', '/login');
+    expect(mockReplace).toHaveBeenCalledWith('/login?from=%2Fadmin');
     expect(screen.queryByText('Protected Content')).not.toBeInTheDocument();
   });
 
