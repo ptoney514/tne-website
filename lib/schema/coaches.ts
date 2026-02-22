@@ -6,13 +6,13 @@ import {
   timestamp,
   index,
 } from 'drizzle-orm/pg-core';
-import { user } from './auth';
+import { userProfiles } from './userProfiles';
 
 export const coaches = pgTable(
   'coaches',
   {
     id: uuid('id').primaryKey().defaultRandom(),
-    profileId: text('profile_id').references(() => user.id, {
+    profileId: text('profile_id').references(() => userProfiles.id, {
       onDelete: 'set null',
     }),
     firstName: text('first_name').notNull(),

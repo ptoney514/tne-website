@@ -2,7 +2,8 @@
 export * from './enums';
 
 // Export all tables
-export * from './auth';
+export * from './userProfiles';
+export * from './neonAuth';
 export * from './seasons';
 export * from './coaches';
 export * from './teams';
@@ -27,10 +28,13 @@ export * from './userInvites';
 
 // Re-export commonly used types
 export type {
-  User,
-  NewUser,
-  Session,
-} from './auth';
+  UserProfile,
+  NewUserProfile,
+} from './userProfiles';
+
+export type {
+  NeonAuthUser,
+} from './neonAuth';
 
 export type {
   Season,

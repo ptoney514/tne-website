@@ -7,7 +7,7 @@ import {
   pgEnum,
 } from 'drizzle-orm/pg-core';
 import { userRoleEnum } from './enums';
-import { user } from './auth';
+import { userProfiles } from './userProfiles';
 
 // Invite status enum
 export const inviteStatusEnum = pgEnum('invite_status', [
@@ -25,11 +25,10 @@ export const userInvites = pgTable(
     role: userRoleEnum('role').notNull().default('parent'),
     inviteCode: text('invite_code').notNull().unique(),
     status: inviteStatusEnum('status').notNull().default('pending'),
-    // user.id is text (Better Auth), not uuid
-    invitedById: text('invited_by_id').references(() => user.id, {
+    invitedById: text('invited_by_id').references(() => userProfiles.id, {
       onDelete: 'set null',
     }),
-    acceptedById: text('accepted_by_id').references(() => user.id, {
+    acceptedById: text('accepted_by_id').references(() => userProfiles.id, {
       onDelete: 'set null',
     }),
     expiresAt: timestamp('expires_at').notNull(),

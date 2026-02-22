@@ -19,7 +19,7 @@ vi.mock('@/lib/api-client', () => ({
   },
 }));
 
-// Mock Better Auth client for unit tests
+// Mock Neon Auth client for unit tests
 vi.mock('@/lib/auth-client', () => ({
   authClient: {
     useSession: vi.fn(() => ({

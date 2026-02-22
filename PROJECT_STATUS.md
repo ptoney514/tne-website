@@ -46,7 +46,7 @@
 
 | Feature | Issue | Status |
 |---------|-------|--------|
-| Neon + Better Auth | [#9](https://github.com/ptoney514/tne-website/issues/9) | Complete (migrated from Supabase) |
+| Neon Auth | [#9](https://github.com/ptoney514/tne-website/issues/9) | Complete (migrated from Better Auth to Neon Auth) |
 | Vercel Deployment | [#10](https://github.com/ptoney514/tne-website/issues/10) | Open |
 
 ---
@@ -72,7 +72,7 @@
 - Design system documentation
 - Brand colors and typography defined
 - Neon PostgreSQL + Drizzle ORM setup
-- Better Auth integration (email/password, roles)
+- Neon Auth integration (email/password, roles)
 
 ---
 

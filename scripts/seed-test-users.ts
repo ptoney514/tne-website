@@ -5,17 +5,21 @@
  * Run with: npx tsx scripts/seed-test-users.ts
  *
  * Prerequisites: Run db:seed first so coaches and parents records exist.
+ * Creates users via Neon Auth HTTP API (scripts run outside Next.js context).
  */
 
 import 'dotenv/config';
 import { neon } from '@neondatabase/serverless';
 import { drizzle } from 'drizzle-orm/neon-http';
 import { eq } from 'drizzle-orm';
-import * as schema from '../lib/schema';
-import { auth } from '../lib/auth';
+import { userProfiles } from '../lib/schema/userProfiles';
+import { coaches } from '../lib/schema/coaches';
+import { parents } from '../lib/schema/parents';
 
 const sql = neon(process.env.DATABASE_URL!);
-const db = drizzle(sql, { schema });
+const db = drizzle(sql);
+
+const NEON_AUTH_BASE_URL = process.env.NEON_AUTH_BASE_URL!;
 
 interface TestUser {
   email: string;
@@ -54,61 +58,76 @@ const TEST_USERS: TestUser[] = [
 ];
 
 async function createUser(testUser: TestUser): Promise<string | null> {
-  // Check if user already exists
-  const existing = await db
-    .select()
-    .from(schema.user)
-    .where(eq(schema.user.email, testUser.email))
-    .limit(1);
-
-  if (existing.length > 0) {
-    console.log(`  ⏭ ${testUser.email} already exists`);
-    return existing[0].id;
-  }
-
-  // Create user via Better Auth signup
-  const result = await auth.api.signUpEmail({
-    body: {
+  // Create user via Neon Auth HTTP API
+  const signUpUrl = `${NEON_AUTH_BASE_URL}/sign-up/email`;
+  const response = await fetch(signUpUrl, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Origin': NEON_AUTH_BASE_URL,
+    },
+    body: JSON.stringify({
       email: testUser.email,
       password: testUser.password,
       name: testUser.name,
-      firstName: testUser.firstName,
-      lastName: testUser.lastName,
-    },
+    }),
   });
 
-  if (!result) {
-    console.error(`  ✗ Failed to create ${testUser.email}`);
+  if (!response.ok) {
+    const body = await response.text();
+    // User may already exist — check for conflict
+    if (response.status === 422 || response.status === 409 || body.includes('already exists')) {
+      console.log(`  ⏭ ${testUser.email} already exists`);
+      // Try to find existing profile
+      const [existing] = await db
+        .select()
+        .from(userProfiles)
+        .where(eq(userProfiles.id, testUser.email)); // fallback
+      return existing?.id ?? null;
+    }
+    console.error(`  ✗ Failed to create ${testUser.email}: ${body}`);
+    return null;
+  }
+
+  const result = await response.json();
+  const userId = result.user?.id;
+
+  if (!userId) {
+    console.error(`  ✗ No user ID returned for ${testUser.email}`);
     return null;
   }
 
   console.log(`  ✓ Created ${testUser.email}`);
 
-  // Update role if not parent (parent is the default)
-  if (testUser.role !== 'parent') {
-    await db
-      .update(schema.user)
-      .set({ role: testUser.role })
-      .where(eq(schema.user.email, testUser.email));
-    console.log(`    → Set role to ${testUser.role}`);
-  }
+  // Create user_profiles row
+  await db
+    .insert(userProfiles)
+    .values({
+      id: userId,
+      firstName: testUser.firstName,
+      lastName: testUser.lastName,
+      role: testUser.role,
+    })
+    .onConflictDoUpdate({
+      target: userProfiles.id,
+      set: {
+        firstName: testUser.firstName,
+        lastName: testUser.lastName,
+        role: testUser.role,
+        updatedAt: new Date(),
+      },
+    });
 
-  // Fetch the created user to return the id
-  const [created] = await db
-    .select()
-    .from(schema.user)
-    .where(eq(schema.user.email, testUser.email))
-    .limit(1);
+  console.log(`    → Set role to ${testUser.role}`);
 
-  return created?.id ?? null;
+  return userId;
 }
 
 async function linkCoach(userId: string) {
-  // Find first active coach without a profileId
   const [coach] = await db
     .select()
-    .from(schema.coaches)
-    .where(eq(schema.coaches.isActive, true))
+    .from(coaches)
+    .where(eq(coaches.isActive, true))
     .limit(1);
 
   if (!coach) {
@@ -117,18 +136,17 @@ async function linkCoach(userId: string) {
   }
 
   await db
-    .update(schema.coaches)
+    .update(coaches)
     .set({ profileId: userId })
-    .where(eq(schema.coaches.id, coach.id));
+    .where(eq(coaches.id, coach.id));
 
   console.log(`    → Linked to coach: ${coach.firstName} ${coach.lastName}`);
 }
 
 async function linkParent(userId: string) {
-  // Find first parent without a profileId
   const [parent] = await db
     .select()
-    .from(schema.parents)
+    .from(parents)
     .limit(1);
 
   if (!parent) {
@@ -137,9 +155,9 @@ async function linkParent(userId: string) {
   }
 
   await db
-    .update(schema.parents)
+    .update(parents)
     .set({ profileId: userId })
-    .where(eq(schema.parents.id, parent.id));
+    .where(eq(parents.id, parent.id));
 
   console.log(`    → Linked to parent: ${parent.firstName} ${parent.lastName}`);
 }
@@ -153,7 +171,6 @@ async function seedTestUsers() {
 
     if (!userId) continue;
 
-    // Link to role-specific records
     if (testUser.role === 'coach') {
       await linkCoach(userId);
     } else if (testUser.role === 'parent') {

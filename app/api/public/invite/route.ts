@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { auth } from '@/lib/auth';
-import { userInvites, user, coaches, parents } from '@/lib/schema';
+import { authServer } from '@/lib/auth';
+import { userInvites, userProfiles, coaches, parents } from '@/lib/schema';
 import { eq } from 'drizzle-orm';
 
 export async function GET(request: NextRequest) {
@@ -23,7 +23,6 @@ export async function GET(request: NextRequest) {
 
     // Check if expired by time
     if (new Date() > invite.expiresAt) {
-      // Update status if still pending
       if (invite.status === 'pending') {
         await db
           .update(userInvites)
@@ -100,31 +99,35 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invitation has expired' }, { status: 410 });
     }
 
-    // Create user via Better Auth
-    const signUpResult = await auth.api.signUpEmail({
-      body: {
-        email: invite.email,
-        password,
-        name: `${firstName} ${lastName}`,
-        firstName,
-        lastName,
-      },
+    // Create user via Neon Auth server API
+    const signUpResult = await authServer.signUp.email({
+      email: invite.email,
+      password,
+      name: `${firstName} ${lastName}`,
     });
 
-    if (!signUpResult || !signUpResult.user) {
+    if (signUpResult.error || !signUpResult.data?.user) {
       return NextResponse.json(
-        { error: 'Failed to create account' },
+        { error: signUpResult.error?.message || 'Failed to create account' },
         { status: 500 }
       );
     }
 
-    const newUser = signUpResult.user;
+    const newUser = signUpResult.data.user;
 
-    // Update role to the invited role (Better Auth defaults to 'parent' with input: false)
+    // Create user_profiles row with the invited role
     await db
-      .update(user)
-      .set({ role: invite.role })
-      .where(eq(user.id, newUser.id));
+      .insert(userProfiles)
+      .values({
+        id: newUser.id,
+        firstName,
+        lastName,
+        role: invite.role,
+      })
+      .onConflictDoUpdate({
+        target: userProfiles.id,
+        set: { firstName, lastName, role: invite.role, updatedAt: new Date() },
+      });
 
     // Update invite record
     await db
@@ -139,7 +142,6 @@ export async function POST(request: NextRequest) {
 
     // Link to role-specific profile table
     if (invite.role === 'coach') {
-      // Check for existing coach record by email
       const [existingCoach] = await db
         .select()
         .from(coaches)
@@ -159,7 +161,6 @@ export async function POST(request: NextRequest) {
         });
       }
     } else if (invite.role === 'parent') {
-      // Check for existing parent record by email
       const [existingParent] = await db
         .select()
         .from(parents)

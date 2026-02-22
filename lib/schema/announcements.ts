@@ -6,7 +6,7 @@ import {
   timestamp,
   index,
 } from 'drizzle-orm/pg-core';
-import { user } from './auth';
+import { userProfiles } from './userProfiles';
 import { teams } from './teams';
 
 export const announcements = pgTable(
@@ -20,7 +20,7 @@ export const announcements = pgTable(
     isPinned: boolean('is_pinned').notNull().default(false),
     publishedAt: timestamp('published_at'),
     expiresAt: timestamp('expires_at'),
-    createdBy: text('created_by').references(() => user.id),
+    createdBy: text('created_by').references(() => userProfiles.id),
     createdAt: timestamp('created_at').notNull().defaultNow(),
     updatedAt: timestamp('updated_at').notNull().defaultNow(),
   },

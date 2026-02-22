@@ -1,5 +1,6 @@
-import { auth } from './auth';
+import { neonAuth } from '@neondatabase/auth/next/server';
 import { db } from '@/lib/db';
+import { userProfiles } from '@/lib/schema/userProfiles';
 import { coaches, teams } from '@/lib/schema';
 import { and, eq, or, inArray } from 'drizzle-orm';
 
@@ -15,20 +16,52 @@ interface AuthSession {
     id: string;
     email: string;
     name: string;
-    firstName?: string;
-    lastName?: string;
+    firstName?: string | null;
+    lastName?: string | null;
     role: UserRole;
   };
 }
 
 /**
- * Require authenticated user
- * Returns session or throws 401
+ * Get the current Neon Auth session enriched with user_profiles data.
+ * Uses neonAuth() which reads cookies from next/headers automatically.
  */
-export async function requireAuth(request: Request): Promise<AuthSession> {
-  const session = await auth.api.getSession({
-    headers: request.headers,
-  });
+async function getEnrichedSession(): Promise<AuthSession | null> {
+  const { session, user } = await neonAuth();
+
+  if (!session || !user) return null;
+
+  // Fetch role + profile fields from user_profiles
+  const [profile] = await db
+    .select()
+    .from(userProfiles)
+    .where(eq(userProfiles.id, user.id));
+
+  return {
+    session: {
+      id: session.id,
+      userId: user.id,
+      expiresAt: new Date(session.expiresAt),
+    },
+    user: {
+      id: user.id,
+      email: user.email,
+      name: user.name || '',
+      firstName: profile?.firstName ?? null,
+      lastName: profile?.lastName ?? null,
+      role: (profile?.role as UserRole) ?? 'parent',
+    },
+  };
+}
+
+/**
+ * Require authenticated user.
+ * Returns session or throws 401.
+ * The `request` param is kept for backward compatibility but unused —
+ * Neon Auth reads cookies from next/headers.
+ */
+export async function requireAuth(_request?: Request): Promise<AuthSession> {
+  const session = await getEnrichedSession();
 
   if (!session) {
     throw new Response(JSON.stringify({ error: 'Unauthorized' }), {
@@ -37,15 +70,15 @@ export async function requireAuth(request: Request): Promise<AuthSession> {
     });
   }
 
-  return session as AuthSession;
+  return session;
 }
 
 /**
- * Require admin role
- * Returns session or throws 401/403
+ * Require admin role.
+ * Returns session or throws 401/403.
  */
-export async function requireAdmin(request: Request): Promise<AuthSession> {
-  const session = await requireAuth(request);
+export async function requireAdmin(_request?: Request): Promise<AuthSession> {
+  const session = await requireAuth();
 
   if (session.user.role !== 'admin') {
     throw new Response(JSON.stringify({ error: 'Forbidden: Admin access required' }), {
@@ -58,14 +91,14 @@ export async function requireAdmin(request: Request): Promise<AuthSession> {
 }
 
 /**
- * Require one of the specified roles
- * Returns session or throws 401/403
+ * Require one of the specified roles.
+ * Returns session or throws 401/403.
  */
 export async function requireRole(
-  request: Request,
+  _request: Request,
   roles: UserRole[]
 ): Promise<AuthSession> {
-  const session = await requireAuth(request);
+  const session = await requireAuth();
 
   if (!roles.includes(session.user.role)) {
     throw new Response(
@@ -83,39 +116,34 @@ export async function requireRole(
 }
 
 /**
- * Optional auth - returns session if present, null otherwise
- * Use for routes that have different behavior for authenticated vs anonymous users
+ * Optional auth - returns session if present, null otherwise.
  */
-export async function optionalAuth(request: Request): Promise<AuthSession | null> {
+export async function optionalAuth(_request?: Request): Promise<AuthSession | null> {
   try {
-    const session = await auth.api.getSession({
-      headers: request.headers,
-    });
-    return session as AuthSession | null;
+    return await getEnrichedSession();
   } catch {
     return null;
   }
 }
 
 /**
- * Check if user is admin without throwing
+ * Check if user is admin without throwing.
  */
-export async function isAdmin(request: Request): Promise<boolean> {
-  const session = await optionalAuth(request);
+export async function isAdmin(_request?: Request): Promise<boolean> {
+  const session = await optionalAuth();
   return session?.user.role === 'admin';
 }
 
 /**
- * Check if user has any of the specified roles
+ * Check if user has any of the specified roles.
  */
-export async function hasRole(request: Request, roles: UserRole[]): Promise<boolean> {
-  const session = await optionalAuth(request);
+export async function hasRole(_request: Request, roles: UserRole[]): Promise<boolean> {
+  const session = await optionalAuth();
   return session ? roles.includes(session.user.role) : false;
 }
 
 /**
  * Resolve a user ID to the team IDs they coach.
- * Follows the chain: user.id → coaches.profileId → coaches.id → teams.headCoachId/assistantCoachId → teams.id
  */
 export async function getCoachTeamIds(userId: string): Promise<string[]> {
   const coachRecords = await db

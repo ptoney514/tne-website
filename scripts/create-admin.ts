@@ -5,18 +5,19 @@
  * Run with: npx tsx scripts/create-admin.ts
  *
  * Uses ADMIN_EMAIL / ADMIN_PASSWORD env vars, or falls back to defaults.
+ * Creates user via Neon Auth HTTP API (scripts run outside Next.js context).
  */
 
 import 'dotenv/config';
 import { neon } from '@neondatabase/serverless';
 import { drizzle } from 'drizzle-orm/neon-http';
 import { eq } from 'drizzle-orm';
-import * as schema from '../lib/schema';
-import { auth } from '../lib/auth';
+import { userProfiles } from '../lib/schema/userProfiles';
 
 const sql = neon(process.env.DATABASE_URL!);
-const db = drizzle(sql, { schema });
+const db = drizzle(sql);
 
+const NEON_AUTH_BASE_URL = process.env.NEON_AUTH_BASE_URL!;
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@tnebasketball.com';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'TestAdmin123!';
 const ADMIN_NAME = 'Admin User';
@@ -24,49 +25,61 @@ const ADMIN_NAME = 'Admin User';
 async function createAdmin() {
   console.log('🔐 Creating admin user...\n');
 
-  // Check if user already exists
+  // Check if profile already exists
   const existing = await db
     .select()
-    .from(schema.user)
-    .where(eq(schema.user.email, ADMIN_EMAIL))
+    .from(userProfiles)
+    .where(eq(userProfiles.role, 'admin'))
     .limit(1);
 
   if (existing.length > 0) {
-    console.log(`  ⏭ User ${ADMIN_EMAIL} already exists (role: ${existing[0].role})`);
-
-    // Ensure role is admin even if user existed
-    if (existing[0].role !== 'admin') {
-      await db
-        .update(schema.user)
-        .set({ role: 'admin' })
-        .where(eq(schema.user.email, ADMIN_EMAIL));
-      console.log(`  ✓ Updated role to admin`);
-    }
-
+    console.log(`  ⏭ Admin profile already exists (id: ${existing[0].id})`);
     console.log('\n✅ Admin user ready.');
     return;
   }
 
-  // Create user via Better Auth signup
-  const result = await auth.api.signUpEmail({
-    body: {
+  // Create user via Neon Auth HTTP API
+  const signUpUrl = `${NEON_AUTH_BASE_URL}/sign-up/email`;
+  const response = await fetch(signUpUrl, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Origin': NEON_AUTH_BASE_URL,
+    },
+    body: JSON.stringify({
       email: ADMIN_EMAIL,
       password: ADMIN_PASSWORD,
       name: ADMIN_NAME,
-    },
+    }),
   });
 
-  if (!result) {
-    throw new Error('Sign up returned no result');
+  if (!response.ok) {
+    const body = await response.text();
+    throw new Error(`Sign up failed (${response.status}): ${body}`);
+  }
+
+  const result = await response.json();
+  const userId = result.user?.id;
+
+  if (!userId) {
+    throw new Error('Sign up returned no user ID');
   }
 
   console.log(`  ✓ Created user: ${ADMIN_EMAIL}`);
 
-  // Update role to admin (role has input: false, so can't set during signup)
+  // Create user_profiles row with admin role
   await db
-    .update(schema.user)
-    .set({ role: 'admin' })
-    .where(eq(schema.user.email, ADMIN_EMAIL));
+    .insert(userProfiles)
+    .values({
+      id: userId,
+      firstName: 'Admin',
+      lastName: 'User',
+      role: 'admin',
+    })
+    .onConflictDoUpdate({
+      target: userProfiles.id,
+      set: { role: 'admin', updatedAt: new Date() },
+    });
 
   console.log(`  ✓ Set role to admin`);
   console.log('\n✅ Admin user created successfully.');

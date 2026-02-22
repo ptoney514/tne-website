@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-TNE United Express youth basketball website — built with Next.js App Router, Neon PostgreSQL (via Drizzle ORM), and Better Auth for authentication.
+TNE United Express youth basketball website — built with Next.js App Router, Neon PostgreSQL (via Drizzle ORM), and Neon Auth for authentication.
 
 ## Tech Stack
 
@@ -13,7 +13,7 @@ TNE United Express youth basketball website — built with Next.js App Router, N
 - **Icons**: `lucide-react`
 - **Fonts**: Bebas Neue (headlines), Inter (body), Space Mono (labels/badges)
 - **Database**: Neon PostgreSQL + Drizzle ORM
-- **Auth**: Better Auth (email/password, role-based)
+- **Auth**: Neon Auth (`@neondatabase/auth`, managed Better Auth hosted by Neon)
 - **Hosting**: Vercel
 
 ## Development
@@ -71,7 +71,8 @@ app/
 │   ├── tournaments/        # Tournament management
 │   └── ...                 # Other admin pages
 └── api/                    # API routes
-    └── auth/[...all]/      # Better Auth handler
+    ├── auth/[...path]/     # Neon Auth proxy handler
+    └── auth/profile/       # User profile API (custom fields)
 
 components/                 # Shared React components
 lib/                        # Auth config, DB client, utilities

@@ -15,7 +15,7 @@ import {
   registrationSourceEnum,
   paymentStatusEnum,
 } from './enums';
-import { user } from './auth';
+import { userProfiles } from './userProfiles';
 import { teams } from './teams';
 import { players } from './players';
 import { tryoutSignups } from './tryouts';
@@ -76,7 +76,7 @@ export const registrations = pgTable(
     paymentPlanType: text('payment_plan_type'),
     // Workflow
     status: registrationStatusEnum('status').notNull().default('pending'),
-    reviewedBy: text('reviewed_by').references(() => user.id),
+    reviewedBy: text('reviewed_by').references(() => userProfiles.id),
     reviewedAt: timestamp('reviewed_at'),
     rejectionReason: text('rejection_reason'),
     createdPlayerId: uuid('created_player_id').references(() => players.id, {
