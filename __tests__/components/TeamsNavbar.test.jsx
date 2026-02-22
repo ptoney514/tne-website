@@ -40,10 +40,11 @@ describe('TeamsNavbar', () => {
       expect(screen.getByAltText('TNE United Express')).toBeInTheDocument();
     });
 
-    it('should render desktop navigation links', () => {
+    it('should render desktop navigation links including Tryouts', () => {
       render(<TeamsNavbar />);
       expect(screen.getByRole('link', { name: /teams/i })).toBeInTheDocument();
       expect(screen.getByRole('link', { name: /tournaments/i })).toBeInTheDocument();
+      expect(screen.getByRole('link', { name: /^tryouts$/i })).toBeInTheDocument();
       expect(screen.getByRole('link', { name: /payments/i })).toBeInTheDocument();
       expect(screen.getByRole('link', { name: /about/i })).toBeInTheDocument();
       expect(screen.getByRole('link', { name: /contact/i })).toBeInTheDocument();
@@ -104,12 +105,12 @@ describe('TeamsNavbar', () => {
       });
     });
 
-    it('should show Register link with correct href', () => {
+    it('should show Register Now link with correct href', () => {
       render(<TeamsNavbar />);
-      const registerLinks = screen.getAllByRole('link', { name: /register/i });
+      const registerLinks = screen.getAllByRole('link', { name: /register now/i });
       expect(registerLinks.length).toBeGreaterThanOrEqual(1);
       registerLinks.forEach((link) => {
-        expect(link).toHaveAttribute('href', '/tryouts');
+        expect(link).toHaveAttribute('href', '/register');
       });
     });
   });
@@ -210,6 +211,12 @@ describe('TeamsNavbar', () => {
       expect(tournamentsLink).toHaveAttribute('href', '/schedule');
     });
 
+    it('should have correct href for Tryouts nav link', () => {
+      render(<TeamsNavbar />);
+      const tryoutsLink = screen.getByRole('link', { name: /^tryouts$/i });
+      expect(tryoutsLink).toHaveAttribute('href', '/tryouts');
+    });
+
     it('should have correct href for Payments link', () => {
       render(<TeamsNavbar />);
       const paymentsLink = screen.getByRole('link', { name: /payments/i });
@@ -246,7 +253,7 @@ describe('TeamsNavbar', () => {
       expect(screen.getByText('Menu')).toBeInTheDocument();
     });
 
-    it('should show Login and Register links in mobile menu', () => {
+    it('should show Login and Register Now links in mobile menu', () => {
       render(<TeamsNavbar />);
 
       // Open mobile menu
@@ -256,12 +263,27 @@ describe('TeamsNavbar', () => {
       );
       fireEvent.click(mobileMenuButton);
 
-      // Mobile menu has its own Login and Register links
+      // Mobile menu has its own Login and Register Now links
       const loginLinks = screen.getAllByRole('link', { name: /login/i });
-      const registerLinks = screen.getAllByRole('link', { name: /register/i });
+      const registerLinks = screen.getAllByRole('link', { name: /register now/i });
 
       expect(loginLinks.length).toBeGreaterThanOrEqual(2); // desktop + mobile
       expect(registerLinks.length).toBeGreaterThanOrEqual(2); // desktop + mobile
+    });
+
+    it('should show Tryouts link in mobile menu', () => {
+      render(<TeamsNavbar />);
+
+      // Open mobile menu
+      const menuButtons = screen.getAllByRole('button');
+      const mobileMenuButton = menuButtons.find(
+        (btn) => btn.className.includes('md:hidden')
+      );
+      fireEvent.click(mobileMenuButton);
+
+      // Should have Tryouts links in both desktop and mobile
+      const tryoutsLinks = screen.getAllByRole('link', { name: /^tryouts$/i });
+      expect(tryoutsLinks.length).toBeGreaterThanOrEqual(2);
     });
   });
 });

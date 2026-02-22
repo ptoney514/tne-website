@@ -1,7 +1,7 @@
-// Main navigation links (no Tryouts or Login - those are seasonal/admin actions)
 export const navLinks = [
   { path: '/teams', label: 'Teams' },
   { path: '/schedule', label: 'Tournaments' },
+  { path: '/tryouts', label: 'Tryouts' },
   { path: '/payments', label: 'Payments' },
   { path: '/about', label: 'About' },
   { path: '/contact', label: 'Contact' },

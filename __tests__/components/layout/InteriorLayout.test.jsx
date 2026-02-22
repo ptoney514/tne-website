@@ -2,14 +2,6 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import InteriorLayout from '@/components/layouts/InteriorLayout';
 
-// Mock the hooks and assets
-vi.mock('@/hooks/useRegistrationStatus', () => ({
-  useRegistrationStatus: vi.fn(() => ({
-    isTryoutsOpen: false,
-    isRegistrationOpen: false,
-  })),
-}));
-
 vi.mock('@/assets/tne-logo-white-transparent.png', () => ({
   default: 'mocked-logo.png',
 }));
@@ -18,6 +10,7 @@ vi.mock('@/constants/navigation', () => ({
   navLinks: [
     { path: '/teams', label: 'Teams' },
     { path: '/schedule', label: 'Tournaments' },
+    { path: '/tryouts', label: 'Tryouts' },
     { path: '/payments', label: 'Payments' },
     { path: '/about', label: 'About' },
     { path: '/contact', label: 'Contact' },
@@ -33,15 +26,9 @@ vi.mock('@/components/HomeFooter', () => ({
   ),
 }));
 
-import { useRegistrationStatus } from '@/hooks/useRegistrationStatus';
-
 describe('InteriorLayout', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    useRegistrationStatus.mockReturnValue({
-      isTryoutsOpen: false,
-      isRegistrationOpen: false,
-    });
   });
 
   describe('structure', () => {
@@ -89,7 +76,7 @@ describe('InteriorLayout', () => {
       expect(logoLink).toHaveAttribute('href', '/');
     });
 
-    it('should render navigation links', () => {
+    it('should render navigation links including Tryouts', () => {
       render(
         <InteriorLayout>
           <div>Content</div>
@@ -98,20 +85,9 @@ describe('InteriorLayout', () => {
 
       expect(screen.getByRole('link', { name: /teams/i })).toBeInTheDocument();
       expect(screen.getByRole('link', { name: /tournaments/i })).toBeInTheDocument();
+      expect(screen.getByRole('link', { name: /^tryouts$/i })).toBeInTheDocument();
       expect(screen.getByRole('link', { name: /payments/i })).toBeInTheDocument();
       expect(screen.getByRole('link', { name: /about/i })).toBeInTheDocument();
-    });
-
-    it('should highlight active link', () => {
-      render(
-        <InteriorLayout>
-          <div>Content</div>
-        </InteriorLayout>
-      );
-
-      const teamsLink = screen.getByRole('link', { name: /teams/i });
-      // With next/navigation mocked to usePathname => '/', no link should be highlighted
-      // This test may need adjustment based on the component's behavior with Next.js routing
     });
 
     it('should render mobile menu button', () => {
@@ -125,58 +101,26 @@ describe('InteriorLayout', () => {
     });
   });
 
-  describe('registration buttons', () => {
-    it('should show tryouts button when tryouts are open', () => {
-      useRegistrationStatus.mockReturnValue({
-        isTryoutsOpen: true,
-        isRegistrationOpen: false,
-      });
-
+  describe('register now button', () => {
+    it('should always show Register Now button', () => {
       render(
         <InteriorLayout>
           <div>Content</div>
         </InteriorLayout>
       );
 
-      expect(screen.getByRole('link', { name: /tryouts/i })).toBeInTheDocument();
+      expect(screen.getByRole('link', { name: /register now/i })).toBeInTheDocument();
     });
 
-    it('should show register button when registration is open', () => {
-      useRegistrationStatus.mockReturnValue({
-        isTryoutsOpen: false,
-        isRegistrationOpen: true,
-      });
-
+    it('should link Register Now to /register', () => {
       render(
         <InteriorLayout>
           <div>Content</div>
         </InteriorLayout>
       );
 
-      expect(screen.getByRole('link', { name: /register/i })).toBeInTheDocument();
-    });
-
-    it('should not show registration buttons when both closed', () => {
-      useRegistrationStatus.mockReturnValue({
-        isTryoutsOpen: false,
-        isRegistrationOpen: false,
-      });
-
-      render(
-        <InteriorLayout>
-          <div>Content</div>
-        </InteriorLayout>
-      );
-
-      // Should not find the CTA buttons (but links in nav are fine)
-      const tryoutsButtons = screen.queryAllByRole('link', { name: /^tryouts$/i });
-      const registerButtons = screen.queryAllByRole('link', { name: /^register$/i });
-
-      // Filter to only CTA-styled buttons (with bg-tne-red)
-      const ctaButtons = [...tryoutsButtons, ...registerButtons].filter((el) =>
-        el.className.includes('bg-tne-red')
-      );
-      expect(ctaButtons.length).toBe(0);
+      const registerLink = screen.getByRole('link', { name: /register now/i });
+      expect(registerLink).toHaveAttribute('href', '/register');
     });
   });
 
