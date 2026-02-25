@@ -156,6 +156,9 @@ function RegistrationDetailPanel({
           </h2>
           <p className="text-sm text-stone-500">
             Submitted {formatDateTime(registration.created_at)}
+            {registration.ip_address && (
+              <span className="ml-2 text-stone-400">({registration.ip_address})</span>
+            )}
           </p>
         </div>
         <button
@@ -555,7 +558,7 @@ export default function AdminRegistrationsPage() {
       'Desired Jersey #', 'Last Team Played For',
       'Parent Name', 'Parent Email', 'Parent Cell Phone', 'Parent Home Phone', 'Address',
       'Parent 2 Name', 'Parent 2 Phone', 'Parent 2 Email',
-      'Team', 'Status', 'Payment Status', 'Submitted At'
+      'Team', 'Status', 'Payment Status', 'IP Address', 'Submitted At'
     ];
 
     const rows = filteredRegistrations.map((r) => [
@@ -577,6 +580,7 @@ export default function AdminRegistrationsPage() {
       r.team?.name || '',
       r.status,
       r.payment_status,
+      r.ip_address || '',
       r.created_at,
     ]);
 

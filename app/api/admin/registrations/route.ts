@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { and, desc, eq, inArray } from 'drizzle-orm';
+import { and, desc, eq, inArray, isNull, or } from 'drizzle-orm';
 import { requireAdmin, requireRole, getCoachTeamIds } from '@/lib/auth-middleware';
 import { db } from '@/lib/db';
 import { players, registrations, seasons, teamRoster, teams } from '@/lib/schema';
@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
     const status = request.nextUrl.searchParams.get('status');
 
     const conditions = [];
-    if (seasonId) conditions.push(eq(teams.seasonId, seasonId));
+    if (seasonId) conditions.push(or(eq(teams.seasonId, seasonId), isNull(registrations.teamId)));
     if (teamId) conditions.push(eq(registrations.teamId, teamId));
     if (status) conditions.push(eq(registrations.status, normalizeStatus(status)));
     if (isCoach) conditions.push(inArray(registrations.teamId, coachTeamIds));
@@ -75,6 +75,7 @@ export async function GET(request: NextRequest) {
         emergencyContactName: registrations.emergencyContactName,
         emergencyContactPhone: registrations.emergencyContactPhone,
         emergencyContactRelationship: registrations.emergencyContactRelationship,
+        ipAddress: registrations.ipAddress,
         paymentStatus: registrations.paymentStatus,
         paymentAmount: registrations.paymentAmount,
         paymentDate: registrations.paymentDate,
@@ -154,6 +155,7 @@ export async function GET(request: NextRequest) {
         waiver_liability: !!reg.waiverLiabilityAccepted,
         waiver_medical: !!reg.waiverMedicalAccepted,
         waiver_media: !!reg.waiverMediaAccepted,
+        ip_address: reg.ipAddress,
         notes: reg.rejectionReason,
         player_id: reg.playerId,
         created_at: reg.createdAt,

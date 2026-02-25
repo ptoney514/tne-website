@@ -184,6 +184,7 @@ export async function POST(request) {
 
       // Step 4: Also write to Supabase (dual-write, don't fail if this fails)
       if (isDatabaseConfigured()) {
+        registration.ip_address = clientIP;
         const supabaseResult = await insertRegistration(registration);
         if (!supabaseResult.success && !supabaseResult.skipped) {
           console.warn('[Register] Supabase write failed (non-blocking):', supabaseResult.error);
@@ -205,6 +206,7 @@ export async function POST(request) {
 
       // Try Supabase if configured
       if (isDatabaseConfigured()) {
+        registration.ip_address = clientIP;
         const supabaseResult = await insertRegistration(registration);
         if (supabaseResult.success && !supabaseResult.skipped) {
           console.log('[Register] Registration saved to Supabase:', supabaseResult.id);

@@ -150,7 +150,7 @@ export default function HomePage() {
             {/* CTAs - Priority: Tryouts > Registration > Waitlist */}
             <div className="flex flex-col sm:flex-row gap-4 pt-4 pointer-events-auto">
               {isTryoutsOpen ? (
-                <Link href="/tryouts" className="group relative px-8 py-3 bg-tne-red text-white text-sm font-semibold uppercase tracking-wider overflow-hidden transition-all hover:bg-tne-red-dark shadow-lg shadow-tne-red/25">
+                <Link href="/register" className="group relative px-8 py-3 bg-tne-red text-white text-sm font-semibold uppercase tracking-wider overflow-hidden transition-all hover:bg-tne-red-dark shadow-lg shadow-tne-red/25">
                   <span className="relative z-10 flex items-center gap-2">
                     Register Today
                     <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
@@ -733,7 +733,7 @@ export default function HomePage() {
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               {isTryoutsOpen ? (
-                <Link href="/tryouts" className="h-12 px-8 bg-tne-red text-white font-medium hover:bg-tne-red-dark transition-all shadow-xl shadow-tne-red/20 flex items-center gap-2 hover:scale-105 active:scale-95 duration-200">
+                <Link href="/register" className="h-12 px-8 bg-tne-red text-white font-medium hover:bg-tne-red-dark transition-all shadow-xl shadow-tne-red/20 flex items-center gap-2 hover:scale-105 active:scale-95 duration-200">
                   <span>Register Today</span>
                   <ChevronRight className="w-4 h-4" />
                 </Link>

@@ -20,7 +20,11 @@ import { test, expect } from '@playwright/test';
  */
 async function selectSeasonRegistration(page) {
   await page.evaluate(() => localStorage.removeItem('tne_registration_draft'));
-  await page.waitForSelector('h1', { timeout: 10000 });
+  // Wait for loading spinner to disappear and content to render
+  await page.waitForFunction(
+    () => !document.body.textContent.includes('Loading registration options'),
+    { timeout: 15000 },
+  );
 
   const typeSelector = page.getByText('How would you like to register?');
   const isSelectorVisible = await typeSelector.isVisible().catch(() => false);
