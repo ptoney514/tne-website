@@ -61,6 +61,8 @@ export const registrations = pgTable(
     emergencyContactName: text('emergency_contact_name').notNull(),
     emergencyContactPhone: text('emergency_contact_phone').notNull(),
     emergencyContactRelationship: text('emergency_contact_relationship'),
+    // Metadata
+    ipAddress: text('ip_address'),
     // Waivers
     waiverLiabilityAccepted: boolean('waiver_liability_accepted').default(false),
     waiverLiabilityAcceptedAt: timestamp('waiver_liability_accepted_at'),

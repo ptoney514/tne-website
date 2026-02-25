@@ -181,7 +181,7 @@ function SidebarContent() {
 }
 
 // Main wizard content area with type selection
-function RegistrationWizardArea({ onSubmit, submitting, submitSuccess, onReset, isTryoutsOpen, isRegistrationOpen, tryoutsLabel, seasons }) {
+function RegistrationWizardArea({ onSubmit, submitting, submitSuccess, onReset, isTryoutsOpen, isRegistrationOpen, tryoutsLabel, seasons, loading }) {
   const { registrationType, setRegistrationType, resetWizard, formData, updateField } = useWizard();
 
   const handleSelectType = (type) => {
@@ -194,6 +194,21 @@ function RegistrationWizardArea({ onSubmit, submitting, submitSuccess, onReset, 
       updateField('seasonId', seasons[0].id);
     }
   }, [registrationType, seasons, formData.seasonId, updateField]);
+
+  // Still loading registration status from config
+  if (loading) {
+    return (
+      <div id="registration" className="rounded-3xl bg-white border border-neutral-300 shadow-sm overflow-hidden">
+        <div className="px-5 py-4 border-b border-neutral-200 bg-neutral-50">
+          <h2 className="text-lg font-semibold text-neutral-900">Registration</h2>
+        </div>
+        <div className="px-6 py-12 flex flex-col items-center gap-4">
+          <div className="w-10 h-10 border-4 border-neutral-200 border-t-tne-red rounded-full animate-spin" />
+          <p className="text-sm text-neutral-500">Loading registration options…</p>
+        </div>
+      </div>
+    );
+  }
 
   // Neither registration type is available
   if (!isTryoutsOpen && !isRegistrationOpen) {
@@ -291,7 +306,7 @@ export default function RegistrationPage() {
     resetSubmitState,
   } = useTeamRegistration();
 
-  const { isRegistrationOpen, isTryoutsOpen, tryoutsLabel } = useRegistrationStatus();
+  const { isRegistrationOpen, isTryoutsOpen, tryoutsLabel, loading } = useRegistrationStatus();
 
   // Build seasons list from config for the season selector
   // For now, we use the tryoutsLabel and construct a season object
@@ -379,6 +394,7 @@ export default function RegistrationPage() {
                   isRegistrationOpen={isRegistrationOpen}
                   tryoutsLabel={tryoutsLabel}
                   seasons={seasons}
+                  loading={loading}
                 />
               </div>
 
