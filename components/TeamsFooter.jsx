@@ -22,10 +22,10 @@ export default function TeamsFooter() {
             </span>
           </div>
           <div className="flex items-center gap-3">
-            <a href="#" className="text-white/40 hover:text-white transition-colors">
+            <a href="https://www.instagram.com/tneunitedexpress" target="_blank" rel="noopener noreferrer" className="text-white/40 hover:text-white transition-colors">
               <Instagram className="w-4 h-4" />
             </a>
-            <a href="#" className="text-white/40 hover:text-white transition-colors">
+            <a href="https://twitter.com/TNEBasketball" target="_blank" rel="noopener noreferrer" className="text-white/40 hover:text-white transition-colors">
               <Twitter className="w-4 h-4" />
             </a>
           </div>
