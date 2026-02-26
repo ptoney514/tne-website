@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Instagram, Youtube, Twitter, LogIn, Calendar } from 'lucide-react';
+import { Instagram, Twitter, LogIn, Calendar } from 'lucide-react';
 import tneLogoWhite from '@/assets/tne-logo-white-transparent.png';
 
 export default function HomeFooter({ hideStatusBadge = false }) {
@@ -19,13 +19,10 @@ export default function HomeFooter({ hideStatusBadge = false }) {
               Developing elite players and building character in Omaha's youth. The road to the next level starts here.
             </p>
             <div className="flex items-center gap-4">
-              <a href="#" className="text-white/40 hover:text-white transition-colors">
+              <a href="https://www.instagram.com/tneunitedexpress" target="_blank" rel="noopener noreferrer" className="text-white/40 hover:text-white transition-colors">
                 <Instagram className="w-5 h-5" />
               </a>
-              <a href="#" className="text-white/40 hover:text-white transition-colors">
-                <Youtube className="w-5 h-5" />
-              </a>
-              <a href="#" className="text-white/40 hover:text-white transition-colors">
+              <a href="https://twitter.com/TNEBasketball" target="_blank" rel="noopener noreferrer" className="text-white/40 hover:text-white transition-colors">
                 <Twitter className="w-5 h-5" />
               </a>
             </div>
@@ -45,7 +42,6 @@ export default function HomeFooter({ hideStatusBadge = false }) {
             <ul className="space-y-4 text-sm">
               <li><Link href="/about" className="hover:text-white transition-colors">About Us</Link></li>
               <li><Link href="/contact" className="hover:text-white transition-colors">Contact</Link></li>
-              <li><a href="../../src/pages/merch.html" className="hover:text-white transition-colors">Merch Store</a></li>
             </ul>
           </div>
 
