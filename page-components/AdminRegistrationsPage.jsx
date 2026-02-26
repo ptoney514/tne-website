@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useRegistrations } from '@/hooks/useRegistrations';
 import AdminNavbar from '@/components/AdminNavbar';
 import {
@@ -475,6 +475,16 @@ export default function AdminRegistrationsPage() {
 
   // UI State
   const [selectedRegistration, setSelectedRegistration] = useState(null);
+
+  useEffect(() => {
+    if (!selectedRegistration?.id) return;
+    const refreshed = registrations.find((registration) => registration.id === selectedRegistration.id);
+    if (refreshed) {
+      setSelectedRegistration(refreshed);
+    } else {
+      setSelectedRegistration(null);
+    }
+  }, [registrations, selectedRegistration?.id]);
 
   // Filter State
   const [searchTerm, setSearchTerm] = useState('');

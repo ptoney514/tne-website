@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useTryoutSignups } from '@/hooks/useTryoutSignups';
 import AdminNavbar from '@/components/AdminNavbar';
 import { GradeBadge, FilterPill } from '@/components/admin/AdminBadges';
@@ -24,16 +24,15 @@ import {
 
 // Status badge styles
 const STATUS_STYLES = {
-  pending: { bg: 'bg-amber-100', text: 'text-amber-700', dot: 'bg-amber-500', label: 'Pending' },
-  confirmed: { bg: 'bg-blue-100', text: 'text-blue-700', dot: 'bg-blue-500', label: 'Confirmed' },
+  registered: { bg: 'bg-amber-100', text: 'text-amber-700', dot: 'bg-amber-500', label: 'Registered' },
   attended: { bg: 'bg-emerald-100', text: 'text-emerald-700', dot: 'bg-emerald-500', label: 'Attended' },
-  selected: { bg: 'bg-tne-red/10', text: 'text-tne-red', dot: 'bg-tne-red', label: 'Selected' },
-  not_selected: { bg: 'bg-stone-100', text: 'text-stone-600', dot: 'bg-stone-400', label: 'Not Selected' },
+  offered: { bg: 'bg-tne-red/10', text: 'text-tne-red', dot: 'bg-tne-red', label: 'Offered' },
+  declined: { bg: 'bg-stone-100', text: 'text-stone-600', dot: 'bg-stone-400', label: 'Declined' },
   no_show: { bg: 'bg-red-100', text: 'text-red-700', dot: 'bg-red-500', label: 'No Show' },
 };
 
 function SignupStatusBadge({ status }) {
-  const style = STATUS_STYLES[status] || STATUS_STYLES.pending;
+  const style = STATUS_STYLES[status] || STATUS_STYLES.registered;
   return (
     <span className={`inline-flex items-center gap-1.5 px-2 py-1 text-xs font-medium rounded-full ${style.bg} ${style.text}`}>
       <span className={`w-1.5 h-1.5 rounded-full ${style.dot}`} />
@@ -179,17 +178,7 @@ function SignupDetailPanel({
 
           {/* Status Buttons */}
           <div className="grid grid-cols-2 gap-2">
-            {signup.status === 'pending' && (
-              <button
-                onClick={() => handleStatusChange('confirmed')}
-                disabled={isUpdating}
-                className="flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 disabled:opacity-50"
-              >
-                <CheckCircle className="w-4 h-4" />
-                Confirm
-              </button>
-            )}
-            {(signup.status === 'pending' || signup.status === 'confirmed') && (
+            {signup.status === 'registered' && (
               <button
                 onClick={() => handleStatusChange('attended')}
                 disabled={isUpdating}
@@ -199,27 +188,7 @@ function SignupDetailPanel({
                 Attended
               </button>
             )}
-            {signup.status === 'attended' && (
-              <>
-                <button
-                  onClick={() => handleStatusChange('selected')}
-                  disabled={isUpdating}
-                  className="flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-tne-red text-white text-sm font-medium hover:bg-tne-red-dark disabled:opacity-50"
-                >
-                  <CheckCircle className="w-4 h-4" />
-                  Select
-                </button>
-                <button
-                  onClick={() => handleStatusChange('not_selected')}
-                  disabled={isUpdating}
-                  className="flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-stone-600 text-white text-sm font-medium hover:bg-stone-700 disabled:opacity-50"
-                >
-                  <XCircle className="w-4 h-4" />
-                  Not Selected
-                </button>
-              </>
-            )}
-            {signup.status === 'confirmed' && (
+            {signup.status === 'registered' && (
               <button
                 onClick={() => handleStatusChange('no_show')}
                 disabled={isUpdating}
@@ -229,10 +198,30 @@ function SignupDetailPanel({
                 No Show
               </button>
             )}
+            {signup.status === 'attended' && (
+              <>
+                <button
+                  onClick={() => handleStatusChange('offered')}
+                  disabled={isUpdating}
+                  className="flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-tne-red text-white text-sm font-medium hover:bg-tne-red-dark disabled:opacity-50"
+                >
+                  <CheckCircle className="w-4 h-4" />
+                  Offer
+                </button>
+                <button
+                  onClick={() => handleStatusChange('declined')}
+                  disabled={isUpdating}
+                  className="flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-stone-600 text-white text-sm font-medium hover:bg-stone-700 disabled:opacity-50"
+                >
+                  <XCircle className="w-4 h-4" />
+                  Decline
+                </button>
+              </>
+            )}
           </div>
 
           {/* Convert to Player */}
-          {signup.status === 'selected' && !signup.player_id && (
+          {signup.status === 'offered' && !signup.player_id && (
             <button
               onClick={handleConvert}
               disabled={isUpdating}
@@ -391,6 +380,16 @@ export default function AdminTryoutsPage() {
   // UI State
   const [selectedSignup, setSelectedSignup] = useState(null);
 
+  useEffect(() => {
+    if (!selectedSignup?.id) return;
+    const refreshed = signups.find((signup) => signup.id === selectedSignup.id);
+    if (refreshed) {
+      setSelectedSignup(refreshed);
+    } else {
+      setSelectedSignup(null);
+    }
+  }, [signups, selectedSignup?.id]);
+
   // Filter State
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -399,17 +398,17 @@ export default function AdminTryoutsPage() {
 
   // Quick Filter State
   const [quickFilters, setQuickFilters] = useState({
-    pending: false,
+    registered: false,
     attended: false,
-    selected: false,
+    offered: false,
   });
 
   // Compute filter counts
   const filterCounts = useMemo(() => {
     return {
-      pending: signups.filter((s) => s.status === 'pending').length,
+      registered: signups.filter((s) => s.status === 'registered').length,
       attended: signups.filter((s) => s.status === 'attended').length,
-      selected: signups.filter((s) => s.status === 'selected').length,
+      offered: signups.filter((s) => s.status === 'offered').length,
     };
   }, [signups]);
 
@@ -417,9 +416,9 @@ export default function AdminTryoutsPage() {
   const filteredSignups = useMemo(() => {
     return signups.filter((signup) => {
       // Quick filters
-      if (quickFilters.pending && signup.status !== 'pending') return false;
+      if (quickFilters.registered && signup.status !== 'registered') return false;
       if (quickFilters.attended && signup.status !== 'attended') return false;
-      if (quickFilters.selected && signup.status !== 'selected') return false;
+      if (quickFilters.offered && signup.status !== 'offered') return false;
 
       // Dropdown filters
       if (statusFilter !== 'all' && signup.status !== statusFilter) return false;
@@ -442,7 +441,7 @@ export default function AdminTryoutsPage() {
   }, [signups, quickFilters, statusFilter, sessionFilter, gradeFilter, searchTerm]);
 
   const hasActiveFilters = statusFilter !== 'all' || sessionFilter !== 'all' || gradeFilter !== 'all' || searchTerm ||
-    quickFilters.pending || quickFilters.attended || quickFilters.selected;
+    quickFilters.registered || quickFilters.attended || quickFilters.offered;
 
   const toggleQuickFilter = (filterName) => {
     setQuickFilters((prev) => ({ ...prev, [filterName]: !prev[filterName] }));
@@ -453,7 +452,7 @@ export default function AdminTryoutsPage() {
     setStatusFilter('all');
     setSessionFilter('all');
     setGradeFilter('all');
-    setQuickFilters({ pending: false, attended: false, selected: false });
+    setQuickFilters({ registered: false, attended: false, offered: false });
   };
 
   const handleExport = () => {
@@ -578,11 +577,10 @@ export default function AdminTryoutsPage() {
                 value={statusFilter}
                 options={[
                   { value: 'all', label: 'All Statuses' },
-                  { value: 'pending', label: 'Pending' },
-                  { value: 'confirmed', label: 'Confirmed' },
+                  { value: 'registered', label: 'Registered' },
                   { value: 'attended', label: 'Attended' },
-                  { value: 'selected', label: 'Selected' },
-                  { value: 'not_selected', label: 'Not Selected' },
+                  { value: 'offered', label: 'Offered' },
+                  { value: 'declined', label: 'Declined' },
                   { value: 'no_show', label: 'No Show' },
                 ]}
                 onChange={setStatusFilter}
@@ -612,13 +610,13 @@ export default function AdminTryoutsPage() {
             <span className="text-xs text-stone-400 font-medium">Quick filters:</span>
 
             <FilterPill
-              active={quickFilters.pending}
-              onClick={() => toggleQuickFilter('pending')}
+              active={quickFilters.registered}
+              onClick={() => toggleQuickFilter('registered')}
               variant="warning"
               icon={<Clock className="w-3.5 h-3.5" />}
-              count={filterCounts.pending}
+              count={filterCounts.registered}
             >
-              Pending
+              Registered
             </FilterPill>
 
             <FilterPill
@@ -632,13 +630,13 @@ export default function AdminTryoutsPage() {
             </FilterPill>
 
             <FilterPill
-              active={quickFilters.selected}
-              onClick={() => toggleQuickFilter('selected')}
+              active={quickFilters.offered}
+              onClick={() => toggleQuickFilter('offered')}
               variant="primary"
               icon={<UserPlus className="w-3.5 h-3.5" />}
-              count={filterCounts.selected}
+              count={filterCounts.offered}
             >
-              Selected
+              Offered
             </FilterPill>
 
             {hasActiveFilters && (
@@ -709,7 +707,7 @@ export default function AdminTryoutsPage() {
                 <tbody className="divide-y divide-stone-100">
                   {filteredSignups.map((signup) => {
                     const isSelected = selectedSignup?.id === signup.id;
-                    const isPending = signup.status === 'pending';
+                    const isRegistered = signup.status === 'registered';
 
                     return (
                       <tr
@@ -718,7 +716,7 @@ export default function AdminTryoutsPage() {
                         className={`cursor-pointer transition-colors ${
                           isSelected
                             ? 'bg-red-50'
-                            : isPending
+                            : isRegistered
                               ? 'bg-amber-50/30 hover:bg-amber-50/50'
                               : 'hover:bg-stone-50'
                         }`}

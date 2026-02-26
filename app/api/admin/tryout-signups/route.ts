@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { tryoutSignups, tryoutSessions } from '@/lib/schema';
+import {
+  tryoutSignups,
+  tryoutSessions,
+  registrations,
+  players,
+  teamRoster,
+} from '@/lib/schema';
 import { requireAdmin } from '@/lib/auth-middleware';
 import { eq, sql, desc } from 'drizzle-orm';
 
@@ -42,6 +48,9 @@ export async function GET(request: NextRequest) {
         status: tryoutSignups.status,
         offeredTeamId: tryoutSignups.offeredTeamId,
         notes: tryoutSignups.notes,
+        registrationId: registrations.id,
+        createdPlayerId: registrations.createdPlayerId,
+        registrationStatus: registrations.status,
         createdAt: tryoutSignups.createdAt,
         updatedAt: tryoutSignups.updatedAt,
       })
@@ -49,6 +58,10 @@ export async function GET(request: NextRequest) {
       .leftJoin(
         tryoutSessions,
         eq(tryoutSignups.sessionId, tryoutSessions.id)
+      )
+      .leftJoin(
+        registrations,
+        eq(registrations.tryoutSignupId, tryoutSignups.id)
       )
       .where(whereClause)
       .orderBy(desc(tryoutSignups.createdAt));
@@ -75,6 +88,9 @@ export async function GET(request: NextRequest) {
       status: signup.status,
       offered_team_id: signup.offeredTeamId,
       notes: signup.notes,
+      registration_id: signup.registrationId,
+      registration_status: signup.registrationStatus,
+      player_id: signup.createdPlayerId,
       created_at: signup.createdAt,
       updated_at: signup.updatedAt,
     }));
@@ -95,14 +111,134 @@ export async function PATCH(request: NextRequest) {
     await requireAdmin(request);
 
     const id = request.nextUrl.searchParams.get('id');
+    const action = request.nextUrl.searchParams.get('action');
 
     if (!id) {
       return NextResponse.json({ error: 'Missing signup ID' }, { status: 400 });
     }
 
+    if (action === 'convert') {
+      const [signup] = await db
+        .select()
+        .from(tryoutSignups)
+        .where(eq(tryoutSignups.id, id))
+        .limit(1);
+
+      if (!signup) {
+        return NextResponse.json({ error: 'Signup not found' }, { status: 404 });
+      }
+
+      const [existingRegistration] = await db
+        .select({
+          id: registrations.id,
+          teamId: registrations.teamId,
+          createdPlayerId: registrations.createdPlayerId,
+          paymentStatus: registrations.paymentStatus,
+          paymentAmount: registrations.paymentAmount,
+        })
+        .from(registrations)
+        .where(eq(registrations.tryoutSignupId, id))
+        .orderBy(desc(registrations.createdAt))
+        .limit(1);
+
+      let playerId = existingRegistration?.createdPlayerId ?? null;
+      const teamId = existingRegistration?.teamId ?? signup.offeredTeamId ?? null;
+
+      if (!playerId) {
+        const [newPlayer] = await db
+          .insert(players)
+          .values({
+            firstName: signup.playerFirstName,
+            lastName: signup.playerLastName,
+            dateOfBirth: signup.playerDateOfBirth,
+            graduatingYear: signup.playerGraduatingYear,
+            currentGrade: signup.playerCurrentGrade,
+            gender: signup.playerGender,
+            emergencyContactName: signup.emergencyContactName,
+            emergencyContactPhone: signup.emergencyContactPhone,
+            emergencyContactRelationship: signup.emergencyContactRelationship,
+            medicalNotes: signup.notes,
+          })
+          .returning({ id: players.id });
+
+        playerId = newPlayer.id;
+      }
+
+      if (teamId && playerId) {
+        await db
+          .insert(teamRoster)
+          .values({
+            teamId,
+            playerId,
+            paymentStatus: existingRegistration?.paymentStatus || 'pending',
+            paymentAmount: existingRegistration?.paymentAmount ?? null,
+            isActive: true,
+          })
+          .onConflictDoNothing();
+      }
+
+      let registrationId = existingRegistration?.id ?? null;
+
+      if (registrationId) {
+        await db
+          .update(registrations)
+          .set({
+            source: 'tryout_offer',
+            teamId,
+            status: 'approved',
+            createdPlayerId: playerId,
+            updatedAt: new Date(),
+          })
+          .where(eq(registrations.id, registrationId));
+      } else {
+        const [newRegistration] = await db
+          .insert(registrations)
+          .values({
+            source: 'tryout_offer',
+            tryoutSignupId: signup.id,
+            teamId,
+            status: 'approved',
+            playerFirstName: signup.playerFirstName,
+            playerLastName: signup.playerLastName,
+            playerDateOfBirth: signup.playerDateOfBirth,
+            playerGraduatingYear: signup.playerGraduatingYear,
+            playerCurrentGrade: signup.playerCurrentGrade,
+            playerGender: signup.playerGender,
+            parentFirstName: signup.parentFirstName,
+            parentLastName: signup.parentLastName,
+            parentEmail: signup.parentEmail,
+            parentPhone: signup.parentPhone,
+            emergencyContactName: signup.emergencyContactName,
+            emergencyContactPhone: signup.emergencyContactPhone,
+            emergencyContactRelationship: signup.emergencyContactRelationship,
+            paymentStatus: 'pending',
+            createdPlayerId: playerId,
+          })
+          .returning({ id: registrations.id });
+
+        registrationId = newRegistration.id;
+      }
+
+      await db
+        .update(tryoutSignups)
+        .set({
+          status: 'offered',
+          updatedAt: new Date(),
+        })
+        .where(eq(tryoutSignups.id, id));
+
+      return NextResponse.json({
+        success: true,
+        signup_id: id,
+        registration_id: registrationId,
+        player_id: playerId,
+      });
+    }
+
     const body = await request.json();
 
     const updateData: Record<string, unknown> = { updatedAt: new Date() };
+    if (body.tryout_session_id !== undefined) updateData.sessionId = body.tryout_session_id;
     if (body.status !== undefined) updateData.status = body.status;
     if (body.team_offered_id !== undefined)
       updateData.offeredTeamId = body.team_offered_id;

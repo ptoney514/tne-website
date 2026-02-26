@@ -43,6 +43,7 @@ export async function GET(request: NextRequest) {
       .select({
         id: registrations.id,
         source: registrations.source,
+        tryoutSignupId: registrations.tryoutSignupId,
         status: registrations.status,
         teamId: registrations.teamId,
         seasonId: teams.seasonId,
@@ -117,6 +118,7 @@ export async function GET(request: NextRequest) {
         season_id: reg.seasonId,
         team_id: reg.teamId,
         source: reg.source,
+        tryout_signup_id: reg.tryoutSignupId,
         status: reg.status,
         player_first_name: reg.playerFirstName,
         player_last_name: reg.playerLastName,
@@ -209,6 +211,7 @@ export async function POST(request: NextRequest) {
       .values({
         teamId: body.team_id ?? null,
         source: body.source || 'direct',
+        tryoutSignupId: body.tryout_signup_id ?? null,
         status: normalizeStatus(body.status),
         playerFirstName: body.player_first_name,
         playerLastName: body.player_last_name,
