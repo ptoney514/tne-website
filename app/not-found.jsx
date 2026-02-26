@@ -64,7 +64,7 @@ export default function NotFound() {
           </div>
 
           {/* Label */}
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-tne-red/30 bg-tne-red/5 mb-6">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-tne-red/30 bg-tne-red/5 mb-6" data-testid="out-of-bounds-label">
             <div className="w-1.5 h-1.5 rounded-full bg-tne-red" />
             <span className="text-[10px] font-mono font-medium text-tne-red uppercase tracking-widest">
               Out of Bounds

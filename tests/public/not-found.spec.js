@@ -17,7 +17,7 @@ test.describe('Custom 404 Page', () => {
   });
 
   test('should display Out of Bounds label', async ({ page }) => {
-    await expect(page.getByText(/Out of Bounds/i)).toBeVisible();
+    await expect(page.locator('[data-testid="out-of-bounds-label"]')).toBeVisible();
   });
 
   test('should have link to homepage', async ({ page }) => {
