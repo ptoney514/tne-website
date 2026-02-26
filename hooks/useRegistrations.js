@@ -54,10 +54,14 @@ export function useRegistrations() {
 
   const updateStatus = async (id, status) => {
     if (status === 'approved') {
-      return api.patch(`/admin/registrations?id=${id}&action=approve`, {});
+      const data = await api.patch(`/admin/registrations?id=${id}&action=approve`, {});
+      await fetchRegistrations();
+      return data;
     }
     if (status === 'rejected') {
-      return api.patch(`/admin/registrations?id=${id}&action=reject`, {});
+      const data = await api.patch(`/admin/registrations?id=${id}&action=reject`, {});
+      await fetchRegistrations();
+      return data;
     }
     return updateRegistration(id, { status });
   };

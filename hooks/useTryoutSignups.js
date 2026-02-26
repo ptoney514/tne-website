@@ -56,11 +56,9 @@ export function useTryoutSignups() {
   };
 
   const convertToPlayer = async (signup) => {
-    // Create player via registrations approve action
-    // or use a dedicated endpoint
-    console.log('convertToPlayer would create player from signup:', signup);
+    const data = await api.patch(`/admin/tryout-signups?id=${signup.id}&action=convert`, {});
     await fetchSignups();
-    return {};
+    return data;
   };
 
   return {
