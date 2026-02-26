@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Bell, Shirt, AlertCircle, ChevronDown, ArrowLeft, Calendar, UserPlus } from 'lucide-react';
+import { Bell, Shirt, ChevronDown, ArrowLeft, Calendar, UserPlus } from 'lucide-react';
 import InteriorLayout from '@/components/layouts/InteriorLayout';
 import { WizardProvider, useWizard } from '@/components/registration/WizardContext';
 import { WizardContent } from '@/components/registration/RegistrationWizard';
@@ -80,6 +80,66 @@ function RegistrationTypeSelector({ onSelect, isTryoutsOpen, isRegistrationOpen,
   );
 }
 
+// Derive unique fee tiers from loaded teams
+function getFeeTiers(teams) {
+  if (!teams || teams.length === 0) return [];
+
+  const tierMap = new Map();
+  for (const team of teams) {
+    const fee = parseFloat(team.team_fee);
+    if (!fee || fee <= 0) continue;
+
+    const key = `${fee}`;
+    if (!tierMap.has(key)) {
+      // Build a label from tier or team name
+      const label = team.tier || team.name || 'Team';
+      tierMap.set(key, { label, fee });
+    }
+  }
+
+  // Sort by fee ascending
+  return Array.from(tierMap.values()).sort((a, b) => a.fee - b.fee);
+}
+
+// Dynamic fee sidebar derived from teams data
+function DynamicFeeSidebar() {
+  const { teams } = useWizard();
+  const feeTiers = getFeeTiers(teams);
+
+  return (
+    <div className="rounded-3xl bg-white border border-neutral-300 shadow-sm overflow-hidden">
+      <div className="px-5 py-4 border-b border-neutral-200">
+        <h2 className="text-lg font-semibold text-neutral-900">
+          Registration Fees
+        </h2>
+      </div>
+      <div className="px-5 py-4">
+        {feeTiers.length > 0 ? (
+          <div className="divide-y divide-neutral-100">
+            {feeTiers.map((tier, i) => (
+              <div key={tier.label} className={`py-3 ${i === 0 ? 'first:pt-0' : ''} ${i === feeTiers.length - 1 ? 'last:pb-0' : ''}`}>
+                <div className="flex items-center justify-between gap-3">
+                  <p className="font-medium text-neutral-900 text-sm">{tier.label}</p>
+                  <span className={`text-lg font-semibold ${tier.fee >= 1000 ? 'text-tne-red' : 'text-neutral-900'}`}>
+                    ${tier.fee.toLocaleString()}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-neutral-500 italic">Fee information coming soon</p>
+        )}
+      </div>
+      <div className="px-5 py-3 bg-neutral-50 border-t border-neutral-200">
+        <p className="text-xs text-neutral-600 italic">
+          If there is a situation and you need extended time, please communicate with us.
+        </p>
+      </div>
+    </div>
+  );
+}
+
 // Sidebar content that uses wizard context
 function SidebarContent() {
   const { selectedTeam, registrationType } = useWizard();
@@ -90,42 +150,9 @@ function SidebarContent() {
       {/* Dynamic Registration Summary */}
       <RegistrationSummaryPanel />
 
-      {/* Static Registration Fees - shown when no team is selected in team mode, or when on type selector */}
+      {/* Dynamic Registration Fees - shown when no team is selected in team mode, or when on type selector */}
       {registrationType !== 'season' && !selectedTeam && (
-        <div className="rounded-3xl bg-white border border-neutral-300 shadow-sm overflow-hidden">
-          <div className="px-5 py-4 border-b border-neutral-200">
-            <h2 className="text-lg font-semibold text-neutral-900">
-              Registration Fees
-            </h2>
-          </div>
-          <div className="px-5 py-4">
-            <div className="divide-y divide-neutral-100">
-              <div className="py-3 first:pt-0">
-                <div className="flex items-center justify-between gap-3">
-                  <p className="font-medium text-neutral-900 text-sm">3rd-8th Girls</p>
-                  <span className="text-lg font-semibold text-neutral-900">$450</span>
-                </div>
-              </div>
-              <div className="py-3">
-                <div className="flex items-center justify-between gap-3">
-                  <p className="font-medium text-neutral-900 text-sm">3rd-8th Boys Winter</p>
-                  <span className="text-lg font-semibold text-neutral-900">$450</span>
-                </div>
-              </div>
-              <div className="py-3 last:pb-0">
-                <div className="flex items-center justify-between gap-3">
-                  <p className="font-medium text-neutral-900 text-sm">5th-8th Boys TNE Jr 3SSB</p>
-                  <span className="text-lg font-semibold text-tne-red">$1,400</span>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="px-5 py-3 bg-neutral-50 border-t border-neutral-200">
-            <p className="text-xs text-neutral-600 italic">
-              If there is a situation and you need extended time, please communicate with us.
-            </p>
-          </div>
-        </div>
+        <DynamicFeeSidebar />
       )}
 
       {/* Uniforms - Collapsible (only in team mode) */}
@@ -306,7 +333,7 @@ export default function RegistrationPage() {
     resetSubmitState,
   } = useTeamRegistration();
 
-  const { isRegistrationOpen, isTryoutsOpen, tryoutsLabel, loading } = useRegistrationStatus();
+  const { isRegistrationOpen, isTryoutsOpen, tryoutsLabel, registrationLabel, loading } = useRegistrationStatus();
 
   // Build seasons list from config for the season selector
   // For now, we use the tryoutsLabel and construct a season object
@@ -351,7 +378,7 @@ export default function RegistrationPage() {
             <div className="inline-flex items-center gap-2 rounded-md bg-white/5 border border-white/10 px-3 py-1.5 w-fit">
               <span className="inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.8)]" />
               <span className="font-mono uppercase tracking-[0.22em] text-[0.7rem] text-white/80">
-                2024-25 Winter Season
+                {registrationLabel || 'Registration'}
               </span>
             </div>
 
@@ -371,15 +398,6 @@ export default function RegistrationPage() {
       {/* Main Content */}
       <main className="flex-1 w-full bg-neutral-50 text-neutral-900">
         <section className="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12 space-y-6 sm:space-y-8">
-          {/* Important Notice */}
-          <div className="rounded-2xl bg-amber-50 border border-amber-200 p-4 flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
-            <p className="text-sm text-amber-800">
-              <span className="font-semibold">All fall fees must be current before you can play in the winter session.</span>{' '}
-              Winter fee is now due.
-            </p>
-          </div>
-
           {/* Two Column Layout - Wrapped in WizardProvider for shared state */}
           <WizardProvider teams={teams}>
             <div className="grid gap-8 lg:grid-cols-7">

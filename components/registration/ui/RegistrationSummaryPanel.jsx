@@ -4,11 +4,26 @@ import { useWizard } from '../WizardContext';
 import { getPaymentPlanDetails } from '@/constants/payments';
 
 export default function RegistrationSummaryPanel() {
-  const { formData, selectedTeam, currentStep, registrationType } = useWizard();
+  const { formData, selectedTeam, currentStep, registrationType, teams } = useWizard();
   const [isCollapsed, setIsCollapsed] = useState(false);
 
-  // Season mode: show static fee preview
+  // Season mode: show dynamic fee preview derived from teams
   if (registrationType === 'season') {
+    // Derive unique fee tiers from loaded teams
+    const feeTiers = [];
+    if (teams && teams.length > 0) {
+      const tierMap = new Map();
+      for (const team of teams) {
+        const fee = parseFloat(team.team_fee);
+        if (!fee || fee <= 0) continue;
+        const key = `${fee}`;
+        if (!tierMap.has(key)) {
+          tierMap.set(key, { label: team.tier || team.name || 'Team', fee });
+        }
+      }
+      feeTiers.push(...Array.from(tierMap.values()).sort((a, b) => a.fee - b.fee));
+    }
+
     return (
       <div className="rounded-3xl bg-white border border-neutral-300 shadow-sm overflow-hidden sticky top-24">
         <button
@@ -29,26 +44,22 @@ export default function RegistrationSummaryPanel() {
 
         <div className={`${isCollapsed ? 'hidden md:block' : 'block'}`}>
           <div className="px-5 py-4">
-            <div className="divide-y divide-neutral-100">
-              <div className="py-3 first:pt-0">
-                <div className="flex items-center justify-between gap-3">
-                  <p className="font-medium text-neutral-900 text-sm">3rd-8th Girls</p>
-                  <span className="text-lg font-semibold text-neutral-900">$450</span>
-                </div>
+            {feeTiers.length > 0 ? (
+              <div className="divide-y divide-neutral-100">
+                {feeTiers.map((tier, i) => (
+                  <div key={tier.label} className={`py-3 ${i === 0 ? 'first:pt-0' : ''} ${i === feeTiers.length - 1 ? 'last:pb-0' : ''}`}>
+                    <div className="flex items-center justify-between gap-3">
+                      <p className="font-medium text-neutral-900 text-sm">{tier.label}</p>
+                      <span className={`text-lg font-semibold ${tier.fee >= 1000 ? 'text-tne-red' : 'text-neutral-900'}`}>
+                        ${tier.fee.toLocaleString()}
+                      </span>
+                    </div>
+                  </div>
+                ))}
               </div>
-              <div className="py-3">
-                <div className="flex items-center justify-between gap-3">
-                  <p className="font-medium text-neutral-900 text-sm">3rd-8th Boys</p>
-                  <span className="text-lg font-semibold text-neutral-900">$450</span>
-                </div>
-              </div>
-              <div className="py-3 last:pb-0">
-                <div className="flex items-center justify-between gap-3">
-                  <p className="font-medium text-neutral-900 text-sm">Jr 3SSB</p>
-                  <span className="text-lg font-semibold text-tne-red">$1,400</span>
-                </div>
-              </div>
-            </div>
+            ) : (
+              <p className="text-sm text-neutral-500 italic">Fee information coming soon</p>
+            )}
           </div>
           <div className="px-5 py-3 bg-blue-50 border-t border-blue-200">
             <p className="text-xs text-blue-800 font-medium">

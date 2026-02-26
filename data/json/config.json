@@ -1,12 +1,12 @@
 {
   "season": {
-    "id": "winter-2025",
-    "name": "Winter 2025",
+    "id": "spring-2026",
+    "name": "Spring 2026",
     "is_active": true
   },
   "registration": {
     "is_open": true,
-    "label": "Winter 2025",
+    "label": "Spring 2026",
     "deadline": null,
     "notes": null
   },
