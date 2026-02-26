@@ -23,7 +23,10 @@ export function useDashboardStats() {
       setError(null);
 
       const params = selectedSeason?.id ? `?seasonId=${selectedSeason.id}` : '';
-      const data = await api.get(`/admin/dashboard${params}`);
+      const [data, registrations] = await Promise.all([
+        api.get(`/admin/dashboard${params}`),
+        api.get(`/admin/registrations${params}`).catch(() => []),
+      ]);
 
       setStats({
         teams: data.teams?.total || 0,
@@ -34,9 +37,8 @@ export function useDashboardStats() {
         tryoutSignups: data.tryouts?.recentSignups || 0,
       });
 
-      // Recent activity and upcoming events would need separate endpoints
-      // For now, leave them empty
-      setRecentActivity([]);
+      const activity = Array.isArray(registrations) ? registrations : [];
+      setRecentActivity(activity.slice(0, 6));
       setUpcomingEvents([]);
     } catch (err) {
       console.error('Dashboard stats error:', err);

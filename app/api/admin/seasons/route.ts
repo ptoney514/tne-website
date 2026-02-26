@@ -4,6 +4,10 @@ import { seasons } from '@/lib/schema';
 import { requireAdmin } from '@/lib/auth-middleware';
 import { eq, desc } from 'drizzle-orm';
 
+function firstDefined<T>(...values: Array<T | undefined>): T | undefined {
+  return values.find((value) => value !== undefined);
+}
+
 export async function GET(request: NextRequest) {
   try {
     await requireAdmin(request);
@@ -20,7 +24,9 @@ export async function GET(request: NextRequest) {
       end_date: season.endDate,
       is_active: season.isActive,
       tryouts_open: season.tryoutsOpen,
+      tryouts_label: season.tryoutsLabel,
       registration_open: season.registrationOpen,
+      registration_label: season.registrationLabel,
       created_at: season.createdAt,
       updated_at: season.updatedAt,
     }));
@@ -38,6 +44,17 @@ export async function POST(request: NextRequest) {
     await requireAdmin(request);
 
     const body = await request.json();
+    const isActive = firstDefined(body.is_active, body.isActive);
+    const tryoutsOpen = firstDefined(body.tryouts_open, body.tryoutsOpen);
+    const tryoutsLabel = firstDefined(body.tryouts_label, body.tryoutsLabel);
+    const registrationOpen = firstDefined(
+      body.registration_open,
+      body.registrationOpen
+    );
+    const registrationLabel = firstDefined(
+      body.registration_label,
+      body.registrationLabel
+    );
 
     const [newSeason] = await db
       .insert(seasons)
@@ -45,9 +62,11 @@ export async function POST(request: NextRequest) {
         name: body.name,
         startDate: body.start_date,
         endDate: body.end_date,
-        isActive: body.is_active ?? true,
-        tryoutsOpen: body.tryouts_open ?? false,
-        registrationOpen: body.registration_open ?? false,
+        isActive: isActive ?? true,
+        tryoutsOpen: tryoutsOpen ?? false,
+        tryoutsLabel: tryoutsLabel ?? null,
+        registrationOpen: registrationOpen ?? false,
+        registrationLabel: registrationLabel ?? null,
       })
       .returning();
 
@@ -73,13 +92,37 @@ export async function PATCH(request: NextRequest) {
 
     const updateData: Record<string, unknown> = { updatedAt: new Date() };
     if (body.name !== undefined) updateData.name = body.name;
-    if (body.start_date !== undefined) updateData.startDate = body.start_date;
-    if (body.end_date !== undefined) updateData.endDate = body.end_date;
-    if (body.is_active !== undefined) updateData.isActive = body.is_active;
-    if (body.tryouts_open !== undefined)
-      updateData.tryoutsOpen = body.tryouts_open;
-    if (body.registration_open !== undefined)
-      updateData.registrationOpen = body.registration_open;
+
+    const startDate = firstDefined(body.start_date, body.startDate);
+    if (startDate !== undefined) updateData.startDate = startDate;
+
+    const endDate = firstDefined(body.end_date, body.endDate);
+    if (endDate !== undefined) updateData.endDate = endDate;
+
+    const isActive = firstDefined(body.is_active, body.isActive);
+    if (isActive !== undefined) updateData.isActive = isActive;
+
+    const tryoutsOpen = firstDefined(body.tryouts_open, body.tryoutsOpen);
+    if (tryoutsOpen !== undefined) updateData.tryoutsOpen = tryoutsOpen;
+
+    const tryoutsLabel = firstDefined(body.tryouts_label, body.tryoutsLabel);
+    if (tryoutsLabel !== undefined) updateData.tryoutsLabel = tryoutsLabel;
+
+    const registrationOpen = firstDefined(
+      body.registration_open,
+      body.registrationOpen
+    );
+    if (registrationOpen !== undefined) {
+      updateData.registrationOpen = registrationOpen;
+    }
+
+    const registrationLabel = firstDefined(
+      body.registration_label,
+      body.registrationLabel
+    );
+    if (registrationLabel !== undefined) {
+      updateData.registrationLabel = registrationLabel;
+    }
 
     const [updated] = await db
       .update(seasons)

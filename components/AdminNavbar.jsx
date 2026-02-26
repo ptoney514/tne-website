@@ -67,7 +67,7 @@ function Badge({ count }) {
 }
 
 // Season Dropdown
-function SeasonDropdown() {
+function SeasonDropdown({ isAdmin = false }) {
   const { seasons, selectedSeasonId, selectedSeason, setSelectedSeasonId } = useSeason();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
@@ -116,6 +116,17 @@ function SeasonDropdown() {
               </button>
             ))}
           </div>
+          {isAdmin && (
+            <div className="border-t border-stone-100 p-1">
+              <Link
+                href="/admin/settings/seasons"
+                onClick={() => setIsOpen(false)}
+                className="block px-3 py-2 rounded-lg text-xs font-medium text-stone-600 hover:text-stone-900 hover:bg-stone-50 transition-colors"
+              >
+                Manage Sessions
+              </Link>
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -272,7 +283,7 @@ export default function AdminNavbar() {
 
           {/* Right: Season + Settings + User */}
           <div className="hidden md:flex items-center gap-3">
-            <SeasonDropdown />
+            <SeasonDropdown isAdmin={isAdmin} />
             {isAdmin && (
               <button
                 onClick={() => router.push('/admin/settings')}
@@ -400,7 +411,7 @@ export default function AdminNavbar() {
             )}
           </div>
           <div className="px-4 py-3 border-t border-stone-100">
-            <SeasonDropdown />
+            <SeasonDropdown isAdmin={isAdmin} />
           </div>
           <div className="px-4 py-3 border-t border-stone-100 flex items-center justify-between">
             <div>
