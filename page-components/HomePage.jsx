@@ -418,9 +418,9 @@ export default function HomePage() {
                     <Check className="w-4 h-4 text-tne-red mt-0.5" /> Collegiate Recruiting Support
                   </li>
                 </ul>
-                <button className="text-sm font-semibold text-tne-red flex items-center gap-2 group-hover:gap-4 transition-all">
+                <Link href="/tryouts" className="text-sm font-semibold text-tne-red flex items-center gap-2 group-hover:gap-4 transition-all">
                   View Tryouts <ArrowRight className="w-4 h-4" />
-                </button>
+                </Link>
               </div>
 
               {/* Program 3 */}
@@ -443,9 +443,9 @@ export default function HomePage() {
                     <Check className="w-4 h-4 text-tne-red mt-0.5" /> Speed & Agility
                   </li>
                 </ul>
-                <button className="text-sm font-semibold text-stone-950 flex items-center gap-2 group-hover:gap-4 transition-all">
+                <Link href="/contact" className="text-sm font-semibold text-stone-950 flex items-center gap-2 group-hover:gap-4 transition-all">
                   Details <ArrowRight className="w-4 h-4" />
-                </button>
+                </Link>
               </div>
             </div>
           </div>
@@ -594,7 +594,7 @@ export default function HomePage() {
                   <div className="relative">
                     <div className="absolute -inset-4 bg-gradient-to-b from-tne-red/20 to-transparent rounded-3xl blur-xl opacity-60" />
                     <img
-                      src={mitchHeadshot}
+                      src={mitchHeadshot.src}
                       alt="Mitch"
                       className="relative w-56 h-72 sm:w-72 sm:h-96 lg:w-80 lg:h-[420px] rounded-2xl object-cover object-top border-4 border-white/10 shadow-2xl grayscale group-hover:grayscale-0 transition-all duration-700"
                     />
