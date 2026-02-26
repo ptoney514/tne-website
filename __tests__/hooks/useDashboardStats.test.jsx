@@ -36,13 +36,38 @@ const mockDashboardData = {
   },
 };
 
+const mockRegistrations = [
+  {
+    id: 'reg-1',
+    player_first_name: 'Braxton',
+    player_last_name: 'Simmons',
+    status: 'pending',
+    created_at: '2026-02-24T12:00:00.000Z',
+  },
+  {
+    id: 'reg-2',
+    player_first_name: 'Jane',
+    player_last_name: 'Doe',
+    status: 'approved',
+    created_at: '2026-02-20T12:00:00.000Z',
+  },
+];
+
 describe('useDashboardStats', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockUseSeason.mockReturnValue({
       selectedSeason: { id: 'season-1' },
     });
-    api.get.mockResolvedValue(mockDashboardData);
+    api.get.mockImplementation((url) => {
+      if (String(url).startsWith('/admin/dashboard')) {
+        return Promise.resolve(mockDashboardData);
+      }
+      if (String(url).startsWith('/admin/registrations')) {
+        return Promise.resolve(mockRegistrations);
+      }
+      return Promise.resolve([]);
+    });
   });
 
   it('should start with loading state', () => {
@@ -66,6 +91,7 @@ describe('useDashboardStats', () => {
     expect(result.current.stats.players).toBe(25);
     expect(result.current.stats.registrations).toBe(10);
     expect(api.get).toHaveBeenCalledWith('/admin/dashboard?seasonId=season-1');
+    expect(api.get).toHaveBeenCalledWith('/admin/registrations?seasonId=season-1');
   });
 
   it('should return recent activity', async () => {
@@ -75,7 +101,7 @@ describe('useDashboardStats', () => {
       expect(result.current.loading).toBe(false);
     });
 
-    expect(result.current.recentActivity).toEqual([]);
+    expect(result.current.recentActivity).toEqual(mockRegistrations);
   });
 
   it('should return upcoming events', async () => {

@@ -40,7 +40,9 @@ export async function GET(request: NextRequest) {
       end_date: season.endDate,
       is_active: season.isActive,
       tryouts_open: season.tryoutsOpen,
+      tryouts_label: season.tryoutsLabel,
       registration_open: season.registrationOpen,
+      registration_label: season.registrationLabel,
       created_at: season.createdAt,
     }));
 

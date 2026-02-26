@@ -98,7 +98,7 @@ describe('SeasonContext', () => {
         expect(screen.getByTestId('seasons-count').textContent).toBe('3');
       });
 
-      expect(api.get).toHaveBeenCalledWith('/public/seasons');
+      expect(api.get).toHaveBeenCalledWith('/public/seasons', { cache: 'no-store' });
     });
 
     it('should handle fetch error gracefully', async () => {

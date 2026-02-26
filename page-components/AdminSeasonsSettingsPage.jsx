@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useSeasons } from '@/hooks/useSeasons';
+import { useSeason } from '@/contexts/SeasonContext';
 import SeasonFormModal from '@/components/admin/SeasonFormModal';
 import {
   Plus,
@@ -43,6 +44,7 @@ export default function AdminSeasonsSettingsPage() {
     deleteSeason,
     toggleActive,
   } = useSeasons();
+  const { refetch: refetchSeasonContext } = useSeason();
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editingSeason, setEditingSeason] = useState(null);
@@ -64,6 +66,7 @@ export default function AdminSeasonsSettingsPage() {
     } else {
       await createSeason(formData);
     }
+    await refetchSeasonContext();
     setModalOpen(false);
     setEditingSeason(null);
   };
@@ -76,6 +79,7 @@ export default function AdminSeasonsSettingsPage() {
     if (!deleteConfirm) return;
     try {
       await deleteSeason(deleteConfirm.id);
+      await refetchSeasonContext();
       setDeleteConfirm(null);
     } catch (err) {
       console.error('Error deleting season:', err);
@@ -86,6 +90,7 @@ export default function AdminSeasonsSettingsPage() {
   const handleToggleActive = async (season) => {
     try {
       await toggleActive(season.id, !season.is_active);
+      await refetchSeasonContext();
     } catch (err) {
       console.error('Error toggling season:', err);
       alert(`Error: ${err.message}`);

@@ -12,7 +12,7 @@ export function SeasonProvider({ children }) {
   const fetchSeasons = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await api.get('/public/seasons');
+      const data = await api.get('/public/seasons', { cache: 'no-store' });
 
       setSeasons(data || []);
 
@@ -35,7 +35,7 @@ export function SeasonProvider({ children }) {
 
     const loadSeasons = async () => {
       try {
-        const data = await api.get('/public/seasons');
+        const data = await api.get('/public/seasons', { cache: 'no-store' });
 
         if (!mounted) return;
 
