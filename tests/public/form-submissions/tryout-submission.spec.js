@@ -6,7 +6,8 @@ import { generateTryoutData } from '../../fixtures/mockData.js';
  * Tryout Form Submission Tests
  *
  * Tests submitting 12 varied entries through the tryout registration form.
- * Uses API mocking to simulate Supabase responses.
+ * The form now opens inside a modal when a session row is clicked.
+ * Uses API mocking to simulate Neon API responses.
  */
 
 // Mock tryout sessions data (Neon API shape)
@@ -19,6 +20,7 @@ function getMockSessions() {
       end_time: '19:30',
       location: 'Monroe MS',
       grade_levels: ['3rd', '4th'],
+      gender: 'male',
       description: 'Boys Spring Tryouts - 3rd/4th',
       notes: 'Boys division',
       registration_open: true,
@@ -32,6 +34,7 @@ function getMockSessions() {
       end_time: '19:30',
       location: 'Monroe MS',
       grade_levels: ['5th'],
+      gender: 'male',
       description: 'Boys Spring Tryouts - 5th Grade',
       notes: 'Boys division',
       registration_open: true,
@@ -45,6 +48,7 @@ function getMockSessions() {
       end_time: '19:30',
       location: 'McMillan MS',
       grade_levels: ['6th'],
+      gender: 'male',
       description: 'Boys Spring Tryouts - 6th Grade',
       notes: 'Boys division',
       registration_open: true,
@@ -58,6 +62,7 @@ function getMockSessions() {
       end_time: '19:30',
       location: 'North HS',
       grade_levels: ['7th', '8th'],
+      gender: 'male',
       description: 'Boys Spring Tryouts - 7th/8th Grade',
       notes: 'Boys division',
       registration_open: true,
@@ -71,6 +76,7 @@ function getMockSessions() {
       end_time: '16:00',
       location: 'Girls Inc.',
       grade_levels: ['3rd', '4th', '5th', '6th', '7th', '8th'],
+      gender: 'female',
       description: 'Girls Spring Tryouts - 3rd-8th Grade',
       notes: 'Girls division',
       registration_open: true,
@@ -168,6 +174,54 @@ async function setupTryoutApiMocks(page) {
   });
 }
 
+/**
+ * Click the first visible session row to open the registration modal,
+ * then wait for the form to appear.
+ */
+async function openRegistrationModal(page) {
+  // Wait for session rows to render
+  const sessionRow = page.locator('[role="button"]').filter({ hasText: /Register/ }).first();
+  await expect(sessionRow).toBeVisible({ timeout: 10000 });
+
+  // Click to open the modal
+  await sessionRow.click();
+
+  // Wait for the modal form to appear
+  await expect(page.locator('#playerFirstName')).toBeVisible({ timeout: 5000 });
+}
+
+/**
+ * Fill the registration form inside the modal with test data.
+ */
+async function fillRegistrationForm(page, testData) {
+  // Fill player information
+  await page.locator('#playerFirstName').fill(testData.playerFirstName);
+  await page.locator('#playerLastName').fill(testData.playerLastName);
+  await page.locator('#playerDob').fill(testData.playerDob);
+  await page.locator('#playerGrade').selectOption(testData.playerGrade);
+  await page.locator(`input[name="playerGender"][value="${testData.playerGender}"]`).check();
+
+  // Fill optional school field if provided
+  if (testData.playerSchool) {
+    await page.locator('#playerSchool').fill(testData.playerSchool);
+  }
+
+  // Fill contact info (required)
+  await page.locator('#parentEmail').fill(testData.parentEmail);
+  await page.locator('#parentPhone').fill(testData.parentPhone);
+
+  // Fill optional parent/guardian info
+  if (testData.parentFirstName) {
+    await page.locator('#parentFirstName').fill(testData.parentFirstName);
+  }
+  if (testData.parentLastName) {
+    await page.locator('#parentLastName').fill(testData.parentLastName);
+  }
+  if (testData.relationship) {
+    await page.locator('#relationship').selectOption(testData.relationship);
+  }
+}
+
 test.describe('Tryout Form Submissions', () => {
   test.beforeEach(async ({ page }) => {
     // Setup API mocking before navigating
@@ -182,47 +236,11 @@ test.describe('Tryout Form Submissions', () => {
     test(`should submit tryout registration ${i + 1} of 12`, async ({ page }) => {
       const testData = generateTryoutData(i);
 
-      // Wait for sessions to load (mocked)
-      await page.waitForTimeout(1000);
+      // Click a session row to open the registration modal
+      await openRegistrationModal(page);
 
-      // Scroll to registration form
-      const registrationForm = page.locator('#registration').first();
-      await registrationForm.scrollIntoViewIfNeeded();
-      await page.waitForTimeout(500);
-
-      // Fill session selection (first available session)
-      const sessionSelect = page.locator('#sessionId');
-      await expect(sessionSelect).toBeVisible({ timeout: 5000 });
-
-      // Wait for options to load
-      await page.waitForFunction(
-        () => document.querySelector('#sessionId')?.options?.length > 1,
-        { timeout: 10000 }
-      );
-
-      // Select the first available session
-      await sessionSelect.selectOption({ index: 1 });
-
-      // Fill player information
-      await page.locator('#playerFirstName').fill(testData.playerFirstName);
-      await page.locator('#playerLastName').fill(testData.playerLastName);
-      await page.locator('#playerDob').fill(testData.playerDob);
-      await page.locator('#playerGrade').selectOption(testData.playerGrade);
-
-      // Select gender
-      await page.locator(`input[name="playerGender"][value="${testData.playerGender}"]`).check();
-
-      // Fill optional school field if provided
-      if (testData.playerSchool) {
-        await page.locator('#playerSchool').fill(testData.playerSchool);
-      }
-
-      // Fill parent/guardian information
-      await page.locator('#parentFirstName').fill(testData.parentFirstName);
-      await page.locator('#parentLastName').fill(testData.parentLastName);
-      await page.locator('#parentEmail').fill(testData.parentEmail);
-      await page.locator('#parentPhone').fill(testData.parentPhone);
-      await page.locator('#relationship').selectOption(testData.relationship);
+      // Fill the form
+      await fillRegistrationForm(page, testData);
 
       // Submit the form
       const submitButton = page.getByRole('button', { name: /Complete Registration/i });
@@ -245,36 +263,20 @@ test.describe('Tryout Form - Validation Tests', () => {
   });
 
   test('should show error for empty required fields', async ({ page }) => {
-    // Scroll to registration form
-    const registrationForm = page.locator('#registration').first();
-    await registrationForm.scrollIntoViewIfNeeded();
-
-    // Wait for form to be ready
-    await page.waitForTimeout(1000);
+    // Open the modal
+    await openRegistrationModal(page);
 
     // Try to submit without filling any fields
     const submitButton = page.getByRole('button', { name: /Complete Registration/i });
     await submitButton.click();
 
     // Browser validation should prevent submission - form should still be visible
-    await expect(registrationForm).toBeVisible();
+    await expect(page.locator('#playerFirstName')).toBeVisible();
   });
 
   test('should show error for invalid email format', async ({ page }) => {
-    // Scroll to registration form
-    const registrationForm = page.locator('#registration').first();
-    await registrationForm.scrollIntoViewIfNeeded();
-
-    // Wait for session options
-    const sessionSelect = page.locator('#sessionId');
-    await expect(sessionSelect).toBeVisible({ timeout: 5000 });
-
-    await page.waitForFunction(
-      () => document.querySelector('#sessionId')?.options?.length > 1,
-      { timeout: 10000 }
-    );
-
-    await sessionSelect.selectOption({ index: 1 });
+    // Open the modal
+    await openRegistrationModal(page);
 
     // Fill all required fields with an invalid email
     const testData = generateTryoutData(0);
@@ -283,11 +285,8 @@ test.describe('Tryout Form - Validation Tests', () => {
     await page.locator('#playerDob').fill(testData.playerDob);
     await page.locator('#playerGrade').selectOption(testData.playerGrade);
     await page.locator(`input[name="playerGender"][value="${testData.playerGender}"]`).check();
-    await page.locator('#parentFirstName').fill(testData.parentFirstName);
-    await page.locator('#parentLastName').fill(testData.parentLastName);
     await page.locator('#parentEmail').fill('invalid-email'); // Invalid email
     await page.locator('#parentPhone').fill(testData.parentPhone);
-    await page.locator('#relationship').selectOption(testData.relationship);
 
     // Try to submit
     const submitButton = page.getByRole('button', { name: /Complete Registration/i });
@@ -304,38 +303,24 @@ test.describe('Tryout Form - Validation Tests', () => {
 });
 
 test.describe('Tryout Form - Data Persistence', () => {
-  test('should maintain form data on page interactions', async ({ page }) => {
+  test('should maintain form data within modal', async ({ page }) => {
     await setupTryoutApiMocks(page);
     await page.goto('/tryouts');
     await page.waitForSelector('h1', { timeout: 15000 });
 
-    // Scroll to registration form
-    const registrationForm = page.locator('#registration').first();
-    await registrationForm.scrollIntoViewIfNeeded();
-
-    const sessionSelect = page.locator('#sessionId');
-    await expect(sessionSelect).toBeVisible({ timeout: 5000 });
-
-    await page.waitForFunction(
-      () => document.querySelector('#sessionId')?.options?.length > 1,
-      { timeout: 10000 }
-    );
+    // Open the modal
+    await openRegistrationModal(page);
 
     // Fill some fields
     const testData = generateTryoutData(0);
-    await sessionSelect.selectOption({ index: 1 });
     await page.locator('#playerFirstName').fill(testData.playerFirstName);
     await page.locator('#playerLastName').fill(testData.playerLastName);
-
-    // Scroll away and back
-    await page.locator('h1').scrollIntoViewIfNeeded();
-    await page.waitForTimeout(500);
-    await registrationForm.scrollIntoViewIfNeeded();
-    await page.waitForTimeout(500);
+    await page.locator('#parentEmail').fill(testData.parentEmail);
 
     // Verify data is still there
     await expect(page.locator('#playerFirstName')).toHaveValue(testData.playerFirstName);
     await expect(page.locator('#playerLastName')).toHaveValue(testData.playerLastName);
+    await expect(page.locator('#parentEmail')).toHaveValue(testData.parentEmail);
   });
 });
 
@@ -353,21 +338,8 @@ test.describe('Tryout Form - Grade Coverage', () => {
       const testData = generateTryoutData(parseInt(grade) - 4);
       testData.playerGrade = grade;
 
-      // Scroll to registration form
-      const registrationForm = page.locator('#registration').first();
-      await registrationForm.scrollIntoViewIfNeeded();
-
-      // Wait for session options
-      const sessionSelect = page.locator('#sessionId');
-      await expect(sessionSelect).toBeVisible({ timeout: 5000 });
-
-      await page.waitForFunction(
-        () => document.querySelector('#sessionId')?.options?.length > 1,
-        { timeout: 10000 }
-      );
-
-      // Select session
-      await sessionSelect.selectOption({ index: 1 });
+      // Open the modal
+      await openRegistrationModal(page);
 
       // Fill form
       await page.locator('#playerFirstName').fill(testData.playerFirstName);
@@ -375,11 +347,8 @@ test.describe('Tryout Form - Grade Coverage', () => {
       await page.locator('#playerDob').fill(testData.playerDob);
       await page.locator('#playerGrade').selectOption(grade);
       await page.locator(`input[name="playerGender"][value="${testData.playerGender}"]`).check();
-      await page.locator('#parentFirstName').fill(testData.parentFirstName);
-      await page.locator('#parentLastName').fill(testData.parentLastName);
       await page.locator('#parentEmail').fill(testData.parentEmail);
       await page.locator('#parentPhone').fill(testData.parentPhone);
-      await page.locator('#relationship').selectOption(testData.relationship);
 
       // Verify grade is selected
       await expect(page.locator('#playerGrade')).toHaveValue(grade);
@@ -402,13 +371,12 @@ test.describe('Tryout Form - Mobile Responsiveness', () => {
     await page.goto('/tryouts');
     await page.waitForSelector('h1', { timeout: 15000 });
 
-    // Scroll to registration form
-    const registrationForm = page.locator('#registration').first();
-    await registrationForm.scrollIntoViewIfNeeded();
+    // Open the modal
+    await openRegistrationModal(page);
 
-    // Form should be visible and usable
-    await expect(page.locator('#sessionId')).toBeVisible();
+    // Form should be visible and usable inside the modal
     await expect(page.locator('#playerFirstName')).toBeVisible();
+    await expect(page.locator('#parentEmail')).toBeVisible();
     await expect(page.getByRole('button', { name: /Complete Registration/i })).toBeVisible();
   });
 });

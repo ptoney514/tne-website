@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Bell, Shirt, ChevronDown, ArrowLeft, Calendar, UserPlus } from 'lucide-react';
+import { Bell, Shirt, ChevronDown, ArrowLeft, Calendar, UserPlus, ClipboardList } from 'lucide-react';
 import InteriorLayout from '@/components/layouts/InteriorLayout';
 import { WizardProvider, useWizard } from '@/components/registration/WizardContext';
 import { WizardContent } from '@/components/registration/RegistrationWizard';
@@ -20,7 +20,35 @@ function RegistrationTypeSelector({ onSelect, isTryoutsOpen, isRegistrationOpen,
       </div>
 
       <div className="px-5 py-6">
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {/* Tryouts Card — links to /tryouts page */}
+          {isTryoutsOpen && (
+            <Link
+              href="/tryouts#upcoming-tryouts"
+              className="group text-left rounded-2xl border-2 border-neutral-200 hover:border-tne-red/50 p-5 transition-all hover:shadow-md"
+            >
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2.5 rounded-xl bg-amber-100 group-hover:bg-amber-200 transition-colors">
+                  <ClipboardList className="w-5 h-5 text-amber-600" />
+                </div>
+                <h3 className="font-semibold text-neutral-900">Register for Tryouts</h3>
+              </div>
+              <p className="text-sm text-neutral-600 mb-3">
+                Browse upcoming tryout sessions by grade and gender. Pick your session and register.
+              </p>
+              {tryoutsLabel && (
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 text-xs font-medium mb-3">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                  {tryoutsLabel}
+                </div>
+              )}
+              <div className="flex items-center gap-1.5 text-sm font-medium text-tne-red group-hover:gap-2.5 transition-all">
+                View Sessions
+                <span aria-hidden="true">&rarr;</span>
+              </div>
+            </Link>
+          )}
+
           {/* Season Registration Card */}
           {isTryoutsOpen && (
             <button

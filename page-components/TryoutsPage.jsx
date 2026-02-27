@@ -15,14 +15,16 @@ import {
   Bell,
   Quote,
   Mail,
-  MapPin,
+
   Video,
   PlayCircle,
   Sparkles,
+  Camera,
 } from 'lucide-react';
 import InteriorLayout from '@/components/layouts/InteriorLayout';
-import TryoutSessionCard from '@/components/tryouts/TryoutSessionCard';
-import TryoutRegistrationForm from '@/components/tryouts/TryoutRegistrationForm';
+import TryoutSessionRow from '@/components/tryouts/TryoutSessionRow';
+import TryoutRegistrationModal from '@/components/tryouts/TryoutRegistrationModal';
+import { groupSessionsByGender } from '@/lib/tryout-utils';
 import { useTryoutSessions } from '@/hooks/useTryoutSessions';
 import { useRegistrationStatus } from '@/hooks/useRegistrationStatus';
 
@@ -144,6 +146,55 @@ const gradeData = {
   },
 };
 
+const monthNames = [
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December',
+];
+
+function formatTime(timeString) {
+  if (!timeString) return '';
+  const [hours, minutes] = timeString.split(':');
+  const hour = parseInt(hours, 10);
+  const ampm = hour >= 12 ? 'PM' : 'AM';
+  const displayHour = hour % 12 || 12;
+  return `${displayHour}:${minutes} ${ampm}`;
+}
+
+/**
+ * Build a human-readable summary from a group of sessions,
+ * e.g. "March 2 – 3rd/4th grade, 6:00-7:30 PM at Monroe MS"
+ */
+function buildGroupSummary(sessions) {
+  const byDate = {};
+  sessions.forEach((s) => {
+    const dateKey = s.date || s.session_date || '';
+    if (!byDate[dateKey]) byDate[dateKey] = [];
+    byDate[dateKey].push(s);
+  });
+
+  return Object.entries(byDate)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([dateKey, dateSessions]) => {
+      const parsed = new Date(`${dateKey}T00:00:00`);
+      const dateLabel =
+        !Number.isNaN(parsed.getTime())
+          ? `${monthNames[parsed.getMonth()]} ${parsed.getDate()}`
+          : dateKey;
+
+      const parts = dateSessions.map((s) => {
+        const grades = s.grade_levels || s.grades || [];
+        const gradeStr = Array.isArray(grades) ? grades.join('/') : String(grades);
+        const start = formatTime(s.start_time || s.startTime || '');
+        const end = formatTime(s.end_time || s.endTime || '');
+        const time = start && end ? `${start}-${end}` : '';
+        const loc = s.location || '';
+        return [gradeStr, time, loc ? `at ${loc}` : ''].filter(Boolean).join(', ');
+      });
+
+      return `${dateLabel} – ${parts.join(' · ')}`;
+    });
+}
+
 // FAQ Accordion Item component
 function FAQItem({ question, answer, isOpen, onToggle }) {
   return (
@@ -256,14 +307,22 @@ export default function TryoutsPage() {
   const [selectedSession, setSelectedSession] = useState(null);
   const [openFAQ, setOpenFAQ] = useState(null);
   const [selectedGrade, setSelectedGrade] = useState('k2');
+  const [genderFilter, setGenderFilter] = useState('all');
+  const [modalOpen, setModalOpen] = useState(false);
 
   const handleRegisterClick = (session) => {
     setSelectedSession(session);
-    document.getElementById('registration')?.scrollIntoView({
-      behavior: 'smooth',
-      block: 'start',
-    });
+    setModalOpen(true);
   };
+
+  const handleCloseModal = () => {
+    setModalOpen(false);
+    resetSubmitState();
+  };
+
+  const { boys, girls, other } = groupSessionsByGender(sessions);
+  const showBoys = genderFilter === 'all' || genderFilter === 'boys';
+  const showGirls = genderFilter === 'all' || genderFilter === 'girls';
 
   return (
     <InteriorLayout>
@@ -328,55 +387,47 @@ export default function TryoutsPage() {
 
       {/* Main Content */}
       <main className="flex-1 w-full">
-        {/* Section 1: Upcoming Tryout Sessions — moved to top */}
+        {/* Section 1: Upcoming Tryout Sessions */}
         <section
           id="upcoming-tryouts"
-          className="bg-[#050505] w-full border-b border-white/5 py-16 sm:py-20"
+          className="bg-neutral-50 w-full border-b border-neutral-200 py-16 sm:py-20"
         >
           <div className="max-w-6xl mx-auto px-4 sm:px-6">
             {loading ? (
-              <div className="space-y-4">
-                {[1, 2].map((i) => (
+              <div className="space-y-3">
+                {[1, 2, 3].map((i) => (
                   <div
                     key={i}
-                    className="rounded-2xl bg-white/5 border border-white/10 h-32 animate-pulse"
+                    className="rounded-2xl bg-neutral-200/60 border border-neutral-200 h-20 animate-pulse"
                   />
                 ))}
               </div>
             ) : sessions.length === 0 ? (
-              /* Enhanced Coming Soon State */
-              <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-white/[0.04] to-transparent">
-                {/* Background glow effects */}
-                <div className="absolute top-0 right-0 w-72 h-72 bg-tne-red/10 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/4" />
-                <div className="absolute bottom-0 left-0 w-56 h-56 bg-tne-maroon/10 rounded-full blur-[80px] translate-y-1/3 -translate-x-1/4" />
-
+              /* Coming Soon State (light) */
+              <div className="relative overflow-hidden rounded-3xl border border-neutral-200 bg-white">
                 <div className="relative px-6 py-12 sm:px-10 sm:py-16 text-center">
-                  {/* Season badge */}
                   {tryoutsLabel && (
-                    <div className="inline-flex items-center gap-2 rounded-full bg-white/5 border border-white/10 px-4 py-1.5 mb-6">
+                    <div className="inline-flex items-center gap-2 rounded-full bg-neutral-100 border border-neutral-200 px-4 py-1.5 mb-6">
                       <Sparkles className="w-3.5 h-3.5 text-tne-red" />
-                      <span className="text-[0.7rem] font-mono uppercase tracking-[0.22em] text-white/60">
+                      <span className="text-[0.7rem] font-mono uppercase tracking-[0.22em] text-neutral-500">
                         {tryoutsLabel}
                       </span>
                     </div>
                   )}
 
-                  {/* Icon */}
-                  <div className="mx-auto mb-6 w-16 h-16 rounded-2xl bg-gradient-to-br from-tne-red/20 to-tne-maroon/20 border border-tne-red/20 flex items-center justify-center">
+                  <div className="mx-auto mb-6 w-16 h-16 rounded-2xl bg-tne-red/10 border border-tne-red/20 flex items-center justify-center">
                     <CalendarCheck className="w-8 h-8 text-tne-red" />
                   </div>
 
-                  {/* Heading */}
-                  <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight text-white mb-3">
+                  <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight text-neutral-900 mb-3">
                     Tryout Dates Coming Soon
                   </h2>
-                  <p className="text-base text-white/50 max-w-lg mx-auto mb-4">
+                  <p className="text-base text-neutral-500 max-w-lg mx-auto mb-4">
                     We're finalizing the schedule for the upcoming season. Get a head start by
                     preparing now — players who come ready stand out on tryout day.
                   </p>
 
-                  {/* Helpful tips */}
-                  <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 text-sm text-white/40 mb-8">
+                  <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 text-sm text-neutral-400 mb-8">
                     <div className="flex items-center gap-2">
                       <Check className="w-4 h-4 text-tne-red/60" />
                       <span>Review grade-level drills below</span>
@@ -387,7 +438,6 @@ export default function TryoutsPage() {
                     </div>
                   </div>
 
-                  {/* CTAs */}
                   <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
                     <Link
                       href="/contact"
@@ -398,7 +448,7 @@ export default function TryoutsPage() {
                     </Link>
                     <a
                       href="#prepare"
-                      className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-white/15 text-white/80 text-sm font-medium hover:bg-white/5 hover:text-white transition-colors"
+                      className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-neutral-200 text-neutral-700 text-sm font-medium hover:bg-neutral-50 transition-colors"
                     >
                       <Target className="w-4 h-4" />
                       Start Preparing
@@ -410,15 +460,15 @@ export default function TryoutsPage() {
               /* Sessions exist */
               <>
                 {/* Section Header */}
-                <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
+                <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
                   <div>
                     <div className="flex items-center gap-2 mb-3">
-                      <div className="w-1.5 h-1.5 rounded-full bg-tne-red shadow-[0_0_8px_rgba(227,24,55,0.5)]" />
-                      <span className="text-xs font-mono uppercase tracking-[0.2em] text-tne-red/80">
+                      <div className="w-1.5 h-1.5 rounded-full bg-tne-red" />
+                      <span className="text-xs font-mono uppercase tracking-[0.2em] text-neutral-500">
                         Register Now
                       </span>
                     </div>
-                    <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight text-white">
+                    <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight text-neutral-900">
                       Upcoming Tryout Sessions
                     </h2>
                   </div>
@@ -431,30 +481,109 @@ export default function TryoutsPage() {
                   </Link>
                 </div>
 
-                {/* Session Cards */}
-                <div className="space-y-4">
-                  {sessions.map((session) => (
-                    <TryoutSessionCard
-                      key={session.id}
-                      session={session}
-                      onRegister={handleRegisterClick}
-                    />
+                {/* Placeholder Image */}
+                <div className="rounded-2xl overflow-hidden bg-neutral-200 h-48 sm:h-56 flex flex-col items-center justify-center mb-8">
+                  <Camera className="w-8 h-8 text-neutral-400 mb-2" />
+                  <span className="text-sm text-neutral-400 font-medium">
+                    Tryout photo coming soon
+                  </span>
+                </div>
+
+                {/* Gender Filter */}
+                <div className="flex gap-2 mb-8">
+                  {[
+                    { key: 'all', label: 'All' },
+                    { key: 'boys', label: 'Boys' },
+                    { key: 'girls', label: 'Girls' },
+                  ].map((f) => (
+                    <button
+                      key={f.key}
+                      onClick={() => setGenderFilter(f.key)}
+                      className={`px-5 py-2 rounded-full text-sm font-semibold border-[1.5px] transition-all ${
+                        genderFilter === f.key
+                          ? 'border-red-500 bg-red-500 text-white'
+                          : 'border-neutral-200 bg-transparent text-neutral-500 hover:border-neutral-300'
+                      }`}
+                    >
+                      {f.label}
+                    </button>
                   ))}
                 </div>
 
-                {/* Registration Form */}
-                {isTryoutsOpen && sessions.length > 0 && (
-                  <div id="registration" className="mt-12">
-                    <TryoutRegistrationForm
-                      sessions={sessions}
-                      selectedSession={selectedSession}
-                      onSubmit={submitSignup}
-                      submitting={submitting}
-                      submitSuccess={submitSuccess}
-                      submitError={submitError}
-                      onReset={resetSubmitState}
-                    />
+                {/* Ungrouped sessions (no gender) */}
+                {other.length > 0 && (
+                  <div className="space-y-3">
+                    {other.map((session) => (
+                      <TryoutSessionRow
+                        key={session.id}
+                        session={session}
+                        onClick={handleRegisterClick}
+                      />
+                    ))}
                   </div>
+                )}
+
+                {/* Boys sessions */}
+                {showBoys && boys.length > 0 && (
+                  <>
+                    <div className="mt-7 mb-3">
+                      <div className="flex items-center gap-3">
+                        <h3 className="text-base font-bold text-neutral-900">
+                          Boys {boys[0]?.season?.name || ''} Tryouts
+                        </h3>
+                        <span className="text-[11px] font-bold text-neutral-400 bg-neutral-100 px-2.5 py-0.5 rounded-full">
+                          {boys.length} {boys.length === 1 ? 'session' : 'sessions'}
+                        </span>
+                      </div>
+                      <p className="text-sm text-neutral-500 leading-relaxed mt-1.5">
+                        {buildGroupSummary(boys).join(' · ')}
+                      </p>
+                    </div>
+                    <div className="space-y-3">
+                      {boys.map((session) => (
+                        <TryoutSessionRow
+                          key={session.id}
+                          session={session}
+                          onClick={handleRegisterClick}
+                        />
+                      ))}
+                    </div>
+                  </>
+                )}
+
+                {/* Girls sessions */}
+                {showGirls && girls.length > 0 && (
+                  <>
+                    <div className="mt-7 mb-3">
+                      <div className="flex items-center gap-3">
+                        <h3 className="text-base font-bold text-neutral-900">
+                          Girls {girls[0]?.season?.name || ''} Tryouts
+                        </h3>
+                        <span className="text-[11px] font-bold text-neutral-400 bg-neutral-100 px-2.5 py-0.5 rounded-full">
+                          {girls.length} {girls.length === 1 ? 'session' : 'sessions'}
+                        </span>
+                      </div>
+                      <p className="text-sm text-neutral-500 leading-relaxed mt-1.5">
+                        {buildGroupSummary(girls).join(' · ')}
+                      </p>
+                    </div>
+                    <div className="space-y-3">
+                      {girls.map((session) => (
+                        <TryoutSessionRow
+                          key={session.id}
+                          session={session}
+                          onClick={handleRegisterClick}
+                        />
+                      ))}
+                    </div>
+                  </>
+                )}
+
+                {/* Empty filter state */}
+                {(showBoys ? boys.length : 0) + (showGirls ? girls.length : 0) + other.length === 0 && (
+                  <p className="text-center text-neutral-400 py-8">
+                    No sessions found for this filter.
+                  </p>
                 )}
               </>
             )}
@@ -750,6 +879,18 @@ export default function TryoutsPage() {
           </div>
         </section>
       </main>
+
+      {/* Registration Modal */}
+      <TryoutRegistrationModal
+        isOpen={modalOpen}
+        session={selectedSession}
+        onClose={handleCloseModal}
+        onSubmit={submitSignup}
+        submitting={submitting}
+        submitSuccess={submitSuccess}
+        submitError={submitError}
+        onReset={resetSubmitState}
+      />
     </InteriorLayout>
   );
 }

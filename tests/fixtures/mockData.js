@@ -183,9 +183,8 @@ export function generateRegistrationData(index) {
 /**
  * Generate tryout signup data with variations
  * @param {number} index - Index from 0-11 for generating 12 variations
- * @param {string} sessionId - Tryout session ID to register for
  */
-export function generateTryoutData(index, sessionId = null) {
+export function generateTryoutData(index) {
   const grades = ['4', '5', '6', '7', '8'];
   const genders = ['male', 'female'];
 
@@ -194,8 +193,6 @@ export function generateTryoutData(index, sessionId = null) {
   const school = schools[index % schools.length];
 
   return {
-    sessionId: sessionId || `session-${(index % 3) + 1}`,
-
     // Player info
     playerFirstName: firstNames[index % firstNames.length],
     playerLastName: lastNames[index % lastNames.length],
@@ -204,11 +201,13 @@ export function generateTryoutData(index, sessionId = null) {
     playerGender: gender,
     playerSchool: school || '',
 
-    // Parent info
-    parentFirstName: firstNames[(index + 4) % firstNames.length],
-    parentLastName: lastNames[index % lastNames.length],
+    // Contact info (required)
     parentEmail: generateTestEmail('tryout', index),
     parentPhone: generatePhone(),
+
+    // Parent info (optional)
+    parentFirstName: firstNames[(index + 4) % firstNames.length],
+    parentLastName: lastNames[index % lastNames.length],
     relationship: relationships[index % relationships.length],
   };
 }
