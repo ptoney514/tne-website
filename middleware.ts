@@ -11,8 +11,27 @@ function getAuthMiddleware() {
   return _authMiddleware;
 }
 
-export function middleware(request: NextRequest) {
-  return getAuthMiddleware()(request);
+export async function middleware(request: NextRequest) {
+  const response = await getAuthMiddleware()(request);
+
+  // Append ?from=<original path> so LoginPage can redirect back after sign-in
+  if (response.status >= 300 && response.status < 400) {
+    const location = response.headers.get('location');
+    if (location) {
+      const redirectUrl = new URL(location, request.url);
+      if (
+        redirectUrl.pathname === '/login' &&
+        !redirectUrl.searchParams.has('from')
+      ) {
+        redirectUrl.searchParams.set('from', request.nextUrl.pathname);
+        return NextResponse.redirect(redirectUrl, {
+          status: response.status,
+          headers: response.headers,
+        });
+      }
+    }
+  }
+  return response;
 }
 
 export const config = {

@@ -62,10 +62,12 @@ export function AuthProvider({ children }) {
       };
 
       try {
-        let profileData = await fetchProfile();
-        if (!profileData) {
-          await new Promise((r) => setTimeout(r, 500));
+        let profileData = null;
+        const delays = [0, 300, 600, 1200];
+        for (const delay of delays) {
+          if (delay > 0) await new Promise((r) => setTimeout(r, delay));
           profileData = await fetchProfile();
+          if (profileData) break;
         }
         if (profileData) {
           setProfile(profileData);

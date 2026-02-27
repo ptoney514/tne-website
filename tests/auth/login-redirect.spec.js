@@ -16,8 +16,8 @@ test.describe('Login Redirect - No Credentials Required', () => {
 
   test('unauthenticated admin access redirects to login with return path', async ({ page }) => {
     await page.goto('/admin');
-    // Should redirect to login
-    await expect(page).toHaveURL(/\/login/);
+    // Should redirect to login with ?from=/admin
+    await expect(page).toHaveURL(/\/login.*from=%2Fadmin/);
   });
 });
 

@@ -66,17 +66,13 @@ export default function LoginPage() {
       } else {
         failedAttempts.current = 0;
 
-        // If there's a specific page to return to, go there
-        if (from !== '/') {
+        if (from !== '/' && from !== '/login') {
           router.replace(from);
-        } else {
-          // Redirect based on user role from result
-          if (result.data?.user?.role === 'admin' || result.data?.user?.role === 'coach') {
-            router.replace('/admin');
-          } else {
-            router.replace('/');
-          }
+        } else if (result.data?.user?.role === 'admin' || result.data?.user?.role === 'coach') {
+          router.replace('/admin');
         }
+        // If role is unknown (profile fetch failed), do NOT redirect to '/'.
+        // The useEffect will fire once AuthContext resolves the profile with correct role.
       }
     } catch {
       setError('An unexpected error occurred. Please try again.');
