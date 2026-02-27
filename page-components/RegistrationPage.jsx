@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Bell, Shirt, ChevronDown, ArrowLeft, Calendar, UserPlus, ClipboardList } from 'lucide-react';
+import { Bell, ArrowLeft, Calendar, UserPlus, ClipboardList } from 'lucide-react';
 import InteriorLayout from '@/components/layouts/InteriorLayout';
 import { WizardProvider, useWizard } from '@/components/registration/WizardContext';
 import { WizardContent } from '@/components/registration/RegistrationWizard';
@@ -109,129 +109,12 @@ function RegistrationTypeSelector({ onSelect, isTryoutsOpen, isRegistrationOpen,
   );
 }
 
-// Derive unique fee tiers from loaded teams
-function getFeeTiers(teams) {
-  if (!teams || teams.length === 0) return [];
-
-  const tierMap = new Map();
-  for (const team of teams) {
-    const fee = parseFloat(team.team_fee);
-    if (!fee || fee <= 0) continue;
-
-    const key = `${fee}`;
-    if (!tierMap.has(key)) {
-      // Build a label from tier or team name
-      const label = team.tier || team.name || 'Team';
-      tierMap.set(key, { label, fee });
-    }
-  }
-
-  // Sort by fee ascending
-  return Array.from(tierMap.values()).sort((a, b) => a.fee - b.fee);
-}
-
-// Dynamic fee sidebar derived from teams data
-function DynamicFeeSidebar() {
-  const { teams } = useWizard();
-  const feeTiers = getFeeTiers(teams);
-
-  return (
-    <div className="rounded-3xl bg-white border border-neutral-300 shadow-sm overflow-hidden">
-      <div className="px-5 py-4 border-b border-neutral-200">
-        <h2 className="text-lg font-semibold text-neutral-900">
-          Registration Fees
-        </h2>
-      </div>
-      <div className="px-5 py-4">
-        {feeTiers.length > 0 ? (
-          <div className="divide-y divide-neutral-100">
-            {feeTiers.map((tier, i) => (
-              <div key={tier.label} className={`py-3 ${i === 0 ? 'first:pt-0' : ''} ${i === feeTiers.length - 1 ? 'last:pb-0' : ''}`}>
-                <div className="flex items-center justify-between gap-3">
-                  <p className="font-medium text-neutral-900 text-sm">{tier.label}</p>
-                  <span className={`text-lg font-semibold ${tier.fee >= 1000 ? 'text-tne-red' : 'text-neutral-900'}`}>
-                    ${tier.fee.toLocaleString()}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p className="text-sm text-neutral-500 italic">Fee information coming soon</p>
-        )}
-      </div>
-      <div className="px-5 py-3 bg-neutral-50 border-t border-neutral-200">
-        <p className="text-xs text-neutral-600 italic">
-          If there is a situation and you need extended time, please communicate with us.
-        </p>
-      </div>
-    </div>
-  );
-}
-
 // Sidebar content that uses wizard context
 function SidebarContent() {
-  const { selectedTeam, registrationType } = useWizard();
-  const [uniformsExpanded, setUniformsExpanded] = useState(false);
-
   return (
     <div className="space-y-6">
       {/* Dynamic Registration Summary */}
       <RegistrationSummaryPanel />
-
-      {/* Dynamic Registration Fees - shown when no team is selected in team mode, or when on type selector */}
-      {registrationType !== 'season' && !selectedTeam && (
-        <DynamicFeeSidebar />
-      )}
-
-      {/* Uniforms - Collapsible (only in team mode) */}
-      {registrationType !== 'season' && (
-        <div className="rounded-3xl bg-white border border-neutral-300 shadow-sm overflow-hidden">
-          <button
-            onClick={() => setUniformsExpanded(!uniformsExpanded)}
-            className="w-full px-5 py-4 border-b border-neutral-200 flex items-center justify-between hover:bg-neutral-50 transition-colors"
-          >
-            <div className="flex items-center gap-2">
-              <Shirt className="w-4 h-4 text-tne-red" />
-              <h2 className="text-lg font-semibold text-neutral-900">
-                Uniforms
-              </h2>
-            </div>
-            <ChevronDown className={`w-5 h-5 text-neutral-400 transition-transform ${uniformsExpanded ? 'rotate-180' : ''}`} />
-          </button>
-          {uniformsExpanded && (
-            <>
-              <div className="px-5 py-4 space-y-4 text-sm text-neutral-600">
-                <div>
-                  <p className="font-medium text-neutral-900 mb-1">Jr 3SSB</p>
-                  <p>Uniforms will be ordered through coaches.</p>
-                </div>
-                <div>
-                  <p className="font-medium text-neutral-900 mb-1">Express United Boys (3rd-8th)</p>
-                  <p>Reversible gray uniforms (same as last year).</p>
-                  <p className="mt-1">
-                    <span className="font-semibold text-neutral-900">Cost: $110</span>
-                  </p>
-                </div>
-                <div>
-                  <p className="font-medium text-neutral-900 mb-1">Girls</p>
-                  <p>Reversible uniforms (same as last year).</p>
-                  <p className="mt-1">
-                    <span className="font-semibold text-neutral-900">Cost: $75</span>
-                    <span className="text-neutral-500"> — Contact Rachelle Tucker: </span>
-                    <a href="tel:402-210-1568" className="text-tne-red hover:underline">402-210-1568</a>
-                  </p>
-                </div>
-              </div>
-              <div className="px-5 py-3 bg-amber-50 border-t border-amber-200">
-                <p className="text-xs text-amber-800 font-medium">
-                  If you haven&apos;t ordered your uniform yet, contact your coach ASAP.
-                </p>
-              </div>
-            </>
-          )}
-        </div>
-      )}
     </div>
   );
 }

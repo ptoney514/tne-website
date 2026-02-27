@@ -141,50 +141,8 @@ export const REGISTRATION_STATUSES = {
   roster_confirmed: { label: 'Roster Confirmed', color: 'emerald' },
 };
 
-export const feeItems = [
-  {
-    name: 'Boys Fall (3rd-8th)',
-    description: 'Fall season registration',
-    amount: '$300',
-    highlighted: false,
-  },
-  {
-    name: 'Girls (3rd-8th)',
-    description: 'Full season registration',
-    amount: '$450',
-    highlighted: false,
-  },
-  {
-    name: 'Boys Winter Full (3rd-8th)',
-    description: 'Winter season registration',
-    amount: '$450',
-    highlighted: false,
-  },
-  {
-    name: 'Jr. 3SSB (5th-8th)',
-    description: 'Elite circuit registration',
-    amount: '$1,400',
-    highlighted: false,
-  },
-  {
-    name: 'Boys/Girls (K-2nd) Fall',
-    description: 'Youth development',
-    amount: '$200',
-    highlighted: false,
-  },
-  {
-    name: 'Boys/Girls (K-2nd) Winter',
-    description: 'Youth development',
-    amount: '$200',
-    highlighted: false,
-  },
-  {
-    name: 'Partial Payment',
-    description: 'Payment plan option',
-    amount: '$150',
-    highlighted: true,
-  },
-];
+// feeItems migrated to season_fees table — now served dynamically via
+// useSeasonFees() hook and /api/public/seasons/[seasonId]/fees endpoint.
 
 export const faqItems = [
   {

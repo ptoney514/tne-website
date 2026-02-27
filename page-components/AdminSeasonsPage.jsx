@@ -5,6 +5,7 @@ import { api } from '@/lib/api-client';
 import AdminNavbar from '@/components/AdminNavbar';
 import SeasonFormModal from '@/components/admin/SeasonFormModal';
 import CopyTeamsModal from '@/components/admin/CopyTeamsModal';
+import SeasonFeesList from '@/components/admin/SeasonFeesList';
 import {
   Plus,
   Loader2,
@@ -23,6 +24,7 @@ import {
   ExternalLink,
   ChevronDown,
   ChevronUp,
+  DollarSign,
 } from 'lucide-react';
 
 function StatusBadge({ isActive }) {
@@ -120,6 +122,7 @@ function SeasonCard({
   onCopyTeams,
 }) {
   const [expanded, setExpanded] = useState(false);
+  const [feesExpanded, setFeesExpanded] = useState(false);
   const [savingTryouts, setSavingTryouts] = useState(false);
   const [savingRegistration, setSavingRegistration] = useState(false);
   const [tryoutsOpen, setTryoutsOpen] = useState(season.tryouts_open || false);
@@ -219,21 +222,35 @@ function SeasonCard({
           />
         </div>
 
-        {/* Teams summary + expand */}
-        <button
-          onClick={() => setExpanded(!expanded)}
-          className="flex items-center gap-2 text-sm text-stone-600 hover:text-stone-900 transition-colors"
-        >
-          <Users className="w-4 h-4" />
-          <span className="font-medium">
-            {loadingTeams ? 'Loading...' : `${teamCount} Team${teamCount !== 1 ? 's' : ''}`}
-          </span>
-          {expanded ? (
-            <ChevronUp className="w-4 h-4" />
-          ) : (
-            <ChevronDown className="w-4 h-4" />
-          )}
-        </button>
+        {/* Teams & Fees summary + expand */}
+        <div className="flex flex-wrap items-center gap-4">
+          <button
+            onClick={() => setExpanded(!expanded)}
+            className="flex items-center gap-2 text-sm text-stone-600 hover:text-stone-900 transition-colors"
+          >
+            <Users className="w-4 h-4" />
+            <span className="font-medium">
+              {loadingTeams ? 'Loading...' : `${teamCount} Team${teamCount !== 1 ? 's' : ''}`}
+            </span>
+            {expanded ? (
+              <ChevronUp className="w-4 h-4" />
+            ) : (
+              <ChevronDown className="w-4 h-4" />
+            )}
+          </button>
+          <button
+            onClick={() => setFeesExpanded(!feesExpanded)}
+            className="flex items-center gap-2 text-sm text-stone-600 hover:text-stone-900 transition-colors"
+          >
+            <DollarSign className="w-4 h-4" />
+            <span className="font-medium">Fees</span>
+            {feesExpanded ? (
+              <ChevronUp className="w-4 h-4" />
+            ) : (
+              <ChevronDown className="w-4 h-4" />
+            )}
+          </button>
+        </div>
       </div>
 
       {/* Expanded Teams Grid */}
@@ -276,6 +293,15 @@ function SeasonCard({
               </button>
             </div>
           )}
+        </div>
+      )}
+
+      {/* Expanded Fees Section */}
+      {feesExpanded && (
+        <div className="px-6 pb-6 pt-0">
+          <div className="border-t border-stone-100 pt-4">
+            <SeasonFeesList seasonId={season.id} />
+          </div>
         </div>
       )}
     </div>

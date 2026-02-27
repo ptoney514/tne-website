@@ -1,7 +1,38 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import FeeSchedule from '@/components/payments/FeeSchedule';
-import { feeItems } from '@/constants/payments';
+
+// Mock the hooks with vi.fn so we can override per-test
+const mockUseRegistrationStatus = vi.fn();
+const mockUseSeasonFees = vi.fn();
+
+vi.mock('@/hooks/useRegistrationStatus', () => ({
+  useRegistrationStatus: (...args) => mockUseRegistrationStatus(...args),
+}));
+
+vi.mock('@/hooks/useSeasonFees', () => ({
+  useSeasonFees: (...args) => mockUseSeasonFees(...args),
+}));
+
+const mockFees = [
+  { id: '1', name: 'Boys Fall (3rd-8th)', description: 'Fall season registration', amount: 300 },
+  { id: '2', name: 'Girls (3rd-8th)', description: 'Full season registration', amount: 450 },
+  { id: '3', name: 'Jr. 3SSB (5th-8th)', description: 'Elite circuit registration', amount: 1400 },
+];
+
+beforeEach(() => {
+  mockUseRegistrationStatus.mockReturnValue({
+    seasonId: 'test-season-1',
+    seasonName: 'Fall 2025',
+    loading: false,
+    error: null,
+  });
+  mockUseSeasonFees.mockReturnValue({
+    fees: mockFees,
+    loading: false,
+    error: null,
+  });
+});
 
 describe('FeeSchedule', () => {
   it('should render the fee schedule section', () => {
@@ -11,10 +42,10 @@ describe('FeeSchedule', () => {
     expect(feeSchedule).toBeInTheDocument();
   });
 
-  it('should display the season indicator', () => {
+  it('should display the season indicator from API', () => {
     render(<FeeSchedule />);
 
-    expect(screen.getByText('2025-26 Season')).toBeInTheDocument();
+    expect(screen.getByTestId('season-indicator')).toHaveTextContent('Fall 2025');
   });
 
   it('should display the section heading', () => {
@@ -26,45 +57,32 @@ describe('FeeSchedule', () => {
     ).toBeInTheDocument();
   });
 
-  it('should render all fee items', () => {
+  it('should render fee items from API', () => {
     render(<FeeSchedule />);
 
     const feeList = screen.getByTestId('fee-list');
     expect(feeList).toBeInTheDocument();
 
-    feeItems.forEach((_, index) => {
+    mockFees.forEach((_, index) => {
       const feeItem = screen.getByTestId(`fee-item-${index}`);
       expect(feeItem).toBeInTheDocument();
     });
   });
 
-  it('should display all fee names', () => {
+  it('should display fee names from API', () => {
     render(<FeeSchedule />);
 
-    feeItems.forEach((item) => {
-      expect(screen.getByText(item.name)).toBeInTheDocument();
+    mockFees.forEach((fee) => {
+      expect(screen.getByText(fee.name)).toBeInTheDocument();
     });
   });
 
-  it('should display all fee descriptions', () => {
+  it('should display fee amounts formatted as currency', () => {
     render(<FeeSchedule />);
 
-    // Check unique descriptions individually, handle duplicates with getAllByText
-    expect(screen.getByText('Fall season registration')).toBeInTheDocument();
-    expect(screen.getByText('Full season registration')).toBeInTheDocument();
-    expect(screen.getByText('Winter season registration')).toBeInTheDocument();
-    expect(screen.getByText('Elite circuit registration')).toBeInTheDocument();
-    expect(screen.getAllByText('Youth development')).toHaveLength(2);
-    expect(screen.getByText('Payment plan option')).toBeInTheDocument();
-  });
-
-  it('should render 7 fee items', () => {
-    render(<FeeSchedule />);
-
-    expect(feeItems).toHaveLength(7);
-    feeItems.forEach((_, index) => {
-      expect(screen.getByTestId(`fee-item-${index}`)).toBeInTheDocument();
-    });
+    expect(screen.getByText('$300')).toBeInTheDocument();
+    expect(screen.getByText('$450')).toBeInTheDocument();
+    expect(screen.getByText('$1,400')).toBeInTheDocument();
   });
 
   it('should display help section with contact info', () => {
@@ -92,30 +110,18 @@ describe('FeeSchedule', () => {
     const phoneLink = screen.getByText('(402) 510-4919');
     expect(phoneLink.closest('a')).toHaveAttribute('href', 'tel:+14025104919');
   });
+});
 
-  it('should highlight the partial payment option', () => {
+describe('FeeSchedule - Empty State', () => {
+  it('should show empty state when no fees', () => {
+    mockUseSeasonFees.mockReturnValue({
+      fees: [],
+      loading: false,
+      error: null,
+    });
+
     render(<FeeSchedule />);
-
-    // Find the partial payment item (index 6)
-    const partialPaymentItem = screen.getByTestId('fee-item-6');
-    expect(partialPaymentItem).toHaveClass('bg-tne-red/5');
-  });
-
-  it('should display correct fee amounts', () => {
-    render(<FeeSchedule />);
-
-    // Check specific fee amounts (some have duplicates)
-    expect(screen.getByText('$300')).toBeInTheDocument(); // Boys Fall
-    expect(screen.getAllByText('$450')).toHaveLength(2); // Girls & Boys Winter
-    expect(screen.getByText('$1,400')).toBeInTheDocument(); // Jr. 3SSB
-    expect(screen.getAllByText('$200')).toHaveLength(2); // K-2nd Fall & Winter
-    expect(screen.getByText('$150')).toBeInTheDocument(); // Partial Payment
-  });
-
-  it('should include Jr. 3SSB elite option', () => {
-    render(<FeeSchedule />);
-
-    expect(screen.getByText('Jr. 3SSB (5th-8th)')).toBeInTheDocument();
-    expect(screen.getByText('Elite circuit registration')).toBeInTheDocument();
+    expect(screen.getByTestId('fee-empty-state')).toBeInTheDocument();
+    expect(screen.getByText('Fee schedule will be available soon')).toBeInTheDocument();
   });
 });
