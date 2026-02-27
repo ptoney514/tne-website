@@ -11,16 +11,19 @@ export function AuthProvider({ children }) {
   // Profile data from our user_profiles table
   const [profile, setProfile] = useState(null);
   const [profileLoading, setProfileLoading] = useState(false);
+  const [profileFetched, setProfileFetched] = useState(false);
 
   // Fetch profile when session user changes (with retries for Neon Auth propagation)
   useEffect(() => {
     if (!session?.user?.id) {
       setProfile(null);
+      setProfileFetched(false);
       return;
     }
 
     let cancelled = false;
     setProfileLoading(true);
+    setProfileFetched(false);
 
     (async () => {
       const delays = [0, 500, 1000, 2000];
@@ -39,8 +42,9 @@ export function AuthProvider({ children }) {
         }
       }
       if (!cancelled) {
-        setProfile(data);
+        setProfile((prev) => data ?? prev);
         setProfileLoading(false);
+        setProfileFetched(true);
       }
     })();
 
@@ -152,7 +156,7 @@ export function AuthProvider({ children }) {
     [user]
   );
 
-  const loading = isPending || profileLoading;
+  const loading = isPending || profileLoading || (!!session?.user?.id && !profileFetched);
 
   const value = useMemo(
     () => ({

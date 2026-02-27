@@ -250,6 +250,66 @@ describe('AuthContext', () => {
     });
   });
 
+  describe('loading stays true until profile fetch completes', () => {
+    it('should not flash loading=false between session ready and profile fetch', async () => {
+      // This regression test covers the race condition where:
+      // 1. useSession returns isPending=false with a user
+      // 2. Before the useEffect fires to fetch the profile, loading briefly = false
+      // 3. Consumers (e.g. LoginPage) see loading=false, role='parent', and redirect to /
+      const mockUser = { id: 'user-123', email: 'admin@example.com' };
+
+      // Delay the profile fetch so we can observe the intermediate state
+      let resolveProfile;
+      vi.spyOn(global, 'fetch').mockImplementation(
+        () =>
+          new Promise((resolve) => {
+            resolveProfile = () =>
+              resolve({
+                ok: true,
+                json: async () => ({ role: 'admin', firstName: 'Admin', lastName: 'User' }),
+              });
+          })
+      );
+
+      mockUseSession.mockReturnValue({
+        data: { user: mockUser, session: { user: mockUser } },
+        isPending: false,
+      });
+
+      const loadingValues = [];
+      function LoadingTracker() {
+        const auth = useContext(AuthContext);
+        loadingValues.push(auth.loading);
+        return <div data-testid="loading">{auth.loading ? 'loading' : 'ready'}</div>;
+      }
+
+      render(
+        <AuthProvider>
+          <LoadingTracker />
+        </AuthProvider>
+      );
+
+      // Before profile fetch resolves, loading must still be true
+      expect(screen.getByTestId('loading').textContent).toBe('loading');
+
+      // Resolve the profile fetch
+      await act(async () => {
+        resolveProfile();
+      });
+
+      await waitFor(() => {
+        expect(screen.getByTestId('loading').textContent).toBe('ready');
+      });
+
+      // Verify loading was never false before profile was fetched
+      // The first render(s) should all be loading=true, only the final should be false
+      const firstFalseIndex = loadingValues.indexOf(false);
+      const allTrueBeforeFalse = loadingValues.slice(0, firstFalseIndex).every((v) => v === true);
+      expect(allTrueBeforeFalse).toBe(true);
+      expect(firstFalseIndex).toBeGreaterThan(0);
+    });
+  });
+
   describe('role checking utilities', () => {
     it('should correctly identify admin role', async () => {
       const mockUser = { id: 'user-123', email: 'admin@example.com' };
