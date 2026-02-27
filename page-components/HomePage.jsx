@@ -23,7 +23,7 @@ import mitchHeadshot from '@/assets/mitch-headshot.png';
 import { useRegistrationStatus } from '@/hooks/useRegistrationStatus';
 
 // External video hosted on Cloudflare R2
-const HERO_VIDEO_URL = 'https://tnebasketball.com/videos/tne-hero-2025-v2.mp4';
+const HERO_VIDEO_URL = 'https://cdn.tnebasketball.com/videos/tne-hero-2025-v2.mp4';
 
 export default function HomePage() {
   const {
