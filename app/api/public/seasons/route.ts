@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { seasons } from '@/lib/schema';
-import { desc, eq, gte, lte, and, or } from 'drizzle-orm';
+import { desc, eq, gte, lte, and } from 'drizzle-orm';
 
 export async function GET(request: NextRequest) {
   try {
@@ -21,13 +21,8 @@ export async function GET(request: NextRequest) {
         )
       ) as typeof query;
     } else if (!includeInactive) {
-      // Only return active or current/upcoming seasons
-      query = query.where(
-        or(
-          eq(seasons.isActive, true),
-          gte(seasons.endDate, today)
-        )
-      ) as typeof query;
+      // Only return active seasons
+      query = query.where(eq(seasons.isActive, true)) as typeof query;
     }
 
     const seasonsData = await query.orderBy(desc(seasons.startDate));
