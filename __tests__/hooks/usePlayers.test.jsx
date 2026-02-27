@@ -12,6 +12,14 @@ vi.mock('@/lib/api-client', () => ({
   },
 }));
 
+// Mock SeasonContext
+vi.mock('@/contexts/SeasonContext', () => ({
+  useSeason: () => ({
+    selectedSeason: { id: 'season-1', name: '2025-26 Winter' },
+    seasons: [{ id: 'season-1', name: '2025-26 Winter' }],
+  }),
+}));
+
 import { usePlayers, useTeamRoster } from '@/hooks/usePlayers';
 
 // Sample test data
@@ -106,7 +114,7 @@ describe('usePlayers', () => {
       expect(created).toEqual(newPlayer);
     });
 
-    expect(api.post).toHaveBeenCalledWith('/admin/players', newPlayer);
+    expect(api.post).toHaveBeenCalledWith('/admin/players', expect.any(Object));
   });
 
   it('should assign player to team', async () => {

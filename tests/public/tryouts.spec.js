@@ -285,7 +285,7 @@ test.describe('Tryouts Page - Mobile Responsiveness', () => {
     await faqButton.click();
 
     // Answer should be visible
-    await expect(page.getByText(/\$25 fee/i)).toBeVisible();
+    await expect(page.getByText(/completely free/i)).toBeVisible();
   });
 
   test('training cards should stack on mobile', async ({ page }) => {

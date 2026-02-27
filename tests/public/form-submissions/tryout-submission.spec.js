@@ -11,52 +11,71 @@ import { generateTryoutData } from '../../fixtures/mockData.js';
 
 // Mock tryout sessions data (Neon API shape)
 function getMockSessions() {
-  const today = new Date();
-  const formatDate = (daysOffset) => {
-    const date = new Date(today);
-    date.setDate(date.getDate() + daysOffset);
-    return date.toISOString().split('T')[0];
-  };
-
   return [
     {
       id: 'session-1',
-      date: formatDate(14),
-      start_time: '09:00',
-      end_time: '12:00',
-      location: 'Central Recreation Center',
-      grade_levels: '4th-5th',
-      description: '4th-5th Grade Tryouts',
-      notes: 'Boys & Girls divisions',
+      date: '2026-03-02',
+      start_time: '18:00',
+      end_time: '19:30',
+      location: 'Monroe MS',
+      grade_levels: ['3rd', '4th'],
+      description: 'Boys Spring Tryouts - 3rd/4th',
+      notes: 'Boys division',
       registration_open: true,
       max_participants: 30,
       spots_remaining: 30,
     },
     {
       id: 'session-2',
-      date: formatDate(15),
-      start_time: '13:00',
-      end_time: '16:00',
-      location: 'Central Recreation Center',
-      grade_levels: '6th-7th',
-      description: '6th-7th Grade Tryouts',
-      notes: 'Boys & Girls divisions',
+      date: '2026-03-03',
+      start_time: '18:00',
+      end_time: '19:30',
+      location: 'Monroe MS',
+      grade_levels: ['5th'],
+      description: 'Boys Spring Tryouts - 5th Grade',
+      notes: 'Boys division',
       registration_open: true,
       max_participants: 25,
       spots_remaining: 25,
     },
     {
       id: 'session-3',
-      date: formatDate(21),
-      start_time: '09:00',
-      end_time: '12:00',
-      location: 'Gateway High School Gym',
-      grade_levels: '8th',
-      description: '8th Grade Tryouts',
-      notes: 'Boys & Girls divisions',
+      date: '2026-03-03',
+      start_time: '18:00',
+      end_time: '19:30',
+      location: 'McMillan MS',
+      grade_levels: ['6th'],
+      description: 'Boys Spring Tryouts - 6th Grade',
+      notes: 'Boys division',
       registration_open: true,
-      max_participants: 20,
-      spots_remaining: 20,
+      max_participants: 25,
+      spots_remaining: 25,
+    },
+    {
+      id: 'session-4',
+      date: '2026-03-04',
+      start_time: '18:00',
+      end_time: '19:30',
+      location: 'North HS',
+      grade_levels: ['7th', '8th'],
+      description: 'Boys Spring Tryouts - 7th/8th Grade',
+      notes: 'Boys division',
+      registration_open: true,
+      max_participants: 25,
+      spots_remaining: 25,
+    },
+    {
+      id: 'session-5',
+      date: '2026-03-15',
+      start_time: '15:00',
+      end_time: '16:00',
+      location: 'Girls Inc.',
+      grade_levels: ['3rd', '4th', '5th', '6th', '7th', '8th'],
+      description: 'Girls Spring Tryouts - 3rd-8th Grade',
+      notes: 'Girls division',
+      registration_open: true,
+      max_participants: 30,
+      spots_remaining: 30,
     },
   ];
 }
@@ -82,7 +101,7 @@ async function setupTryoutApiMocks(page) {
         },
         tryouts: {
           is_open: true, // Enable tryouts for tests
-          label: 'Winter 25-26 Tryouts',
+          label: 'Spring 2026 Tryouts',
         },
         payment: {
           paypal_enabled: true,
@@ -105,6 +124,27 @@ async function setupTryoutApiMocks(page) {
     } else {
       await route.continue();
     }
+  });
+
+  // Mock seasons GET request (needed for page to render)
+  await page.route('**/api/public/seasons*', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify([
+        {
+          id: 'a2b33e21-72e8-4bfa-b7dd-f824436ed2f9',
+          name: '2024-25 Winter',
+          start_date: '2024-11-01',
+          end_date: '2025-03-31',
+          is_active: true,
+          tryouts_open: true,
+          tryouts_label: 'Spring 2026 Tryouts',
+          registration_open: true,
+          registration_label: 'Spring 2026',
+        },
+      ]),
+    });
   });
 
   // Mock tryout signup POST request

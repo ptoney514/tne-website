@@ -13,6 +13,7 @@ export function useRegistrationStatus() {
     isRegistrationOpen: false,
     registrationLabel: null,
     seasonId: null,
+    seasonName: null,
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -23,6 +24,7 @@ export function useRegistrationStatus() {
     isRegistrationOpen: season.registration_open || false,
     registrationLabel: season.registration_label || season.name || null,
     seasonId: season.id || null,
+    seasonName: season.name || null,
   });
 
   const pickPreferredSeason = (seasons) => {
@@ -65,6 +67,7 @@ export function useRegistrationStatus() {
         isRegistrationOpen: data.registration?.is_open || false,
         registrationLabel: data.registration?.label || data.season?.name,
         seasonId: data.season?.id || null,
+        seasonName: data.season?.name || null,
       });
     } catch (err) {
       console.error('Status fetch error:', err);
@@ -76,6 +79,7 @@ export function useRegistrationStatus() {
         isRegistrationOpen: false,
         registrationLabel: null,
         seasonId: null,
+        seasonName: null,
       });
     } finally {
       setLoading(false);

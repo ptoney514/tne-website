@@ -32,7 +32,7 @@ const SYSTEM_PROMPT = `You are a friendly and helpful AI assistant for TNE Unite
 
 ## Key Information
 - **Tryouts**: Contact the program for current tryout dates
-- **Registration fees**: Various tiers from $25 tryout fee to full season registration
+- **Registration fees**: Tryouts are free. Full season fees range from $400-$600 depending on age group
 - **Practice locations**: Contact program for current locations
 - **Tournament schedule**: Teams compete in regional and national tournaments
 

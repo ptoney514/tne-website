@@ -58,7 +58,12 @@ export default function RegistrationSummaryPanel() {
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-neutral-500 italic">Fee information coming soon</p>
+              <div className="py-1 space-y-1.5">
+                <p className="text-sm font-medium text-neutral-700">Season fees not yet announced</p>
+                <p className="text-sm text-neutral-500">
+                  Team fees will be shared shortly after tryouts and team formation.
+                </p>
+              </div>
             )}
           </div>
           <div className="px-5 py-3 bg-blue-50 border-t border-blue-200">

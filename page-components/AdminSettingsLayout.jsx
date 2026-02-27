@@ -20,7 +20,7 @@ const SETTINGS_NAV = [
   { to: '/admin/settings/registration', icon: ClipboardCheck, label: 'Registration' },
   { to: '/admin/settings/roles', icon: Shield, label: 'Roles & Permissions', disabled: true },
   { to: '/admin/settings/organization', icon: Building2, label: 'Organization', disabled: true },
-  { to: '/admin/settings/seasons', icon: Calendar, label: 'Seasons' },
+  { to: '/admin/seasons', icon: Calendar, label: 'Seasons' },
   { to: '/admin/settings/locations', icon: MapPin, label: 'Locations', disabled: true },
   { to: '/admin/settings/payments', icon: CreditCard, label: 'Payment Settings', disabled: true },
   { to: '/admin/settings/emails', icon: Mail, label: 'Email Templates', disabled: true },

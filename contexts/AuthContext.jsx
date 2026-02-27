@@ -11,28 +11,42 @@ export function AuthProvider({ children }) {
   // Profile data from our user_profiles table
   const [profile, setProfile] = useState(null);
   const [profileLoading, setProfileLoading] = useState(false);
+  const [profileFetched, setProfileFetched] = useState(false);
 
-  // Fetch profile when session user changes
+  // Fetch profile when session user changes (with retries for Neon Auth propagation)
   useEffect(() => {
     if (!session?.user?.id) {
       setProfile(null);
+      setProfileFetched(false);
       return;
     }
 
     let cancelled = false;
     setProfileLoading(true);
+    setProfileFetched(false);
 
-    fetch('/api/auth/profile')
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data) => {
-        if (!cancelled) setProfile(data);
-      })
-      .catch(() => {
-        if (!cancelled) setProfile(null);
-      })
-      .finally(() => {
-        if (!cancelled) setProfileLoading(false);
-      });
+    (async () => {
+      const delays = [0, 500, 1000, 2000];
+      let data = null;
+      for (const delay of delays) {
+        if (cancelled) return;
+        if (delay > 0) await new Promise((r) => setTimeout(r, delay));
+        try {
+          const res = await fetch('/api/auth/profile');
+          if (res.ok) {
+            data = await res.json();
+            break;
+          }
+        } catch {
+          // retry
+        }
+      }
+      if (!cancelled) {
+        setProfile((prev) => data ?? prev);
+        setProfileLoading(false);
+        setProfileFetched(true);
+      }
+    })();
 
     return () => {
       cancelled = true;
@@ -62,10 +76,12 @@ export function AuthProvider({ children }) {
       };
 
       try {
-        let profileData = await fetchProfile();
-        if (!profileData) {
-          await new Promise((r) => setTimeout(r, 500));
+        let profileData = null;
+        const delays = [500, 1000, 2000];
+        for (const delay of delays) {
+          if (delay > 0) await new Promise((r) => setTimeout(r, delay));
           profileData = await fetchProfile();
+          if (profileData) break;
         }
         if (profileData) {
           setProfile(profileData);
@@ -140,7 +156,7 @@ export function AuthProvider({ children }) {
     [user]
   );
 
-  const loading = isPending || profileLoading;
+  const loading = isPending || profileLoading || (!!session?.user?.id && !profileFetched);
 
   const value = useMemo(
     () => ({

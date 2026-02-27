@@ -378,81 +378,31 @@ function RegistrationControl({ season, onUpdate }) {
 // STAT COMPONENTS
 // ============================================
 
+// Compact inline stat item for the stats bar
 // eslint-disable-next-line no-unused-vars -- Icon is used in JSX
-function StatCard({ label, value, loading, icon: Icon, trend, href }) {
+function StatItem({ label, value, loading, icon: Icon, href }) {
   const content = (
-    <div className="group relative rounded-xl bg-white border border-stone-200 p-5 hover:border-stone-300 hover:shadow-sm transition-all">
-      <div className="flex items-start justify-between mb-3">
-        <div className={`p-2 rounded-lg bg-stone-100 text-stone-600 group-hover:bg-tne-red/10 group-hover:text-tne-red transition-colors`}>
-          <Icon className="w-4 h-4" />
-        </div>
-        {href && (
-          <ChevronRight className="w-4 h-4 text-stone-300 group-hover:text-stone-500 group-hover:translate-x-0.5 transition-all" />
-        )}
+    <div className="flex items-center gap-3 group">
+      <div className="p-1.5 rounded-lg bg-stone-100 text-stone-500 group-hover:bg-tne-red/10 group-hover:text-tne-red transition-colors">
+        <Icon className="w-3.5 h-3.5" />
       </div>
-
-      <p className="text-3xl font-bebas text-stone-900 tracking-tight">
-        {loading ? (
-          <span className="animate-pulse bg-stone-200 rounded w-12 h-8 inline-block" />
-        ) : (
-          value
-        )}
-      </p>
-      <p className="text-xs text-stone-500 uppercase tracking-wider mt-1">{label}</p>
-
-      {trend && (
-        <div className={`absolute bottom-3 right-3 text-[10px] font-medium ${
-          trend > 0 ? 'text-green-600' : trend < 0 ? 'text-red-600' : 'text-stone-400'
-        }`}>
-          {trend > 0 ? '+' : ''}{trend}%
-        </div>
-      )}
+      <div>
+        <p className="text-2xl font-bebas text-stone-900 tracking-tight leading-none">
+          {loading ? (
+            <span className="animate-pulse bg-stone-200 rounded w-8 h-6 inline-block" />
+          ) : (
+            value
+          )}
+        </p>
+        <p className="text-[10px] text-stone-500 uppercase tracking-wider">{label}</p>
+      </div>
     </div>
   );
 
   if (href) {
-    return <Link href={href}>{content}</Link>;
+    return <Link href={href} className="hover:opacity-80 transition-opacity">{content}</Link>;
   }
   return content;
-}
-
-function AlertCard({ count, label, href, type = 'warning' }) {
-  if (count === 0) return null;
-
-  const styles = {
-    warning: {
-      bg: 'bg-amber-50 hover:bg-amber-100/80',
-      border: 'border-amber-200 hover:border-amber-300',
-      icon: 'text-amber-600',
-      text: 'text-amber-900',
-      count: 'text-amber-600'
-    },
-    danger: {
-      bg: 'bg-red-50 hover:bg-red-100/80',
-      border: 'border-red-200 hover:border-red-300',
-      icon: 'text-red-600',
-      text: 'text-red-900',
-      count: 'text-red-600'
-    }
-  };
-
-  const s = styles[type];
-
-  return (
-    <Link
-      href={href}
-      className={`flex items-center justify-between px-4 py-3 rounded-xl border ${s.bg} ${s.border} transition-all group`}
-    >
-      <div className="flex items-center gap-3">
-        <AlertTriangle className={`w-4 h-4 ${s.icon}`} />
-        <span className={`text-sm font-medium ${s.text}`}>{label}</span>
-      </div>
-      <div className="flex items-center gap-2">
-        <span className={`font-bebas text-xl ${s.count}`}>{count}</span>
-        <ChevronRight className="w-4 h-4 text-stone-400 group-hover:translate-x-0.5 transition-transform" />
-      </div>
-    </Link>
-  );
 }
 
 // ============================================
@@ -578,11 +528,12 @@ export default function AdminDashboard() {
 
   const handleExportCurrentData = async () => {
     try {
+      const params = selectedSeason?.id ? `?seasonId=${selectedSeason.id}` : '';
       // Fetch data from API endpoints
       const [teamsData, coachesData, playersData] = await Promise.all([
-        api.get('/admin/teams'),
+        api.get(`/admin/teams${params}`),
         api.get('/admin/coaches'),
-        api.get('/admin/players'),
+        api.get(`/admin/players${params}`),
       ]);
 
       // Group players by team name for rosters
@@ -650,30 +601,30 @@ export default function AdminDashboard() {
         <div className="max-w-7xl mx-auto">
 
           {/* ============================================
-              HEADER
+              HEADER (compact)
               ============================================ */}
-          <div className="mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+          <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <div className="flex items-center gap-2 text-stone-500 text-xs font-mono mb-1">
+              <h1 className="text-3xl font-bebas tracking-tight text-stone-900">
+                {getGreeting()}, {profile?.first_name || (isAdmin ? 'Admin' : 'Coach')}
+              </h1>
+              <div className="flex items-center gap-2 text-stone-400 text-xs font-mono">
                 <Clock className="w-3 h-3" />
                 <span>{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</span>
               </div>
-              <h1 className="text-3xl lg:text-4xl font-bebas tracking-tight text-stone-900">
-                {getGreeting()}, {profile?.first_name || (isAdmin ? 'Admin' : 'Coach')}
-              </h1>
             </div>
             <button
               onClick={refetch}
-              className="self-start sm:self-auto px-4 py-2 text-xs font-medium rounded-lg border border-stone-300 text-stone-600 hover:text-stone-900 hover:border-stone-400 hover:bg-white transition-all flex items-center gap-2"
+              className="self-start sm:self-auto px-3 py-1.5 text-xs font-medium rounded-lg border border-stone-300 text-stone-500 hover:text-stone-900 hover:border-stone-400 hover:bg-white transition-all flex items-center gap-1.5"
             >
               <Activity className="w-3 h-3" />
-              Refresh Data
+              Refresh
             </button>
           </div>
 
           {/* Error State */}
           {error && (
-            <div className="mb-6 px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm flex items-center gap-2">
+            <div className="mb-4 px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm flex items-center gap-2">
               <span className="flex-1">Failed to load dashboard data: {error}</span>
               <button onClick={refetch} className="ml-auto text-red-800 underline hover:text-red-900 font-medium whitespace-nowrap">
                 Retry
@@ -682,187 +633,160 @@ export default function AdminDashboard() {
           )}
 
           {/* ============================================
-              CONTROL PANEL + STATS
+              STATS BAR — single compact card
               ============================================ */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-8">
-
-            {/* Control Panel */}
-            {isAdmin && (
-              <div className="lg:col-span-5">
-                <div className="flex items-center gap-2 mb-3">
-                  <Zap className="w-4 h-4 text-tne-red" />
-                  <h2 className="text-xs font-mono text-stone-500 uppercase tracking-widest">Control Panel</h2>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <TryoutsControl
-                    season={selectedSeason}
-                    onUpdate={handleControlUpdate}
-                  />
-                  <RegistrationControl
-                    season={selectedSeason}
-                    onUpdate={handleControlUpdate}
-                  />
-                </div>
-              </div>
-            )}
-
-            {/* Stats Grid */}
-            <div className={isAdmin ? 'lg:col-span-7' : 'lg:col-span-12'}>
-              <div className="flex items-center gap-2 mb-3">
-                <Activity className="w-4 h-4 text-stone-400" />
-                <h2 className="text-xs font-mono text-stone-500 uppercase tracking-widest">Overview</h2>
-              </div>
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-                <StatCard
-                  label="Teams"
-                  value={stats.teams}
-                  loading={loading}
-                  icon={Users}
-                  href="/admin/teams"
-                />
-                <StatCard
-                  label="Players"
-                  value={stats.players}
-                  loading={loading}
-                  icon={UserCheck}
-                  href="/admin/players"
-                />
-                <StatCard
-                  label="Registrations"
-                  value={stats.registrations}
-                  loading={loading}
-                  icon={ClipboardList}
-                  href="/admin/registrations"
-                />
-                {isAdmin && (
-                  <StatCard
-                    label="Tryouts"
-                    value={stats.tryoutSignups}
-                    loading={loading}
-                    icon={CalendarCheck}
-                    href="/admin/tryouts"
-                  />
-                )}
-              </div>
+          <div className="rounded-3xl bg-white border border-stone-200 px-6 py-4 mb-6">
+            <div className="flex flex-wrap items-center gap-6 lg:gap-10">
+              <StatItem label="Teams" value={stats.teams} loading={loading} icon={Users} href="/admin/teams" />
+              <div className="w-px h-8 bg-stone-200 hidden sm:block" />
+              <StatItem label="Players" value={stats.players} loading={loading} icon={UserCheck} href="/admin/players" />
+              <div className="w-px h-8 bg-stone-200 hidden sm:block" />
+              <StatItem label="Registrations" value={stats.registrations} loading={loading} icon={ClipboardList} href="/admin/registrations" />
+              {isAdmin && (
+                <>
+                  <div className="w-px h-8 bg-stone-200 hidden sm:block" />
+                  <StatItem label="Tryouts" value={stats.tryoutSignups} loading={loading} icon={CalendarCheck} href="/admin/tryouts" />
+                </>
+              )}
+              {/* Inline alert badge */}
+              {stats.pendingRegistrations > 0 && (
+                <>
+                  <div className="w-px h-8 bg-stone-200 hidden sm:block" />
+                  <Link
+                    href="/admin/registrations?status=pending"
+                    className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-50 border border-amber-200 hover:bg-amber-100 transition-colors group"
+                  >
+                    <AlertTriangle className="w-3.5 h-3.5 text-amber-600" />
+                    <span className="text-xs font-semibold text-amber-800">
+                      {stats.pendingRegistrations} pending
+                    </span>
+                    <ChevronRight className="w-3 h-3 text-amber-400 group-hover:translate-x-0.5 transition-transform" />
+                  </Link>
+                </>
+              )}
             </div>
           </div>
 
           {/* ============================================
-              QUICK ACTIONS
+              TWO-COLUMN GRID
               ============================================ */}
-          {isAdmin && (
-            <div className="mb-8">
-              <div className="flex items-center gap-2 mb-3">
-                <FileSpreadsheet className="w-4 h-4 text-stone-400" />
-                <h2 className="text-xs font-mono text-stone-500 uppercase tracking-widest">Quick Actions</h2>
-              </div>
-              <div className="flex flex-wrap gap-3">
-                <button
-                  onClick={() => setShowUploadModal(true)}
-                  className="flex items-center gap-2 px-4 py-3 rounded-xl bg-tne-red text-white font-medium text-sm hover:bg-tne-red-dark transition-colors shadow-sm"
-                >
-                  <Upload className="w-4 h-4" />
-                  Upload Team Data
-                </button>
-                <button
-                  onClick={handleExportCurrentData}
-                  className="flex items-center gap-2 px-4 py-3 rounded-xl bg-white border border-stone-200 text-stone-700 font-medium text-sm hover:bg-stone-50 hover:border-stone-300 transition-colors"
-                >
-                  <Download className="w-4 h-4" />
-                  Download Current Data
-                </button>
-                <button
-                  onClick={handleDownloadTemplate}
-                  className="flex items-center gap-2 px-4 py-3 rounded-xl bg-white border border-stone-200 text-stone-700 font-medium text-sm hover:bg-stone-50 hover:border-stone-300 transition-colors"
-                >
-                  <FileSpreadsheet className="w-4 h-4" />
-                  Download Template
-                </button>
-              </div>
-            </div>
-          )}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-          {/* ============================================
-              ALERTS
-              ============================================ */}
-          {stats.pendingRegistrations > 0 && (
-            <div className="mb-8">
-              <h2 className="text-xs font-mono text-stone-500 uppercase tracking-widest mb-3">
-                Requires Attention
-              </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                <AlertCard
-                  count={stats.pendingRegistrations}
-                  label="Pending Registrations"
-                  href="/admin/registrations?status=pending"
-                  type="warning"
+            {/* Left: Control Panel (stacked) */}
+            {isAdmin && (
+              <div className="lg:col-span-5 space-y-4">
+                <div className="flex items-center gap-2">
+                  <Zap className="w-4 h-4 text-tne-red" />
+                  <h2 className="text-xs font-mono text-stone-500 uppercase tracking-widest">Control Panel</h2>
+                </div>
+                <TryoutsControl
+                  season={selectedSeason}
+                  onUpdate={handleControlUpdate}
+                />
+                <RegistrationControl
+                  season={selectedSeason}
+                  onUpdate={handleControlUpdate}
                 />
               </div>
-            </div>
-          )}
+            )}
 
-          {/* ============================================
-              ACTIVITY & EVENTS
-              ============================================ */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Right: Quick Actions + Activity/Events */}
+            <div className={isAdmin ? 'lg:col-span-7' : 'lg:col-span-12'}>
+              {/* Quick Actions (compact inline) */}
+              {isAdmin && (
+                <div className="mb-6">
+                  <div className="flex items-center gap-2 mb-3">
+                    <FileSpreadsheet className="w-4 h-4 text-stone-400" />
+                    <h2 className="text-xs font-mono text-stone-500 uppercase tracking-widest">Quick Actions</h2>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      onClick={() => setShowUploadModal(true)}
+                      className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-tne-red text-white text-xs font-medium hover:bg-tne-red-dark transition-colors"
+                    >
+                      <Upload className="w-3.5 h-3.5" />
+                      Upload Data
+                    </button>
+                    <button
+                      onClick={handleExportCurrentData}
+                      className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-white border border-stone-200 text-stone-600 text-xs font-medium hover:bg-stone-50 hover:border-stone-300 transition-colors"
+                    >
+                      <Download className="w-3.5 h-3.5" />
+                      Export Data
+                    </button>
+                    <button
+                      onClick={handleDownloadTemplate}
+                      className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-white border border-stone-200 text-stone-600 text-xs font-medium hover:bg-stone-50 hover:border-stone-300 transition-colors"
+                    >
+                      <FileSpreadsheet className="w-3.5 h-3.5" />
+                      Template
+                    </button>
+                  </div>
+                </div>
+              )}
 
-            {/* Recent Activity */}
-            <div className="rounded-2xl bg-white border border-stone-200 overflow-hidden">
-              <div className="px-5 py-4 border-b border-stone-100 flex items-center justify-between">
-                <h2 className="text-sm font-semibold text-stone-900">Recent Activity</h2>
-                <Link
-                  href="/admin/registrations"
-                  className="text-xs text-stone-500 hover:text-tne-red transition-colors flex items-center gap-1"
-                >
-                  View all <ChevronRight className="w-3 h-3" />
-                </Link>
-              </div>
-              <div className="px-5 py-2">
-                {loading ? (
-                  <div className="space-y-3 py-2">
-                    {[...Array(4)].map((_, i) => (
-                      <div key={i} className="h-12 bg-stone-100 rounded animate-pulse" />
-                    ))}
-                  </div>
-                ) : recentActivity.length > 0 ? (
-                  <div>
-                    {recentActivity.map((activity) => (
-                      <ActivityItem key={activity.id} activity={activity} />
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-stone-400 text-sm py-8 text-center">No recent activity</p>
-                )}
-              </div>
-            </div>
+              {/* Activity & Events side by side */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-            {/* Upcoming Events */}
-            <div className="rounded-2xl bg-white border border-stone-200 overflow-hidden">
-              <div className="px-5 py-4 border-b border-stone-100 flex items-center justify-between">
-                <h2 className="text-sm font-semibold text-stone-900">Upcoming Events</h2>
-                <Link
-                  href="/admin/games"
-                  className="text-xs text-stone-500 hover:text-tne-red transition-colors flex items-center gap-1"
-                >
-                  View all <ChevronRight className="w-3 h-3" />
-                </Link>
-              </div>
-              <div className="px-5 py-2">
-                {loading ? (
-                  <div className="space-y-3 py-2">
-                    {[...Array(4)].map((_, i) => (
-                      <div key={i} className="h-12 bg-stone-100 rounded animate-pulse" />
-                    ))}
+                {/* Recent Activity (limited to 4) */}
+                <div className="rounded-2xl bg-white border border-stone-200 overflow-hidden">
+                  <div className="px-4 py-3 border-b border-stone-100 flex items-center justify-between">
+                    <h2 className="text-sm font-semibold text-stone-900">Recent Activity</h2>
+                    <Link
+                      href="/admin/registrations"
+                      className="text-[10px] text-stone-400 hover:text-tne-red transition-colors flex items-center gap-0.5"
+                    >
+                      View all <ChevronRight className="w-3 h-3" />
+                    </Link>
                   </div>
-                ) : upcomingEvents.length > 0 ? (
-                  <div>
-                    {upcomingEvents.map((event) => (
-                      <EventItem key={event.id} event={event} />
-                    ))}
+                  <div className="px-4 py-1">
+                    {loading ? (
+                      <div className="space-y-2 py-2">
+                        {[...Array(3)].map((_, i) => (
+                          <div key={i} className="h-10 bg-stone-100 rounded animate-pulse" />
+                        ))}
+                      </div>
+                    ) : recentActivity.length > 0 ? (
+                      <div>
+                        {recentActivity.slice(0, 4).map((activity) => (
+                          <ActivityItem key={activity.id} activity={activity} />
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-stone-400 text-sm py-6 text-center">No recent activity</p>
+                    )}
                   </div>
-                ) : (
-                  <p className="text-stone-400 text-sm py-8 text-center">No upcoming events</p>
-                )}
+                </div>
+
+                {/* Upcoming Events (limited to 4) */}
+                <div className="rounded-2xl bg-white border border-stone-200 overflow-hidden">
+                  <div className="px-4 py-3 border-b border-stone-100 flex items-center justify-between">
+                    <h2 className="text-sm font-semibold text-stone-900">Upcoming Events</h2>
+                    <Link
+                      href="/admin/games"
+                      className="text-[10px] text-stone-400 hover:text-tne-red transition-colors flex items-center gap-0.5"
+                    >
+                      View all <ChevronRight className="w-3 h-3" />
+                    </Link>
+                  </div>
+                  <div className="px-4 py-1">
+                    {loading ? (
+                      <div className="space-y-2 py-2">
+                        {[...Array(3)].map((_, i) => (
+                          <div key={i} className="h-10 bg-stone-100 rounded animate-pulse" />
+                        ))}
+                      </div>
+                    ) : upcomingEvents.length > 0 ? (
+                      <div>
+                        {upcomingEvents.slice(0, 4).map((event) => (
+                          <EventItem key={event.id} event={event} />
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-stone-400 text-sm py-6 text-center">No upcoming events</p>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
           </div>

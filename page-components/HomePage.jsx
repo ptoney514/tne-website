@@ -124,7 +124,7 @@ export default function HomePage() {
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-blue-400/30 bg-blue-500/10 backdrop-blur-md pointer-events-auto">
                 <div className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse"></div>
                 <span className="text-[10px] font-mono font-medium text-blue-300 uppercase tracking-widest">
-                  {tryoutsLabel} Tryouts Open
+                  {tryoutsLabel}
                 </span>
               </div>
             )}
@@ -132,7 +132,7 @@ export default function HomePage() {
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-green-400/30 bg-green-500/10 backdrop-blur-md pointer-events-auto">
                 <div className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"></div>
                 <span className="text-[10px] font-mono font-medium text-green-300 uppercase tracking-widest">
-                  {registrationLabel} Registration Open
+                  {registrationLabel}
                 </span>
               </div>
             )}

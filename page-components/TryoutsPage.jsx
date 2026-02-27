@@ -58,7 +58,7 @@ const faqItems = [
   {
     question: 'How much does it cost to try out?',
     answer:
-      'Tryouts have a $25 fee which is applied to season registration if selected. If selected for a team, full season fees range from $400-$600 depending on age group. We offer payment plans and limited financial assistance for families who qualify.',
+      'Tryouts are completely free. There is no cost to try out for TNE United Express. If selected for a team, full season fees range from $400-$600 depending on age group. We offer payment plans and limited financial assistance for families who qualify.',
   },
   {
     question: 'When will we find out if my child made a team?',

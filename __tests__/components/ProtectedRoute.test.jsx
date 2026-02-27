@@ -1,5 +1,5 @@
-import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { render, screen, act } from '@testing-library/react';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { AuthContext } from '@/contexts/AuthContext';
 
@@ -58,6 +58,8 @@ describe('ProtectedRoute', () => {
   });
 
   it('should redirect when user is not authenticated', () => {
+    vi.useFakeTimers();
+
     renderWithAuth(
       <ProtectedRoute>
         <div>Protected Content</div>
@@ -65,8 +67,18 @@ describe('ProtectedRoute', () => {
       mockAuthValue({ user: null })
     );
 
+    // Before grace period expires, should show loading — not redirect
+    expect(mockReplace).not.toHaveBeenCalled();
+
+    // Advance past the 1s grace period
+    act(() => {
+      vi.advanceTimersByTime(1000);
+    });
+
     expect(mockReplace).toHaveBeenCalledWith('/login?from=%2Fadmin');
     expect(screen.queryByText('Protected Content')).not.toBeInTheDocument();
+
+    vi.useRealTimers();
   });
 
   it('should show access denied when user lacks required role', () => {

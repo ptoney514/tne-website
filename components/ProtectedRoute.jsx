@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -11,14 +11,22 @@ export function ProtectedRoute({
   const router = useRouter();
   const pathname = usePathname();
 
+  // Grace period prevents flash-redirects when session cookie hasn't resolved yet.
+  // Middleware already handles server-side protection; this is a client-side safety net.
+  const [graceExpired, setGraceExpired] = useState(false);
   useEffect(() => {
-    if (!loading && !profileLoading && !user && !error) {
+    const timer = setTimeout(() => setGraceExpired(true), 1000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    if (graceExpired && !loading && !profileLoading && !user && !error) {
       router.replace(`${redirectTo}?from=${encodeURIComponent(pathname)}`);
     }
-  }, [loading, profileLoading, user, error, router, redirectTo, pathname]);
+  }, [graceExpired, loading, profileLoading, user, error, router, redirectTo, pathname]);
 
-  // Show loading state while checking auth or profile
-  if (loading || (user && profileLoading)) {
+  // Show loading state while checking auth, profile, or during grace period (when no user yet)
+  if (loading || (user && profileLoading) || (!graceExpired && !user)) {
     return (
       <div className="min-h-screen bg-[#050505] flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
