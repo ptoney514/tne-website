@@ -1,3 +1,5 @@
+'use client';
+
 import {
   CreditCard,
   ShieldCheck,
@@ -5,6 +7,8 @@ import {
   Receipt,
   CalendarCheck,
 } from 'lucide-react';
+import { useRegistrationStatus } from '@/hooks/useRegistrationStatus';
+import { useSeasonFees } from '@/hooks/useSeasonFees';
 
 function PayPalIcon({ className }) {
   return (
@@ -14,7 +18,25 @@ function PayPalIcon({ className }) {
   );
 }
 
+function formatCurrency(amount) {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(amount);
+}
+
 export default function PaymentForm() {
+  const { seasonId, seasonName, isRegistrationOpen, loading: statusLoading } = useRegistrationStatus();
+  const { fees, loading: feesLoading } = useSeasonFees(seasonId);
+
+  const statusText = statusLoading
+    ? 'Loading...'
+    : isRegistrationOpen
+      ? `${seasonName || 'Season'} Registration Open`
+      : `${seasonName || 'Season'} Registration Closed`;
+
   return (
     <div data-testid="payment-form">
       <div className="bg-white rounded-2xl border border-neutral-200 shadow-xl overflow-hidden">
@@ -36,10 +58,10 @@ export default function PaymentForm() {
         {/* Card Body */}
         <div className="p-8">
           {/* Season Indicator */}
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-neutral-100 rounded-full mb-8">
-            <div className="w-2 h-2 rounded-full bg-green-500" />
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-neutral-100 rounded-full mb-8" data-testid="season-status">
+            <div className={`w-2 h-2 rounded-full ${isRegistrationOpen ? 'bg-green-500' : 'bg-stone-400'}`} />
             <span className="text-xs font-medium text-neutral-700">
-              Fall/Winter 2025-26 Registration Open
+              {statusText}
             </span>
           </div>
 
@@ -73,13 +95,17 @@ export default function PaymentForm() {
                       className="w-full px-4 py-3 border border-neutral-300 rounded-lg text-neutral-900 bg-white focus:ring-2 focus:ring-tne-red focus:border-tne-red"
                       disabled
                     >
-                      <option>Boys Fall (3rd-8th) $300.00 USD</option>
-                      <option>Girls (3rd-8th) $450.00 USD</option>
-                      <option>Boys Winter Full (3rd-8th) $450.00 USD</option>
-                      <option>Jr. 3SSB (5th-8th) $1,400.00 USD</option>
-                      <option>Boys/Girls (K-2nd) Fall $200.00 USD</option>
-                      <option>Boys/Girls (K-2nd) Winter $200.00 USD</option>
-                      <option>Partial Payment $150.00 USD</option>
+                      {feesLoading ? (
+                        <option>Loading fees...</option>
+                      ) : fees.length > 0 ? (
+                        fees.map((fee) => (
+                          <option key={fee.id} value={fee.id}>
+                            {fee.name} {formatCurrency(fee.amount)} USD
+                          </option>
+                        ))
+                      ) : (
+                        <option>No fees available</option>
+                      )}
                     </select>
                   </div>
                   <div>

@@ -55,34 +55,38 @@ test.describe('Payments Page - Fee Schedule', () => {
     await expect(page.getByTestId('fee-schedule')).toBeVisible();
   });
 
-  test('should display season indicator', async ({ page }) => {
-    await expect(page.getByText('2025-26 Season')).toBeVisible();
+  test('should display a season indicator', async ({ page }) => {
+    // Season name is now dynamic from API — verify the indicator element exists
+    await expect(page.getByTestId('season-indicator')).toBeVisible();
+    const text = await page.getByTestId('season-indicator').textContent();
+    expect(text.length).toBeGreaterThan(0);
   });
 
   test('should display Fee Schedule heading', async ({ page }) => {
     await expect(page.getByRole('heading', { name: 'Fee Schedule' })).toBeVisible();
   });
 
-  test('should display all fee items', async ({ page }) => {
-    // Check for fee items within the fee schedule section
-    const feeSchedule = page.getByTestId('fee-schedule');
-    await expect(feeSchedule.getByText('Boys Fall (3rd-8th)')).toBeVisible();
-    await expect(feeSchedule.getByText('Girls (3rd-8th)')).toBeVisible();
-    await expect(feeSchedule.getByText('Boys Winter Full (3rd-8th)')).toBeVisible();
-    await expect(feeSchedule.getByText('Jr. 3SSB (5th-8th)')).toBeVisible();
-    await expect(feeSchedule.getByText('Boys/Girls (K-2nd) Fall')).toBeVisible();
-    await expect(feeSchedule.getByText('Boys/Girls (K-2nd) Winter')).toBeVisible();
-    await expect(feeSchedule.getByText('Partial Payment')).toBeVisible();
+  test('should display fee items or empty state', async ({ page }) => {
+    const feeList = page.getByTestId('fee-list');
+    await expect(feeList).toBeVisible();
+
+    // Dynamic fees: either fee items are present or empty state shows
+    const hasFeeItems = await feeList.locator('[data-testid^="fee-item-"]').count();
+    const hasEmptyState = await page.getByTestId('fee-empty-state').isVisible().catch(() => false);
+
+    expect(hasFeeItems > 0 || hasEmptyState).toBe(true);
   });
 
-  test('should display fee amounts', async ({ page }) => {
-    // Check fee amounts within the fee list
+  test('should display fee amounts in dollar format when fees exist', async ({ page }) => {
     const feeList = page.getByTestId('fee-list');
-    await expect(feeList.getByText('$300')).toBeVisible();
-    await expect(feeList.getByText('$450').first()).toBeVisible();
-    await expect(feeList.getByText('$1,400')).toBeVisible();
-    await expect(feeList.getByText('$200').first()).toBeVisible();
-    await expect(feeList.getByText('$150')).toBeVisible();
+    const feeItemCount = await feeList.locator('[data-testid^="fee-item-"]').count();
+
+    if (feeItemCount > 0) {
+      // Each fee item should display a dollar amount
+      const firstFeeItem = feeList.locator('[data-testid^="fee-item-"]').first();
+      const text = await firstFeeItem.textContent();
+      expect(text).toMatch(/\$/);
+    }
   });
 
   test('should display help section with contact info', async ({ page }) => {
@@ -107,10 +111,11 @@ test.describe('Payments Page - Payment Form', () => {
     await expect(page.getByText('Secure checkout via PayPal')).toBeVisible();
   });
 
-  test('should display registration status', async ({ page }) => {
-    await expect(
-      page.getByText('Fall/Winter 2025-26 Registration Open')
-    ).toBeVisible();
+  test('should display dynamic registration status', async ({ page }) => {
+    // Season status is now dynamic — verify the indicator element exists with content
+    await expect(page.getByTestId('season-status')).toBeVisible();
+    const text = await page.getByTestId('season-status').textContent();
+    expect(text.length).toBeGreaterThan(0);
   });
 
   test('should display PayPal embed container', async ({ page }) => {
