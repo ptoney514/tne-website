@@ -39,14 +39,16 @@ export default function TryoutSessionRow({ session, onClick }) {
 
   return (
     <div
-      role="button"
-      tabIndex={0}
-      onMouseEnter={() => setHovered(true)}
+      role={isFull ? undefined : 'button'}
+      tabIndex={isFull ? undefined : 0}
+      onMouseEnter={() => !isFull && setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      onClick={() => onClick(session)}
-      onKeyDown={(e) => e.key === 'Enter' && onClick(session)}
-      className={`grid grid-cols-[64px_1fr] sm:grid-cols-[72px_1fr_auto] items-center gap-4 sm:gap-5 px-4 sm:px-6 py-4 sm:py-[18px] rounded-2xl border border-neutral-200 bg-white cursor-pointer transition-all ${
-        hovered ? 'shadow-md -translate-y-px' : 'shadow-sm'
+      onClick={() => !isFull && onClick(session)}
+      onKeyDown={(e) => e.key === 'Enter' && !isFull && onClick(session)}
+      className={`grid grid-cols-[64px_1fr] sm:grid-cols-[72px_1fr_auto] items-center gap-4 sm:gap-5 px-4 sm:px-6 py-4 sm:py-[18px] rounded-2xl border border-neutral-200 bg-white transition-all ${
+        isFull
+          ? 'cursor-default opacity-75'
+          : `cursor-pointer ${hovered ? 'shadow-md -translate-y-px' : 'shadow-sm'}`
       }`}
     >
       {/* Date block */}

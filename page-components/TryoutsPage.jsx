@@ -529,7 +529,7 @@ export default function TryoutsPage() {
                     <div className="mt-7 mb-3">
                       <div className="flex items-center gap-3">
                         <h3 className="text-base font-bold text-neutral-900">
-                          Boys Summer 2026 Tryouts
+                          Boys {boys[0]?.season?.name || ''} Tryouts
                         </h3>
                         <span className="text-[11px] font-bold text-neutral-400 bg-neutral-100 px-2.5 py-0.5 rounded-full">
                           {boys.length} {boys.length === 1 ? 'session' : 'sessions'}
@@ -557,7 +557,7 @@ export default function TryoutsPage() {
                     <div className="mt-7 mb-3">
                       <div className="flex items-center gap-3">
                         <h3 className="text-base font-bold text-neutral-900">
-                          Girls Summer 2026 Tryouts
+                          Girls {girls[0]?.season?.name || ''} Tryouts
                         </h3>
                         <span className="text-[11px] font-bold text-neutral-400 bg-neutral-100 px-2.5 py-0.5 rounded-full">
                           {girls.length} {girls.length === 1 ? 'session' : 'sessions'}
@@ -580,7 +580,7 @@ export default function TryoutsPage() {
                 )}
 
                 {/* Empty filter state */}
-                {showBoys && boys.length === 0 && showGirls && girls.length === 0 && other.length === 0 && (
+                {(showBoys ? boys.length : 0) + (showGirls ? girls.length : 0) + other.length === 0 && (
                   <p className="text-center text-neutral-400 py-8">
                     No sessions found for this filter.
                   </p>
