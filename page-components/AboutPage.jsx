@@ -323,7 +323,7 @@ export default function AboutPage() {
                   <div className="relative">
                     <div className="absolute -inset-4 bg-gradient-to-b from-tne-red/20 to-transparent rounded-3xl blur-xl opacity-60" />
                     <img
-                      src={mitchHeadshot}
+                      src={mitchHeadshot.src}
                       alt="Mitch"
                       className="relative w-56 h-72 sm:w-72 sm:h-96 lg:w-80 lg:h-[420px] rounded-2xl object-cover object-top border-4 border-white/10 shadow-2xl grayscale group-hover:grayscale-0 transition-all duration-700"
                     />
