@@ -119,11 +119,11 @@ function SeasonDropdown({ isAdmin = false }) {
           {isAdmin && (
             <div className="border-t border-stone-100 p-1">
               <Link
-                href="/admin/settings/seasons"
+                href="/admin/seasons"
                 onClick={() => setIsOpen(false)}
                 className="block px-3 py-2 rounded-lg text-xs font-medium text-stone-600 hover:text-stone-900 hover:bg-stone-50 transition-colors"
               >
-                Manage Sessions
+                Manage Seasons
               </Link>
             </div>
           )}
@@ -260,6 +260,7 @@ export default function AdminNavbar() {
               <AdminNavLink href="/admin/teams">Teams</AdminNavLink>
               <AdminNavLink href="/admin/players">Players</AdminNavLink>
               {isAdmin && <AdminNavLink href="/admin/coaches">Coaches</AdminNavLink>}
+              {isAdmin && <AdminNavLink href="/admin/seasons">Seasons</AdminNavLink>}
               {isAdmin && (
                 <AdminNavLink href="/admin/tryouts" badge={stats.tryoutSignups}>
                   Tryouts
@@ -336,6 +337,17 @@ export default function AdminNavbar() {
                 }`}
               >
                 Coaches
+              </Link>
+            )}
+            {isAdmin && (
+              <Link
+                href="/admin/seasons"
+                onClick={() => setMobileMenuOpen(false)}
+                className={`block px-3 py-2 rounded-lg text-sm font-medium ${
+                  isMobileActive('/admin/seasons') ? 'bg-tne-red text-white' : 'text-stone-600 hover:bg-stone-100'
+                }`}
+              >
+                Seasons
               </Link>
             )}
             {isAdmin && (

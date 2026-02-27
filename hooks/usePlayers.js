@@ -1,7 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import { api } from '@/lib/api-client';
+import { useSeason } from '@/contexts/SeasonContext';
 
 export function usePlayers() {
+  const { selectedSeason } = useSeason();
   const [players, setPlayers] = useState([]);
   const [teams, setTeams] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -12,7 +14,8 @@ export function usePlayers() {
     setError(null);
 
     try {
-      const playersData = await api.get('/admin/players');
+      const params = selectedSeason?.id ? `?seasonId=${selectedSeason.id}` : '';
+      const playersData = await api.get(`/admin/players${params}`);
       // Transform team_assignments to teams for backwards compatibility
       const transformed = (playersData || []).map(player => ({
         ...player,
@@ -29,11 +32,12 @@ export function usePlayers() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [selectedSeason?.id]);
 
   const fetchTeams = useCallback(async () => {
     try {
-      const data = await api.get('/admin/teams');
+      const params = selectedSeason?.id ? `?seasonId=${selectedSeason.id}` : '';
+      const data = await api.get(`/admin/teams${params}`);
       setTeams((data || []).map(t => ({
         id: t.id,
         name: t.name,
@@ -42,7 +46,7 @@ export function usePlayers() {
     } catch (err) {
       console.error('Error fetching teams:', err);
     }
-  }, []);
+  }, [selectedSeason?.id]);
 
   useEffect(() => {
     fetchPlayers();
