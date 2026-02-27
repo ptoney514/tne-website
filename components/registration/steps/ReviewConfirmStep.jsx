@@ -4,6 +4,7 @@ import { useWizard } from '../WizardContext';
 import { validateStep4, validateSeasonStep3 } from '../wizardValidation';
 import SummaryCard from '../ui/SummaryCard';
 import Turnstile from '../ui/Turnstile';
+import { useSeasonFees } from '@/hooks/useSeasonFees';
 
 export default function ReviewConfirmStep({ onSubmit, isSubmitting }) {
   const {
@@ -21,6 +22,9 @@ export default function ReviewConfirmStep({ onSubmit, isSubmitting }) {
   const [turnstileError, setTurnstileError] = useState(null);
 
   const isSeason = registrationType === 'season';
+  const { fees: seasonFees, loading: feesLoading } = useSeasonFees(
+    isSeason ? formData.seasonId : null
+  );
 
   const handleWaiverChange = (field, checked) => {
     updateField(field, checked);
@@ -159,28 +163,34 @@ export default function ReviewConfirmStep({ onSubmit, isSubmitting }) {
         <div className="rounded-xl bg-blue-50 border border-blue-200 p-4">
           <div className="flex items-start gap-3">
             <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-            <div>
+            <div className="flex-1">
               <p className="text-sm font-medium text-blue-800 mb-2">Fee Preview (No Payment Due)</p>
-              <p className="text-sm text-blue-700 mb-3">
-                Once your player is placed on a team, the following fees will apply:
-              </p>
-              <div className="space-y-1.5 text-sm text-blue-800">
-                <div className="flex items-center justify-between">
-                  <span>3rd-8th Girls</span>
-                  <span className="font-medium">$450</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span>3rd-8th Boys</span>
-                  <span className="font-medium">$450</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span>5th-8th Boys Jr 3SSB</span>
-                  <span className="font-medium">$1,400</span>
-                </div>
-              </div>
-              <p className="text-xs text-blue-600 mt-3">
-                Payment methods: PayPal, Venmo, Cash App
-              </p>
+              {feesLoading ? (
+                <p className="text-sm text-blue-700">Loading fee information...</p>
+              ) : seasonFees.length > 0 ? (
+                <>
+                  <p className="text-sm text-blue-700 mb-3">
+                    Once your player is placed on a team, the following fees will apply:
+                  </p>
+                  <div className="space-y-1.5 text-sm text-blue-800">
+                    {seasonFees.map((fee) => (
+                      <div key={fee.id} className="flex items-center justify-between">
+                        <span>{fee.name}</span>
+                        <span className="font-medium">
+                          ${parseFloat(fee.amount).toLocaleString()}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-xs text-blue-600 mt-3">
+                    Payment methods: PayPal, Venmo, Cash App
+                  </p>
+                </>
+              ) : (
+                <p className="text-sm text-blue-700">
+                  Payment information will be updated soon. Please check with your coach in the meantime if you have any questions.
+                </p>
+              )}
             </div>
           </div>
         </div>

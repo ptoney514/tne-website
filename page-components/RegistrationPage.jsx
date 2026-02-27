@@ -7,6 +7,7 @@ import { WizardContent } from '@/components/registration/RegistrationWizard';
 import RegistrationSummaryPanel from '@/components/registration/ui/RegistrationSummaryPanel';
 import { useTeamRegistration } from '@/hooks/useTeamRegistration';
 import { useRegistrationStatus } from '@/hooks/useRegistrationStatus';
+import { api } from '@/lib/api-client';
 
 // Type selector cards — entry point for choosing season vs team registration
 function RegistrationTypeSelector({ onSelect, isTryoutsOpen, isRegistrationOpen, tryoutsLabel }) {
@@ -363,33 +364,48 @@ export default function RegistrationPage() {
 
   const { isRegistrationOpen, isTryoutsOpen, tryoutsLabel, registrationLabel, loading } = useRegistrationStatus();
 
-  // Build seasons list from config for the season selector
-  // For now, we use the tryoutsLabel and construct a season object
-  // In the future this could come from a dedicated API
+  // Build seasons list from API (admin-configured seasons)
   const [seasons, setSeasons] = useState([]);
 
   useEffect(() => {
-    fetch('/data/json/config.json')
-      .then(res => res.json())
-      .then(config => {
-        // Build available seasons for tryout registration
-        if (config.tryouts?.is_open && config.season) {
-          // Use a next season if available, otherwise use current season info
-          const nextSeasonId = config.tryouts?.next_season_id || `spring-${new Date().getFullYear()}`;
-          const nextSeasonName = config.tryouts?.next_season_name || config.tryouts?.label || `Spring ${new Date().getFullYear()}`;
-
-          setSeasons([{
-            id: nextSeasonId,
-            name: nextSeasonName,
-          }]);
+    api.get('/public/seasons')
+      .then(seasonsData => {
+        // Filter to seasons where tryouts or registration is open
+        const available = (seasonsData || []).filter(
+          s => s.tryouts_open || s.registration_open
+        );
+        if (available.length > 0) {
+          setSeasons(available.map(s => ({ id: s.id, name: s.name })));
+          return;
         }
+        // If no API seasons match, fall back to config.json
+        return fetch('/data/json/config.json')
+          .then(res => res.json())
+          .then(config => {
+            if (config.tryouts?.is_open && config.season) {
+              const nextSeasonId = config.tryouts?.next_season_id || `spring-${new Date().getFullYear()}`;
+              const nextSeasonName = config.tryouts?.next_season_name || config.tryouts?.label || `Spring ${new Date().getFullYear()}`;
+              setSeasons([{ id: nextSeasonId, name: nextSeasonName }]);
+            }
+          });
       })
       .catch(() => {
-        // Fallback season
-        setSeasons([{
-          id: `spring-${new Date().getFullYear()}`,
-          name: `Spring ${new Date().getFullYear()}`,
-        }]);
+        // Fallback to config.json on API error
+        fetch('/data/json/config.json')
+          .then(res => res.json())
+          .then(config => {
+            if (config.tryouts?.is_open && config.season) {
+              const nextSeasonId = config.tryouts?.next_season_id || `spring-${new Date().getFullYear()}`;
+              const nextSeasonName = config.tryouts?.next_season_name || config.tryouts?.label || `Spring ${new Date().getFullYear()}`;
+              setSeasons([{ id: nextSeasonId, name: nextSeasonName }]);
+            }
+          })
+          .catch(() => {
+            setSeasons([{
+              id: `spring-${new Date().getFullYear()}`,
+              name: `Spring ${new Date().getFullYear()}`,
+            }]);
+          });
       });
   }, []);
 

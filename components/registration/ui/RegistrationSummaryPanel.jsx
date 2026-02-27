@@ -2,28 +2,17 @@ import { useState } from 'react';
 import { ChevronDown, ChevronUp, Users, DollarSign, Shirt, CreditCard, Info } from 'lucide-react';
 import { useWizard } from '../WizardContext';
 import { getPaymentPlanDetails } from '@/constants/payments';
+import { useSeasonFees } from '@/hooks/useSeasonFees';
 
 export default function RegistrationSummaryPanel() {
-  const { formData, selectedTeam, currentStep, registrationType, teams } = useWizard();
+  const { formData, selectedTeam, currentStep, registrationType } = useWizard();
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const { fees, loading: feesLoading } = useSeasonFees(
+    registrationType === 'season' ? formData.seasonId : null
+  );
 
-  // Season mode: show dynamic fee preview derived from teams
+  // Season mode: show dynamic fee preview from API
   if (registrationType === 'season') {
-    // Derive unique fee tiers from loaded teams
-    const feeTiers = [];
-    if (teams && teams.length > 0) {
-      const tierMap = new Map();
-      for (const team of teams) {
-        const fee = parseFloat(team.team_fee);
-        if (!fee || fee <= 0) continue;
-        const key = `${fee}`;
-        if (!tierMap.has(key)) {
-          tierMap.set(key, { label: team.tier || team.name || 'Team', fee });
-        }
-      }
-      feeTiers.push(...Array.from(tierMap.values()).sort((a, b) => a.fee - b.fee));
-    }
-
     return (
       <div className="rounded-3xl bg-white border border-neutral-300 shadow-sm overflow-hidden sticky top-24">
         <button
@@ -44,24 +33,28 @@ export default function RegistrationSummaryPanel() {
 
         <div className={`${isCollapsed ? 'hidden md:block' : 'block'}`}>
           <div className="px-5 py-4">
-            {feeTiers.length > 0 ? (
+            {feesLoading ? (
+              <p className="text-sm text-neutral-500">Loading fee information...</p>
+            ) : fees.length > 0 ? (
               <div className="divide-y divide-neutral-100">
-                {feeTiers.map((tier, i) => (
-                  <div key={tier.label} className={`py-3 ${i === 0 ? 'first:pt-0' : ''} ${i === feeTiers.length - 1 ? 'last:pb-0' : ''}`}>
-                    <div className="flex items-center justify-between gap-3">
-                      <p className="font-medium text-neutral-900 text-sm">{tier.label}</p>
-                      <span className={`text-lg font-semibold ${tier.fee >= 1000 ? 'text-tne-red' : 'text-neutral-900'}`}>
-                        ${tier.fee.toLocaleString()}
-                      </span>
+                {fees.map((fee, i) => {
+                  const amount = parseFloat(fee.amount);
+                  return (
+                    <div key={fee.id} className={`py-3 ${i === 0 ? 'first:pt-0' : ''} ${i === fees.length - 1 ? 'last:pb-0' : ''}`}>
+                      <div className="flex items-center justify-between gap-3">
+                        <p className="font-medium text-neutral-900 text-sm">{fee.name}</p>
+                        <span className={`text-lg font-semibold ${amount >= 1000 ? 'text-tne-red' : 'text-neutral-900'}`}>
+                          ${amount.toLocaleString()}
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             ) : (
               <div className="py-1 space-y-1.5">
-                <p className="text-sm font-medium text-neutral-700">Season fees not yet announced</p>
                 <p className="text-sm text-neutral-500">
-                  Team fees will be shared shortly after tryouts and team formation.
+                  Payment information will be updated soon. Please check with your coach in the meantime if you have any questions.
                 </p>
               </div>
             )}
