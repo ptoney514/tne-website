@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { tryoutSignups, tryoutSessions } from '@/lib/schema';
 import { eq, sql } from 'drizzle-orm';
+import { sendTryoutConfirmation } from '@/lib/email';
 
 interface TryoutSignupPayload {
   tryout_session_id: string;
@@ -11,8 +12,8 @@ interface TryoutSignupPayload {
   player_graduating_year: number;
   player_current_grade: string;
   player_gender: 'male' | 'female';
-  parent_first_name: string;
-  parent_last_name: string;
+  parent_first_name?: string;
+  parent_last_name?: string;
   parent_email: string;
   parent_phone: string;
   emergency_contact_name?: string;
@@ -35,8 +36,6 @@ export async function POST(request: NextRequest) {
       'player_date_of_birth',
       'player_current_grade',
       'player_gender',
-      'parent_first_name',
-      'parent_last_name',
       'parent_email',
       'parent_phone',
     ];
@@ -86,15 +85,15 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Check for duplicate signup (same email + session)
+    // Check for duplicate signup (same player name + DOB + session)
     const [existing] = await db
       .select()
       .from(tryoutSignups)
       .where(
         sql`${tryoutSignups.sessionId} = ${body.tryout_session_id}
-            AND ${tryoutSignups.parentEmail} = ${body.parent_email}
             AND ${tryoutSignups.playerFirstName} = ${body.player_first_name}
-            AND ${tryoutSignups.playerLastName} = ${body.player_last_name}`
+            AND ${tryoutSignups.playerLastName} = ${body.player_last_name}
+            AND ${tryoutSignups.playerDateOfBirth} = ${body.player_date_of_birth}`
       )
       .limit(1);
 
@@ -118,10 +117,10 @@ export async function POST(request: NextRequest) {
         playerGraduatingYear: body.player_graduating_year,
         playerCurrentGrade: body.player_current_grade,
         playerGender: body.player_gender,
-        parentFirstName: body.parent_first_name,
-        parentLastName: body.parent_last_name,
-        parentEmail: body.parent_email,
-        parentPhone: body.parent_phone,
+        parentFirstName: body.parent_first_name ?? '',
+        parentLastName: body.parent_last_name ?? '',
+        parentEmail: body.parent_email ?? '',
+        parentPhone: body.parent_phone ?? '',
         emergencyContactName: body.emergency_contact_name ?? '',
         emergencyContactPhone: body.emergency_contact_phone ?? '',
         emergencyContactRelationship: body.emergency_contact_relationship,
@@ -131,6 +130,16 @@ export async function POST(request: NextRequest) {
         status: 'registered',
       })
       .returning();
+
+    // Fire-and-forget confirmation email
+    sendTryoutConfirmation({
+      to: body.parent_email,
+      playerName: `${body.player_first_name} ${body.player_last_name}`,
+      sessionDate: session.date,
+      sessionTime: `${session.startTime}${session.endTime ? ` - ${session.endTime}` : ''}`,
+      location: session.location,
+      grades: session.gradeLevels,
+    }).catch((err) => console.error('Failed to send confirmation email:', err));
 
     return NextResponse.json(
       {

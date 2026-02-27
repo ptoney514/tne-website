@@ -18,7 +18,6 @@ const relationshipOptions = [
 ];
 
 export default function TryoutRegistrationForm({
-  sessions,
   selectedSession,
   onSubmit,
   submitting,
@@ -27,7 +26,6 @@ export default function TryoutRegistrationForm({
   onReset,
 }) {
   const [formData, setFormData] = useState({
-    sessionId: selectedSession?.id || '',
     playerFirstName: '',
     playerLastName: '',
     playerDob: '',
@@ -50,11 +48,10 @@ export default function TryoutRegistrationForm({
     e.preventDefault();
     const result = await onSubmit({
       ...formData,
-      sessionId: formData.sessionId || selectedSession?.id || '',
+      sessionId: selectedSession?.id || '',
     });
     if (result.success) {
       setFormData({
-        sessionId: '',
         playerFirstName: '',
         playerLastName: '',
         playerDob: '',
@@ -68,16 +65,6 @@ export default function TryoutRegistrationForm({
         relationship: '',
       });
     }
-  };
-
-  const getSessionOptionLabel = (session) => {
-    const date = session.session_date || session.date || 'TBD';
-    const title =
-      session.description
-      || session.grade_levels
-      || session.grades
-      || 'Tryout Session';
-    return `${title} - ${date}`;
   };
 
   if (submitSuccess) {
@@ -126,36 +113,6 @@ export default function TryoutRegistrationForm({
             <p className="text-sm">{submitError}</p>
           </div>
         )}
-
-        {/* Session Selection */}
-        <div className="space-y-4">
-          <h3 className="text-sm font-medium text-neutral-900 uppercase tracking-wide">
-            Tryout Session
-          </h3>
-          <div>
-            <label
-              htmlFor="sessionId"
-              className="block text-sm font-medium text-neutral-700 mb-1"
-            >
-              Select Tryout Date *
-            </label>
-            <select
-              id="sessionId"
-              name="sessionId"
-              value={formData.sessionId || selectedSession?.id || ''}
-              onChange={handleChange}
-              required
-              className="block w-full rounded-xl border border-neutral-300 bg-neutral-50 px-4 py-2.5 text-sm text-neutral-900 focus:outline-none focus:ring-2 focus:ring-tne-red/50 focus:border-tne-red/50"
-            >
-              <option value="">Select a tryout date</option>
-              {sessions.map((session) => (
-                <option key={session.id} value={session.id}>
-                  {getSessionOptionLabel(session)}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
 
         {/* Player Info */}
         <div className="space-y-4">
@@ -292,48 +249,11 @@ export default function TryoutRegistrationForm({
           </div>
         </div>
 
-        {/* Parent/Guardian Info */}
+        {/* Contact Information (required) */}
         <div className="space-y-4 pt-2 border-t border-neutral-200">
           <h3 className="text-sm font-medium text-neutral-900 uppercase tracking-wide pt-2">
-            Parent/Guardian Information
+            Contact Information
           </h3>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div>
-              <label
-                htmlFor="parentFirstName"
-                className="block text-sm font-medium text-neutral-700 mb-1"
-              >
-                First Name *
-              </label>
-              <input
-                type="text"
-                id="parentFirstName"
-                name="parentFirstName"
-                value={formData.parentFirstName}
-                onChange={handleChange}
-                required
-                className="block w-full rounded-xl border border-neutral-300 bg-neutral-50 px-4 py-2.5 text-sm text-neutral-900 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-tne-red/50 focus:border-tne-red/50"
-              />
-            </div>
-            <div>
-              <label
-                htmlFor="parentLastName"
-                className="block text-sm font-medium text-neutral-700 mb-1"
-              >
-                Last Name *
-              </label>
-              <input
-                type="text"
-                id="parentLastName"
-                name="parentLastName"
-                value={formData.parentLastName}
-                onChange={handleChange}
-                required
-                className="block w-full rounded-xl border border-neutral-300 bg-neutral-50 px-4 py-2.5 text-sm text-neutral-900 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-tne-red/50 focus:border-tne-red/50"
-              />
-            </div>
-          </div>
-
           <div>
             <label
               htmlFor="parentEmail"
@@ -350,50 +270,90 @@ export default function TryoutRegistrationForm({
               required
               className="block w-full rounded-xl border border-neutral-300 bg-neutral-50 px-4 py-2.5 text-sm text-neutral-900 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-tne-red/50 focus:border-tne-red/50"
             />
+            <p className="mt-1 text-xs text-neutral-500">
+              We'll send your registration confirmation here
+            </p>
           </div>
+          <div>
+            <label
+              htmlFor="parentPhone"
+              className="block text-sm font-medium text-neutral-700 mb-1"
+            >
+              Phone Number *
+            </label>
+            <input
+              type="tel"
+              id="parentPhone"
+              name="parentPhone"
+              value={formData.parentPhone}
+              onChange={handleChange}
+              required
+              className="block w-full rounded-xl border border-neutral-300 bg-neutral-50 px-4 py-2.5 text-sm text-neutral-900 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-tne-red/50 focus:border-tne-red/50"
+              placeholder="(402) 555-0123"
+            />
+          </div>
+        </div>
 
+        {/* Parent/Guardian Details (optional) */}
+        <div className="space-y-4 pt-2 border-t border-neutral-200">
+          <h3 className="text-sm font-medium text-neutral-900 uppercase tracking-wide pt-2">
+            Parent/Guardian Details
+          </h3>
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
               <label
-                htmlFor="parentPhone"
+                htmlFor="parentFirstName"
                 className="block text-sm font-medium text-neutral-700 mb-1"
               >
-                Phone Number *
+                First Name
               </label>
               <input
-                type="tel"
-                id="parentPhone"
-                name="parentPhone"
-                value={formData.parentPhone}
+                type="text"
+                id="parentFirstName"
+                name="parentFirstName"
+                value={formData.parentFirstName}
                 onChange={handleChange}
-                required
                 className="block w-full rounded-xl border border-neutral-300 bg-neutral-50 px-4 py-2.5 text-sm text-neutral-900 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-tne-red/50 focus:border-tne-red/50"
-                placeholder="(402) 555-0123"
               />
             </div>
             <div>
               <label
-                htmlFor="relationship"
+                htmlFor="parentLastName"
                 className="block text-sm font-medium text-neutral-700 mb-1"
               >
-                Relationship *
+                Last Name
               </label>
-              <select
-                id="relationship"
-                name="relationship"
-                value={formData.relationship}
+              <input
+                type="text"
+                id="parentLastName"
+                name="parentLastName"
+                value={formData.parentLastName}
                 onChange={handleChange}
-                required
-                className="block w-full rounded-xl border border-neutral-300 bg-neutral-50 px-4 py-2.5 text-sm text-neutral-900 focus:outline-none focus:ring-2 focus:ring-tne-red/50 focus:border-tne-red/50"
-              >
-                <option value="">Select relationship</option>
-                {relationshipOptions.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
+                className="block w-full rounded-xl border border-neutral-300 bg-neutral-50 px-4 py-2.5 text-sm text-neutral-900 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-tne-red/50 focus:border-tne-red/50"
+              />
             </div>
+          </div>
+          <div>
+            <label
+              htmlFor="relationship"
+              className="block text-sm font-medium text-neutral-700 mb-1"
+            >
+              Relationship
+            </label>
+            <select
+              id="relationship"
+              name="relationship"
+              value={formData.relationship}
+              onChange={handleChange}
+              className="block w-full rounded-xl border border-neutral-300 bg-neutral-50 px-4 py-2.5 text-sm text-neutral-900 focus:outline-none focus:ring-2 focus:ring-tne-red/50 focus:border-tne-red/50"
+            >
+              <option value="">Select relationship</option>
+              {relationshipOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
 
