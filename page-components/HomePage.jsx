@@ -2,7 +2,6 @@ import { useEffect } from 'react';
 import Link from 'next/link';
 import {
   ArrowRight,
-  Activity,
   Users,
   GraduationCap,
   Award,
@@ -198,103 +197,6 @@ export default function HomePage() {
             United Express
           </h2>
         </div>
-
-        {/* ============================================
-             SECTION 03: DREAM CLASSIC TOURNAMENT
-             ============================================ */}
-        <section className="bg-white w-full relative overflow-hidden">
-          <div className="max-w-6xl mx-auto">
-            <div className="grid grid-cols-1 lg:grid-cols-2 min-h-[480px]">
-
-              {/* Left: MLK Image with Quote */}
-              <div className="relative h-[350px] lg:h-auto">
-                <img
-                  src="https://upload.wikimedia.org/wikipedia/commons/0/05/Martin_Luther_King%2C_Jr..jpg"
-                  alt="Dr. Martin Luther King Jr."
-                  className="w-full h-full object-cover object-top"
-                />
-
-                {/* Gradient Overlays */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-white hidden lg:block"></div>
-
-                {/* Quote Overlay */}
-                <div className="absolute bottom-0 left-0 right-0 p-8 lg:p-10 lg:pr-24">
-                  <blockquote className="text-white text-xl lg:text-2xl font-light italic leading-relaxed mb-3 drop-shadow-lg">
-                    "The time is always right to do what is right."
-                  </blockquote>
-                  <cite className="text-white/70 text-sm not-italic">— Dr. Martin Luther King Jr.</cite>
-                </div>
-              </div>
-
-              {/* Right: Event Info */}
-              <div className="relative p-8 lg:p-12 flex flex-col justify-center bg-white">
-                <div className="relative z-10">
-                  {/* Badge */}
-                  <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-tne-red text-white text-xs font-bold uppercase tracking-wider mb-6">
-                    11th Annual
-                  </div>
-
-                  {/* Title */}
-                  <h2 className="font-bebas text-5xl lg:text-6xl text-stone-900 uppercase tracking-tight leading-[0.9] mb-1">
-                    I Have A Dream
-                  </h2>
-                  <h3 className="font-bebas text-4xl lg:text-5xl text-tne-red uppercase tracking-tight leading-[0.9] mb-8">
-                    Classic
-                  </h3>
-
-                  {/* Date & Location */}
-                  <div className="space-y-3 mb-8">
-                    <div className="flex items-center gap-3 text-stone-900">
-                      <Calendar className="w-5 h-5 text-tne-red" />
-                      <span className="text-lg font-medium">January 2-4, 2026</span>
-                    </div>
-                    <div className="flex items-center gap-3 text-stone-600">
-                      <Activity className="w-5 h-5 text-tne-red" />
-                      <span>Council Bluffs, IA • Omaha, NE</span>
-                    </div>
-                  </div>
-
-                  {/* Quick Stats */}
-                  <div className="flex gap-8 mb-8 pb-8 border-b border-stone-200">
-                    <div>
-                      <div className="font-bebas text-3xl text-stone-900">118</div>
-                      <div className="text-xs text-stone-500 uppercase tracking-wider">Teams</div>
-                    </div>
-                    <div>
-                      <div className="font-bebas text-3xl text-stone-900">6</div>
-                      <div className="text-xs text-stone-500 uppercase tracking-wider">Divisions</div>
-                    </div>
-                    <div>
-                      <div className="font-bebas text-3xl text-stone-900">3</div>
-                      <div className="text-xs text-stone-500 uppercase tracking-wider">Venues</div>
-                    </div>
-                  </div>
-
-                  {/* CTA Buttons */}
-                  <div className="flex flex-wrap gap-4">
-                    <a
-                      href="https://tourneymachine.com/Public/Results/Tournament.aspx?IDTournament=h202508121637369103139b0b9bac248"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="px-6 py-3 bg-tne-red text-white text-sm font-semibold uppercase tracking-wider hover:bg-tne-red-dark transition-all flex items-center gap-2"
-                    >
-                      View Schedule
-                      <ArrowRight className="w-4 h-4" />
-                    </a>
-                    <Link
-                      href="/schedule"
-                      className="px-6 py-3 border border-stone-300 text-stone-700 text-sm font-semibold uppercase tracking-wider hover:bg-stone-50 transition-all rounded"
-                    >
-                      All Events
-                    </Link>
-                  </div>
-                </div>
-              </div>
-
-            </div>
-          </div>
-        </section>
 
         {/* ============================================
              SECTION 04: STATS (Dark)
