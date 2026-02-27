@@ -5,6 +5,7 @@ export * from './enums';
 export * from './userProfiles';
 export * from './neonAuth';
 export * from './seasons';
+export * from './seasonFees';
 export * from './coaches';
 export * from './teams';
 export * from './parents';
@@ -40,6 +41,11 @@ export type {
   Season,
   NewSeason,
 } from './seasons';
+
+export type {
+  SeasonFee,
+  NewSeasonFee,
+} from './seasonFees';
 
 export type {
   Coach,

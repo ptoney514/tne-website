@@ -14,6 +14,46 @@ import { test, expect } from '@playwright/test';
 // Helpers
 // ---------------------------------------------------------------------------
 
+const MOCK_SEASON_ID = '22222222-2222-2222-2222-222222222222';
+
+/**
+ * Mock the seasons and fees APIs to provide deterministic test data.
+ * Call this BEFORE page.goto() for the mocks to take effect.
+ */
+async function mockSeasonAPIs(page) {
+  await page.route('**/api/public/seasons**', async (route) => {
+    if (route.request().url().includes('/fees')) {
+      return route.fallback();
+    }
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify([{
+        id: MOCK_SEASON_ID,
+        name: 'Spring 2026',
+        start_date: '2026-03-01',
+        end_date: '2026-07-31',
+        is_active: true,
+        tryouts_open: true,
+        tryouts_label: 'Spring 2026 Tryouts',
+        registration_open: true,
+        registration_label: 'Spring 2026',
+      }]),
+    });
+  });
+  await page.route('**/api/public/seasons/*/fees', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify([
+        { id: 'fee-1', season_id: MOCK_SEASON_ID, name: '3rd-8th Girls', amount: '450.00', currency: 'USD', display_order: 1 },
+        { id: 'fee-2', season_id: MOCK_SEASON_ID, name: '3rd-8th Boys', amount: '450.00', currency: 'USD', display_order: 2 },
+        { id: 'fee-3', season_id: MOCK_SEASON_ID, name: '5th-8th Boys Jr 3SSB', amount: '1400.00', currency: 'USD', display_order: 3 },
+      ]),
+    });
+  });
+}
+
 /**
  * Navigate to registration page and select "Season" path.
  * Clears any saved draft first to avoid stale state.
@@ -101,10 +141,16 @@ test.describe('Season Registration - Type Selector', () => {
   });
 
   test('should show season card with tryout label', async ({ page }) => {
+    // Mock seasons API to ensure "Spring 2026 Tryouts" label
+    await mockSeasonAPIs(page);
+    await page.goto('/register');
+    await page.evaluate(() => localStorage.removeItem('tne_registration_draft'));
+    await page.waitForSelector('h1', { timeout: 10000 });
+
     await expect(page.getByText('Register for a Season')).toBeVisible();
     await expect(page.getByText('Sign up for tryouts for an upcoming season. No payment required.')).toBeVisible();
-    // Tryouts label badge (e.g. "Spring 2026 Tryouts")
-    await expect(page.getByText('Spring 2026 Tryouts')).toBeVisible();
+    // Tryouts label badge (e.g. "Spring 2026 Tryouts") — use .first() since it appears on multiple cards
+    await expect(page.getByText('Spring 2026 Tryouts').first()).toBeVisible();
   });
 
   test('should show team card with current teams label', async ({ page }) => {
@@ -125,11 +171,16 @@ test.describe('Season Registration - Step 1: Player & Season', () => {
   });
 
   test('should display season registration form with correct fields', async ({ page }) => {
+    // Mock seasons API to ensure "Spring 2026" name is available
+    await mockSeasonAPIs(page);
+    await page.goto('/register');
+    await selectSeasonRegistration(page);
+
     // "Register for Season" heading
     await expect(page.getByRole('heading', { name: 'Register for Season' })).toBeVisible();
 
     // Season should be shown as read-only text (single season auto-selected)
-    await expect(page.getByText('Spring 2026')).toBeVisible();
+    await expect(page.getByRole('main').getByText('Spring 2026')).toBeVisible();
 
     // Player info fields
     await expect(page.locator('input#playerFirstName')).toBeVisible();
@@ -216,13 +267,26 @@ test.describe('Season Registration - Full E2E Flow', () => {
   });
 
   test('should show fee preview with no payment due messaging on review', async ({ page }) => {
+    // Mock the fees API to ensure deterministic fee values
+    await page.route('**/api/public/seasons/*/fees', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify([
+          { id: 'fee-1', season_id: 'test', name: '3rd-8th Girls', amount: '450.00', currency: 'USD', display_order: 1 },
+          { id: 'fee-2', season_id: 'test', name: '3rd-8th Boys', amount: '450.00', currency: 'USD', display_order: 2 },
+          { id: 'fee-3', season_id: 'test', name: '5th-8th Boys Jr 3SSB', amount: '1400.00', currency: 'USD', display_order: 3 },
+        ]),
+      });
+    });
+
     await navigateToReviewStep(page);
 
     // Blue "Fee Preview (No Payment Due)" box
     await expect(page.getByText('Fee Preview (No Payment Due)')).toBeVisible();
     await expect(page.getByText('Once your player is placed on a team, the following fees will apply')).toBeVisible();
 
-    // Fee amounts
+    // Fee amounts from mocked API
     await expect(page.getByText('$450').first()).toBeVisible();
     await expect(page.getByText('$1,400').first()).toBeVisible();
   });
@@ -337,6 +401,9 @@ test.describe('Season Registration - Success Screen', () => {
       };
     });
 
+    // Mock seasons and fees APIs for deterministic data
+    await mockSeasonAPIs(page);
+
     // Mock the registration API endpoint
     await page.route('**/api/register', async (route) => {
       await route.fulfill({
@@ -371,7 +438,7 @@ test.describe('Season Registration - Success Screen', () => {
 
     // Verify success screen
     await expect(page.getByText(/You're Registered for/i)).toBeVisible({ timeout: 10000 });
-    await expect(page.getByText('Spring 2026')).toBeVisible();
+    await expect(page.getByRole('heading', { name: /Spring 2026/ })).toBeVisible();
 
     // Reference ID should be visible
     await expect(page.getByText('Reference ID')).toBeVisible();
@@ -392,16 +459,29 @@ test.describe('Season Registration - Success Screen', () => {
 
 test.describe('Season Registration - Sidebar', () => {
   test('should show season fee preview sidebar when in season mode', async ({ page }) => {
+    // Mock the fees API to ensure deterministic fee display
+    await page.route('**/api/public/seasons/*/fees', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify([
+          { id: 'fee-1', season_id: 'test', name: '3rd-8th Girls', amount: '450.00', currency: 'USD', display_order: 1 },
+          { id: 'fee-2', season_id: 'test', name: '3rd-8th Boys', amount: '450.00', currency: 'USD', display_order: 2 },
+          { id: 'fee-3', season_id: 'test', name: '5th-8th Boys Jr 3SSB', amount: '1400.00', currency: 'USD', display_order: 3 },
+        ]),
+      });
+    });
+
     await page.goto('/register');
     await selectSeasonRegistration(page);
 
     // Sidebar should show "Season Fee Preview" header
     await expect(page.getByText('Season Fee Preview')).toBeVisible();
 
-    // Fee breakdown
+    // Fee breakdown from mocked API
     await expect(page.getByText('3rd-8th Girls')).toBeVisible();
     await expect(page.getByText('3rd-8th Boys')).toBeVisible();
-    await expect(page.getByText('Jr 3SSB')).toBeVisible();
+    await expect(page.getByText('5th-8th Boys Jr 3SSB')).toBeVisible();
 
     // Footer text
     await expect(
