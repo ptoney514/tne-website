@@ -1,5 +1,6 @@
 import { Phone, Mail } from 'lucide-react';
 import InteriorLayout from '@/components/layouts/InteriorLayout';
+import SeasonBadge from '@/components/SeasonBadge';
 import FeeSchedule from '@/components/payments/FeeSchedule';
 import PaymentForm from '@/components/payments/PaymentForm';
 import PaymentFAQ from '@/components/payments/PaymentFAQ';
@@ -14,12 +15,7 @@ export default function PaymentsPage() {
 
         <div className="sm:px-6 sm:pt-16 sm:pb-14 max-w-6xl mx-auto pt-12 px-4 pb-10 relative">
           <div className="flex flex-col gap-6 animate-enter">
-            <div className="inline-flex items-center gap-2 rounded-md bg-white/5 border border-white/10 px-3 py-1.5 w-fit">
-              <span className="inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.8)]" />
-              <span className="font-mono uppercase tracking-[0.22em] text-[0.7rem] text-white/80">
-                2025-2026 Fall/Winter Season
-              </span>
-            </div>
+            <SeasonBadge />
 
             <div>
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tight text-white">

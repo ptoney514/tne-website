@@ -8,9 +8,9 @@ const faqItems = [
       'Tryouts are approximately 2-3 hours long and include skills assessment, drills, and scrimmages. Our coaches evaluate ball handling, shooting, defense, teamwork, and attitude. All skill levels are welcome, but players should be prepared for a competitive environment.',
   },
   {
-    question: 'What are the program fees?',
+    question: 'How much does it cost to try out?',
     answer:
-      'There is a $25 tryout fee that is applied toward season registration if selected. Full season fees range from $400-$600 depending on age group. This includes uniforms, tournament entry fees, and practice facility costs. Payment plans are available.',
+      'Tryouts are completely free. There is no cost to try out for TNE United Express. Season registration fees will be announced soon. Payment plans are available.',
   },
   {
     question: 'How will I know if my child made the team?',

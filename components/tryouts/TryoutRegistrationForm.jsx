@@ -417,8 +417,7 @@ export default function TryoutRegistrationForm({
             )}
           </button>
           <p className="mt-3 text-xs text-neutral-500">
-            By registering, you agree to our terms and conditions. A $25 tryout
-            fee is due at the time of tryout.
+            By registering, you agree to our terms and conditions.
           </p>
         </div>
       </form>
