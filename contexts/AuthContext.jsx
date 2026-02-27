@@ -12,7 +12,7 @@ export function AuthProvider({ children }) {
   const [profile, setProfile] = useState(null);
   const [profileLoading, setProfileLoading] = useState(false);
 
-  // Fetch profile when session user changes
+  // Fetch profile when session user changes (with retries for Neon Auth propagation)
   useEffect(() => {
     if (!session?.user?.id) {
       setProfile(null);
@@ -22,17 +22,27 @@ export function AuthProvider({ children }) {
     let cancelled = false;
     setProfileLoading(true);
 
-    fetch('/api/auth/profile')
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data) => {
-        if (!cancelled) setProfile(data);
-      })
-      .catch(() => {
-        if (!cancelled) setProfile(null);
-      })
-      .finally(() => {
-        if (!cancelled) setProfileLoading(false);
-      });
+    (async () => {
+      const delays = [0, 500, 1000, 2000];
+      let data = null;
+      for (const delay of delays) {
+        if (cancelled) return;
+        if (delay > 0) await new Promise((r) => setTimeout(r, delay));
+        try {
+          const res = await fetch('/api/auth/profile');
+          if (res.ok) {
+            data = await res.json();
+            break;
+          }
+        } catch {
+          // retry
+        }
+      }
+      if (!cancelled) {
+        setProfile(data);
+        setProfileLoading(false);
+      }
+    })();
 
     return () => {
       cancelled = true;
@@ -63,7 +73,7 @@ export function AuthProvider({ children }) {
 
       try {
         let profileData = null;
-        const delays = [0, 300, 600, 1200];
+        const delays = [500, 1000, 2000];
         for (const delay of delays) {
           if (delay > 0) await new Promise((r) => setTimeout(r, delay));
           profileData = await fetchProfile();

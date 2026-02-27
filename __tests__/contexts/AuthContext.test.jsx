@@ -125,7 +125,8 @@ describe('AuthContext', () => {
 
   describe('sign in', () => {
     it('should sign in user successfully', async () => {
-      const user = userEvent.setup();
+      vi.useFakeTimers({ shouldAdvanceTime: true });
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
       const mockUser = { id: 'user-123', email: 'test@example.com', role: 'admin' };
 
       mockUseSession.mockReturnValue({
@@ -136,6 +137,12 @@ describe('AuthContext', () => {
       mockSignIn.mockResolvedValue({
         data: { user: mockUser, session: { user: mockUser } },
         error: null,
+      });
+
+      // Mock profile fetch so signIn retry succeeds
+      vi.spyOn(global, 'fetch').mockResolvedValue({
+        ok: true,
+        json: async () => ({ role: 'admin', firstName: 'Test', lastName: 'User' }),
       });
 
       render(
@@ -157,7 +164,12 @@ describe('AuthContext', () => {
         password: 'password',
         rememberMe: false,
       });
-      expect(screen.getByTestId('sign-in-result').textContent).toBe('success');
+
+      await waitFor(() => {
+        expect(screen.getByTestId('sign-in-result').textContent).toBe('success');
+      });
+
+      vi.useRealTimers();
     });
 
     it('should handle sign in error', async () => {
