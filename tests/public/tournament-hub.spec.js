@@ -21,7 +21,7 @@ test.describe('Tournament Hub — Listing View', () => {
     // Wait for data to load
     await page.waitForTimeout(2000);
 
-    await expect(page.getByText('Filter', { exact: false })).toBeVisible();
+    await expect(page.getByText('Filter', { exact: true })).toBeVisible();
     await expect(
       page.getByRole('button', { name: 'All', exact: true })
     ).toBeVisible();
@@ -36,12 +36,12 @@ test.describe('Tournament Hub — Listing View', () => {
     await page.waitForTimeout(4000);
 
     // After loading, we should see either tournament cards or the empty state
-    const cardsOrEmpty = page.locator(
-      'text="No tournaments found", text="Featured", text="Boys", text="Girls"'
-    );
-    // Page body should have meaningful content beyond just the header
-    const bodyContent = await page.textContent('body');
-    expect(bodyContent).toContain('Tournaments');
+    const cardCount = await page.locator('main button').count();
+    const hasEmptyState = await page
+      .getByText(/No tournaments found/i)
+      .isVisible()
+      .catch(() => false);
+    expect(cardCount > 0 || hasEmptyState).toBe(true);
   });
 
   test('should display footer disclaimer when tournaments exist', async ({
@@ -51,8 +51,12 @@ test.describe('Tournament Hub — Listing View', () => {
 
     // The footer is only shown when the list renders (tournaments or empty state)
     // Check that the page loaded successfully by verifying filters are present
-    const filterLabel = page.getByText('Filter', { exact: false });
+    const filterLabel = page.getByText('Filter', { exact: true });
     await expect(filterLabel).toBeVisible();
+
+    // Verify the schedule disclaimer text is present
+    const bodyText = await page.textContent('body');
+    expect(bodyText).toMatch(/schedule.*subject to change|disclaimer/i);
   });
 });
 
@@ -90,7 +94,7 @@ test.describe('Tournament Hub — Filter Interaction', () => {
         .catch(() => false);
 
       // Either dropdown is visible or there are no teams (dropdown has no extra items)
-      expect(true).toBeTruthy();
+      expect(dropdownVisible).toBe(true);
     }
   });
 });

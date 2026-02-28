@@ -141,7 +141,7 @@ function TravelContent({ hotels, attractions, restaurants, details }) {
       {/* Sidebar */}
       <div className="order-2 lg:order-1 space-y-6">
         {/* Attractions */}
-        {attractions.length > 0 && (
+        {attractions.length > 0 && details?.showAttractions !== false && (
           <div className="rounded-2xl bg-white border border-neutral-200 p-5">
             <h4 className="text-lg font-semibold text-neutral-900 mb-4">Things to do nearby</h4>
             <div className="space-y-4">
@@ -169,7 +169,7 @@ function TravelContent({ hotels, attractions, restaurants, details }) {
         )}
 
         {/* Restaurants */}
-        {restaurants.length > 0 && (
+        {restaurants.length > 0 && details?.showRestaurants !== false && (
           <div className="rounded-2xl bg-white border border-neutral-200 p-5">
             <h4 className="text-lg font-semibold text-neutral-900 mb-4">Quick bites &amp; team dining</h4>
             <div className="space-y-3">
@@ -197,6 +197,7 @@ function TravelContent({ hotels, attractions, restaurants, details }) {
       </div>
 
       {/* Main column — Hotels */}
+      {details?.showHotels !== false && hotels.length > 0 && (
       <div className="order-1 lg:order-2">
         {/* Section header */}
         <div className="flex items-center gap-3 mb-5">
@@ -352,6 +353,7 @@ function TravelContent({ hotels, attractions, restaurants, details }) {
           })}
         </div>
       </div>
+      )}
     </div>
   );
 }
@@ -477,7 +479,10 @@ export default function TournamentHubDetail({ id, onBack }) {
 
   const { tournament, teams, venue, details, hotels, attractions, restaurants } = data;
 
-  const isTravelTournament = hotels.length > 0;
+  const isTravelTournament =
+    (hotels.length > 0 && details?.showHotels !== false) ||
+    (attractions.length > 0 && details?.showAttractions !== false) ||
+    (restaurants.length > 0 && details?.showRestaurants !== false);
   const isLocalTournament =
     !isTravelTournament &&
     details?.driveTime?.toLowerCase().includes('local');

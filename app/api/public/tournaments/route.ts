@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { games, gameTeams, teams, tournamentDetails, tournamentHotels, tournamentNearbyPlaces, hotels, nearbyPlaces, venues } from '@/lib/schema';
-import { eq, and, sql } from 'drizzle-orm';
+import { eq, and, inArray } from 'drizzle-orm';
 
 export async function GET(request: NextRequest) {
   try {
@@ -187,7 +187,7 @@ export async function GET(request: NextRequest) {
       })
       .from(gameTeams)
       .innerJoin(teams, eq(gameTeams.teamId, teams.id))
-      .where(sql`${gameTeams.gameId} IN ${gameIds}`);
+      .where(inArray(gameTeams.gameId, gameIds));
 
     // Build a map: gameId -> teams[]
     const teamsMap = new Map<string, { id: string; name: string; gender: string; gradeLevel: string }[]>();
@@ -205,7 +205,7 @@ export async function GET(request: NextRequest) {
     const allDetails = await db
       .select()
       .from(tournamentDetails)
-      .where(sql`${tournamentDetails.gameId} IN ${gameIds}`);
+      .where(inArray(tournamentDetails.gameId, gameIds));
 
     // Build a map: gameId -> detail
     const detailsMap = new Map<string, typeof allDetails[0]>();
@@ -223,7 +223,7 @@ export async function GET(request: NextRequest) {
       const allVenues = await db
         .select()
         .from(venues)
-        .where(sql`${venues.id} IN ${venueIds}`);
+        .where(inArray(venues.id, venueIds));
 
       for (const v of allVenues) {
         venuesMap.set(v.id, { name: v.name, city: v.city, state: v.state });
@@ -239,7 +239,7 @@ export async function GET(request: NextRequest) {
         .from(tournamentHotels)
         .where(
           and(
-            sql`${tournamentHotels.tournamentDetailId} IN ${detailIds}`,
+            inArray(tournamentHotels.tournamentDetailId, detailIds),
             eq(tournamentHotels.isTeamRate, true)
           )
         );
