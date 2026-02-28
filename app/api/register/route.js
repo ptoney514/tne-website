@@ -19,6 +19,10 @@ import { verifyTurnstile, isConfigured as isTurnstileConfigured } from '@/lib/tu
 import { appendRegistration, isConfigured as isSheetsConfigured } from '@/lib/googleSheets.js';
 import { insertRegistration, isDatabaseConfigured } from '@/lib/registrationDb.js';
 import { sendRegistrationConfirmation, sendAdminRegistrationNotification } from '@/lib/email';
+import { createRateLimiter } from '@/lib/rate-limit';
+
+// Rate limiter: 5 registrations per minute per IP
+const limiter = createRateLimiter('register', { max: 5, windowMs: 60_000 });
 
 /**
  * Fire-and-forget registration emails (parent confirmation + admin notification)
@@ -83,41 +87,6 @@ function sendRegistrationEmails(registration, referenceId) {
   }).catch((err) => console.error('[Register] Failed to send admin notification:', err));
 }
 
-// Simple rate limiting map (per IP, in-memory)
-// Note: This resets on each serverless cold start, but provides some protection
-const rateLimitMap = new Map();
-const RATE_LIMIT_WINDOW = 60000; // 1 minute
-const RATE_LIMIT_MAX = 5; // 5 requests per minute per IP
-
-/**
- * Check rate limit for an IP address
- */
-function checkRateLimit(ip) {
-  const now = Date.now();
-  const ipData = rateLimitMap.get(ip);
-
-  if (!ipData) {
-    rateLimitMap.set(ip, { count: 1, windowStart: now });
-    return { allowed: true };
-  }
-
-  // Reset window if expired
-  if (now - ipData.windowStart > RATE_LIMIT_WINDOW) {
-    rateLimitMap.set(ip, { count: 1, windowStart: now });
-    return { allowed: true };
-  }
-
-  // Check if under limit
-  if (ipData.count < RATE_LIMIT_MAX) {
-    ipData.count++;
-    return { allowed: true };
-  }
-
-  return {
-    allowed: false,
-    retryAfter: Math.ceil((RATE_LIMIT_WINDOW - (now - ipData.windowStart)) / 1000),
-  };
-}
 
 /**
  * Validate registration data server-side
@@ -186,21 +155,11 @@ function validateRegistration(data) {
  * Main handler for POST /api/register
  */
 export async function POST(request) {
+  // Rate limit check
+  const limited = limiter.check(request);
+  if (limited) return limited;
+
   try {
-    // Get client IP for rate limiting
-    const clientIP = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
-                     request.headers.get('x-real-ip') ||
-                     'unknown';
-
-    // Check rate limit
-    const rateLimit = checkRateLimit(clientIP);
-    if (!rateLimit.allowed) {
-      return NextResponse.json({
-        error: 'Too many registration attempts. Please try again later.',
-        retryAfter: rateLimit.retryAfter,
-      }, { status: 429 });
-    }
-
     // Parse request body
     const body = await request.json();
     const { registration, turnstileToken } = body || {};

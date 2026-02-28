@@ -3,6 +3,10 @@ import { db } from '@/lib/db';
 import { tryoutSignups, tryoutSessions } from '@/lib/schema';
 import { eq, sql } from 'drizzle-orm';
 import { sendTryoutConfirmation, sendAdminTryoutNotification } from '@/lib/email';
+import { createRateLimiter } from '@/lib/rate-limit';
+
+// Rate limiter: 5 signups per minute per IP
+const limiter = createRateLimiter('tryout-signup', { max: 5, windowMs: 60_000 });
 
 interface TryoutSignupPayload {
   tryout_session_id: string;
@@ -25,6 +29,10 @@ interface TryoutSignupPayload {
 }
 
 export async function POST(request: NextRequest) {
+  // Rate limit check
+  const limited = limiter.check(request);
+  if (limited) return limited;
+
   try {
     const body = (await request.json()) as TryoutSignupPayload;
 

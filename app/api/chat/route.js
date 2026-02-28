@@ -1,5 +1,9 @@
 import { NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
+import { createRateLimiter } from '@/lib/rate-limit';
+
+// Rate limiter: 10 requests per minute per IP (costs money per call)
+const limiter = createRateLimiter('chat', { max: 10, windowMs: 60_000 });
 
 // Validation constants
 const MAX_MESSAGE_LENGTH = 500;
@@ -51,6 +55,10 @@ const SYSTEM_PROMPT = `You are a friendly and helpful AI assistant for TNE Unite
 7. Emphasize the program's values: player development, community, and excellence`;
 
 export async function POST(request) {
+  // Rate limit check
+  const limited = limiter.check(request);
+  if (limited) return limited;
+
   // Check for API key
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
