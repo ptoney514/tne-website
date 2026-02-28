@@ -105,6 +105,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Compute graduating year from grade (e.g., 4th grader in 2025-26 school year → graduates 2034)
+    const currentYear = new Date().getFullYear();
+    const currentMonth = new Date().getMonth(); // 0-indexed
+    const springYear = currentMonth >= 7 ? currentYear + 1 : currentYear; // Aug+ = next spring
+    const gradeNum = parseInt(body.player_current_grade) || 8;
+    const graduatingYear = body.player_graduating_year || springYear + (12 - gradeNum);
+
     // Insert signup
     const [newSignup] = await db
       .insert(tryoutSignups)
@@ -113,7 +120,7 @@ export async function POST(request: NextRequest) {
         playerFirstName: body.player_first_name,
         playerLastName: body.player_last_name,
         playerDateOfBirth: body.player_date_of_birth,
-        playerGraduatingYear: body.player_graduating_year,
+        playerGraduatingYear: graduatingYear,
         playerCurrentGrade: body.player_current_grade,
         playerGender: body.player_gender,
         parentFirstName: body.parent_first_name ?? '',
