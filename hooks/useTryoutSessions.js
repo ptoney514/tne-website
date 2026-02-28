@@ -44,7 +44,7 @@ export function useTryoutSessions() {
         player_first_name: signupData.playerFirstName,
         player_last_name: signupData.playerLastName,
         player_date_of_birth: signupData.playerDob,
-        player_grade: signupData.playerGrade,
+        player_current_grade: signupData.playerGrade,
         player_gender: signupData.playerGender,
         parent_first_name: signupData.parentFirstName,
         parent_last_name: signupData.parentLastName,
