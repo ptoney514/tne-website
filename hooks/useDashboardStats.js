@@ -37,8 +37,15 @@ export function useDashboardStats() {
         tryoutSignups: data.tryouts?.recentSignups || 0,
       });
 
-      const activity = Array.isArray(registrations) ? registrations : [];
-      setRecentActivity(activity.slice(0, 6));
+      const regs = (Array.isArray(registrations) ? registrations : [])
+        .slice(0, 6)
+        .map(r => ({ ...r, type: 'registration' }));
+      const tryouts = (data.recentTryoutSignups || [])
+        .map(t => ({ ...t, type: 'tryout_signup' }));
+      const merged = [...regs, ...tryouts]
+        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+        .slice(0, 6);
+      setRecentActivity(merged);
       setUpcomingEvents([]);
     } catch (err) {
       console.error('Dashboard stats error:', err);

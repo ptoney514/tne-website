@@ -79,6 +79,12 @@ function RegistrationDetailPanel({
   const [isUpdating, setIsUpdating] = useState(false);
   const [selectedTeam, setSelectedTeam] = useState(registration.team_id || '');
 
+  useEffect(() => {
+    const handleEscape = (e) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', handleEscape);
+    return () => window.removeEventListener('keydown', handleEscape);
+  }, [onClose]);
+
   const handleStatusChange = async (newStatus) => {
     setIsUpdating(true);
     try {
@@ -147,7 +153,7 @@ function RegistrationDetailPanel({
   };
 
   return (
-    <div className="fixed right-0 top-0 h-full w-[480px] bg-white border-l border-stone-200 shadow-xl z-40 flex flex-col">
+    <div className="fixed right-0 top-14 bottom-0 w-[480px] bg-white border-l border-stone-200 shadow-xl z-40 flex flex-col">
       {/* Header */}
       <div className="flex items-center justify-between px-6 py-4 border-b border-stone-200 bg-stone-50">
         <div>

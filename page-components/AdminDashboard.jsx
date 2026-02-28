@@ -414,7 +414,14 @@ function ActivityItem({ activity }) {
     pending: 'bg-amber-500',
     approved: 'bg-green-500',
     rejected: 'bg-red-500',
+    registered: 'bg-blue-500',
+    attended: 'bg-emerald-500',
+    offered: 'bg-purple-500',
+    declined: 'bg-stone-400',
+    no_show: 'bg-red-400',
   };
+
+  const isTryout = activity.type === 'tryout_signup';
 
   const timeAgo = (dateString) => {
     const date = new Date(dateString);
@@ -437,7 +444,19 @@ function ActivityItem({ activity }) {
           <p className="text-sm font-medium text-stone-900">
             {activity.player_first_name} {activity.player_last_name}
           </p>
-          <p className="text-xs text-stone-500 capitalize">{activity.status}</p>
+          <div className="flex items-center gap-1.5">
+            <span className={`inline-flex items-center px-1.5 py-0.5 text-[10px] font-semibold rounded ${
+              isTryout
+                ? 'bg-blue-50 text-blue-700'
+                : 'bg-red-50 text-red-700'
+            }`}>
+              {isTryout ? 'TRYOUT' : 'REG'}
+            </span>
+            <span className="text-xs text-stone-500 capitalize">{activity.status}</span>
+            {isTryout && activity.session_name && (
+              <span className="text-xs text-stone-400 truncate max-w-[100px]">{activity.session_name}</span>
+            )}
+          </div>
         </div>
       </div>
       <div className="flex items-center gap-2">

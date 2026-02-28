@@ -39,6 +39,7 @@ export const tournamentDetails = pgTable(
     teamRateCode: text('team_rate_code'),
     teamRateDeadline: date('team_rate_deadline'),
     teamRateDescription: text('team_rate_description'),
+    driveTime: text('drive_time'), // e.g. "15 min", "3 hrs", "Local"
     mapCenterLat: doublePrecision('map_center_lat'),
     mapCenterLng: doublePrecision('map_center_lng'),
     mapZoomLevel: integer('map_zoom_level').default(13),

@@ -60,7 +60,7 @@ const XIcon = () => (
 function Badge({ count }) {
   if (!count || count === 0) return null;
   return (
-    <span className="absolute -top-1.5 -right-2.5 min-w-[18px] h-[18px] px-1 rounded-full bg-tne-red text-white text-[10px] font-bold flex items-center justify-center">
+    <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-tne-red text-white text-[10px] font-bold flex items-center justify-center">
       {count > 99 ? '99+' : count}
     </span>
   );
@@ -256,7 +256,7 @@ export default function AdminNavbar() {
             </Link>
 
             {/* Desktop Nav Links */}
-            <div className="hidden md:flex items-center gap-1">
+            <div className="hidden md:flex items-center gap-1.5">
               <AdminNavLink href="/admin/teams">Teams</AdminNavLink>
               <AdminNavLink href="/admin/players">Players</AdminNavLink>
               {isAdmin && <AdminNavLink href="/admin/coaches">Coaches</AdminNavLink>}

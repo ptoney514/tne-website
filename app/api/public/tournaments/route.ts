@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { games, gameTeams, teams, tournamentDetails, tournamentHotels, tournamentNearbyPlaces, hotels, nearbyPlaces, venues } from '@/lib/schema';
-import { eq, and, gte, sql } from 'drizzle-orm';
+import { eq, and, inArray } from 'drizzle-orm';
 
 export async function GET(request: NextRequest) {
   try {
@@ -144,6 +144,7 @@ export async function GET(request: NextRequest) {
           teamRateCode: detail[0].teamRateCode,
           teamRateDeadline: detail[0].teamRateDeadline,
           teamRateDescription: detail[0].teamRateDescription,
+          driveTime: detail[0].driveTime,
           mapCenter: {
             lat: detail[0].mapCenterLat || venue?.latitude,
             lng: detail[0].mapCenterLng || venue?.longitude,
@@ -162,60 +163,117 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(result);
     }
 
-    // List upcoming tournaments
-    const today = new Date().toISOString().split('T')[0];
-
-    const upcomingTournaments = await db
+    // List ALL tournaments (past + future) for season tabs
+    const allTournaments = await db
       .select()
       .from(games)
-      .where(
-        and(
-          eq(games.gameType, 'tournament'),
-          gte(games.date, today)
-        )
-      )
+      .where(eq(games.gameType, 'tournament'))
       .orderBy(games.date);
 
-    // Get team counts and details for each
-    const result = await Promise.all(
-      upcomingTournaments.map(async (t) => {
-        const teamCount = await db
-          .select({ count: sql<number>`count(*)` })
-          .from(gameTeams)
-          .where(eq(gameTeams.gameId, t.id));
+    if (allTournaments.length === 0) {
+      return NextResponse.json([]);
+    }
 
-        const detail = await db
-          .select()
-          .from(tournamentDetails)
-          .where(eq(tournamentDetails.gameId, t.id))
-          .limit(1);
+    const gameIds = allTournaments.map((t) => t.id);
 
-        let venue = null;
-        if (detail[0]?.venueId) {
-          const venueResult = await db
-            .select()
-            .from(venues)
-            .where(eq(venues.id, detail[0].venueId))
-            .limit(1);
-          venue = venueResult[0] || null;
-        }
-
-        return {
-          id: t.id,
-          name: t.name,
-          date: t.date,
-          endDate: t.endDate,
-          location: t.location,
-          externalUrl: t.externalUrl,
-          isFeatured: t.isFeatured,
-          teamsCount: Number(teamCount[0]?.count || 0),
-          divisionCount: detail[0]?.divisionCount,
-          totalTeams: detail[0]?.totalTeams,
-          venue: venue ? { name: venue.name, city: venue.city, state: venue.state } : null,
-          hasDetails: !!detail[0],
-        };
+    // Batch: get all team assignments
+    const allTeamAssignments = await db
+      .select({
+        gameId: gameTeams.gameId,
+        teamId: teams.id,
+        teamName: teams.name,
+        gender: teams.gender,
+        gradeLevel: teams.gradeLevel,
       })
-    );
+      .from(gameTeams)
+      .innerJoin(teams, eq(gameTeams.teamId, teams.id))
+      .where(inArray(gameTeams.gameId, gameIds));
+
+    // Build a map: gameId -> teams[]
+    const teamsMap = new Map<string, { id: string; name: string; gender: string; gradeLevel: string }[]>();
+    for (const row of allTeamAssignments) {
+      if (!teamsMap.has(row.gameId)) teamsMap.set(row.gameId, []);
+      teamsMap.get(row.gameId)!.push({
+        id: row.teamId,
+        name: row.teamName,
+        gender: row.gender,
+        gradeLevel: row.gradeLevel,
+      });
+    }
+
+    // Batch: get all tournament details
+    const allDetails = await db
+      .select()
+      .from(tournamentDetails)
+      .where(inArray(tournamentDetails.gameId, gameIds));
+
+    // Build a map: gameId -> detail
+    const detailsMap = new Map<string, typeof allDetails[0]>();
+    for (const d of allDetails) {
+      detailsMap.set(d.gameId, d);
+    }
+
+    // Batch: get venues for details that have venueIds
+    const venueIds = allDetails
+      .map((d) => d.venueId)
+      .filter((id): id is string => id !== null);
+
+    let venuesMap = new Map<string, { name: string | null; city: string | null; state: string | null }>();
+    if (venueIds.length > 0) {
+      const allVenues = await db
+        .select()
+        .from(venues)
+        .where(inArray(venues.id, venueIds));
+
+      for (const v of allVenues) {
+        venuesMap.set(v.id, { name: v.name, city: v.city, state: v.state });
+      }
+    }
+
+    // Batch: check which tournament details have team rates
+    const detailIds = allDetails.map((d) => d.id);
+    const hasTeamRateSet = new Set<string>();
+    if (detailIds.length > 0) {
+      const teamRateRows = await db
+        .select({ tournamentDetailId: tournamentHotels.tournamentDetailId })
+        .from(tournamentHotels)
+        .where(
+          and(
+            inArray(tournamentHotels.tournamentDetailId, detailIds),
+            eq(tournamentHotels.isTeamRate, true)
+          )
+        );
+
+      for (const row of teamRateRows) {
+        hasTeamRateSet.add(row.tournamentDetailId);
+      }
+    }
+
+    // Build response
+    const result = allTournaments.map((t) => {
+      const detail = detailsMap.get(t.id);
+      const venue = detail?.venueId ? venuesMap.get(detail.venueId) : null;
+      const tournamentTeams = teamsMap.get(t.id) || [];
+      const hasTeamRate = detail ? hasTeamRateSet.has(detail.id) : false;
+
+      return {
+        id: t.id,
+        seasonId: t.seasonId,
+        name: t.name,
+        date: t.date,
+        endDate: t.endDate,
+        location: t.location,
+        isFeatured: t.isFeatured,
+        driveTime: detail?.driveTime || null,
+        hasTeamRate,
+        totalTeams: detail?.totalTeams || null,
+        divisionCount: detail?.divisionCount || null,
+        ageDivisions: detail?.ageDivisions || null,
+        hasDetails: !!detail,
+        venue: venue ? { name: venue.name, city: venue.city, state: venue.state } : null,
+        teams: tournamentTeams,
+      };
+    });
 
     return NextResponse.json(result);
   } catch (error) {

@@ -6,11 +6,12 @@ import {
   coaches,
   registrations,
   tryoutSignups,
+  tryoutSessions,
   teamRoster,
   seasons,
 } from '@/lib/schema';
 import { requireRole, getCoachTeamIds } from '@/lib/auth-middleware';
-import { eq, sql, and, gte, lte, inArray } from 'drizzle-orm';
+import { eq, sql, and, gte, lte, inArray, desc } from 'drizzle-orm';
 
 export async function GET(request: NextRequest) {
   try {
@@ -108,6 +109,7 @@ export async function GET(request: NextRequest) {
           recentSignups: 0,
           label: 'Tryout Signups (30d)',
         },
+        recentTryoutSignups: [],
         current_season_id: currentSeasonId,
       };
 
@@ -124,6 +126,7 @@ export async function GET(request: NextRequest) {
       tryoutSignupsResult,
       rosterCountResult,
       registrationsByStatusResult,
+      recentTryoutSignupsResult,
     ] = await Promise.all([
       // Total teams (in current season if specified)
       db
@@ -177,6 +180,20 @@ export async function GET(request: NextRequest) {
         })
         .from(registrations)
         .groupBy(registrations.status),
+
+      // Recent tryout signups with session name
+      db.select({
+        id: tryoutSignups.id,
+        playerFirstName: tryoutSignups.playerFirstName,
+        playerLastName: tryoutSignups.playerLastName,
+        status: tryoutSignups.status,
+        sessionName: tryoutSessions.name,
+        createdAt: tryoutSignups.createdAt,
+      })
+      .from(tryoutSignups)
+      .leftJoin(tryoutSessions, eq(tryoutSignups.sessionId, tryoutSessions.id))
+      .orderBy(desc(tryoutSignups.createdAt))
+      .limit(6),
     ]);
 
     // Transform registrations by status
@@ -216,6 +233,14 @@ export async function GET(request: NextRequest) {
         recentSignups: tryoutSignupsResult[0]?.count || 0,
         label: 'Tryout Signups (30d)',
       },
+      recentTryoutSignups: recentTryoutSignupsResult.map(s => ({
+        id: s.id,
+        player_first_name: s.playerFirstName,
+        player_last_name: s.playerLastName,
+        status: s.status,
+        session_name: s.sessionName,
+        created_at: s.createdAt,
+      })),
       current_season_id: currentSeasonId,
     };
 
