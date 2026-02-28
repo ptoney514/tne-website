@@ -262,7 +262,7 @@ export default function TryoutRegistrationForm({
               htmlFor="parentEmail"
               className="block text-sm font-medium text-neutral-700 mb-1"
             >
-              Email Address *
+              Email Address
             </label>
             <input
               type="email"
@@ -270,12 +270,9 @@ export default function TryoutRegistrationForm({
               name="parentEmail"
               value={formData.parentEmail}
               onChange={handleChange}
-              required
               className="block w-full rounded-xl border border-neutral-300 bg-neutral-50 px-4 py-2.5 text-sm text-neutral-900 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-tne-red/50 focus:border-tne-red/50"
+              placeholder="Optional — we'll send confirmation if provided"
             />
-            <p className="mt-1 text-xs text-neutral-500">
-              We'll send your registration confirmation here
-            </p>
           </div>
           <div>
             <label

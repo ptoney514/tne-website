@@ -36,7 +36,6 @@ export async function POST(request: NextRequest) {
       'player_date_of_birth',
       'player_current_grade',
       'player_gender',
-      'parent_email',
       'parent_phone',
     ];
 
@@ -131,16 +130,18 @@ export async function POST(request: NextRequest) {
       })
       .returning();
 
-    // Fire-and-forget confirmation email
+    // Fire-and-forget confirmation email (only if email provided)
     const sessionTime = `${session.startTime}${session.endTime ? ` - ${session.endTime}` : ''}`;
-    sendTryoutConfirmation({
-      to: body.parent_email,
-      playerName: `${body.player_first_name} ${body.player_last_name}`,
-      sessionDate: session.date,
-      sessionTime,
-      location: session.location,
-      grades: session.gradeLevels,
-    }).catch((err) => console.error('Failed to send confirmation email:', err));
+    if (body.parent_email) {
+      sendTryoutConfirmation({
+        to: body.parent_email,
+        playerName: `${body.player_first_name} ${body.player_last_name}`,
+        sessionDate: session.date,
+        sessionTime,
+        location: session.location,
+        grades: session.gradeLevels,
+      }).catch((err) => console.error('Failed to send confirmation email:', err));
+    }
 
     // Fire-and-forget admin notification
     sendAdminTryoutNotification({
