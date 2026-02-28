@@ -140,7 +140,7 @@ function SignupDetailPanel({
   };
 
   return (
-    <div className="fixed right-0 top-0 h-full w-[480px] bg-white border-l border-stone-200 shadow-xl z-40 flex flex-col">
+    <div className="fixed right-0 top-0 h-full w-[480px] bg-white border-l border-stone-200 shadow-xl z-[60] flex flex-col">
       {/* Header */}
       <div className="flex items-center justify-between px-6 py-4 border-b border-stone-200 bg-stone-50">
         <div>
