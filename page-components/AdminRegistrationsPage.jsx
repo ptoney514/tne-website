@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useRegistrations } from '@/hooks/useRegistrations';
-import AdminNavbar from '@/components/AdminNavbar';
+
 import {
   GradeBadge,
   PaymentBadge,
@@ -52,7 +52,7 @@ function FilterDropdown({ value, options, onChange }) {
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="appearance-none pl-3 pr-8 py-1.5 rounded-lg border border-stone-300 text-sm text-stone-700 bg-white focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red cursor-pointer"
+        className="appearance-none pl-3 pr-8 py-1.5 rounded-lg border border-admin-card-border text-sm text-admin-text bg-white focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40 cursor-pointer"
       >
         {options.map((opt) => (
           <option key={opt.value} value={opt.value}>
@@ -60,7 +60,7 @@ function FilterDropdown({ value, options, onChange }) {
           </option>
         ))}
       </select>
-      <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400 pointer-events-none" />
+      <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-admin-text-muted pointer-events-none" />
     </div>
   );
 }
@@ -153,23 +153,23 @@ function RegistrationDetailPanel({
   };
 
   return (
-    <div className="fixed right-0 top-14 bottom-0 w-[480px] bg-white border-l border-stone-200 shadow-xl z-40 flex flex-col">
+    <div className="fixed right-0 top-0 bottom-0 w-[480px] bg-white border-l border-admin-card-border shadow-xl z-[60] flex flex-col">
       {/* Header */}
-      <div className="flex items-center justify-between px-6 py-4 border-b border-stone-200 bg-stone-50">
+      <div className="flex items-center justify-between px-6 py-4 border-b border-admin-card-border bg-admin-content-bg">
         <div>
-          <h2 className="text-lg font-semibold text-stone-900">
+          <h2 className="text-base font-bold text-admin-text">
             {registration.player_first_name} {registration.player_last_name}
           </h2>
-          <p className="text-sm text-stone-500">
+          <p className="text-sm text-admin-text-secondary">
             Submitted {formatDateTime(registration.created_at)}
             {registration.ip_address && (
-              <span className="ml-2 text-stone-400">({registration.ip_address})</span>
+              <span className="ml-2 text-admin-text-muted">({registration.ip_address})</span>
             )}
           </p>
         </div>
         <button
           onClick={onClose}
-          className="p-2 hover:bg-stone-100 rounded-lg transition-colors text-stone-500"
+          className="p-2 hover:bg-stone-100 rounded-lg transition-colors text-admin-text-secondary"
         >
           <X className="w-5 h-5" />
         </button>
@@ -191,7 +191,7 @@ function RegistrationDetailPanel({
 
         {/* Quick Actions */}
         <div className="space-y-3">
-          <h3 className="text-sm font-semibold text-stone-900 uppercase tracking-wide">Actions</h3>
+          <h3 className="text-sm font-semibold text-admin-text uppercase tracking-wide">Actions</h3>
           <div className="grid grid-cols-2 gap-2">
             {registration.status === 'pending' && (
               <>
@@ -217,7 +217,7 @@ function RegistrationDetailPanel({
               <button
                 onClick={handleConvert}
                 disabled={isUpdating}
-                className="col-span-2 flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-tne-red text-white text-sm font-medium hover:bg-tne-red-dark disabled:opacity-50"
+                className="col-span-2 flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-admin-red text-white text-sm font-medium hover:opacity-85 disabled:opacity-50"
               >
                 <UserPlus className="w-4 h-4" />
                 Convert to Player
@@ -231,7 +231,7 @@ function RegistrationDetailPanel({
               value={registration.payment_status}
               onChange={(e) => handlePaymentChange(e.target.value)}
               disabled={isUpdating}
-              className="flex-1 px-3 py-2 rounded-lg border border-stone-300 text-sm focus:outline-none focus:ring-2 focus:ring-tne-red/20"
+              className="flex-1 px-3 py-2 rounded-lg border border-admin-card-border text-sm focus:outline-none focus:ring-2 focus:ring-admin-red/20"
             >
               <option value="pending">Payment Pending</option>
               <option value="partial">Partial Payment</option>
@@ -245,7 +245,7 @@ function RegistrationDetailPanel({
             <select
               value={selectedTeam}
               onChange={(e) => setSelectedTeam(e.target.value)}
-              className="flex-1 px-3 py-2 rounded-lg border border-stone-300 text-sm focus:outline-none focus:ring-2 focus:ring-tne-red/20"
+              className="flex-1 px-3 py-2 rounded-lg border border-admin-card-border text-sm focus:outline-none focus:ring-2 focus:ring-admin-red/20"
             >
               <option value="">Assign to team...</option>
               {teams.map((team) => (
@@ -266,60 +266,60 @@ function RegistrationDetailPanel({
 
         {/* Player Info */}
         <div className="space-y-3">
-          <h3 className="text-sm font-semibold text-stone-900 uppercase tracking-wide">Player Information</h3>
-          <div className="bg-stone-50 rounded-xl p-4 space-y-3">
+          <h3 className="text-sm font-semibold text-admin-text uppercase tracking-wide">Player Information</h3>
+          <div className="bg-admin-content-bg rounded-[12px] p-4 space-y-3">
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <p className="text-xs text-stone-500">Full Name</p>
-                <p className="text-sm font-medium text-stone-900">
+                <p className="text-xs text-admin-text-secondary">Full Name</p>
+                <p className="text-sm font-medium text-admin-text">
                   {registration.player_first_name} {registration.player_last_name}
                 </p>
               </div>
               <div>
-                <p className="text-xs text-stone-500">Date of Birth</p>
-                <p className="text-sm font-medium text-stone-900">
+                <p className="text-xs text-admin-text-secondary">Date of Birth</p>
+                <p className="text-sm font-medium text-admin-text">
                   {formatDate(registration.player_date_of_birth)}
                 </p>
               </div>
               <div>
-                <p className="text-xs text-stone-500">Grade</p>
+                <p className="text-xs text-admin-text-secondary">Grade</p>
                 <GradeBadge grade={registration.player_current_grade} />
               </div>
               <div>
-                <p className="text-xs text-stone-500">Gender</p>
-                <p className="text-sm font-medium text-stone-900 capitalize">
+                <p className="text-xs text-admin-text-secondary">Gender</p>
+                <p className="text-sm font-medium text-admin-text capitalize">
                   {registration.player_gender}
                 </p>
               </div>
               <div>
-                <p className="text-xs text-stone-500">Jersey Size</p>
-                <p className="text-sm font-medium text-stone-900">
+                <p className="text-xs text-admin-text-secondary">Jersey Size</p>
+                <p className="text-sm font-medium text-admin-text">
                   {registration.jersey_size || '-'}
                 </p>
               </div>
               <div>
-                <p className="text-xs text-stone-500">Position</p>
-                <p className="text-sm font-medium text-stone-900 capitalize">
+                <p className="text-xs text-admin-text-secondary">Position</p>
+                <p className="text-sm font-medium text-admin-text capitalize">
                   {registration.position || '-'}
                 </p>
               </div>
               <div>
-                <p className="text-xs text-stone-500">Desired Jersey #</p>
-                <p className="text-sm font-medium text-stone-900">
+                <p className="text-xs text-admin-text-secondary">Desired Jersey #</p>
+                <p className="text-sm font-medium text-admin-text">
                   {registration.desired_jersey_number || '-'}
                 </p>
               </div>
               <div>
-                <p className="text-xs text-stone-500">Last Team</p>
-                <p className="text-sm font-medium text-stone-900">
+                <p className="text-xs text-admin-text-secondary">Last Team</p>
+                <p className="text-sm font-medium text-admin-text">
                   {registration.last_team_played_for || '-'}
                 </p>
               </div>
             </div>
             {registration.medical_notes && (
               <div>
-                <p className="text-xs text-stone-500">Medical Notes</p>
-                <p className="text-sm text-stone-700">{registration.medical_notes}</p>
+                <p className="text-xs text-admin-text-secondary">Medical Notes</p>
+                <p className="text-sm text-admin-text">{registration.medical_notes}</p>
               </div>
             )}
           </div>
@@ -327,39 +327,39 @@ function RegistrationDetailPanel({
 
         {/* Parent/Guardian Info */}
         <div className="space-y-3">
-          <h3 className="text-sm font-semibold text-stone-900 uppercase tracking-wide">Parent/Guardian</h3>
-          <div className="bg-stone-50 rounded-xl p-4 space-y-3">
+          <h3 className="text-sm font-semibold text-admin-text uppercase tracking-wide">Parent/Guardian</h3>
+          <div className="bg-admin-content-bg rounded-[12px] p-4 space-y-3">
             <div>
-              <p className="text-xs text-stone-500">Name</p>
-              <p className="text-sm font-medium text-stone-900">
+              <p className="text-xs text-admin-text-secondary">Name</p>
+              <p className="text-sm font-medium text-admin-text">
                 {registration.parent_first_name} {registration.parent_last_name}
-                <span className="text-stone-500 ml-2">({registration.parent_relationship})</span>
+                <span className="text-admin-text-secondary ml-2">({registration.parent_relationship})</span>
               </p>
             </div>
             <div className="flex items-center gap-2">
-              <Mail className="w-4 h-4 text-stone-400" />
-              <a href={`mailto:${registration.parent_email}`} className="text-sm text-tne-red hover:underline">
+              <Mail className="w-4 h-4 text-admin-text-muted" />
+              <a href={`mailto:${registration.parent_email}`} className="text-sm text-admin-red hover:underline">
                 {registration.parent_email}
               </a>
             </div>
             <div className="flex items-center gap-2">
-              <Phone className="w-4 h-4 text-stone-400" />
-              <a href={`tel:${registration.parent_phone}`} className="text-sm text-stone-700">
+              <Phone className="w-4 h-4 text-admin-text-muted" />
+              <a href={`tel:${registration.parent_phone}`} className="text-sm text-admin-text">
                 {registration.parent_phone}
               </a>
-              <span className="text-xs text-stone-400">Cell</span>
+              <span className="text-xs text-admin-text-muted">Cell</span>
             </div>
             {registration.parent_home_phone && (
               <div className="flex items-center gap-2">
-                <Phone className="w-4 h-4 text-stone-400" />
-                <span className="text-sm text-stone-700">{registration.parent_home_phone}</span>
-                <span className="text-xs text-stone-400">Home</span>
+                <Phone className="w-4 h-4 text-admin-text-muted" />
+                <span className="text-sm text-admin-text">{registration.parent_home_phone}</span>
+                <span className="text-xs text-admin-text-muted">Home</span>
               </div>
             )}
             {registration.parent_address_street && (
               <div>
-                <p className="text-xs text-stone-500">Address</p>
-                <p className="text-sm text-stone-700">
+                <p className="text-xs text-admin-text-secondary">Address</p>
+                <p className="text-sm text-admin-text">
                   {registration.parent_address_street}<br />
                   {registration.parent_address_city}, {registration.parent_address_state} {registration.parent_address_zip}
                 </p>
@@ -371,19 +371,19 @@ function RegistrationDetailPanel({
         {/* Parent/Guardian 2 */}
         {registration.parent2_name && (
           <div className="space-y-3">
-            <h3 className="text-sm font-semibold text-stone-900 uppercase tracking-wide">Parent/Guardian 2</h3>
-            <div className="bg-stone-50 rounded-xl p-4 space-y-2">
-              <p className="text-sm font-medium text-stone-900">{registration.parent2_name}</p>
+            <h3 className="text-sm font-semibold text-admin-text uppercase tracking-wide">Parent/Guardian 2</h3>
+            <div className="bg-admin-content-bg rounded-[12px] p-4 space-y-2">
+              <p className="text-sm font-medium text-admin-text">{registration.parent2_name}</p>
               {registration.parent2_phone && (
                 <div className="flex items-center gap-2">
-                  <Phone className="w-4 h-4 text-stone-400" />
-                  <span className="text-sm text-stone-700">{registration.parent2_phone}</span>
+                  <Phone className="w-4 h-4 text-admin-text-muted" />
+                  <span className="text-sm text-admin-text">{registration.parent2_phone}</span>
                 </div>
               )}
               {registration.parent2_email && (
                 <div className="flex items-center gap-2">
-                  <Mail className="w-4 h-4 text-stone-400" />
-                  <a href={`mailto:${registration.parent2_email}`} className="text-sm text-tne-red hover:underline">
+                  <Mail className="w-4 h-4 text-admin-text-muted" />
+                  <a href={`mailto:${registration.parent2_email}`} className="text-sm text-admin-red hover:underline">
                     {registration.parent2_email}
                   </a>
                 </div>
@@ -395,17 +395,17 @@ function RegistrationDetailPanel({
         {/* Emergency Contact */}
         {registration.emergency_contact_name && (
           <div className="space-y-3">
-            <h3 className="text-sm font-semibold text-stone-900 uppercase tracking-wide">Emergency Contact</h3>
-            <div className="bg-stone-50 rounded-xl p-4 space-y-2">
-              <p className="text-sm font-medium text-stone-900">
+            <h3 className="text-sm font-semibold text-admin-text uppercase tracking-wide">Emergency Contact</h3>
+            <div className="bg-admin-content-bg rounded-[12px] p-4 space-y-2">
+              <p className="text-sm font-medium text-admin-text">
                 {registration.emergency_contact_name}
                 {registration.emergency_contact_relationship && (
-                  <span className="text-stone-500 ml-2">({registration.emergency_contact_relationship})</span>
+                  <span className="text-admin-text-secondary ml-2">({registration.emergency_contact_relationship})</span>
                 )}
               </p>
               <div className="flex items-center gap-2">
-                <Phone className="w-4 h-4 text-stone-400" />
-                <span className="text-sm text-stone-700">{registration.emergency_contact_phone}</span>
+                <Phone className="w-4 h-4 text-admin-text-muted" />
+                <span className="text-sm text-admin-text">{registration.emergency_contact_phone}</span>
               </div>
             </div>
           </div>
@@ -414,10 +414,10 @@ function RegistrationDetailPanel({
         {/* Team Assignment */}
         {registration.team && (
           <div className="space-y-3">
-            <h3 className="text-sm font-semibold text-stone-900 uppercase tracking-wide">Assigned Team</h3>
-            <div className="bg-tne-red/5 border border-tne-red/20 rounded-xl p-4">
-              <p className="text-sm font-medium text-stone-900">{registration.team.name}</p>
-              <p className="text-xs text-stone-500">
+            <h3 className="text-sm font-semibold text-admin-text uppercase tracking-wide">Assigned Team</h3>
+            <div className="bg-admin-red/5 border border-admin-red/20 rounded-[12px] p-4">
+              <p className="text-sm font-medium text-admin-text">{registration.team.name}</p>
+              <p className="text-xs text-admin-text-secondary">
                 {registration.team.grade_level} • {registration.team.gender === 'male' ? 'Boys' : 'Girls'}
               </p>
             </div>
@@ -426,8 +426,8 @@ function RegistrationDetailPanel({
 
         {/* Waiver */}
         <div className="space-y-3">
-          <h3 className="text-sm font-semibold text-stone-900 uppercase tracking-wide">Waiver</h3>
-          <div className={`rounded-xl p-4 ${registration.waiver_accepted ? 'bg-emerald-50 border border-emerald-200' : 'bg-red-50 border border-red-200'}`}>
+          <h3 className="text-sm font-semibold text-admin-text uppercase tracking-wide">Waiver</h3>
+          <div className={`rounded-[12px] p-4 ${registration.waiver_accepted ? 'bg-emerald-50 border border-emerald-200' : 'bg-red-50 border border-red-200'}`}>
             <div className="flex items-center gap-2">
               {registration.waiver_accepted ? (
                 <CheckCircle className="w-4 h-4 text-emerald-600" />
@@ -439,7 +439,7 @@ function RegistrationDetailPanel({
               </span>
             </div>
             {registration.waiver_accepted_at && (
-              <p className="text-xs text-stone-500 mt-1">
+              <p className="text-xs text-admin-text-secondary mt-1">
                 Accepted on {formatDateTime(registration.waiver_accepted_at)}
               </p>
             )}
@@ -448,7 +448,7 @@ function RegistrationDetailPanel({
       </div>
 
       {/* Footer */}
-      <div className="px-6 py-4 border-t border-stone-200 bg-stone-50">
+      <div className="px-6 py-4 border-t border-admin-card-border bg-admin-content-bg">
         <button
           onClick={() => {
             if (confirm('Are you sure you want to delete this registration?')) {
@@ -631,30 +631,27 @@ export default function AdminRegistrationsPage() {
   }, [teams]);
 
   return (
-    <div className="bg-stone-100 text-stone-900 antialiased min-h-screen font-sans">
-      <AdminNavbar />
-
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
+    <>
+      <div className="max-w-7xl mx-auto">
         {/* Page Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
           <div>
-            <h1 className="text-2xl font-bold text-stone-900">Registrations</h1>
-            <p className="text-sm text-stone-500 mt-1">
+            <h1 className="text-[22px] font-extrabold text-admin-text tracking-[-0.02em]">Registrations</h1>
+            <p className="text-sm text-admin-text-secondary mt-1">
               {filteredRegistrations.length} of {registrations.length} registration{registrations.length !== 1 ? 's' : ''}
             </p>
           </div>
           <div className="flex items-center gap-2">
             <button
               onClick={refetch}
-              className="p-2 text-stone-400 hover:text-stone-600 hover:bg-stone-100 rounded-lg transition-colors"
+              className="p-2 text-admin-text-muted hover:text-admin-text-secondary hover:bg-stone-100 rounded-lg transition-colors"
               title="Refresh"
             >
               <RefreshCw className="w-4 h-4" />
             </button>
             <button
               onClick={handleExport}
-              className="p-2 text-stone-400 hover:text-stone-600 hover:bg-stone-100 rounded-lg transition-colors"
+              className="p-2 text-admin-text-muted hover:text-admin-text-secondary hover:bg-stone-100 rounded-lg transition-colors"
               title="Export CSV"
             >
               <Download className="w-4 h-4" />
@@ -663,17 +660,17 @@ export default function AdminRegistrationsPage() {
         </div>
 
         {/* Filter Card */}
-        <div className="bg-white rounded-2xl border border-stone-200 shadow-sm p-4 mb-4">
+        <div className="bg-white rounded-[14px] border-[1.5px] border-admin-card-border shadow-sm p-4 mb-4">
           <div className="flex flex-col lg:flex-row lg:items-center gap-4">
             {/* Search */}
             <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-admin-text-muted" />
               <input
                 type="text"
                 placeholder="Search by name or email..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-tne-maroon/20 focus:border-tne-maroon/50 transition-all"
+                className="w-full pl-10 pr-4 py-2.5 bg-admin-content-bg border border-admin-card-border rounded-[12px] text-sm focus:outline-none focus:ring-2 focus:ring-tne-maroon/20 focus:border-tne-maroon/50 transition-all"
               />
             </div>
 
@@ -710,8 +707,8 @@ export default function AdminRegistrationsPage() {
           </div>
 
           {/* Quick Filter Pills */}
-          <div className="flex flex-wrap items-center gap-2 mt-4 pt-4 border-t border-stone-100">
-            <span className="text-xs text-stone-400 font-medium">Quick filters:</span>
+          <div className="flex flex-wrap items-center gap-2 mt-4 pt-4 border-t border-[#F2F2F0]">
+            <span className="text-xs text-admin-text-muted font-medium">Quick filters:</span>
 
             <FilterPill
               active={quickFilters.pending}
@@ -745,7 +742,7 @@ export default function AdminRegistrationsPage() {
             {hasActiveFilters && (
               <button
                 onClick={clearFilters}
-                className="flex items-center gap-1 px-2 py-1.5 rounded-lg text-xs text-stone-500 hover:text-stone-700 hover:bg-stone-100 transition-colors ml-2"
+                className="flex items-center gap-1 px-2 py-1.5 rounded-lg text-xs text-admin-text-secondary hover:text-admin-text hover:bg-stone-100 transition-colors ml-2"
               >
                 <X className="w-3 h-3" />
                 Clear all
@@ -755,7 +752,7 @@ export default function AdminRegistrationsPage() {
         </div>
 
         {/* Registrations Table */}
-        <div className="bg-white rounded-2xl border border-stone-200 shadow-sm overflow-hidden">
+        <div className="bg-white rounded-[14px] border-[1.5px] border-admin-card-border shadow-sm overflow-hidden">
             {error && (
               <div className="m-4 px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm flex items-center gap-2">
                 <AlertCircle className="w-4 h-4" />
@@ -766,49 +763,49 @@ export default function AdminRegistrationsPage() {
             {loading ? (
               <div className="p-4 space-y-3">
                 {[...Array(10)].map((_, i) => (
-                  <div key={i} className="h-14 bg-stone-100 rounded animate-pulse" />
+                  <div key={i} className="h-14 bg-admin-content-bg rounded animate-pulse" />
                 ))}
               </div>
             ) : filteredRegistrations.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-16 text-center">
-                <Calendar className="w-12 h-12 text-stone-300 mb-4" />
-                <h3 className="text-lg font-medium text-stone-900 mb-2">
+                <Calendar className="w-12 h-12 text-admin-text-muted mb-4" />
+                <h3 className="text-lg font-medium text-admin-text mb-2">
                   {hasActiveFilters ? 'No registrations found' : 'No registrations yet'}
                 </h3>
-                <p className="text-stone-500 mb-6">
+                <p className="text-admin-text-secondary mb-6">
                   {hasActiveFilters ? 'Try adjusting your filters' : 'Registrations will appear here when submitted'}
                 </p>
               </div>
             ) : (
               <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-stone-50 sticky top-0">
+                <thead className="bg-admin-content-bg sticky top-0">
                   <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-stone-500 uppercase tracking-wider">
+                    <th className="px-4 py-3 text-left text-xs font-medium text-admin-text-secondary uppercase tracking-wider">
                       Player
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-stone-500 uppercase tracking-wider">
+                    <th className="px-4 py-3 text-left text-xs font-medium text-admin-text-secondary uppercase tracking-wider">
                       Grade
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-stone-500 uppercase tracking-wider">
+                    <th className="px-4 py-3 text-left text-xs font-medium text-admin-text-secondary uppercase tracking-wider">
                       Parent/Guardian
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-stone-500 uppercase tracking-wider">
+                    <th className="px-4 py-3 text-left text-xs font-medium text-admin-text-secondary uppercase tracking-wider">
                       Team
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-stone-500 uppercase tracking-wider">
+                    <th className="px-4 py-3 text-left text-xs font-medium text-admin-text-secondary uppercase tracking-wider">
                       Status
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-stone-500 uppercase tracking-wider">
+                    <th className="px-4 py-3 text-left text-xs font-medium text-admin-text-secondary uppercase tracking-wider">
                       Payment
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-stone-500 uppercase tracking-wider">
+                    <th className="px-4 py-3 text-left text-xs font-medium text-admin-text-secondary uppercase tracking-wider">
                       Submitted
                     </th>
                     <th className="px-4 py-3 w-10"></th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-stone-100">
+                <tbody className="divide-y divide-[#F2F2F0]">
                   {filteredRegistrations.map((reg) => {
                     const isSelected = selectedRegistration?.id === reg.id;
                     const isPending = reg.status === 'pending';
@@ -827,14 +824,14 @@ export default function AdminRegistrationsPage() {
                       >
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-full bg-tne-red flex items-center justify-center text-white text-xs font-semibold">
+                            <div className="w-9 h-9 rounded-full bg-admin-red flex items-center justify-center text-white text-xs font-semibold">
                               {reg.player_first_name[0]}{reg.player_last_name[0]}
                             </div>
                             <div>
-                              <p className="font-medium text-stone-900">
+                              <p className="font-medium text-admin-text">
                                 {reg.player_first_name} {reg.player_last_name}
                               </p>
-                              <p className="text-xs text-stone-500 capitalize">
+                              <p className="text-xs text-admin-text-secondary capitalize">
                                 {reg.player_gender}
                               </p>
                             </div>
@@ -844,16 +841,16 @@ export default function AdminRegistrationsPage() {
                           <GradeBadge grade={reg.player_current_grade} />
                         </td>
                         <td className="px-4 py-3">
-                          <p className="text-sm text-stone-900">
+                          <p className="text-sm text-admin-text">
                             {reg.parent_first_name} {reg.parent_last_name}
                           </p>
-                          <p className="text-xs text-stone-500">{reg.parent_email}</p>
+                          <p className="text-xs text-admin-text-secondary">{reg.parent_email}</p>
                         </td>
                         <td className="px-4 py-3">
                           {reg.team ? (
-                            <span className="text-sm text-stone-700">{reg.team.name}</span>
+                            <span className="text-sm text-admin-text">{reg.team.name}</span>
                           ) : (
-                            <span className="text-sm text-stone-400">Unassigned</span>
+                            <span className="text-sm text-admin-text-muted">Unassigned</span>
                           )}
                         </td>
                         <td className="px-4 py-3">
@@ -862,11 +859,11 @@ export default function AdminRegistrationsPage() {
                         <td className="px-4 py-3">
                           <PaymentBadge status={reg.payment_status} />
                         </td>
-                        <td className="px-4 py-3 text-sm text-stone-500">
+                        <td className="px-4 py-3 text-sm text-admin-text-secondary">
                           {formatDate(reg.created_at)}
                         </td>
                         <td className="px-4 py-3">
-                          <ChevronRight className="w-4 h-4 text-stone-400" />
+                          <ChevronRight className="w-4 h-4 text-admin-text-muted" />
                         </td>
                       </tr>
                     );
@@ -876,7 +873,7 @@ export default function AdminRegistrationsPage() {
               </div>
             )}
         </div>
-      </main>
+      </div>
 
       {/* Detail Panel */}
       {selectedRegistration && (
@@ -891,6 +888,6 @@ export default function AdminRegistrationsPage() {
           onDelete={deleteRegistration}
         />
       )}
-    </div>
+    </>
   );
 }

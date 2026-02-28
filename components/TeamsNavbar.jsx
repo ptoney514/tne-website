@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { Menu, LogOut, User, ChevronDown, Settings, X } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
@@ -211,10 +212,12 @@ export default function TeamsNavbar() {
         <div className="sm:px-6 flex h-20 max-w-7xl mx-auto px-4 items-center justify-between relative">
           {/* Left: Logo + Brand Text */}
           <Link href="/" className="flex items-center gap-3 hover:opacity-90 transition-opacity z-10">
-            <img
-              src={tneLogoWhite.src}
+            <Image
+              src={tneLogoWhite}
               alt="TNE United Express"
-              className="h-[88px] w-[88px] object-contain"
+              width={88}
+              height={88}
+              className="object-contain"
             />
             <span className="hidden lg:block text-white font-bebas text-xl tracking-wide">
               TNE <span className="text-tne-red">United</span> Express

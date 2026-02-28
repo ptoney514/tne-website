@@ -13,7 +13,7 @@ const TABS = [
 
 export default function TeamDetailTabs({ activeTab, onTabChange }) {
   return (
-    <div className="bg-white border-b border-stone-200">
+    <div className="bg-white border-b border-admin-card-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <nav className="flex gap-8 -mb-px overflow-x-auto">
           {TABS.map((tab) => (
@@ -24,15 +24,15 @@ export default function TeamDetailTabs({ activeTab, onTabChange }) {
                 relative px-1 py-4 text-sm font-medium whitespace-nowrap transition-colors
                 ${
                   activeTab === tab.id
-                    ? 'text-tne-red'
-                    : 'text-stone-500 hover:text-stone-700'
+                    ? 'text-admin-red'
+                    : 'text-admin-text-secondary hover:text-admin-text'
                 }
               `}
             >
               {tab.label}
               {/* Active indicator */}
               {activeTab === tab.id && (
-                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-tne-red" />
+                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-admin-red" />
               )}
             </button>
           ))}

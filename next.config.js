@@ -10,6 +10,14 @@ const nextConfig = {
   outputFileTracingRoot: __dirname,
   skipTrailingSlashRedirect: true,
 
+  // Allow optimized images from external sources
+  images: {
+    remotePatterns: [
+      { protocol: 'https', hostname: 'images.unsplash.com' },
+      { protocol: 'https', hostname: 'images.pexels.com' },
+    ],
+  },
+
   // Proxy PostHog requests to avoid ad blockers
   async rewrites() {
     return [

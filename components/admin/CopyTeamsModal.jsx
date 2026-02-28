@@ -76,23 +76,23 @@ export default function CopyTeamsModal({ isOpen, targetSeason, seasons, onClose,
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="bg-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-xl">
+      <div className="bg-white rounded-[14px] w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-xl">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-stone-200">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-admin-card-border">
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-lg bg-blue-50">
               <Copy className="w-5 h-5 text-blue-600" />
             </div>
             <div>
-              <h2 className="text-lg font-semibold text-stone-900">Copy Teams</h2>
-              <p className="text-xs text-stone-500">
+              <h2 className="text-base font-bold text-admin-text">Copy Teams</h2>
+              <p className="text-xs text-admin-text-secondary">
                 to {targetSeason?.name}
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1 hover:bg-stone-100 rounded-lg transition-colors text-stone-500"
+            className="p-1 hover:bg-stone-100 rounded-lg transition-colors text-admin-text-secondary"
           >
             <X className="w-5 h-5" />
           </button>
@@ -107,13 +107,13 @@ export default function CopyTeamsModal({ isOpen, targetSeason, seasons, onClose,
 
           {/* Source season selector */}
           <div>
-            <label className="block text-sm font-medium text-stone-700 mb-1.5">
+            <label className="block text-sm font-medium text-admin-text mb-1.5">
               Copy teams from
             </label>
             <select
               value={sourceSeasonId}
               onChange={(e) => setSourceSeasonId(e.target.value)}
-              className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+              className="w-full px-3 py-2 rounded-lg border border-admin-card-border text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
             >
               <option value="">Select a season...</option>
               {sourceOptions.map((s) => (
@@ -127,22 +127,22 @@ export default function CopyTeamsModal({ isOpen, targetSeason, seasons, onClose,
           {/* Preview */}
           {loadingPreview ? (
             <div className="flex items-center justify-center py-8">
-              <Loader2 className="w-6 h-6 text-stone-400 animate-spin" />
+              <Loader2 className="w-6 h-6 text-admin-text-muted animate-spin" />
             </div>
           ) : sourceTeams.length > 0 ? (
             <div>
-              <p className="text-sm font-medium text-stone-700 mb-2">
+              <p className="text-sm font-medium text-admin-text mb-2">
                 {sourceTeams.length} team{sourceTeams.length !== 1 ? 's' : ''} will be copied:
               </p>
               <div className="space-y-2 max-h-48 overflow-y-auto">
                 {sourceTeams.map((team) => (
                   <div
                     key={team.id}
-                    className="flex items-center justify-between px-3 py-2 rounded-lg bg-stone-50 border border-stone-100"
+                    className="flex items-center justify-between px-3 py-2 rounded-lg bg-admin-content-bg border border-[#F2F2F0]"
                   >
                     <div>
-                      <p className="text-sm font-medium text-stone-900">{team.name}</p>
-                      <p className="text-xs text-stone-500">
+                      <p className="text-sm font-medium text-admin-text">{team.name}</p>
+                      <p className="text-xs text-admin-text-secondary">
                         {team.grade_level} &middot; {team.gender}
                         {team.head_coach && ` \u00b7 Coach ${team.head_coach.first_name} ${team.head_coach.last_name}`}
                       </p>
@@ -170,14 +170,14 @@ export default function CopyTeamsModal({ isOpen, targetSeason, seasons, onClose,
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-lg border border-stone-300 text-stone-700 hover:bg-stone-50 transition-colors"
+              className="px-4 py-2 rounded-lg border border-admin-card-border text-admin-text hover:bg-stone-50 transition-colors"
             >
               Cancel
             </button>
             <button
               onClick={handleCopy}
               disabled={!sourceSeasonId || sourceTeams.length === 0 || copying}
-              className="px-4 py-2 rounded-lg bg-tne-red hover:bg-tne-red-dark text-white font-medium transition-colors disabled:opacity-50 flex items-center gap-2"
+              className="px-4 py-2 rounded-lg bg-admin-red hover:opacity-85 text-white font-medium transition-colors disabled:opacity-50 flex items-center gap-2"
             >
               {copying && <Loader2 className="w-4 h-4 animate-spin" />}
               Copy {sourceTeams.length > 0 ? `${sourceTeams.length} Teams` : 'Teams'}

@@ -192,7 +192,7 @@ export function FilterPill({ active, onClick, children, count, icon, variant = '
         inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-full
         border transition-all
         ${variantStyles[variant]}
-        ${active ? 'ring-2 ring-offset-1 ring-tne-red/30' : ''}
+        ${active ? 'ring-2 ring-offset-1 ring-admin-red/30' : ''}
       `}
       data-testid="filter-pill"
       data-active={active}
@@ -214,7 +214,7 @@ export function FilterPill({ active, onClick, children, count, icon, variant = '
 export function QuickFilterGroup({ label, children }) {
   return (
     <>
-      <span className="text-xs text-stone-400 font-medium">{label}:</span>
+      <span className="text-xs text-admin-text-muted font-medium">{label}:</span>
       {children}
     </>
   );

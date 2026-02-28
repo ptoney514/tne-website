@@ -117,12 +117,12 @@ export default function ExcelDropZone({ onFileSelect, disabled = false }) {
           transition-all duration-200 cursor-pointer
           ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
           ${isDragging
-            ? 'border-tne-red bg-tne-red/5 scale-[1.01]'
+            ? 'border-admin-red bg-admin-red/5 scale-[1.01]'
             : selectedFile
               ? 'border-green-500 bg-green-500/5'
               : error
                 ? 'border-red-500 bg-red-500/5'
-                : 'border-stone-300 hover:border-stone-400 bg-stone-50 hover:bg-stone-100'
+                : 'border-admin-card-border hover:border-stone-400 bg-admin-content-bg hover:bg-stone-100'
           }
         `}
       >
@@ -132,11 +132,11 @@ export default function ExcelDropZone({ onFileSelect, disabled = false }) {
               <div className="p-3 rounded-full bg-green-100 mb-3">
                 <FileSpreadsheet className="w-8 h-8 text-green-600" />
               </div>
-              <p className="text-sm font-medium text-stone-900">{selectedFile.name}</p>
-              <p className="text-xs text-stone-500 mt-1">{formatFileSize(selectedFile.size)}</p>
+              <p className="text-sm font-medium text-admin-text">{selectedFile.name}</p>
+              <p className="text-xs text-admin-text-secondary mt-1">{formatFileSize(selectedFile.size)}</p>
               <button
                 onClick={handleClear}
-                className="mt-3 flex items-center gap-1 text-xs text-stone-500 hover:text-red-600 transition-colors"
+                className="mt-3 flex items-center gap-1 text-xs text-admin-text-secondary hover:text-red-600 transition-colors"
               >
                 <X className="w-3 h-3" />
                 Remove file
@@ -148,18 +148,18 @@ export default function ExcelDropZone({ onFileSelect, disabled = false }) {
                 <AlertCircle className="w-8 h-8 text-red-600" />
               </div>
               <p className="text-sm text-red-600 font-medium">{error}</p>
-              <p className="text-xs text-stone-500 mt-2">Click to try again</p>
+              <p className="text-xs text-admin-text-secondary mt-2">Click to try again</p>
             </>
           ) : (
             <>
-              <div className={`p-3 rounded-full mb-3 ${isDragging ? 'bg-tne-red/10' : 'bg-stone-200'}`}>
-                <Upload className={`w-8 h-8 ${isDragging ? 'text-tne-red' : 'text-stone-400'}`} />
+              <div className={`p-3 rounded-full mb-3 ${isDragging ? 'bg-admin-red/10' : 'bg-stone-200'}`}>
+                <Upload className={`w-8 h-8 ${isDragging ? 'text-admin-red' : 'text-admin-text-muted'}`} />
               </div>
-              <p className="text-sm font-medium text-stone-700">
+              <p className="text-sm font-medium text-admin-text">
                 {isDragging ? 'Drop your file here' : 'Drag & drop your Excel file'}
               </p>
-              <p className="text-xs text-stone-500 mt-1">or click to browse</p>
-              <p className="text-[10px] text-stone-400 mt-3">
+              <p className="text-xs text-admin-text-secondary mt-1">or click to browse</p>
+              <p className="text-[10px] text-admin-text-muted mt-3">
                 Supports .xlsx and .xls files up to 10MB
               </p>
             </>

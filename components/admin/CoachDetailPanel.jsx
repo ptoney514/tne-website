@@ -22,8 +22,8 @@ function TabButton({ active, onClick, children }) {
       onClick={onClick}
       className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
         active
-          ? 'border-tne-red text-tne-red'
-          : 'border-transparent text-stone-500 hover:text-stone-700 hover:border-stone-300'
+          ? 'border-admin-red text-admin-red'
+          : 'border-transparent text-admin-text-secondary hover:text-admin-text hover:border-admin-card-border'
       }`}
     >
       {children}
@@ -36,24 +36,24 @@ function CertCard({ label, description, hasIt }) {
   return (
     <div
       className={`p-3 rounded-lg border ${
-        hasIt ? 'border-green-200 bg-green-50' : 'border-stone-200 bg-stone-50'
+        hasIt ? 'border-green-200 bg-green-50' : 'border-admin-card-border bg-admin-content-bg'
       }`}
     >
       <div className="flex items-start justify-between">
         <div>
           <p
             className={`text-sm font-medium ${
-              hasIt ? 'text-green-900' : 'text-stone-500'
+              hasIt ? 'text-green-900' : 'text-admin-text-secondary'
             }`}
           >
             {label}
           </p>
-          <p className="text-xs text-stone-500 mt-0.5">{description}</p>
+          <p className="text-xs text-admin-text-secondary mt-0.5">{description}</p>
         </div>
         {hasIt ? (
           <CheckCircle className="w-5 h-5 text-green-600" />
         ) : (
-          <XCircle className="w-5 h-5 text-stone-300" />
+          <XCircle className="w-5 h-5 text-admin-text-muted" />
         )}
       </div>
     </div>
@@ -64,7 +64,7 @@ function CertCard({ label, description, hasIt }) {
 function TeamCard({ team }) {
   const color = getGradeColor(team.grade_level);
   return (
-    <div className="p-3 rounded-lg border border-stone-200 bg-white">
+    <div className="p-3 rounded-lg border border-admin-card-border bg-white">
       <div className="flex items-center gap-3">
         <div
           className="w-8 h-8 rounded-lg flex items-center justify-center text-white text-xs font-bold"
@@ -73,10 +73,10 @@ function TeamCard({ team }) {
           {formatGradeShort(team.grade_level)}
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium text-stone-900 truncate">
+          <p className="text-sm font-medium text-admin-text truncate">
             {team.name}
           </p>
-          <p className="text-xs text-stone-500">
+          <p className="text-xs text-admin-text-secondary">
             {team.role === 'head' ? 'Head Coach' : 'Assistant Coach'}
           </p>
         </div>
@@ -92,21 +92,21 @@ function HistoryItem({ team }) {
   const isCurrentSeason = team.season?.is_active;
 
   return (
-    <div className="flex items-start gap-3 py-3 border-b border-stone-100 last:border-0">
+    <div className="flex items-start gap-3 py-3 border-b border-[#F2F2F0] last:border-0">
       <div
         className="w-2 h-2 rounded-full mt-1.5 flex-shrink-0"
         style={{ backgroundColor: color.hex }}
       />
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
-          <p className="text-sm font-medium text-stone-900">{team.name}</p>
+          <p className="text-sm font-medium text-admin-text">{team.name}</p>
           {isCurrentSeason && (
             <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-green-100 text-green-700">
               CURRENT
             </span>
           )}
         </div>
-        <p className="text-xs text-stone-500">
+        <p className="text-xs text-admin-text-secondary">
           {team.role} \u2022 {seasonName}
         </p>
       </div>
@@ -118,12 +118,12 @@ function HistoryItem({ team }) {
 function StatBox({ label, value, icon }) {
   const IconComponent = icon;
   return (
-    <div className="p-3 rounded-lg bg-stone-50 border border-stone-100">
+    <div className="p-3 rounded-lg bg-admin-content-bg border border-[#F2F2F0]">
       <div className="flex items-center gap-2 mb-1">
-        <IconComponent className="w-4 h-4 text-stone-400" />
-        <span className="text-xs text-stone-500">{label}</span>
+        <IconComponent className="w-4 h-4 text-admin-text-muted" />
+        <span className="text-xs text-admin-text-secondary">{label}</span>
       </div>
-      <p className="text-xl font-bold text-stone-900">{value}</p>
+      <p className="text-xl font-bold text-admin-text">{value}</p>
     </div>
   );
 }
@@ -180,19 +180,19 @@ export default function CoachDetailPanel({ coach, onClose, onEdit, onDelete }) {
   const seasons = [...new Set(history.map((h) => h.season?.name))].filter(Boolean);
 
   return (
-    <div className="fixed right-0 top-14 bottom-0 w-[480px] bg-white border-l border-stone-200 shadow-xl flex flex-col z-40">
+    <div className="fixed right-0 top-0 bottom-0 w-[480px] bg-white border-l border-admin-card-border shadow-xl flex flex-col z-[60]">
       {/* Header */}
-      <div className="flex items-center justify-between px-6 py-4 border-b border-stone-200">
+      <div className="flex items-center justify-between px-6 py-4 border-b border-admin-card-border">
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-tne-maroon to-tne-red flex items-center justify-center text-white text-lg font-bold">
             {coach.first_name[0]}
             {coach.last_name[0]}
           </div>
           <div>
-            <h2 className="text-lg font-semibold text-stone-900">
+            <h2 className="text-base font-bold text-admin-text">
               {coach.first_name} {coach.last_name}
             </h2>
-            <p className="text-sm text-stone-500">
+            <p className="text-sm text-admin-text-secondary">
               {roleLabel}
               {coach.years_with_org > 0 &&
                 ` \u2022 ${coach.years_with_org} year${
@@ -204,21 +204,21 @@ export default function CoachDetailPanel({ coach, onClose, onEdit, onDelete }) {
         <div className="flex items-center gap-1">
           <button
             onClick={() => onEdit(coach)}
-            className="p-2 rounded-lg hover:bg-stone-100 transition-colors text-stone-400 hover:text-stone-600"
+            className="p-2 rounded-lg hover:bg-stone-100 transition-colors text-admin-text-muted hover:text-admin-text-secondary"
             title="Edit coach"
           >
             <Edit className="w-4 h-4" />
           </button>
           <button
             onClick={() => onDelete(coach)}
-            className="p-2 rounded-lg hover:bg-red-50 transition-colors text-stone-400 hover:text-red-500"
+            className="p-2 rounded-lg hover:bg-red-50 transition-colors text-admin-text-muted hover:text-red-500"
             title="Delete coach"
           >
             <Trash2 className="w-4 h-4" />
           </button>
           <button
             onClick={onClose}
-            className="p-2 rounded-lg hover:bg-stone-100 transition-colors text-stone-400 hover:text-stone-600"
+            className="p-2 rounded-lg hover:bg-stone-100 transition-colors text-admin-text-muted hover:text-admin-text-secondary"
           >
             <X className="w-5 h-5" />
           </button>
@@ -226,7 +226,7 @@ export default function CoachDetailPanel({ coach, onClose, onEdit, onDelete }) {
       </div>
 
       {/* Tabs */}
-      <div className="flex border-b border-stone-200 px-4">
+      <div className="flex border-b border-admin-card-border px-4">
         <TabButton
           active={activeTab === 'overview'}
           onClick={() => setActiveTab('overview')}
@@ -253,30 +253,30 @@ export default function CoachDetailPanel({ coach, onClose, onEdit, onDelete }) {
           <div className="p-6 space-y-6">
             {/* Contact Info */}
             <div>
-              <h3 className="text-xs font-semibold text-stone-500 uppercase tracking-wider mb-3">
+              <h3 className="text-xs font-semibold text-admin-text-secondary uppercase tracking-wider mb-3">
                 Contact Information
               </h3>
               <div className="space-y-2">
                 {coach.email && (
                   <a
                     href={`mailto:${coach.email}`}
-                    className="flex items-center gap-3 p-3 rounded-lg bg-stone-50 hover:bg-stone-100 transition-colors"
+                    className="flex items-center gap-3 p-3 rounded-lg bg-admin-content-bg hover:bg-stone-100 transition-colors"
                   >
-                    <Mail className="w-4 h-4 text-stone-400" />
-                    <span className="text-sm text-stone-700">{coach.email}</span>
+                    <Mail className="w-4 h-4 text-admin-text-muted" />
+                    <span className="text-sm text-admin-text">{coach.email}</span>
                   </a>
                 )}
                 {coach.phone && (
                   <a
                     href={`tel:${coach.phone}`}
-                    className="flex items-center gap-3 p-3 rounded-lg bg-stone-50 hover:bg-stone-100 transition-colors"
+                    className="flex items-center gap-3 p-3 rounded-lg bg-admin-content-bg hover:bg-stone-100 transition-colors"
                   >
-                    <Phone className="w-4 h-4 text-stone-400" />
-                    <span className="text-sm text-stone-700">{coach.phone}</span>
+                    <Phone className="w-4 h-4 text-admin-text-muted" />
+                    <span className="text-sm text-admin-text">{coach.phone}</span>
                   </a>
                 )}
                 {!coach.email && !coach.phone && (
-                  <p className="text-sm text-stone-400 italic">
+                  <p className="text-sm text-admin-text-muted italic">
                     No contact information
                   </p>
                 )}
@@ -285,7 +285,7 @@ export default function CoachDetailPanel({ coach, onClose, onEdit, onDelete }) {
 
             {/* Stats */}
             <div>
-              <h3 className="text-xs font-semibold text-stone-500 uppercase tracking-wider mb-3">
+              <h3 className="text-xs font-semibold text-admin-text-secondary uppercase tracking-wider mb-3">
                 Stats
               </h3>
               <div className="grid grid-cols-3 gap-3">
@@ -309,7 +309,7 @@ export default function CoachDetailPanel({ coach, onClose, onEdit, onDelete }) {
 
             {/* Certifications */}
             <div>
-              <h3 className="text-xs font-semibold text-stone-500 uppercase tracking-wider mb-3">
+              <h3 className="text-xs font-semibold text-admin-text-secondary uppercase tracking-wider mb-3">
                 Certifications
               </h3>
               <div className="space-y-2">
@@ -334,20 +334,20 @@ export default function CoachDetailPanel({ coach, onClose, onEdit, onDelete }) {
             {/* Specialty */}
             {coach.specialty && (
               <div>
-                <h3 className="text-xs font-semibold text-stone-500 uppercase tracking-wider mb-3">
+                <h3 className="text-xs font-semibold text-admin-text-secondary uppercase tracking-wider mb-3">
                   Specialty
                 </h3>
-                <p className="text-sm text-stone-700">{coach.specialty}</p>
+                <p className="text-sm text-admin-text">{coach.specialty}</p>
               </div>
             )}
 
             {/* Bio */}
             {coach.bio && (
               <div>
-                <h3 className="text-xs font-semibold text-stone-500 uppercase tracking-wider mb-3">
+                <h3 className="text-xs font-semibold text-admin-text-secondary uppercase tracking-wider mb-3">
                   Bio
                 </h3>
-                <p className="text-sm text-stone-700 whitespace-pre-wrap">
+                <p className="text-sm text-admin-text whitespace-pre-wrap">
                   {coach.bio}
                 </p>
               </div>
@@ -365,8 +365,8 @@ export default function CoachDetailPanel({ coach, onClose, onEdit, onDelete }) {
               </div>
             ) : (
               <div className="text-center py-12">
-                <Briefcase className="w-10 h-10 mx-auto text-stone-300 mb-3" />
-                <p className="text-sm text-stone-500">
+                <Briefcase className="w-10 h-10 mx-auto text-admin-text-muted mb-3" />
+                <p className="text-sm text-admin-text-secondary">
                   Not assigned to any teams
                 </p>
               </div>
@@ -381,7 +381,7 @@ export default function CoachDetailPanel({ coach, onClose, onEdit, onDelete }) {
                 {[...Array(3)].map((_, i) => (
                   <div
                     key={i}
-                    className="h-12 bg-stone-100 rounded animate-pulse"
+                    className="h-12 bg-admin-content-bg rounded animate-pulse"
                   />
                 ))}
               </div>
@@ -393,8 +393,8 @@ export default function CoachDetailPanel({ coach, onClose, onEdit, onDelete }) {
               </div>
             ) : (
               <div className="text-center py-12">
-                <Clock className="w-10 h-10 mx-auto text-stone-300 mb-3" />
-                <p className="text-sm text-stone-500">No coaching history yet</p>
+                <Clock className="w-10 h-10 mx-auto text-admin-text-muted mb-3" />
+                <p className="text-sm text-admin-text-secondary">No coaching history yet</p>
               </div>
             )}
           </div>
@@ -402,15 +402,15 @@ export default function CoachDetailPanel({ coach, onClose, onEdit, onDelete }) {
       </div>
 
       {/* Footer */}
-      <div className="px-6 py-4 border-t border-stone-200 bg-stone-50">
-        <div className="flex items-center justify-between text-xs text-stone-500">
+      <div className="px-6 py-4 border-t border-admin-card-border bg-admin-content-bg">
+        <div className="flex items-center justify-between text-xs text-admin-text-secondary">
           <span>
             Status:{' '}
             <span
               className={
                 coach.is_active
                   ? 'text-green-600 font-medium'
-                  : 'text-stone-400'
+                  : 'text-admin-text-muted'
               }
             >
               {coach.is_active ? 'Active' : 'Inactive'}

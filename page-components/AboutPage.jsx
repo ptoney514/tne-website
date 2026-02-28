@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   Target,
   Heart,
@@ -142,11 +143,13 @@ export default function AboutPage() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
               {/* Left: Image */}
               <div className="relative">
-                <div className="aspect-[4/3] bg-neutral-100 rounded-2xl overflow-hidden">
-                  <img
+                <div className="aspect-[4/3] bg-neutral-100 rounded-2xl overflow-hidden relative">
+                  <Image
                     src="https://images.unsplash.com/photo-1544919982-b61976f0ba43?q=80&w=1200&auto=format&fit=crop"
                     alt="Team huddle"
-                    className="w-full h-full object-cover"
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 50vw"
+                    className="object-cover"
                   />
                 </div>
                 {/* Floating stat card */}
@@ -322,9 +325,11 @@ export default function AboutPage() {
                 <div className="relative z-10 flex flex-col items-center">
                   <div className="relative">
                     <div className="absolute -inset-4 bg-gradient-to-b from-tne-red/20 to-transparent rounded-3xl blur-xl opacity-60" />
-                    <img
-                      src={mitchHeadshot.src}
+                    <Image
+                      src={mitchHeadshot}
                       alt="Mitch"
+                      width={320}
+                      height={420}
                       className="relative w-56 h-72 sm:w-72 sm:h-96 lg:w-80 lg:h-[420px] rounded-2xl object-cover object-top border-4 border-white/10 shadow-2xl grayscale group-hover:grayscale-0 transition-all duration-700"
                     />
                   </div>

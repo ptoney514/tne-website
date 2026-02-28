@@ -1,7 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { usePlayers } from '@/hooks/usePlayers';
 import { getGradeColor, formatGradeShort } from '@/utils/gradeColors';
-import AdminNavbar from '@/components/AdminNavbar';
 import PlayerDetailPanel from '@/components/admin/PlayerDetailPanel';
 import {
   GradeBadge,
@@ -97,14 +96,14 @@ function PlayerModal({ isOpen, onClose, player, teams, onSave, onAssignTeam, onR
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-xl">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-stone-200">
-          <h2 className="text-xl font-semibold text-stone-900">
+      <div className="bg-white rounded-[14px] w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-xl">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-admin-card-border">
+          <h2 className="text-base font-bold text-admin-text">
             {player ? 'Edit Player' : 'Add Player'}
           </h2>
           <button
             onClick={onClose}
-            className="p-1 hover:bg-stone-100 rounded-lg transition-colors text-stone-500"
+            className="p-1 hover:bg-stone-100 rounded-lg transition-colors text-admin-text-secondary"
           >
             <X className="w-5 h-5" />
           </button>
@@ -114,45 +113,45 @@ function PlayerModal({ isOpen, onClose, player, teams, onSave, onAssignTeam, onR
           {/* Basic Info */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-stone-700 mb-1">First Name *</label>
+              <label className="block text-sm font-medium text-admin-text mb-1">First Name *</label>
               <input
                 type="text"
                 required
                 value={formData.first_name}
                 onChange={(e) => handleChange('first_name', e.target.value)}
-                className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+                className="w-full px-3 py-2 rounded-lg border border-admin-card-border text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-stone-700 mb-1">Last Name *</label>
+              <label className="block text-sm font-medium text-admin-text mb-1">Last Name *</label>
               <input
                 type="text"
                 required
                 value={formData.last_name}
                 onChange={(e) => handleChange('last_name', e.target.value)}
-                className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+                className="w-full px-3 py-2 rounded-lg border border-admin-card-border text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-stone-700 mb-1">Date of Birth *</label>
+              <label className="block text-sm font-medium text-admin-text mb-1">Date of Birth *</label>
               <input
                 type="date"
                 required
                 value={formData.date_of_birth}
                 onChange={(e) => handleChange('date_of_birth', e.target.value)}
-                className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+                className="w-full px-3 py-2 rounded-lg border border-admin-card-border text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-stone-700 mb-1">Gender *</label>
+              <label className="block text-sm font-medium text-admin-text mb-1">Gender *</label>
               <select
                 required
                 value={formData.gender}
                 onChange={(e) => handleChange('gender', e.target.value)}
-                className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+                className="w-full px-3 py-2 rounded-lg border border-admin-card-border text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
               >
                 <option value="male">Male</option>
                 <option value="female">Female</option>
@@ -160,12 +159,12 @@ function PlayerModal({ isOpen, onClose, player, teams, onSave, onAssignTeam, onR
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-stone-700 mb-1">Current Grade *</label>
+              <label className="block text-sm font-medium text-admin-text mb-1">Current Grade *</label>
               <select
                 required
                 value={formData.current_grade}
                 onChange={(e) => handleChange('current_grade', e.target.value)}
-                className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+                className="w-full px-3 py-2 rounded-lg border border-admin-card-border text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
               >
                 <option value="">Select Grade</option>
                 <option value="K">Kindergarten</option>
@@ -185,12 +184,12 @@ function PlayerModal({ isOpen, onClose, player, teams, onSave, onAssignTeam, onR
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-stone-700 mb-1">Graduating Year *</label>
+              <label className="block text-sm font-medium text-admin-text mb-1">Graduating Year *</label>
               <select
                 required
                 value={formData.graduating_year}
                 onChange={(e) => handleChange('graduating_year', parseInt(e.target.value))}
-                className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+                className="w-full px-3 py-2 rounded-lg border border-admin-card-border text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
               >
                 {graduatingYears.map((year) => (
                   <option key={year} value={year}>{year}</option>
@@ -200,26 +199,26 @@ function PlayerModal({ isOpen, onClose, player, teams, onSave, onAssignTeam, onR
           </div>
 
           {/* Basketball Info */}
-          <div className="border-t border-stone-200 pt-4 mt-4">
-            <h3 className="text-sm font-medium text-stone-900 mb-3">Basketball Info</h3>
+          <div className="border-t border-admin-card-border pt-4 mt-4">
+            <h3 className="text-sm font-medium text-admin-text mb-3">Basketball Info</h3>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div>
-                <label className="block text-sm font-medium text-stone-600 mb-1">Jersey #</label>
+                <label className="block text-sm font-medium text-admin-text-secondary mb-1">Jersey #</label>
                 <input
                   type="text"
                   value={formData.jersey_number || ''}
                   onChange={(e) => handleChange('jersey_number', e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+                  className="w-full px-3 py-2 rounded-lg border border-admin-card-border text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
                   placeholder="23"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-stone-600 mb-1">Jersey Size</label>
+                <label className="block text-sm font-medium text-admin-text-secondary mb-1">Jersey Size</label>
                 <select
                   value={formData.jersey_size || ''}
                   onChange={(e) => handleChange('jersey_size', e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+                  className="w-full px-3 py-2 rounded-lg border border-admin-card-border text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
                 >
                   <option value="">Select</option>
                   <option value="YS">Youth Small</option>
@@ -234,11 +233,11 @@ function PlayerModal({ isOpen, onClose, player, teams, onSave, onAssignTeam, onR
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-stone-600 mb-1">Position</label>
+                <label className="block text-sm font-medium text-admin-text-secondary mb-1">Position</label>
                 <select
                   value={formData.position || ''}
                   onChange={(e) => handleChange('position', e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+                  className="w-full px-3 py-2 rounded-lg border border-admin-card-border text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
                 >
                   <option value="">Select</option>
                   <option value="PG">Point Guard</option>
@@ -250,14 +249,14 @@ function PlayerModal({ isOpen, onClose, player, teams, onSave, onAssignTeam, onR
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-stone-600 mb-1">Years Exp</label>
+                <label className="block text-sm font-medium text-admin-text-secondary mb-1">Years Exp</label>
                 <input
                   type="number"
                   min="0"
                   max="15"
                   value={formData.years_experience || ''}
                   onChange={(e) => handleChange('years_experience', e.target.value ? parseInt(e.target.value) : null)}
-                  className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+                  className="w-full px-3 py-2 rounded-lg border border-admin-card-border text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
                 />
               </div>
             </div>
@@ -268,45 +267,45 @@ function PlayerModal({ isOpen, onClose, player, teams, onSave, onAssignTeam, onR
                 id="prior_tne"
                 checked={formData.prior_tne_player}
                 onChange={(e) => handleChange('prior_tne_player', e.target.checked)}
-                className="rounded border-stone-300"
+                className="rounded border-admin-card-border"
               />
-              <label htmlFor="prior_tne" className="text-sm text-stone-700">
+              <label htmlFor="prior_tne" className="text-sm text-admin-text">
                 Prior TNE Player
               </label>
             </div>
           </div>
 
           {/* Emergency Contact */}
-          <div className="border-t border-stone-200 pt-4 mt-4">
-            <h3 className="text-sm font-medium text-stone-900 mb-3">Emergency Contact</h3>
+          <div className="border-t border-admin-card-border pt-4 mt-4">
+            <h3 className="text-sm font-medium text-admin-text mb-3">Emergency Contact</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="block text-sm font-medium text-stone-600 mb-1">Name</label>
+                <label className="block text-sm font-medium text-admin-text-secondary mb-1">Name</label>
                 <input
                   type="text"
                   value={formData.emergency_contact_name || ''}
                   onChange={(e) => handleChange('emergency_contact_name', e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+                  className="w-full px-3 py-2 rounded-lg border border-admin-card-border text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-stone-600 mb-1">Phone</label>
+                <label className="block text-sm font-medium text-admin-text-secondary mb-1">Phone</label>
                 <input
                   type="tel"
                   value={formData.emergency_contact_phone || ''}
                   onChange={(e) => handleChange('emergency_contact_phone', e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+                  className="w-full px-3 py-2 rounded-lg border border-admin-card-border text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-stone-600 mb-1">Relationship</label>
+                <label className="block text-sm font-medium text-admin-text-secondary mb-1">Relationship</label>
                 <input
                   type="text"
                   value={formData.emergency_contact_relationship || ''}
                   onChange={(e) => handleChange('emergency_contact_relationship', e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+                  className="w-full px-3 py-2 rounded-lg border border-admin-card-border text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
                   placeholder="e.g., Mother, Father, Uncle"
                 />
               </div>
@@ -315,25 +314,25 @@ function PlayerModal({ isOpen, onClose, player, teams, onSave, onAssignTeam, onR
 
           {/* Team Assignment (only show when editing existing player) */}
           {player?.id && (
-            <div className="border-t border-stone-200 pt-4 mt-4">
-              <h3 className="text-sm font-medium text-stone-900 mb-3">Team Assignment</h3>
+            <div className="border-t border-admin-card-border pt-4 mt-4">
+              <h3 className="text-sm font-medium text-admin-text mb-3">Team Assignment</h3>
 
               {/* Current Teams */}
               {player.teams?.length > 0 ? (
                 <div className="mb-3">
-                  <p className="text-xs text-stone-500 mb-2">Current Teams:</p>
+                  <p className="text-xs text-admin-text-secondary mb-2">Current Teams:</p>
                   <div className="flex flex-wrap gap-2">
                     {player.teams.map((team) => (
                       <span
                         key={team.id}
-                        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-stone-100 text-sm text-stone-700"
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-admin-content-bg text-sm text-admin-text"
                       >
                         {team.name}
                         <button
                           type="button"
                           onClick={() => handleRemoveTeam(team.id)}
                           disabled={isAssigning}
-                          className="text-stone-400 hover:text-red-500 transition-colors disabled:opacity-50"
+                          className="text-admin-text-muted hover:text-red-500 transition-colors disabled:opacity-50"
                           title="Remove from team"
                         >
                           <X className="w-3.5 h-3.5" />
@@ -343,7 +342,7 @@ function PlayerModal({ isOpen, onClose, player, teams, onSave, onAssignTeam, onR
                   </div>
                 </div>
               ) : (
-                <p className="text-sm text-stone-500 mb-3">Not assigned to any team</p>
+                <p className="text-sm text-admin-text-secondary mb-3">Not assigned to any team</p>
               )}
 
               {/* Add to Team */}
@@ -352,7 +351,7 @@ function PlayerModal({ isOpen, onClose, player, teams, onSave, onAssignTeam, onR
                   <select
                     value={selectedTeamToAdd}
                     onChange={(e) => setSelectedTeamToAdd(e.target.value)}
-                    className="flex-1 px-3 py-2 rounded-lg border border-stone-300 text-stone-900 text-sm focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+                    className="flex-1 px-3 py-2 rounded-lg border border-admin-card-border text-admin-text text-sm focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
                   >
                     <option value="">Select a team to add...</option>
                     {availableTeams.map((team) => (
@@ -380,44 +379,44 @@ function PlayerModal({ isOpen, onClose, player, teams, onSave, onAssignTeam, onR
           )}
 
           {/* Notes */}
-          <div className="border-t border-stone-200 pt-4 mt-4">
+          <div className="border-t border-admin-card-border pt-4 mt-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-stone-600 mb-1">Medical Notes</label>
+                <label className="block text-sm font-medium text-admin-text-secondary mb-1">Medical Notes</label>
                 <textarea
                   value={formData.medical_notes || ''}
                   onChange={(e) => handleChange('medical_notes', e.target.value)}
                   rows={3}
-                  className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red resize-none"
+                  className="w-full px-3 py-2 rounded-lg border border-admin-card-border text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40 resize-none"
                   placeholder="Any allergies, conditions, or medications..."
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-stone-600 mb-1">Notes</label>
+                <label className="block text-sm font-medium text-admin-text-secondary mb-1">Notes</label>
                 <textarea
                   value={formData.notes || ''}
                   onChange={(e) => handleChange('notes', e.target.value)}
                   rows={3}
-                  className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red resize-none"
+                  className="w-full px-3 py-2 rounded-lg border border-admin-card-border text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40 resize-none"
                   placeholder="Any additional notes..."
                 />
               </div>
             </div>
           </div>
 
-          <div className="flex justify-end gap-3 pt-4 border-t border-stone-200">
+          <div className="flex justify-end gap-3 pt-4 border-t border-admin-card-border">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-lg border border-stone-300 text-stone-700 hover:bg-stone-50 transition-colors"
+              className="px-4 py-2 rounded-lg border border-admin-card-border text-admin-text hover:bg-stone-50 transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSaving}
-              className="px-4 py-2 rounded-lg bg-tne-red hover:bg-tne-red-dark text-white font-medium transition-colors disabled:opacity-50 flex items-center gap-2"
+              className="px-4 py-2 rounded-lg bg-admin-red hover:opacity-85 text-white font-medium transition-colors disabled:opacity-50 flex items-center gap-2"
             >
               {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}
               {player ? 'Update Player' : 'Add Player'}
@@ -436,7 +435,7 @@ function FilterDropdown({ value, options, onChange }) {
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="appearance-none pl-3 pr-8 py-1.5 rounded-lg border border-stone-300 text-sm text-stone-700 bg-white focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red cursor-pointer"
+        className="appearance-none pl-3 pr-8 py-1.5 rounded-lg border border-admin-card-border text-sm text-admin-text bg-white focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40 cursor-pointer"
       >
         {options.map((opt) => (
           <option key={opt.value} value={opt.value}>
@@ -444,7 +443,7 @@ function FilterDropdown({ value, options, onChange }) {
           </option>
         ))}
       </select>
-      <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400 pointer-events-none" />
+      <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-admin-text-muted pointer-events-none" />
     </div>
   );
 }
@@ -742,37 +741,33 @@ export default function AdminPlayersPage() {
   };
 
   return (
-    <div className="bg-stone-100 text-stone-900 antialiased min-h-screen font-sans">
-      <AdminNavbar />
-
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
-        {/* Page Header */}
+    <>
+      {/* Page Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
           <div>
-            <h1 className="text-2xl font-bold text-stone-900">Players</h1>
-            <p className="text-sm text-stone-500 mt-1">
+            <h1 className="text-[22px] font-extrabold text-admin-text tracking-[-0.02em]">Players</h1>
+            <p className="text-sm text-admin-text-secondary mt-1">
               {filteredPlayers.length} of {players.length} player{players.length !== 1 ? 's' : ''}
             </p>
           </div>
           <div className="flex items-center gap-2">
             <button
               onClick={refetch}
-              className="p-2 text-stone-400 hover:text-stone-600 hover:bg-stone-100 rounded-lg transition-colors"
+              className="p-2 text-admin-text-muted hover:text-admin-text-secondary hover:bg-stone-100 rounded-lg transition-colors"
               title="Refresh"
             >
               <RefreshCw className="w-4 h-4" />
             </button>
             <button
               onClick={handleExport}
-              className="p-2 text-stone-400 hover:text-stone-600 hover:bg-stone-100 rounded-lg transition-colors"
+              className="p-2 text-admin-text-muted hover:text-admin-text-secondary hover:bg-stone-100 rounded-lg transition-colors"
               title="Export"
             >
               <Download className="w-4 h-4" />
             </button>
             <button
               onClick={handleCreate}
-              className="flex items-center gap-2 px-5 py-2.5 bg-tne-red text-white text-sm font-semibold rounded-xl hover:bg-tne-red-dark transition-colors shadow-lg shadow-tne-red/20"
+              className="flex items-center gap-2 px-5 py-2.5 bg-admin-red text-white text-sm font-semibold rounded-[12px] hover:opacity-85 transition-colors shadow-lg shadow-admin-red/20"
             >
               <Plus className="w-4 h-4" />
               Add Player
@@ -781,17 +776,17 @@ export default function AdminPlayersPage() {
         </div>
 
         {/* Filter Card */}
-        <div className="bg-white rounded-2xl border border-stone-200 shadow-sm p-4 mb-4">
+        <div className="bg-white rounded-[14px] border-[1.5px] border-admin-card-border shadow-sm p-4 mb-4">
           <div className="flex flex-col lg:flex-row lg:items-center gap-4">
             {/* Search */}
             <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-admin-text-muted" />
               <input
                 type="text"
                 placeholder="Search by name..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-tne-maroon/20 focus:border-tne-maroon/50 transition-all"
+                className="w-full pl-10 pr-4 py-2.5 bg-admin-content-bg border-[1.5px] border-admin-card-border rounded-[12px] text-sm focus:outline-none focus:ring-2 focus:ring-tne-maroon/20 focus:border-tne-maroon/50 transition-all"
               />
             </div>
 
@@ -834,8 +829,8 @@ export default function AdminPlayersPage() {
           </div>
 
           {/* Quick Filter Pills */}
-          <div className="flex flex-wrap items-center gap-2 mt-4 pt-4 border-t border-stone-100">
-            <span className="text-xs text-stone-400 font-medium">Quick filters:</span>
+          <div className="flex flex-wrap items-center gap-2 mt-4 pt-4 border-t border-[#F2F2F0]">
+            <span className="text-xs text-admin-text-muted font-medium">Quick filters:</span>
 
             <FilterPill
               active={quickFilters.unassigned}
@@ -875,7 +870,7 @@ export default function AdminPlayersPage() {
             {hasActiveFilters && (
               <button
                 onClick={clearFilters}
-                className="flex items-center gap-1 px-2 py-1.5 rounded-lg text-xs text-stone-500 hover:text-stone-700 hover:bg-stone-100 transition-colors ml-2"
+                className="flex items-center gap-1 px-2 py-1.5 rounded-lg text-xs text-admin-text-secondary hover:text-admin-text hover:bg-stone-100 transition-colors ml-2"
               >
                 <X className="w-3 h-3" />
                 Clear all
@@ -885,9 +880,9 @@ export default function AdminPlayersPage() {
         </div>
 
         {/* Players Table */}
-        <div className="bg-white rounded-2xl border border-stone-200 shadow-sm overflow-hidden">
+        <div className="bg-white rounded-[14px] border-[1.5px] border-admin-card-border shadow-sm overflow-hidden">
             {error && (
-              <div className="m-4 px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm flex items-center gap-2">
+              <div className="m-4 px-4 py-3 rounded-[12px] bg-red-50 border border-red-200 text-red-700 text-sm flex items-center gap-2">
                 <AlertCircle className="w-4 h-4" />
                 Failed to load players: {error}
               </div>
@@ -896,22 +891,22 @@ export default function AdminPlayersPage() {
             {loading ? (
               <div className="p-4 space-y-3">
                 {[...Array(10)].map((_, i) => (
-                  <div key={i} className="h-14 bg-stone-100 rounded animate-pulse" />
+                  <div key={i} className="h-14 bg-admin-content-bg rounded animate-pulse" />
                 ))}
               </div>
             ) : filteredPlayers.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-16 text-center">
-                <User className="w-12 h-12 text-stone-300 mb-4" />
-                <h3 className="text-lg font-medium text-stone-900 mb-2">
+                <User className="w-12 h-12 text-admin-text-muted mb-4" />
+                <h3 className="text-lg font-medium text-admin-text mb-2">
                   {hasActiveFilters ? 'No players found' : 'No players yet'}
                 </h3>
-                <p className="text-stone-500 mb-6">
+                <p className="text-admin-text-secondary mb-6">
                   {hasActiveFilters ? 'Try adjusting your filters' : 'Add your first player to get started'}
                 </p>
                 {!hasActiveFilters && (
                   <button
                     onClick={handleCreate}
-                    className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-tne-red hover:bg-tne-red-dark text-white font-medium transition-colors"
+                    className="flex items-center gap-2 px-4 py-2.5 rounded-[12px] bg-admin-red hover:opacity-85 text-white font-medium transition-colors"
                   >
                     <Plus className="w-4 h-4" />
                     Add Player
@@ -921,32 +916,32 @@ export default function AdminPlayersPage() {
             ) : (
               <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-stone-50 sticky top-0">
+                <thead className="bg-admin-content-bg sticky top-0">
                   <tr>
                     <th className="px-4 py-3 text-left w-10">
                       <input
                         type="checkbox"
                         checked={selectedRows.size === filteredPlayers.length && filteredPlayers.length > 0}
                         onChange={handleSelectAll}
-                        className="rounded border-stone-300 text-tne-red focus:ring-tne-red"
+                        className="rounded border-admin-card-border text-admin-red focus:ring-admin-red/20"
                       />
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-stone-500 uppercase tracking-wider">
+                    <th className="px-4 py-3 text-left text-xs font-medium text-admin-text-secondary uppercase tracking-wider">
                       Player
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-stone-500 uppercase tracking-wider">
+                    <th className="px-4 py-3 text-left text-xs font-medium text-admin-text-secondary uppercase tracking-wider">
                       Grade
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-stone-500 uppercase tracking-wider">
+                    <th className="px-4 py-3 text-left text-xs font-medium text-admin-text-secondary uppercase tracking-wider">
                       Team
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-stone-500 uppercase tracking-wider">
+                    <th className="px-4 py-3 text-left text-xs font-medium text-admin-text-secondary uppercase tracking-wider">
                       Parent/Guardian
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-stone-500 uppercase tracking-wider">
+                    <th className="px-4 py-3 text-left text-xs font-medium text-admin-text-secondary uppercase tracking-wider">
                       Phone
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-stone-500 uppercase tracking-wider">
+                    <th className="px-4 py-3 text-left text-xs font-medium text-admin-text-secondary uppercase tracking-wider">
                       Payment
                     </th>
                   </tr>
@@ -976,19 +971,19 @@ export default function AdminPlayersPage() {
                             checked={selectedRows.has(player.id)}
                             onChange={(e) => handleSelectRow(player.id, e)}
                             onClick={(e) => e.stopPropagation()}
-                            className="rounded border-stone-300 text-tne-red focus:ring-tne-red"
+                            className="rounded border-admin-card-border text-admin-red focus:ring-admin-red/20"
                           />
                         </td>
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-full bg-tne-red flex items-center justify-center text-white text-xs font-semibold">
+                            <div className="w-9 h-9 rounded-full bg-admin-red flex items-center justify-center text-white text-xs font-semibold">
                               {player.first_name[0]}{player.last_name[0]}
                             </div>
                             <div>
-                              <p className="font-medium text-stone-900">
+                              <p className="font-medium text-admin-text">
                                 {player.first_name} {player.last_name}
                               </p>
-                              <p className="text-xs text-stone-500">
+                              <p className="text-xs text-admin-text-secondary">
                                 {age && `${age} yrs`}
                               </p>
                             </div>
@@ -1005,31 +1000,31 @@ export default function AdminPlayersPage() {
                               ))}
                             </div>
                           ) : (
-                            <span className="text-sm text-stone-500">Unassigned</span>
+                            <span className="text-sm text-admin-text-secondary">Unassigned</span>
                           )}
                         </td>
-                        <td className="px-4 py-3 text-sm text-stone-600">
+                        <td className="px-4 py-3 text-sm text-admin-text-secondary">
                           {player.primary_parent ? (
                             `${player.primary_parent.first_name} ${player.primary_parent.last_name}`
                           ) : (
-                            <span className="text-stone-400">-</span>
+                            <span className="text-admin-text-muted">-</span>
                           )}
                         </td>
                         <td className="px-4 py-3">
                           {player.primary_parent?.phone ? (
-                            <div className="flex items-center gap-1.5 text-sm text-stone-600">
-                              <Phone className="w-3.5 h-3.5 text-stone-400" />
+                            <div className="flex items-center gap-1.5 text-sm text-admin-text-secondary">
+                              <Phone className="w-3.5 h-3.5 text-admin-text-muted" />
                               {player.primary_parent.phone}
                             </div>
                           ) : (
-                            <span className="text-sm text-stone-400">-</span>
+                            <span className="text-sm text-admin-text-muted">-</span>
                           )}
                         </td>
                         <td className="px-4 py-3">
                           {player.payment_status ? (
                             <PaymentBadge status={player.payment_status} />
                           ) : (
-                            <span className="text-sm text-stone-400">-</span>
+                            <span className="text-sm text-admin-text-muted">-</span>
                           )}
                         </td>
                       </tr>
@@ -1041,13 +1036,12 @@ export default function AdminPlayersPage() {
             )}
         </div>
 
-        {/* Footer info */}
-        {selectedRows.size > 0 && (
-          <div className="mt-4 text-sm text-stone-500">
-            {selectedRows.size} player{selectedRows.size !== 1 ? 's' : ''} selected
-          </div>
-        )}
-      </main>
+      {/* Footer info */}
+      {selectedRows.size > 0 && (
+        <div className="mt-4 text-sm text-admin-text-secondary">
+          {selectedRows.size} player{selectedRows.size !== 1 ? 's' : ''} selected
+        </div>
+      )}
 
       {/* Detail Panel */}
       {selectedPlayer && (
@@ -1078,9 +1072,9 @@ export default function AdminPlayersPage() {
       {/* Delete Confirmation */}
       {deleteConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="bg-white rounded-2xl w-full max-w-md p-6 shadow-xl">
-            <h3 className="text-lg font-semibold text-stone-900 mb-2">Delete Player?</h3>
-            <p className="text-stone-600 mb-6">
+          <div className="bg-white rounded-[14px] w-full max-w-md p-6 shadow-xl">
+            <h3 className="text-base font-bold text-admin-text mb-2">Delete Player?</h3>
+            <p className="text-admin-text-secondary mb-6">
               Are you sure you want to delete{' '}
               <strong>
                 {deleteConfirm.first_name} {deleteConfirm.last_name}
@@ -1090,7 +1084,7 @@ export default function AdminPlayersPage() {
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => setDeleteConfirm(null)}
-                className="px-4 py-2 rounded-lg border border-stone-300 text-stone-700 hover:bg-stone-50 transition-colors"
+                className="px-4 py-2 rounded-lg border border-admin-card-border text-admin-text hover:bg-stone-50 transition-colors"
               >
                 Cancel
               </button>
@@ -1104,6 +1098,6 @@ export default function AdminPlayersPage() {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }

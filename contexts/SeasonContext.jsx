@@ -31,39 +31,8 @@ export function SeasonProvider({ children }) {
   }, []);
 
   useEffect(() => {
-    let mounted = true;
-
-    const loadSeasons = async () => {
-      try {
-        const data = await api.get('/public/seasons', { cache: 'no-store' });
-
-        if (!mounted) return;
-
-        setSeasons(data || []);
-
-        // Set default to active season or most recent (only on initial load)
-        if (!initializedRef.current && data?.length > 0) {
-          const activeSeason = data.find((s) => s.is_active);
-          setSelectedSeasonId(activeSeason?.id || data[0].id);
-          initializedRef.current = true;
-        }
-      } catch (error) {
-        if (!mounted) return;
-        console.error('Error fetching seasons:', error);
-        setSeasons([]);
-      } finally {
-        if (mounted) {
-          setLoading(false);
-        }
-      }
-    };
-
-    loadSeasons();
-
-    return () => {
-      mounted = false;
-    };
-  }, []);
+    fetchSeasons();
+  }, [fetchSeasons]);
 
   const selectedSeason = seasons.find((s) => s.id === selectedSeasonId);
 

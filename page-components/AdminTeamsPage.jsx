@@ -2,7 +2,6 @@ import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTeams } from '@/hooks/useTeams';
 import { getGradeBadgeClass } from '@/utils/gradeColors';
-import AdminNavbar from '@/components/AdminNavbar';
 import { TierBadge } from '@/components/TierBadge';
 import { TagBadge } from '@/components/TagBadge';
 import { EditTeamTagsModal } from '@/components/EditTeamTagsModal';
@@ -129,10 +128,10 @@ function TeamModal({ isOpen, onClose, team, seasons, coaches, onSave, isSaving }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-xl">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-stone-200">
-          <h2 className="text-lg font-semibold text-stone-900">{team ? 'Edit Team' : 'Create Team'}</h2>
-          <button onClick={onClose} className="p-1 hover:bg-stone-100 rounded-lg transition-colors text-stone-500">
+      <div className="bg-white rounded-[14px] w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-xl">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-admin-card-border">
+          <h2 className="text-base font-bold text-admin-text">{team ? 'Edit Team' : 'Create Team'}</h2>
+          <button onClick={onClose} className="p-1 hover:bg-stone-100 rounded-lg transition-colors text-admin-text-secondary">
             <XIcon />
           </button>
         </div>
@@ -140,24 +139,24 @@ function TeamModal({ isOpen, onClose, team, seasons, coaches, onSave, isSaving }
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-stone-700 mb-1">Team Name *</label>
+              <label className="block text-sm font-medium text-admin-text mb-1">Team Name *</label>
               <input
                 type="text"
                 required
                 value={formData.name}
                 onChange={(e) => handleChange('name', e.target.value)}
-                className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+                className="w-full px-3 py-2 rounded-lg border border-admin-card-border text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
                 placeholder="e.g., Express United"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-stone-700 mb-1">Grade Level *</label>
+              <label className="block text-sm font-medium text-admin-text mb-1">Grade Level *</label>
               <select
                 required
                 value={formData.grade_level}
                 onChange={(e) => handleChange('grade_level', e.target.value)}
-                className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+                className="w-full px-3 py-2 rounded-lg border border-admin-card-border text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
               >
                 <option value="">Select Grade</option>
                 <option value="3rd">3rd Grade</option>
@@ -171,12 +170,12 @@ function TeamModal({ isOpen, onClose, team, seasons, coaches, onSave, isSaving }
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-stone-700 mb-1">Gender *</label>
+              <label className="block text-sm font-medium text-admin-text mb-1">Gender *</label>
               <select
                 required
                 value={formData.gender}
                 onChange={(e) => handleChange('gender', e.target.value)}
-                className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+                className="w-full px-3 py-2 rounded-lg border border-admin-card-border text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
               >
                 <option value="male">Boys</option>
                 <option value="female">Girls</option>
@@ -184,12 +183,12 @@ function TeamModal({ isOpen, onClose, team, seasons, coaches, onSave, isSaving }
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-stone-700 mb-1">Season *</label>
+              <label className="block text-sm font-medium text-admin-text mb-1">Season *</label>
               <select
                 required
                 value={formData.season_id}
                 onChange={(e) => handleChange('season_id', e.target.value)}
-                className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+                className="w-full px-3 py-2 rounded-lg border border-admin-card-border text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
               >
                 <option value="">Select Season</option>
                 {seasons.map((season) => (
@@ -201,11 +200,11 @@ function TeamModal({ isOpen, onClose, team, seasons, coaches, onSave, isSaving }
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-stone-700 mb-1">Head Coach</label>
+              <label className="block text-sm font-medium text-admin-text mb-1">Head Coach</label>
               <select
                 value={formData.head_coach_id || ''}
                 onChange={(e) => handleChange('head_coach_id', e.target.value || null)}
-                className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+                className="w-full px-3 py-2 rounded-lg border border-admin-card-border text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
               >
                 <option value="">Select Coach</option>
                 {coaches.map((coach) => (
@@ -217,11 +216,11 @@ function TeamModal({ isOpen, onClose, team, seasons, coaches, onSave, isSaving }
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-stone-700 mb-1">Assistant Coach</label>
+              <label className="block text-sm font-medium text-admin-text mb-1">Assistant Coach</label>
               <select
                 value={formData.assistant_coach_id || ''}
                 onChange={(e) => handleChange('assistant_coach_id', e.target.value || null)}
-                className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+                className="w-full px-3 py-2 rounded-lg border border-admin-card-border text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
               >
                 <option value="">Select Coach</option>
                 {coaches.map((coach) => (
@@ -233,67 +232,67 @@ function TeamModal({ isOpen, onClose, team, seasons, coaches, onSave, isSaving }
             </div>
           </div>
 
-          <div className="border-t border-stone-200 pt-4 mt-4">
-            <h3 className="text-sm font-medium text-stone-700 mb-3">Practice Schedule</h3>
+          <div className="border-t border-admin-card-border pt-4 mt-4">
+            <h3 className="text-sm font-medium text-admin-text mb-3">Practice Schedule</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="block text-sm font-medium text-stone-600 mb-1">Location</label>
+                <label className="block text-sm font-medium text-admin-text-secondary mb-1">Location</label>
                 <input
                   type="text"
                   value={formData.practice_location || ''}
                   onChange={(e) => handleChange('practice_location', e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+                  className="w-full px-3 py-2 rounded-lg border border-admin-card-border text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
                   placeholder="e.g., Northwest HS"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-stone-600 mb-1">Days</label>
+                <label className="block text-sm font-medium text-admin-text-secondary mb-1">Days</label>
                 <input
                   type="text"
                   value={formData.practice_days || ''}
                   onChange={(e) => handleChange('practice_days', e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+                  className="w-full px-3 py-2 rounded-lg border border-admin-card-border text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
                   placeholder="e.g., Mon, Wed"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-stone-600 mb-1">Time</label>
+                <label className="block text-sm font-medium text-admin-text-secondary mb-1">Time</label>
                 <input
                   type="text"
                   value={formData.practice_time || ''}
                   onChange={(e) => handleChange('practice_time', e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+                  className="w-full px-3 py-2 rounded-lg border border-admin-card-border text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
                   placeholder="e.g., 6:00 PM"
                 />
               </div>
             </div>
           </div>
 
-          <div className="border-t border-stone-200 pt-4 mt-4">
-            <h3 className="text-sm font-medium text-stone-700 mb-3">Fees</h3>
+          <div className="border-t border-admin-card-border pt-4 mt-4">
+            <h3 className="text-sm font-medium text-admin-text mb-3">Fees</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-stone-600 mb-1">Team Fee ($)</label>
+                <label className="block text-sm font-medium text-admin-text-secondary mb-1">Team Fee ($)</label>
                 <input
                   type="number"
                   step="0.01"
                   value={formData.team_fee || ''}
                   onChange={(e) => handleChange('team_fee', e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+                  className="w-full px-3 py-2 rounded-lg border border-admin-card-border text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
                   placeholder="600.00"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-stone-600 mb-1">Uniform Fee ($)</label>
+                <label className="block text-sm font-medium text-admin-text-secondary mb-1">Uniform Fee ($)</label>
                 <input
                   type="number"
                   step="0.01"
                   value={formData.uniform_fee || ''}
                   onChange={(e) => handleChange('uniform_fee', e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+                  className="w-full px-3 py-2 rounded-lg border border-admin-card-border text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
                   placeholder="75.00"
                 />
               </div>
@@ -306,25 +305,25 @@ function TeamModal({ isOpen, onClose, team, seasons, coaches, onSave, isSaving }
               id="is_active"
               checked={formData.is_active}
               onChange={(e) => handleChange('is_active', e.target.checked)}
-              className="rounded border-stone-300"
+              className="rounded border-admin-card-border"
             />
-            <label htmlFor="is_active" className="text-sm text-stone-700">
+            <label htmlFor="is_active" className="text-sm text-admin-text">
               Team is active
             </label>
           </div>
 
-          <div className="flex justify-end gap-3 pt-4 border-t border-stone-200">
+          <div className="flex justify-end gap-3 pt-4 border-t border-admin-card-border">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-lg border border-stone-300 text-stone-700 hover:bg-stone-50 transition-colors"
+              className="px-4 py-2 rounded-lg border border-admin-card-border text-admin-text hover:bg-stone-50 transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSaving}
-              className="px-4 py-2 rounded-lg bg-tne-red hover:bg-tne-red-dark text-white font-medium transition-colors disabled:opacity-50 flex items-center gap-2"
+              className="px-4 py-2 rounded-lg bg-admin-red hover:opacity-85 text-white font-medium transition-colors disabled:opacity-50 flex items-center gap-2"
             >
               {isSaving && <LoaderIcon />}
               {team ? 'Update Team' : 'Create Team'}
@@ -339,8 +338,8 @@ function TeamModal({ isOpen, onClose, team, seasons, coaches, onSave, isSaving }
 // Program Tier Legend
 function TierLegend() {
   return (
-    <div className="mt-6 p-4 bg-white rounded-xl border border-stone-200">
-      <h3 className="text-sm font-semibold text-stone-700 mb-3">Program Tier Legend</h3>
+    <div className="mt-6 p-4 bg-white rounded-[12px] border-[1.5px] border-admin-card-border">
+      <h3 className="text-sm font-semibold text-admin-text mb-3">Program Tier Legend</h3>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
         {TIER_SLUGS.map((slug) => {
           const tier = TIER_CONFIG[slug];
@@ -348,8 +347,8 @@ function TierLegend() {
             <div key={slug} className="flex items-start gap-3">
               <span className={`w-3 h-3 rounded-full ${tier.dotColor} mt-1 shrink-0`} />
               <div>
-                <div className="font-medium text-stone-900">{tier.name}</div>
-                <div className="text-xs text-stone-500">{tier.description}</div>
+                <div className="font-medium text-admin-text">{tier.name}</div>
+                <div className="text-xs text-admin-text-secondary">{tier.description}</div>
               </div>
             </div>
           );
@@ -539,18 +538,14 @@ export default function AdminTeamsPage() {
   };
 
   return (
-    <div className="bg-stone-100 text-stone-900 antialiased min-h-screen">
-      <AdminNavbar />
-
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
-        {/* Page Header */}
+    <>
+      {/* Page Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
           <div>
-            <h1 className="text-2xl font-bold text-stone-900">Active Teams</h1>
-            <p className="text-sm text-stone-500 mt-1">Select a team to manage rosters and schedules</p>
+            <h1 className="text-[22px] font-extrabold text-admin-text tracking-[-0.02em]">Active Teams</h1>
+            <p className="text-sm text-admin-text-secondary mt-1">Select a team to manage rosters and schedules</p>
           </div>
-          <button className="text-sm text-stone-500 hover:text-stone-700 flex items-center gap-1.5">
+          <button className="text-sm text-admin-text-secondary hover:text-admin-text flex items-center gap-1.5">
             <SettingsIcon />
             Manage Tags & Tiers
           </button>
@@ -564,7 +559,7 @@ export default function AdminTeamsPage() {
         )}
 
         {/* Filter Card */}
-        <div className="bg-white rounded-2xl border border-stone-200 shadow-sm p-4 mb-4">
+        <div className="bg-white rounded-[14px] border-[1.5px] border-admin-card-border shadow-sm p-4 mb-4">
           <div className="flex flex-col lg:flex-row lg:items-center gap-4">
             {/* Search */}
             <div className="relative flex-1 max-w-md">
@@ -574,17 +569,17 @@ export default function AdminTeamsPage() {
                 placeholder="Search..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-tne-maroon/20 focus:border-tne-maroon/50 transition-all"
+                className="w-full pl-10 pr-4 py-2.5 bg-admin-content-bg border border-admin-card-border rounded-[12px] text-sm focus:outline-none focus:ring-2 focus:ring-tne-maroon/20 focus:border-tne-maroon/50 transition-all"
                 style={{ paddingLeft: '2.5rem' }}
               />
-              <div className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400">
+              <div className="absolute left-3 top-1/2 -translate-y-1/2 text-admin-text-muted">
                 <SearchIcon />
               </div>
             </div>
 
             <button
               onClick={handleCreate}
-              className="px-5 py-2.5 bg-tne-red text-white text-sm font-semibold rounded-xl hover:bg-tne-red-dark transition-colors flex items-center justify-center gap-2 shadow-lg shadow-tne-red/20"
+              className="px-5 py-2.5 bg-admin-red text-white text-sm font-semibold rounded-[12px] hover:opacity-85 transition-colors flex items-center justify-center gap-2 shadow-lg shadow-admin-red/20"
             >
               <PlusIcon />
               New Team
@@ -592,8 +587,8 @@ export default function AdminTeamsPage() {
           </div>
 
           {/* Quick Filters Row 1: Status, Gender, Grade */}
-          <div className="flex flex-wrap items-center gap-2 mt-4 pt-4 border-t border-stone-100">
-            <span className="text-xs text-stone-400 font-medium">Status:</span>
+          <div className="flex flex-wrap items-center gap-2 mt-4 pt-4 border-t border-[#F2F2F0]">
+            <span className="text-xs text-admin-text-muted font-medium">Status:</span>
             <FilterChip
               active={activeFilters.needsCoach}
               onClick={() => toggleFilter('needsCoach')}
@@ -604,8 +599,8 @@ export default function AdminTeamsPage() {
               Needs Coach
             </FilterChip>
 
-            <div className="w-px h-5 bg-stone-200 mx-1" />
-            <span className="text-xs text-stone-400 font-medium">Gender:</span>
+            <div className="w-px h-5 bg-admin-card-border mx-1" />
+            <span className="text-xs text-admin-text-muted font-medium">Gender:</span>
             <FilterChip
               active={activeFilters.gender === 'male'}
               onClick={() => toggleFilter('gender', 'male')}
@@ -621,8 +616,8 @@ export default function AdminTeamsPage() {
               Girls
             </FilterChip>
 
-            <div className="w-px h-5 bg-stone-200 mx-1" />
-            <span className="text-xs text-stone-400 font-medium">Grade:</span>
+            <div className="w-px h-5 bg-admin-card-border mx-1" />
+            <span className="text-xs text-admin-text-muted font-medium">Grade:</span>
             {['3rd', '5th', '6th', '7th', '8th'].map((grade) => (
               <FilterChip
                 key={grade}
@@ -636,8 +631,8 @@ export default function AdminTeamsPage() {
           </div>
 
           {/* Quick Filters Row 2: Tier, Tags */}
-          <div className="flex flex-wrap items-center gap-2 mt-3 pt-3 border-t border-stone-100">
-            <span className="text-xs text-stone-400 font-medium">Program Tier:</span>
+          <div className="flex flex-wrap items-center gap-2 mt-3 pt-3 border-t border-[#F2F2F0]">
+            <span className="text-xs text-admin-text-muted font-medium">Program Tier:</span>
             {TIER_SLUGS.map((slug) => {
               const tier = TIER_CONFIG[slug];
               return (
@@ -654,8 +649,8 @@ export default function AdminTeamsPage() {
               );
             })}
 
-            <div className="w-px h-5 bg-stone-200 mx-2" />
-            <span className="text-xs text-stone-400 font-medium">Tags:</span>
+            <div className="w-px h-5 bg-admin-card-border mx-2" />
+            <span className="text-xs text-admin-text-muted font-medium">Tags:</span>
             {TAG_SLUGS.map((slug) => {
               const tag = TAG_CONFIG[slug];
               return (
@@ -674,25 +669,25 @@ export default function AdminTeamsPage() {
 
         {/* Teams Table */}
         {loading ? (
-          <div className="bg-white rounded-2xl border border-stone-200 shadow-sm p-8 text-center">
+          <div className="bg-white rounded-[14px] border-[1.5px] border-admin-card-border shadow-sm p-8 text-center">
             <LoaderIcon />
-            <p className="text-stone-500 mt-2">Loading teams...</p>
+            <p className="text-admin-text-secondary mt-2">Loading teams...</p>
           </div>
         ) : filteredTeams.length === 0 ? (
-          <div className="bg-white rounded-2xl border border-stone-200 shadow-sm p-8 text-center">
-            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-stone-100 flex items-center justify-center">
+          <div className="bg-white rounded-[14px] border-[1.5px] border-admin-card-border shadow-sm p-8 text-center">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-admin-content-bg flex items-center justify-center">
               <UsersIcon />
             </div>
-            <h3 className="text-lg font-medium text-stone-900 mb-2">
+            <h3 className="text-base font-bold text-admin-text mb-2">
               {teams.length === 0 ? 'No teams yet' : 'No teams match filters'}
             </h3>
-            <p className="text-stone-500 mb-6">
+            <p className="text-admin-text-secondary mb-6">
               {teams.length === 0 ? 'Create your first team to get started' : 'Try adjusting your filters'}
             </p>
             {teams.length === 0 && (
               <button
                 onClick={handleCreate}
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-tne-red hover:bg-tne-red-dark text-white font-medium transition-colors"
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-[12px] bg-admin-red hover:opacity-85 text-white font-medium transition-colors"
               >
                 <PlusIcon />
                 Create Team
@@ -700,30 +695,30 @@ export default function AdminTeamsPage() {
             )}
           </div>
         ) : (
-          <div className="bg-white rounded-2xl border border-stone-200 shadow-sm overflow-hidden">
+          <div className="bg-white rounded-[14px] border-[1.5px] border-admin-card-border shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b border-stone-100 bg-stone-50/50">
-                    <th className="text-left px-4 py-3 text-xs font-semibold text-stone-500 uppercase tracking-wider">
+                  <tr className="border-b border-[#F2F2F0] bg-stone-50/50">
+                    <th className="text-left px-4 py-3 text-xs font-semibold text-admin-text-secondary uppercase tracking-wider">
                       Team
                     </th>
-                    <th className="text-left px-4 py-3 text-xs font-semibold text-stone-500 uppercase tracking-wider">
+                    <th className="text-left px-4 py-3 text-xs font-semibold text-admin-text-secondary uppercase tracking-wider">
                       Program / Tags
                     </th>
-                    <th className="text-left px-4 py-3 text-xs font-semibold text-stone-500 uppercase tracking-wider hidden lg:table-cell">
+                    <th className="text-left px-4 py-3 text-xs font-semibold text-admin-text-secondary uppercase tracking-wider hidden lg:table-cell">
                       Practice Schedule
                     </th>
-                    <th className="text-center px-4 py-3 text-xs font-semibold text-stone-500 uppercase tracking-wider">
+                    <th className="text-center px-4 py-3 text-xs font-semibold text-admin-text-secondary uppercase tracking-wider">
                       Players
                     </th>
-                    <th className="text-center px-4 py-3 text-xs font-semibold text-stone-500 uppercase tracking-wider">
+                    <th className="text-center px-4 py-3 text-xs font-semibold text-admin-text-secondary uppercase tracking-wider">
                       Status
                     </th>
                     <th className="w-12 px-4 py-3"></th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-stone-100">
+                <tbody className="divide-y divide-[#F2F2F0]">
                   {filteredTeams.map((team) => {
                     const needsCoach = !team.head_coach;
                     const coachName = team.head_coach
@@ -749,8 +744,8 @@ export default function AdminTeamsPage() {
                               {team.grade_level}
                             </div>
                             <div>
-                              <div className="font-semibold text-stone-900">{team.name}</div>
-                              <div className={`text-sm ${needsCoach ? 'text-red-600 flex items-center gap-1' : 'text-stone-500'}`}>
+                              <div className="font-semibold text-admin-text">{team.name}</div>
+                              <div className={`text-sm ${needsCoach ? 'text-red-600 flex items-center gap-1' : 'text-admin-text-secondary'}`}>
                                 {needsCoach ? (
                                   <>
                                     <AlertTriangleIcon />
@@ -773,7 +768,7 @@ export default function AdminTeamsPage() {
                             ))}
                             <button
                               onClick={(e) => handleEditTags(team, e)}
-                              className="p-1 hover:bg-stone-100 rounded text-stone-400 hover:text-stone-600 transition-colors"
+                              className="p-1 hover:bg-stone-100 rounded text-admin-text-muted hover:text-admin-text-secondary transition-colors"
                               title="Edit tier and tags"
                             >
                               <PencilIcon />
@@ -785,17 +780,17 @@ export default function AdminTeamsPage() {
                         <td className="px-4 py-4 hidden lg:table-cell">
                           {schedule ? (
                             <>
-                              <div className="text-sm text-stone-700">{schedule}</div>
-                              <div className="text-xs text-stone-400">{team.practice_location}</div>
+                              <div className="text-sm text-admin-text">{schedule}</div>
+                              <div className="text-xs text-admin-text-muted">{team.practice_location}</div>
                             </>
                           ) : (
-                            <span className="text-sm text-stone-400">Not set</span>
+                            <span className="text-sm text-admin-text-muted">Not set</span>
                           )}
                         </td>
 
                         {/* Players Column */}
                         <td className="px-4 py-4 text-center">
-                          <div className="inline-flex items-center gap-1.5 text-stone-600">
+                          <div className="inline-flex items-center gap-1.5 text-admin-text-secondary">
                             <UsersIcon />
                             <span className="font-medium">{team.player_count || 0}</span>
                           </div>
@@ -818,7 +813,7 @@ export default function AdminTeamsPage() {
 
                         {/* Actions Column */}
                         <td className="w-12 px-4 py-4">
-                          <button className="p-2 hover:bg-stone-100 rounded-lg text-stone-400 hover:text-stone-600 transition-colors">
+                          <button className="p-2 hover:bg-stone-100 rounded-lg text-admin-text-muted hover:text-admin-text-secondary transition-colors">
                             <ChevronRightIcon />
                           </button>
                         </td>
@@ -831,9 +826,8 @@ export default function AdminTeamsPage() {
           </div>
         )}
 
-        {/* Tier Legend */}
-        <TierLegend />
-      </main>
+      {/* Tier Legend */}
+      <TierLegend />
 
       {/* Create/Edit Team Modal */}
       {modalOpen && (
@@ -865,15 +859,15 @@ export default function AdminTeamsPage() {
       {/* Delete Confirmation */}
       {deleteConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="bg-white rounded-2xl w-full max-w-md p-6 shadow-xl">
-            <h3 className="text-lg font-semibold text-stone-900 mb-2">Delete Team?</h3>
-            <p className="text-stone-600 mb-6">
+          <div className="bg-white rounded-[14px] w-full max-w-md p-6 shadow-xl">
+            <h3 className="text-base font-bold text-admin-text mb-2">Delete Team?</h3>
+            <p className="text-admin-text-secondary mb-6">
               Are you sure you want to delete <strong>{deleteConfirm.name}</strong>? This action cannot be undone.
             </p>
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => setDeleteConfirm(null)}
-                className="px-4 py-2 rounded-lg border border-stone-300 text-stone-700 hover:bg-stone-50 transition-colors"
+                className="px-4 py-2 rounded-lg border border-admin-card-border text-admin-text hover:bg-stone-50 transition-colors"
               >
                 Cancel
               </button>
@@ -887,6 +881,6 @@ export default function AdminTeamsPage() {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }

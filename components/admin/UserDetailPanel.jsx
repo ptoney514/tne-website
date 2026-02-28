@@ -21,8 +21,8 @@ function TabButton({ active, onClick, children }) {
       onClick={onClick}
       className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
         active
-          ? 'border-tne-red text-tne-red'
-          : 'border-transparent text-stone-500 hover:text-stone-700 hover:border-stone-300'
+          ? 'border-admin-red text-admin-red'
+          : 'border-transparent text-admin-text-secondary hover:text-admin-text hover:border-admin-card-border'
       }`}
     >
       {children}
@@ -34,10 +34,10 @@ function TabButton({ active, onClick, children }) {
 function InfoRow({ label, value, icon: Icon }) {
   return (
     <div className="flex items-start gap-3 py-2">
-      {Icon && <Icon className="w-4 h-4 text-stone-400 mt-0.5 flex-shrink-0" />}
+      {Icon && <Icon className="w-4 h-4 text-admin-text-muted mt-0.5 flex-shrink-0" />}
       <div className="flex-1 min-w-0">
-        <p className="text-xs text-stone-500">{label}</p>
-        <p className="text-sm text-stone-900">{value || <span className="text-stone-400 italic">Not provided</span>}</p>
+        <p className="text-xs text-admin-text-secondary">{label}</p>
+        <p className="text-sm text-admin-text">{value || <span className="text-admin-text-muted italic">Not provided</span>}</p>
       </div>
     </div>
   );
@@ -130,16 +130,16 @@ function RoleSelect({ currentRole, onChange, disabled }) {
       <button
         onClick={() => !disabled && setIsOpen(!isOpen)}
         disabled={disabled}
-        className={`w-full flex items-center justify-between px-3 py-2 rounded-lg border border-stone-300 text-sm bg-white ${
+        className={`w-full flex items-center justify-between px-3 py-2 rounded-lg border border-admin-card-border text-sm bg-white ${
           disabled ? 'opacity-50 cursor-not-allowed' : 'hover:border-stone-400 cursor-pointer'
         }`}
       >
-        <span className="text-stone-900">{roles.find((r) => r.value === currentRole)?.label || currentRole}</span>
-        <ChevronDown className="w-4 h-4 text-stone-400" />
+        <span className="text-admin-text">{roles.find((r) => r.value === currentRole)?.label || currentRole}</span>
+        <ChevronDown className="w-4 h-4 text-admin-text-muted" />
       </button>
 
       {isOpen && (
-        <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-stone-200 rounded-lg shadow-lg z-10">
+        <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-admin-card-border rounded-lg shadow-lg z-10">
           {roles.map((role) => (
             <button
               key={role.value}
@@ -148,8 +148,8 @@ function RoleSelect({ currentRole, onChange, disabled }) {
                 currentRole === role.value ? 'bg-stone-50' : ''
               }`}
             >
-              <p className="text-sm font-medium text-stone-900">{role.label}</p>
-              <p className="text-xs text-stone-500">{role.description}</p>
+              <p className="text-sm font-medium text-admin-text">{role.label}</p>
+              <p className="text-xs text-admin-text-secondary">{role.description}</p>
             </button>
           ))}
         </div>
@@ -187,24 +187,24 @@ export default function UserDetailPanel({
   };
 
   return (
-    <div className="fixed right-0 top-14 bottom-0 w-[480px] bg-white border-l border-stone-200 shadow-xl flex flex-col z-40">
+    <div className="fixed right-0 top-0 bottom-0 w-[480px] bg-white border-l border-admin-card-border shadow-xl flex flex-col z-[60]">
       {/* Header */}
-      <div className="flex items-center justify-between px-6 py-4 border-b border-stone-200">
+      <div className="flex items-center justify-between px-6 py-4 border-b border-admin-card-border">
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-tne-maroon to-tne-red flex items-center justify-center text-white text-lg font-bold">
             {user.first_name?.[0] || ''}{user.last_name?.[0] || ''}
           </div>
           <div>
-            <h2 className="text-lg font-semibold text-stone-900">
+            <h2 className="text-base font-bold text-admin-text">
               {user.first_name} {user.last_name}
             </h2>
-            <p className="text-sm text-stone-500">{user.email}</p>
+            <p className="text-sm text-admin-text-secondary">{user.email}</p>
           </div>
         </div>
         <div className="flex items-center gap-1">
           <button
             onClick={onClose}
-            className="p-2 rounded-lg hover:bg-stone-100 transition-colors text-stone-400 hover:text-stone-600"
+            className="p-2 rounded-lg hover:bg-stone-100 transition-colors text-admin-text-muted hover:text-admin-text-secondary"
           >
             <X className="w-5 h-5" />
           </button>
@@ -212,7 +212,7 @@ export default function UserDetailPanel({
       </div>
 
       {/* Tabs */}
-      <div className="flex border-b border-stone-200 px-4">
+      <div className="flex border-b border-admin-card-border px-4">
         <TabButton
           active={activeTab === 'overview'}
           onClick={() => setActiveTab('overview')}
@@ -233,29 +233,29 @@ export default function UserDetailPanel({
           <div className="p-6 space-y-6">
             {/* Quick Actions */}
             <div>
-              <h3 className="text-xs font-semibold text-stone-500 uppercase tracking-wider mb-3">
+              <h3 className="text-xs font-semibold text-admin-text-secondary uppercase tracking-wider mb-3">
                 Quick Actions
               </h3>
               <div className="space-y-2">
                 <a
                   href={`mailto:${user.email}?subject=Password Reset - TNE Admin`}
-                  className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg border border-stone-200 hover:bg-stone-50 transition-colors text-left"
+                  className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg border border-admin-card-border hover:bg-stone-50 transition-colors text-left"
                 >
-                  <Key className="w-4 h-4 text-stone-500" />
+                  <Key className="w-4 h-4 text-admin-text-secondary" />
                   <div>
-                    <p className="text-sm font-medium text-stone-900">Reset Password</p>
-                    <p className="text-xs text-stone-500">Send password reset email</p>
+                    <p className="text-sm font-medium text-admin-text">Reset Password</p>
+                    <p className="text-xs text-admin-text-secondary">Send password reset email</p>
                   </div>
                 </a>
 
                 <button
                   onClick={() => setIsEditingRole(!isEditingRole)}
-                  className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg border border-stone-200 hover:bg-stone-50 transition-colors text-left"
+                  className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg border border-admin-card-border hover:bg-stone-50 transition-colors text-left"
                 >
-                  <Shield className="w-4 h-4 text-stone-500" />
+                  <Shield className="w-4 h-4 text-admin-text-secondary" />
                   <div>
-                    <p className="text-sm font-medium text-stone-900">Edit Role</p>
-                    <p className="text-xs text-stone-500">Change user permissions</p>
+                    <p className="text-sm font-medium text-admin-text">Edit Role</p>
+                    <p className="text-xs text-admin-text-secondary">Change user permissions</p>
                   </div>
                 </button>
 
@@ -296,10 +296,10 @@ export default function UserDetailPanel({
 
             {/* Account Information */}
             <div>
-              <h3 className="text-xs font-semibold text-stone-500 uppercase tracking-wider mb-3">
+              <h3 className="text-xs font-semibold text-admin-text-secondary uppercase tracking-wider mb-3">
                 Account Information
               </h3>
-              <div className="rounded-lg border border-stone-200 divide-y divide-stone-100">
+              <div className="rounded-lg border border-admin-card-border divide-y divide-[#F2F2F0]">
                 <div className="px-4">
                   <InfoRow label="Email" value={user.email} icon={Mail} />
                 </div>
@@ -309,8 +309,8 @@ export default function UserDetailPanel({
                 <div className="px-4 py-2">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <Shield className="w-4 h-4 text-stone-400" />
-                      <span className="text-xs text-stone-500">Role</span>
+                      <Shield className="w-4 h-4 text-admin-text-muted" />
+                      <span className="text-xs text-admin-text-secondary">Role</span>
                     </div>
                     <RoleBadge role={user.role} />
                   </div>
@@ -318,8 +318,8 @@ export default function UserDetailPanel({
                 <div className="px-4 py-2">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <Clock className="w-4 h-4 text-stone-400" />
-                      <span className="text-xs text-stone-500">Status</span>
+                      <Clock className="w-4 h-4 text-admin-text-muted" />
+                      <span className="text-xs text-admin-text-secondary">Status</span>
                     </div>
                     <StatusBadge isActive={user.is_active} />
                   </div>
@@ -329,7 +329,7 @@ export default function UserDetailPanel({
 
             {/* Linked Profile */}
             <div>
-              <h3 className="text-xs font-semibold text-stone-500 uppercase tracking-wider mb-3">
+              <h3 className="text-xs font-semibold text-admin-text-secondary uppercase tracking-wider mb-3">
                 Linked Profile
               </h3>
               {user.linked_coach ? (
@@ -357,12 +357,12 @@ export default function UserDetailPanel({
                   </div>
                 </div>
               ) : (
-                <div className="p-4 rounded-lg bg-stone-50 border border-stone-200">
+                <div className="p-4 rounded-lg bg-admin-content-bg border border-admin-card-border">
                   <div className="flex items-center gap-3">
-                    <AlertTriangle className="w-4 h-4 text-stone-400" />
+                    <AlertTriangle className="w-4 h-4 text-admin-text-muted" />
                     <div>
-                      <p className="text-sm font-medium text-stone-600">No linked profile</p>
-                      <p className="text-xs text-stone-500">This user is not linked to a coach or parent record</p>
+                      <p className="text-sm font-medium text-admin-text-secondary">No linked profile</p>
+                      <p className="text-xs text-admin-text-secondary">This user is not linked to a coach or parent record</p>
                     </div>
                   </div>
                 </div>
@@ -371,10 +371,10 @@ export default function UserDetailPanel({
 
             {/* Session Information */}
             <div>
-              <h3 className="text-xs font-semibold text-stone-500 uppercase tracking-wider mb-3">
+              <h3 className="text-xs font-semibold text-admin-text-secondary uppercase tracking-wider mb-3">
                 Session Information
               </h3>
-              <div className="rounded-lg border border-stone-200 divide-y divide-stone-100">
+              <div className="rounded-lg border border-admin-card-border divide-y divide-[#F2F2F0]">
                 <div className="px-4">
                   <InfoRow label="Created" value={formatDate(user.created_at)} icon={Calendar} />
                 </div>
@@ -389,9 +389,9 @@ export default function UserDetailPanel({
         {activeTab === 'activity' && (
           <div className="p-6">
             <div className="text-center py-12">
-              <Clock className="w-10 h-10 mx-auto text-stone-300 mb-3" />
-              <h3 className="text-sm font-medium text-stone-900 mb-1">Activity Log Coming Soon</h3>
-              <p className="text-sm text-stone-500">
+              <Clock className="w-10 h-10 mx-auto text-admin-text-muted mb-3" />
+              <h3 className="text-sm font-medium text-admin-text mb-1">Activity Log Coming Soon</h3>
+              <p className="text-sm text-admin-text-secondary">
                 User activity tracking will be available in a future update
               </p>
             </div>
@@ -400,8 +400,8 @@ export default function UserDetailPanel({
       </div>
 
       {/* Footer */}
-      <div className="px-6 py-4 border-t border-stone-200 bg-stone-50">
-        <div className="flex items-center justify-between text-xs text-stone-500">
+      <div className="px-6 py-4 border-t border-admin-card-border bg-admin-content-bg">
+        <div className="flex items-center justify-between text-xs text-admin-text-secondary">
           <span>User ID: {user.id?.slice(0, 8)}...</span>
           <span>Created {formatDate(user.created_at)}</span>
         </div>

@@ -1,9 +1,26 @@
 @import "tailwindcss";
 
+/* Admin-only fonts (Outfit + JetBrains Mono) */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;800&display=swap');
+
 @theme {
   --color-tne-maroon: #8B1F3A;
   --color-tne-red: #E31837;
   --color-tne-red-dark: #C41230;
+
+  /* Admin palette */
+  --color-admin-red: #C62828;
+  --color-admin-red-light: #E53935;
+  --color-admin-sidebar: #1A1A1F;
+  --color-admin-content-bg: #FAFAF8;
+  --color-admin-card-border: #EDEDEB;
+  --color-admin-text: #1A1A1F;
+  --color-admin-text-secondary: #888888;
+  --color-admin-text-muted: #AAAAAA;
+  --color-admin-success: #2E7D32;
+  --color-admin-success-bg: #E8F5E9;
+  --color-admin-warning: #F9A825;
+  --color-admin-warning-bg: #FFF8E1;
 }
 
 .glass-nav {
@@ -48,3 +65,18 @@
   to { opacity: 1; transform: translateY(0); }
 }
 .animate-fade-up { animation: fadeUp 0.45s ease both; }
+
+/* Admin layout fonts — scoped to admin pages */
+.font-admin { font-family: 'Outfit', sans-serif; }
+.font-admin-mono { font-family: 'JetBrains Mono', monospace; }
+
+/* Admin sidebar transition */
+.admin-sidebar-transition {
+  transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Admin scrollbar overrides (light theme) */
+.admin-content::-webkit-scrollbar { width: 6px; height: 6px; }
+.admin-content::-webkit-scrollbar-track { background: #FAFAF8; }
+.admin-content::-webkit-scrollbar-thumb { background: #DEDEDE; border-radius: 3px; }
+.admin-content::-webkit-scrollbar-thumb:hover { background: #C0C0C0; }

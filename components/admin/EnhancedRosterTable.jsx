@@ -62,14 +62,14 @@ export default function EnhancedRosterTable({
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-stone-200 shadow-sm overflow-hidden">
+    <div className="bg-white rounded-[14px] border-[1.5px] border-admin-card-border shadow-sm overflow-hidden">
       {/* Header */}
-      <div className="px-5 py-4 border-b border-stone-200 flex items-center justify-between">
-        <h3 className="font-semibold text-stone-900">Current Roster</h3>
+      <div className="px-5 py-4 border-b border-admin-card-border flex items-center justify-between">
+        <h3 className="font-semibold text-admin-text">Current Roster</h3>
         <div className="flex items-center gap-3">
           <button
             onClick={handleExport}
-            className="text-sm text-stone-600 hover:text-stone-900 flex items-center gap-1.5 transition-colors"
+            className="text-sm text-admin-text-secondary hover:text-stone-900 flex items-center gap-1.5 transition-colors"
           >
             <svg
               className="w-4 h-4"
@@ -88,7 +88,7 @@ export default function EnhancedRosterTable({
           </button>
           <button
             onClick={onAddManually}
-            className="text-sm text-tne-red hover:text-tne-red-dark flex items-center gap-1.5 transition-colors"
+            className="text-sm text-admin-red hover:opacity-85 flex items-center gap-1.5 transition-colors"
           >
             <svg
               className="w-4 h-4"
@@ -111,33 +111,33 @@ export default function EnhancedRosterTable({
       {/* Table */}
       <div className="overflow-x-auto">
         <table className="w-full">
-          <thead className="bg-stone-50 border-b border-stone-200">
+          <thead className="bg-stone-50/50 border-b border-admin-card-border">
             <tr>
-              <th className="px-5 py-3 text-left text-xs font-semibold text-stone-500 uppercase tracking-wider">
+              <th className="px-5 py-3 text-left text-xs font-semibold text-admin-text-secondary uppercase tracking-wider">
                 #
               </th>
-              <th className="px-5 py-3 text-left text-xs font-semibold text-stone-500 uppercase tracking-wider">
+              <th className="px-5 py-3 text-left text-xs font-semibold text-admin-text-secondary uppercase tracking-wider">
                 Player
               </th>
-              <th className="px-5 py-3 text-left text-xs font-semibold text-stone-500 uppercase tracking-wider">
+              <th className="px-5 py-3 text-left text-xs font-semibold text-admin-text-secondary uppercase tracking-wider">
                 Position
               </th>
-              <th className="px-5 py-3 text-left text-xs font-semibold text-stone-500 uppercase tracking-wider">
+              <th className="px-5 py-3 text-left text-xs font-semibold text-admin-text-secondary uppercase tracking-wider">
                 Parent Contact
               </th>
-              <th className="px-5 py-3 text-left text-xs font-semibold text-stone-500 uppercase tracking-wider">
+              <th className="px-5 py-3 text-left text-xs font-semibold text-admin-text-secondary uppercase tracking-wider">
                 Status
               </th>
-              <th className="px-5 py-3 text-right text-xs font-semibold text-stone-500 uppercase tracking-wider">
+              <th className="px-5 py-3 text-right text-xs font-semibold text-admin-text-secondary uppercase tracking-wider">
                 Actions
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-stone-100">
+          <tbody className="divide-y divide-[#F2F2F0]">
             {displayedRoster.length === 0 ? (
               <tr>
                 <td colSpan={6} className="px-5 py-12 text-center">
-                  <div className="text-stone-400">
+                  <div className="text-admin-text-muted">
                     <svg
                       className="w-12 h-12 mx-auto mb-3"
                       fill="none"
@@ -176,14 +176,14 @@ export default function EnhancedRosterTable({
 
       {/* Footer */}
       {roster.length > 0 && (
-        <div className="px-5 py-4 border-t border-stone-100 bg-stone-50 text-sm text-stone-500">
+        <div className="px-5 py-4 border-t border-[#F2F2F0] bg-stone-50/50 text-sm text-admin-text-secondary">
           Showing {displayedRoster.length} of {displayCount} players
           {hasMore && !showAll && (
             <>
               {' \u2022 '}
               <button
                 onClick={() => setShowAll(true)}
-                className="text-tne-red hover:underline"
+                className="text-admin-red hover:underline"
               >
                 View all
               </button>
@@ -194,7 +194,7 @@ export default function EnhancedRosterTable({
               {' \u2022 '}
               <button
                 onClick={() => setShowAll(false)}
-                className="text-tne-red hover:underline"
+                className="text-admin-red hover:underline"
               >
                 Show less
               </button>

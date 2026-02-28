@@ -91,7 +91,7 @@ export default function SeasonFeesList({ seasonId }) {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-6">
-        <Loader2 className="w-5 h-5 text-stone-400 animate-spin" />
+        <Loader2 className="w-5 h-5 text-admin-text-muted animate-spin" />
       </div>
     );
   }
@@ -99,7 +99,7 @@ export default function SeasonFeesList({ seasonId }) {
   return (
     <div className="space-y-3">
       {fees.length === 0 ? (
-        <p className="text-sm text-stone-500 text-center py-4">
+        <p className="text-sm text-admin-text-secondary text-center py-4">
           No fees configured for this season
         </p>
       ) : (
@@ -107,24 +107,24 @@ export default function SeasonFeesList({ seasonId }) {
           {fees.map((fee) => (
             <div
               key={fee.id}
-              className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-stone-50 border border-stone-100"
+              className="flex items-center gap-3 px-3 py-2.5 rounded-[12px] bg-admin-content-bg border border-[#F2F2F0]"
             >
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <p className="text-sm font-medium text-stone-900 truncate">{fee.name}</p>
-                  <span className="text-sm font-mono text-stone-600 shrink-0">
+                  <p className="text-sm font-medium text-admin-text truncate">{fee.name}</p>
+                  <span className="text-sm font-admin-mono text-admin-text-secondary shrink-0">
                     {formatCurrency(fee.amount)}
                   </span>
                 </div>
                 {fee.description && (
-                  <p className="text-[11px] text-stone-500 truncate">{fee.description}</p>
+                  <p className="text-[11px] text-admin-text-secondary truncate">{fee.description}</p>
                 )}
               </div>
 
               {/* Toggles */}
               <div className="flex items-center gap-3 shrink-0">
                 <div className="flex items-center gap-1.5">
-                  <span className="text-[10px] text-stone-500">Active</span>
+                  <span className="text-[10px] text-admin-text-secondary">Active</span>
                   <FeeToggle
                     isOn={fee.is_active}
                     color="green"
@@ -134,7 +134,7 @@ export default function SeasonFeesList({ seasonId }) {
                   />
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <span className="text-[10px] text-stone-500">Public</span>
+                  <span className="text-[10px] text-admin-text-secondary">Public</span>
                   <FeeToggle
                     isOn={fee.is_public}
                     color="blue"
@@ -149,14 +149,14 @@ export default function SeasonFeesList({ seasonId }) {
               <div className="flex items-center gap-1 shrink-0">
                 <button
                   onClick={() => handleEdit(fee)}
-                  className="p-1.5 rounded-lg text-stone-400 hover:bg-stone-200 hover:text-stone-700 transition-colors"
+                  className="p-1.5 rounded-lg text-admin-text-muted hover:bg-stone-200 hover:text-admin-text transition-colors"
                   title="Edit fee"
                 >
                   <Pencil className="w-3.5 h-3.5" />
                 </button>
                 <button
                   onClick={() => setDeleteConfirm(fee)}
-                  className="p-1.5 rounded-lg text-stone-400 hover:bg-red-50 hover:text-red-600 transition-colors"
+                  className="p-1.5 rounded-lg text-admin-text-muted hover:bg-red-50 hover:text-red-600 transition-colors"
                   title="Delete fee"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
@@ -170,7 +170,7 @@ export default function SeasonFeesList({ seasonId }) {
       {/* Add Fee Button */}
       <button
         onClick={handleAdd}
-        className="flex items-center gap-1.5 text-xs text-stone-500 hover:text-tne-red transition-colors"
+        className="flex items-center gap-1.5 text-xs text-admin-text-secondary hover:text-admin-red transition-colors"
       >
         <Plus className="w-3.5 h-3.5" />
         Add Fee
@@ -191,17 +191,17 @@ export default function SeasonFeesList({ seasonId }) {
       {/* Delete Confirmation */}
       {deleteConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="bg-white rounded-2xl w-full max-w-md p-6 shadow-xl">
-            <h3 className="text-lg font-semibold text-stone-900 mb-2">
+          <div className="bg-white rounded-[14px] w-full max-w-md p-6 shadow-xl">
+            <h3 className="text-base font-bold text-admin-text mb-2">
               Delete Fee?
             </h3>
-            <p className="text-stone-600 mb-6">
+            <p className="text-admin-text-secondary mb-6">
               Are you sure you want to delete <strong>{deleteConfirm.name}</strong>? This action cannot be undone.
             </p>
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => setDeleteConfirm(null)}
-                className="px-4 py-2 rounded-lg border border-stone-300 text-stone-700 hover:bg-stone-50 transition-colors"
+                className="px-4 py-2 rounded-lg border border-admin-card-border text-admin-text hover:bg-stone-50 transition-colors"
               >
                 Cancel
               </button>

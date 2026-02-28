@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { Menu, Facebook, Twitter } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
@@ -20,10 +21,12 @@ function PublicNavbar() {
         <div className="sm:px-6 flex h-14 max-w-6xl mx-auto px-4 items-center justify-between relative">
           {/* Brand */}
           <Link href="/" className="flex items-center gap-3 hover:opacity-90 transition-opacity z-10">
-            <img
-              src={tneLogoWhite.src}
+            <Image
+              src={tneLogoWhite}
               alt="TNE United Express"
-              className="h-12 w-12 object-contain"
+              width={48}
+              height={48}
+              className="object-contain"
             />
             <span className="text-white font-bebas text-xl tracking-wide hidden sm:inline">
               TNE <span className="text-tne-red">United</span> Express
@@ -94,10 +97,12 @@ function PublicFooter() {
     <footer className="border-t border-white/10 bg-black py-8 sm:py-10">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col gap-6 sm:gap-4 sm:flex-row sm:items-center sm:justify-between text-xs sm:text-sm text-white/45">
         <div className="flex items-center gap-3">
-          <img
-            src={tneLogoWhite.src}
+          <Image
+            src={tneLogoWhite}
             alt="TNE"
-            className="h-12 w-12 object-contain"
+            width={48}
+            height={48}
+            className="object-contain"
           />
           <span className="font-semibold tracking-tight text-white text-base">
             UNITED <span className="text-white/40">EXPRESS</span>

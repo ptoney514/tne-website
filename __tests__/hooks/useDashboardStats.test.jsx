@@ -17,7 +17,12 @@ vi.mock('@/contexts/SeasonContext', () => ({
   useSeason: () => mockUseSeason(),
 }));
 
-import { useDashboardStats } from '@/hooks/useDashboardStats';
+import { DashboardStatsProvider, useDashboardStats } from '@/contexts/DashboardStatsContext';
+
+// Wrapper that provides the DashboardStatsProvider
+function wrapper({ children }) {
+  return <DashboardStatsProvider>{children}</DashboardStatsProvider>;
+}
 
 // Sample data
 const mockDashboardData = {
@@ -73,14 +78,14 @@ describe('useDashboardStats', () => {
   it('should start with loading state', () => {
     api.get.mockReturnValue(new Promise(() => {})); // Never resolves
 
-    const { result } = renderHook(() => useDashboardStats());
+    const { result } = renderHook(() => useDashboardStats(), { wrapper });
 
     expect(result.current.loading).toBe(true);
     expect(result.current.stats.teams).toBe(0);
   });
 
   it('should fetch all stats from API', async () => {
-    const { result } = renderHook(() => useDashboardStats());
+    const { result } = renderHook(() => useDashboardStats(), { wrapper });
 
     await waitFor(() => {
       expect(result.current.loading).toBe(false);
@@ -95,17 +100,19 @@ describe('useDashboardStats', () => {
   });
 
   it('should return recent activity', async () => {
-    const { result } = renderHook(() => useDashboardStats());
+    const { result } = renderHook(() => useDashboardStats(), { wrapper });
 
     await waitFor(() => {
       expect(result.current.loading).toBe(false);
     });
 
-    expect(result.current.recentActivity).toEqual(mockRegistrations);
+    expect(result.current.recentActivity).toEqual(
+      mockRegistrations.map(r => ({ ...r, type: 'registration' }))
+    );
   });
 
   it('should return upcoming events', async () => {
-    const { result } = renderHook(() => useDashboardStats());
+    const { result } = renderHook(() => useDashboardStats(), { wrapper });
 
     await waitFor(() => {
       expect(result.current.loading).toBe(false);
@@ -117,7 +124,7 @@ describe('useDashboardStats', () => {
   it('should handle errors gracefully', async () => {
     api.get.mockRejectedValue(new Error('Database connection failed'));
 
-    const { result } = renderHook(() => useDashboardStats());
+    const { result } = renderHook(() => useDashboardStats(), { wrapper });
 
     await waitFor(() => {
       expect(result.current.loading).toBe(false);
@@ -127,7 +134,7 @@ describe('useDashboardStats', () => {
   });
 
   it('should provide refetch function', async () => {
-    const { result } = renderHook(() => useDashboardStats());
+    const { result } = renderHook(() => useDashboardStats(), { wrapper });
 
     await waitFor(() => {
       expect(result.current.loading).toBe(false);
@@ -137,7 +144,7 @@ describe('useDashboardStats', () => {
   });
 
   it('should refetch stats when refetch is called', async () => {
-    const { result } = renderHook(() => useDashboardStats());
+    const { result } = renderHook(() => useDashboardStats(), { wrapper });
 
     await waitFor(() => {
       expect(result.current.loading).toBe(false);
@@ -155,7 +162,7 @@ describe('useDashboardStats', () => {
   it('should have correct initial stats structure', () => {
     api.get.mockReturnValue(new Promise(() => {})); // Never resolves
 
-    const { result } = renderHook(() => useDashboardStats());
+    const { result } = renderHook(() => useDashboardStats(), { wrapper });
 
     expect(result.current.stats).toEqual({
       teams: 0,

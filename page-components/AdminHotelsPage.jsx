@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useHotels } from '@/hooks/useHotels';
-import AdminNavbar from '@/components/AdminNavbar';
 import {
   Hotel,
   Plus,
@@ -76,12 +75,12 @@ function HotelModal({ isOpen, onClose, hotel, onSave, isSaving }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-xl">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-stone-200">
-          <h2 className="text-lg font-semibold text-stone-900">
+      <div className="bg-white rounded-[14px] w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-xl">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-admin-card-border">
+          <h2 className="text-base font-bold text-admin-text">
             {hotel ? 'Edit Hotel' : 'Add Hotel'}
           </h2>
-          <button onClick={onClose} className="p-1 hover:bg-stone-100 rounded-lg transition-colors text-stone-500">
+          <button onClick={onClose} className="p-1 hover:bg-stone-100 rounded-lg transition-colors text-admin-text-secondary">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -89,34 +88,34 @@ function HotelModal({ isOpen, onClose, hotel, onSave, isSaving }) {
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-stone-700 mb-1">Hotel Name *</label>
+              <label className="block text-sm font-medium text-admin-text mb-1">Hotel Name *</label>
               <input
                 type="text"
                 required
                 value={formData.name}
                 onChange={(e) => handleChange('name', e.target.value)}
-                className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+                className="w-full px-3 py-2 rounded-lg border border-admin-card-border text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
                 placeholder="e.g., Hampton Inn Omaha Downtown"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-stone-700 mb-1">Brand</label>
+              <label className="block text-sm font-medium text-admin-text mb-1">Brand</label>
               <input
                 type="text"
                 value={formData.brand || ''}
                 onChange={(e) => handleChange('brand', e.target.value)}
-                className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+                className="w-full px-3 py-2 rounded-lg border border-admin-card-border text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
                 placeholder="e.g., Hampton Inn, Marriott"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-stone-700 mb-1">Star Rating</label>
+              <label className="block text-sm font-medium text-admin-text mb-1">Star Rating</label>
               <select
                 value={formData.star_rating || ''}
                 onChange={(e) => handleChange('star_rating', e.target.value)}
-                className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+                className="w-full px-3 py-2 rounded-lg border border-admin-card-border text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
               >
                 <option value="">Select rating...</option>
                 <option value="1">1 Star</option>
@@ -128,85 +127,85 @@ function HotelModal({ isOpen, onClose, hotel, onSave, isSaving }) {
             </div>
 
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-stone-700 mb-1">Street Address</label>
+              <label className="block text-sm font-medium text-admin-text mb-1">Street Address</label>
               <input
                 type="text"
                 value={formData.street_address || ''}
                 onChange={(e) => handleChange('street_address', e.target.value)}
-                className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+                className="w-full px-3 py-2 rounded-lg border border-admin-card-border text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-stone-700 mb-1">City *</label>
+              <label className="block text-sm font-medium text-admin-text mb-1">City *</label>
               <input
                 type="text"
                 required
                 value={formData.city}
                 onChange={(e) => handleChange('city', e.target.value)}
-                className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+                className="w-full px-3 py-2 rounded-lg border border-admin-card-border text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
               />
             </div>
 
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <label className="block text-sm font-medium text-stone-700 mb-1">State *</label>
+                <label className="block text-sm font-medium text-admin-text mb-1">State *</label>
                 <input
                   type="text"
                   required
                   maxLength={2}
                   value={formData.state}
                   onChange={(e) => handleChange('state', e.target.value.toUpperCase())}
-                  className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+                  className="w-full px-3 py-2 rounded-lg border border-admin-card-border text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
                   placeholder="NE"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-stone-700 mb-1">ZIP</label>
+                <label className="block text-sm font-medium text-admin-text mb-1">ZIP</label>
                 <input
                   type="text"
                   value={formData.zip_code || ''}
                   onChange={(e) => handleChange('zip_code', e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+                  className="w-full px-3 py-2 rounded-lg border border-admin-card-border text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-stone-700 mb-1">Phone</label>
+              <label className="block text-sm font-medium text-admin-text mb-1">Phone</label>
               <input
                 type="tel"
                 value={formData.phone || ''}
                 onChange={(e) => handleChange('phone', e.target.value)}
-                className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+                className="w-full px-3 py-2 rounded-lg border border-admin-card-border text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-stone-700 mb-1">Website</label>
+              <label className="block text-sm font-medium text-admin-text mb-1">Website</label>
               <input
                 type="url"
                 value={formData.website_url || ''}
                 onChange={(e) => handleChange('website_url', e.target.value)}
-                className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+                className="w-full px-3 py-2 rounded-lg border border-admin-card-border text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
                 placeholder="https://..."
               />
             </div>
 
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-stone-700 mb-1">Direct Booking URL</label>
+              <label className="block text-sm font-medium text-admin-text mb-1">Direct Booking URL</label>
               <input
                 type="url"
                 value={formData.booking_url || ''}
                 onChange={(e) => handleChange('booking_url', e.target.value)}
-                className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+                className="w-full px-3 py-2 rounded-lg border border-admin-card-border text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
                 placeholder="https://..."
               />
-              <p className="text-xs text-stone-500 mt-1">Link to book directly with hotel</p>
+              <p className="text-xs text-admin-text-secondary mt-1">Link to book directly with hotel</p>
             </div>
 
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-stone-700 mb-2">Amenities</label>
+              <label className="block text-sm font-medium text-admin-text mb-2">Amenities</label>
               <div className="flex flex-wrap gap-2">
                 {AMENITY_OPTIONS.map((amenity) => (
                   <button
@@ -215,8 +214,8 @@ function HotelModal({ isOpen, onClose, hotel, onSave, isSaving }) {
                     onClick={() => toggleAmenity(amenity.value)}
                     className={`px-3 py-1.5 rounded-full text-sm transition-colors flex items-center gap-1.5 ${
                       formData.amenities.includes(amenity.value)
-                        ? 'bg-tne-red text-white'
-                        : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
+                        ? 'bg-admin-red text-white'
+                        : 'bg-admin-content-bg text-admin-text-secondary hover:bg-stone-200'
                     }`}
                   >
                     {amenity.icon && <amenity.icon className="w-3.5 h-3.5" />}
@@ -227,40 +226,40 @@ function HotelModal({ isOpen, onClose, hotel, onSave, isSaving }) {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-stone-700 mb-1">Latitude</label>
+              <label className="block text-sm font-medium text-admin-text mb-1">Latitude</label>
               <input
                 type="number"
                 step="any"
                 value={formData.latitude || ''}
                 onChange={(e) => handleChange('latitude', e.target.value)}
-                className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+                className="w-full px-3 py-2 rounded-lg border border-admin-card-border text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-stone-700 mb-1">Longitude</label>
+              <label className="block text-sm font-medium text-admin-text mb-1">Longitude</label>
               <input
                 type="number"
                 step="any"
                 value={formData.longitude || ''}
                 onChange={(e) => handleChange('longitude', e.target.value)}
-                className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+                className="w-full px-3 py-2 rounded-lg border border-admin-card-border text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
               />
             </div>
           </div>
 
-          <div className="flex justify-end gap-3 pt-4 border-t border-stone-200">
+          <div className="flex justify-end gap-3 pt-4 border-t border-admin-card-border">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-lg border border-stone-300 text-stone-700 hover:bg-stone-50 transition-colors"
+              className="px-4 py-2 rounded-lg border border-admin-card-border text-admin-text hover:bg-stone-50 transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSaving}
-              className="px-4 py-2 rounded-lg bg-tne-red hover:bg-tne-red-dark text-white font-medium transition-colors disabled:opacity-50 flex items-center gap-2"
+              className="px-4 py-2 rounded-lg bg-admin-red hover:opacity-85 text-white font-medium transition-colors disabled:opacity-50 flex items-center gap-2"
             >
               {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}
               {hotel ? 'Update' : 'Create'}
@@ -275,13 +274,13 @@ function HotelModal({ isOpen, onClose, hotel, onSave, isSaving }) {
 // Hotel Card Component
 function HotelCard({ hotel, onEdit, onDelete }) {
   return (
-    <div className="rounded-2xl bg-white border border-stone-200 shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+    <div className="rounded-[14px] bg-white border-[1.5px] border-admin-card-border shadow-sm overflow-hidden hover:shadow-md transition-shadow">
       <div className="p-4">
         <div className="flex items-start justify-between">
           <div>
-            <h3 className="font-semibold text-lg text-stone-900">{hotel.name}</h3>
+            <h3 className="font-semibold text-lg text-admin-text">{hotel.name}</h3>
             {hotel.brand && (
-              <p className="text-sm text-stone-500">{hotel.brand}</p>
+              <p className="text-sm text-admin-text-secondary">{hotel.brand}</p>
             )}
           </div>
           {hotel.star_rating && (
@@ -293,9 +292,9 @@ function HotelCard({ hotel, onEdit, onDelete }) {
           )}
         </div>
 
-        <div className="mt-3 space-y-1.5 text-sm text-stone-600">
+        <div className="mt-3 space-y-1.5 text-sm text-admin-text-secondary">
           <div className="flex items-center gap-2">
-            <MapPin className="w-4 h-4 text-stone-400" />
+            <MapPin className="w-4 h-4 text-admin-text-muted" />
             <span>
               {hotel.street_address && `${hotel.street_address}, `}
               {hotel.city}, {hotel.state}
@@ -304,7 +303,7 @@ function HotelCard({ hotel, onEdit, onDelete }) {
 
           {hotel.phone && (
             <div className="flex items-center gap-2">
-              <Phone className="w-4 h-4 text-stone-400" />
+              <Phone className="w-4 h-4 text-admin-text-muted" />
               <span>{hotel.phone}</span>
             </div>
           )}
@@ -315,13 +314,13 @@ function HotelCard({ hotel, onEdit, onDelete }) {
             {hotel.amenities.slice(0, 4).map((amenity) => (
               <span
                 key={amenity}
-                className="px-2 py-0.5 rounded-full bg-stone-100 text-stone-600 text-xs"
+                className="px-2 py-0.5 rounded-full bg-admin-content-bg text-admin-text-secondary text-xs"
               >
                 {amenity}
               </span>
             ))}
             {hotel.amenities.length > 4 && (
-              <span className="px-2 py-0.5 rounded-full bg-stone-100 text-stone-600 text-xs">
+              <span className="px-2 py-0.5 rounded-full bg-admin-content-bg text-admin-text-secondary text-xs">
                 +{hotel.amenities.length - 4} more
               </span>
             )}
@@ -329,13 +328,13 @@ function HotelCard({ hotel, onEdit, onDelete }) {
         )}
       </div>
 
-      <div className="px-4 py-3 border-t border-stone-100 flex items-center justify-between">
+      <div className="px-4 py-3 border-t border-[#F2F2F0] flex items-center justify-between">
         {hotel.website_url ? (
           <a
             href={hotel.website_url}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-sm text-tne-red hover:text-tne-red-dark font-medium flex items-center gap-1"
+            className="text-sm text-admin-red hover:opacity-85 font-medium flex items-center gap-1"
           >
             <Globe className="w-3.5 h-3.5" />
             Website
@@ -346,14 +345,14 @@ function HotelCard({ hotel, onEdit, onDelete }) {
         <div className="flex items-center gap-1">
           <button
             onClick={() => onEdit(hotel)}
-            className="p-1.5 rounded-lg hover:bg-stone-100 transition-colors text-stone-400 hover:text-stone-600"
+            className="p-1.5 rounded-lg hover:bg-stone-100 transition-colors text-admin-text-muted hover:text-admin-text-secondary"
             title="Edit"
           >
             <Edit2 className="w-4 h-4" />
           </button>
           <button
             onClick={() => onDelete(hotel)}
-            className="p-1.5 rounded-lg hover:bg-red-50 transition-colors text-stone-400 hover:text-red-500"
+            className="p-1.5 rounded-lg hover:bg-red-50 transition-colors text-admin-text-muted hover:text-red-500"
             title="Delete"
           >
             <Trash2 className="w-4 h-4" />
@@ -414,25 +413,23 @@ export default function AdminHotelsPage() {
   };
 
   return (
-    <div className="bg-stone-100 text-stone-900 antialiased min-h-screen">
-      <AdminNavbar />
-
+    <>
       {/* Header */}
-      <div className="bg-white border-b border-stone-200">
+      <div className="bg-white border-b border-admin-card-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
           <div className="flex items-start justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-stone-900 flex items-center gap-3">
+              <h1 className="text-[22px] font-extrabold text-admin-text tracking-[-0.02em] flex items-center gap-3">
                 <Hotel className="w-7 h-7" />
                 Hotels
               </h1>
-              <p className="text-stone-500 mt-1">
+              <p className="text-admin-text-secondary mt-1">
                 Manage hotel library for tournament travel
               </p>
             </div>
             <button
               onClick={handleCreate}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-tne-red hover:bg-tne-red-dark text-white font-medium transition-colors"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-[12px] bg-admin-red hover:opacity-85 text-white font-medium transition-colors"
             >
               <Plus className="w-4 h-4" />
               Add Hotel
@@ -442,7 +439,7 @@ export default function AdminHotelsPage() {
       </div>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
         {error && (
           <div className="mb-6 px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm">
             Failed to load hotels: {error}
@@ -452,19 +449,19 @@ export default function AdminHotelsPage() {
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {[...Array(6)].map((_, i) => (
-              <div key={i} className="rounded-2xl bg-white border border-stone-200 h-44 animate-pulse" />
+              <div key={i} className="rounded-[14px] bg-white border-[1.5px] border-admin-card-border h-44 animate-pulse" />
             ))}
           </div>
         ) : hotels.length === 0 ? (
           <div className="text-center py-16">
-            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-stone-100 flex items-center justify-center">
-              <Hotel className="w-8 h-8 text-stone-400" />
+            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-admin-content-bg flex items-center justify-center">
+              <Hotel className="w-8 h-8 text-admin-text-muted" />
             </div>
-            <h3 className="text-lg font-medium text-stone-900 mb-2">No hotels yet</h3>
-            <p className="text-stone-500 mb-6">Add hotels to link to tournaments</p>
+            <h3 className="text-lg font-medium text-admin-text mb-2">No hotels yet</h3>
+            <p className="text-admin-text-secondary mb-6">Add hotels to link to tournaments</p>
             <button
               onClick={handleCreate}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-tne-red hover:bg-tne-red-dark text-white font-medium transition-colors"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-[12px] bg-admin-red hover:opacity-85 text-white font-medium transition-colors"
             >
               <Plus className="w-4 h-4" />
               Add Hotel
@@ -482,7 +479,7 @@ export default function AdminHotelsPage() {
             ))}
           </div>
         )}
-      </main>
+      </div>
 
       {/* Create/Edit Modal */}
       {modalOpen && (
@@ -502,15 +499,15 @@ export default function AdminHotelsPage() {
       {/* Delete Confirmation */}
       {deleteConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="bg-white rounded-2xl w-full max-w-md p-6 shadow-xl">
-            <h3 className="text-lg font-semibold text-stone-900 mb-2">Delete Hotel?</h3>
-            <p className="text-stone-600 mb-6">
+          <div className="bg-white rounded-[14px] w-full max-w-md p-6 shadow-xl">
+            <h3 className="text-base font-bold text-admin-text mb-2">Delete Hotel?</h3>
+            <p className="text-admin-text-secondary mb-6">
               Are you sure you want to delete <strong>{deleteConfirm.name}</strong>? This cannot be undone.
             </p>
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => setDeleteConfirm(null)}
-                className="px-4 py-2 rounded-lg border border-stone-300 text-stone-700 hover:bg-stone-50 transition-colors"
+                className="px-4 py-2 rounded-lg border border-admin-card-border text-admin-text hover:bg-stone-50 transition-colors"
               >
                 Cancel
               </button>
@@ -524,6 +521,6 @@ export default function AdminHotelsPage() {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }

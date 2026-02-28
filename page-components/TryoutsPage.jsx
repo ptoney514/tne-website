@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   CalendarCheck,
   Clock,
@@ -695,10 +696,12 @@ export default function TryoutsPage() {
               {/* Skills Camp Card */}
               <div className="rounded-3xl overflow-hidden border border-neutral-200 bg-white shadow-sm hover:shadow-lg transition-shadow">
                 <div className="relative h-48 bg-neutral-900">
-                  <img
+                  <Image
                     src="https://images.unsplash.com/photo-1546519638-68e109498ffc?auto=compress&cs=tinysrgb&w=800"
                     alt="Skills Camp"
-                    className="w-full h-full object-cover opacity-60"
+                    fill
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                    className="object-cover opacity-60"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-neutral-900 to-transparent" />
                   <div className="absolute bottom-4 left-4 right-4">
@@ -740,10 +743,12 @@ export default function TryoutsPage() {
               {/* Small Group Training Card */}
               <div className="rounded-3xl overflow-hidden border border-neutral-200 bg-white shadow-sm hover:shadow-lg transition-shadow">
                 <div className="relative h-48 bg-neutral-900">
-                  <img
+                  <Image
                     src="https://images.unsplash.com/photo-1519861531473-920026393112?auto=compress&cs=tinysrgb&w=800"
                     alt="Small Group Training"
-                    className="w-full h-full object-cover opacity-60"
+                    fill
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                    className="object-cover opacity-60"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-neutral-900 to-transparent" />
                   <div className="absolute bottom-4 left-4 right-4">

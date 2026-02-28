@@ -2,7 +2,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useGames } from '@/hooks/useGames';
 import { useTeams } from '@/hooks/useTeams';
-import AdminNavbar from '@/components/AdminNavbar';
+
 
 // Icons
 const PlusIcon = () => (
@@ -127,12 +127,12 @@ function GameModal({ isOpen, onClose, game, onSave, isSaving }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="bg-white rounded-2xl w-full max-w-xl max-h-[90vh] overflow-y-auto shadow-xl">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-stone-200">
-          <h2 className="text-lg font-semibold text-stone-900">
+      <div className="bg-white rounded-[14px] w-full max-w-xl max-h-[90vh] overflow-y-auto shadow-xl">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-admin-card-border">
+          <h2 className="text-base font-bold text-admin-text">
             {game ? 'Edit Tournament' : 'Create Tournament'}
           </h2>
-          <button onClick={onClose} className="p-1 hover:bg-stone-100 rounded-lg transition-colors text-stone-500">
+          <button onClick={onClose} className="p-1 hover:bg-stone-100 rounded-lg transition-colors text-admin-text-secondary">
             <XIcon />
           </button>
         </div>
@@ -143,7 +143,7 @@ function GameModal({ isOpen, onClose, game, onSave, isSaving }) {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-stone-700 mb-1">
+              <label className="block text-sm font-medium text-admin-text mb-1">
                 Tournament Name *
               </label>
               <input
@@ -151,83 +151,83 @@ function GameModal({ isOpen, onClose, game, onSave, isSaving }) {
                 required
                 value={formData.name}
                 onChange={(e) => handleChange('name', e.target.value)}
-                className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+                className="w-full px-3 py-2 rounded-lg border border-admin-card-border text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
                 placeholder="e.g., MLK Weekend Classic"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-stone-700 mb-1">Date *</label>
+              <label className="block text-sm font-medium text-admin-text mb-1">Date *</label>
               <input
                 type="date"
                 required
                 value={formData.date || ''}
                 onChange={(e) => handleChange('date', e.target.value)}
-                className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+                className="w-full px-3 py-2 rounded-lg border border-admin-card-border text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
               />
             </div>
 
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <label className="block text-sm font-medium text-stone-700 mb-1">Start Time</label>
+                <label className="block text-sm font-medium text-admin-text mb-1">Start Time</label>
                 <input
                   type="time"
                   value={formData.start_time || ''}
                   onChange={(e) => handleChange('start_time', e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+                  className="w-full px-3 py-2 rounded-lg border border-admin-card-border text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-stone-700 mb-1">End Time</label>
+                <label className="block text-sm font-medium text-admin-text mb-1">End Time</label>
                 <input
                   type="time"
                   value={formData.end_time || ''}
                   onChange={(e) => handleChange('end_time', e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+                  className="w-full px-3 py-2 rounded-lg border border-admin-card-border text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-stone-700 mb-1">Location</label>
+              <label className="block text-sm font-medium text-admin-text mb-1">Location</label>
               <input
                 type="text"
                 value={formData.location || ''}
                 onChange={(e) => handleChange('location', e.target.value)}
-                className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+                className="w-full px-3 py-2 rounded-lg border border-admin-card-border text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
                 placeholder="e.g., Omaha Sports Complex"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-stone-700 mb-1">Address</label>
+              <label className="block text-sm font-medium text-admin-text mb-1">Address</label>
               <input
                 type="text"
                 value={formData.address || ''}
                 onChange={(e) => handleChange('address', e.target.value)}
-                className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+                className="w-full px-3 py-2 rounded-lg border border-admin-card-border text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
                 placeholder="Full address"
               />
             </div>
 
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-stone-700 mb-1">Tournament Website</label>
+              <label className="block text-sm font-medium text-admin-text mb-1">Tournament Website</label>
               <input
                 type="url"
                 value={formData.external_url || ''}
                 onChange={(e) => handleChange('external_url', e.target.value)}
-                className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+                className="w-full px-3 py-2 rounded-lg border border-admin-card-border text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
                 placeholder="https://..."
               />
             </div>
 
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-stone-700 mb-1">Notes</label>
+              <label className="block text-sm font-medium text-admin-text mb-1">Notes</label>
               <textarea
                 value={formData.notes || ''}
                 onChange={(e) => handleChange('notes', e.target.value)}
                 rows={2}
-                className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+                className="w-full px-3 py-2 rounded-lg border border-admin-card-border text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
                 placeholder="Internal notes..."
               />
             </div>
@@ -238,26 +238,26 @@ function GameModal({ isOpen, onClose, game, onSave, isSaving }) {
                 id="is_featured"
                 checked={formData.is_featured || false}
                 onChange={(e) => handleChange('is_featured', e.target.checked)}
-                className="rounded border-stone-300"
+                className="rounded border-admin-card-border"
               />
-              <label htmlFor="is_featured" className="text-sm text-stone-700">
+              <label htmlFor="is_featured" className="text-sm text-admin-text">
                 Featured tournament (highlight on public schedule)
               </label>
             </div>
           </div>
 
-          <div className="flex justify-end gap-3 pt-4 border-t border-stone-200">
+          <div className="flex justify-end gap-3 pt-4 border-t border-admin-card-border">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-lg border border-stone-300 text-stone-700 hover:bg-stone-50 transition-colors"
+              className="px-4 py-2 rounded-lg border border-admin-card-border text-admin-text hover:bg-stone-50 transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSaving}
-              className="px-4 py-2 rounded-lg bg-tne-red hover:bg-tne-red-dark text-white font-medium transition-colors disabled:opacity-50 flex items-center gap-2"
+              className="px-4 py-2 rounded-lg bg-admin-red hover:opacity-85 text-white font-medium transition-colors disabled:opacity-50 flex items-center gap-2"
             >
               {isSaving && <LoaderIcon />}
               {game ? 'Update' : 'Create'}
@@ -292,19 +292,19 @@ function TeamAssignmentModal({ isOpen, onClose, game, teams, onSave, isSaving })
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="bg-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-xl">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-stone-200">
+      <div className="bg-white rounded-[14px] w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-xl">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-admin-card-border">
           <div>
-            <h2 className="text-lg font-semibold text-stone-900">Assign Teams</h2>
-            <p className="text-sm text-stone-500">{game.name}</p>
+            <h2 className="text-base font-bold text-admin-text">Assign Teams</h2>
+            <p className="text-sm text-admin-text-secondary">{game.name}</p>
           </div>
-          <button onClick={onClose} className="p-1 hover:bg-stone-100 rounded-lg transition-colors text-stone-500">
+          <button onClick={onClose} className="p-1 hover:bg-stone-100 rounded-lg transition-colors text-admin-text-secondary">
             <XIcon />
           </button>
         </div>
 
         <div className="p-6">
-          <p className="text-sm text-stone-600 mb-4">
+          <p className="text-sm text-admin-text-secondary mb-4">
             Select the teams participating in this tournament:
           </p>
 
@@ -314,24 +314,24 @@ function TeamAssignmentModal({ isOpen, onClose, game, teams, onSave, isSaving })
                 type="button"
                 key={team.id}
                 onClick={() => handleToggleTeam(team.id)}
-                className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-colors w-full text-left ${
+                className={`flex items-center gap-3 p-3 rounded-[12px] border cursor-pointer transition-colors w-full text-left ${
                   selectedTeamIds.includes(team.id)
-                    ? 'border-tne-red bg-red-50'
-                    : 'border-stone-200 hover:bg-stone-50'
+                    ? 'border-admin-red bg-red-50'
+                    : 'border-admin-card-border hover:bg-stone-50'
                 }`}
               >
                 <div
                   className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
                     selectedTeamIds.includes(team.id)
-                      ? 'bg-tne-red border-tne-red text-white'
-                      : 'border-stone-300'
+                      ? 'bg-admin-red border-admin-red text-white'
+                      : 'border-admin-card-border'
                   }`}
                 >
                   {selectedTeamIds.includes(team.id) && <CheckIcon />}
                 </div>
                 <div className="flex-1">
-                  <p className="font-medium text-stone-900">{team.name}</p>
-                  <p className="text-sm text-stone-500">
+                  <p className="font-medium text-admin-text">{team.name}</p>
+                  <p className="text-sm text-admin-text-secondary">
                     {team.grade_level} - {team.gender === 'male' ? 'Boys' : 'Girls'}
                   </p>
                 </div>
@@ -339,22 +339,22 @@ function TeamAssignmentModal({ isOpen, onClose, game, teams, onSave, isSaving })
             ))}
           </div>
 
-          <div className="mt-4 pt-4 border-t border-stone-200 flex justify-between items-center">
-            <p className="text-sm text-stone-600">
+          <div className="mt-4 pt-4 border-t border-admin-card-border flex justify-between items-center">
+            <p className="text-sm text-admin-text-secondary">
               {selectedTeamIds.length} team{selectedTeamIds.length !== 1 ? 's' : ''} selected
             </p>
             <div className="flex gap-3">
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 rounded-lg border border-stone-300 text-stone-700 hover:bg-stone-50 transition-colors"
+                className="px-4 py-2 rounded-lg border border-admin-card-border text-admin-text hover:bg-stone-50 transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSave}
                 disabled={isSaving}
-                className="px-4 py-2 rounded-lg bg-tne-red hover:bg-tne-red-dark text-white font-medium transition-colors disabled:opacity-50 flex items-center gap-2"
+                className="px-4 py-2 rounded-lg bg-admin-red hover:opacity-85 text-white font-medium transition-colors disabled:opacity-50 flex items-center gap-2"
               >
                 {isSaving && <LoaderIcon />}
                 Save
@@ -375,7 +375,7 @@ function GameCard({ game, onEdit, onDelete, onAssignTeams }) {
   const isPast = daysUntil < 0;
 
   return (
-    <div className={`rounded-2xl bg-white border border-stone-200 shadow-sm overflow-hidden hover:shadow-md transition-shadow ${isPast ? 'opacity-60' : ''}`}>
+    <div className={`rounded-[14px] bg-white border-[1.5px] border-admin-card-border shadow-sm overflow-hidden hover:shadow-md transition-shadow ${isPast ? 'opacity-60' : ''}`}>
       {/* Header */}
       <div className={`px-4 py-3 ${game.is_featured ? 'bg-amber-500' : 'bg-amber-600'} text-white`}>
         <div className="flex items-center justify-between">
@@ -393,9 +393,9 @@ function GameCard({ game, onEdit, onDelete, onAssignTeams }) {
 
       {/* Body */}
       <div className="p-4">
-        <h3 className="font-semibold text-lg text-stone-900">{game.name}</h3>
+        <h3 className="font-semibold text-lg text-admin-text">{game.name}</h3>
 
-        <div className="mt-3 space-y-2 text-sm text-stone-600">
+        <div className="mt-3 space-y-2 text-sm text-admin-text-secondary">
           <div className="flex items-center gap-2">
             <CalendarIcon />
             <span>{formatDate(game.date)}</span>
@@ -422,7 +422,7 @@ function GameCard({ game, onEdit, onDelete, onAssignTeams }) {
                 href={game.external_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-tne-red hover:text-tne-red-dark hover:underline"
+                className="text-admin-red hover:opacity-85 hover:underline"
               >
                 Website
               </a>
@@ -436,13 +436,13 @@ function GameCard({ game, onEdit, onDelete, onAssignTeams }) {
             {game.assigned_teams.slice(0, 3).map((gt) => (
               <span
                 key={gt.id}
-                className="px-2 py-0.5 rounded bg-stone-100 text-stone-600 text-xs"
+                className="px-2 py-0.5 rounded bg-stone-100 text-admin-text-secondary text-xs"
               >
                 {gt.team?.name?.split(' ').slice(-1)[0] || 'Team'}
               </span>
             ))}
             {game.assigned_teams.length > 3 && (
-              <span className="px-2 py-0.5 rounded bg-stone-100 text-stone-600 text-xs">
+              <span className="px-2 py-0.5 rounded bg-stone-100 text-admin-text-secondary text-xs">
                 +{game.assigned_teams.length - 3} more
               </span>
             )}
@@ -450,24 +450,24 @@ function GameCard({ game, onEdit, onDelete, onAssignTeams }) {
         )}
 
         {!isPast && daysUntil <= 14 && (
-          <p className="mt-3 text-xs text-tne-red font-medium">
+          <p className="mt-3 text-xs text-admin-red font-medium">
             {daysUntil === 0 ? 'Today!' : daysUntil === 1 ? 'Tomorrow' : `${daysUntil} days away`}
           </p>
         )}
       </div>
 
       {/* Footer */}
-      <div className="px-4 py-3 border-t border-stone-100 flex items-center justify-between">
+      <div className="px-4 py-3 border-t border-[#F2F2F0] flex items-center justify-between">
         <div className="flex items-center gap-3">
           <button
             onClick={() => onAssignTeams(game)}
-            className="text-sm text-tne-red hover:text-tne-red-dark font-medium transition-colors"
+            className="text-sm text-admin-red hover:opacity-85 font-medium transition-colors"
           >
             Assign Teams
           </button>
           <Link
             href={`/admin/games/${game.id}`}
-            className="text-sm text-stone-600 hover:text-stone-800 font-medium transition-colors flex items-center gap-1"
+            className="text-sm text-admin-text-secondary hover:text-admin-text font-medium transition-colors flex items-center gap-1"
           >
             <SettingsIcon />
             Details
@@ -476,14 +476,14 @@ function GameCard({ game, onEdit, onDelete, onAssignTeams }) {
         <div className="flex items-center gap-1">
           <button
             onClick={() => onEdit(game)}
-            className="p-1.5 rounded-lg hover:bg-stone-100 transition-colors text-stone-400 hover:text-stone-600"
+            className="p-1.5 rounded-lg hover:bg-stone-100 transition-colors text-admin-text-muted hover:text-admin-text-secondary"
             title="Edit"
           >
             <EditIcon />
           </button>
           <button
             onClick={() => onDelete(game)}
-            className="p-1.5 rounded-lg hover:bg-red-50 transition-colors text-stone-400 hover:text-red-500"
+            className="p-1.5 rounded-lg hover:bg-red-50 transition-colors text-admin-text-muted hover:text-red-500"
             title="Delete"
           >
             <TrashIcon />
@@ -499,12 +499,12 @@ function CreateGameCard({ onClick }) {
   return (
     <button
       onClick={onClick}
-      className="rounded-2xl border-2 border-dashed border-stone-300 bg-white/50 p-8 flex flex-col items-center justify-center gap-3 hover:border-stone-400 hover:bg-white transition-all min-h-[220px]"
+      className="rounded-[14px] border-2 border-dashed border-admin-card-border bg-white/50 p-8 flex flex-col items-center justify-center gap-3 hover:border-stone-400 hover:bg-white transition-all min-h-[220px]"
     >
       <div className="w-12 h-12 rounded-full bg-stone-100 flex items-center justify-center">
         <PlusIcon />
       </div>
-      <span className="text-sm font-medium text-stone-600">Add Tournament</span>
+      <span className="text-sm font-medium text-admin-text-secondary">Add Tournament</span>
     </button>
   );
 }
@@ -582,25 +582,23 @@ export default function AdminGamesPage() {
   const tournaments = games.filter(g => g.game_type === 'tournament');
 
   return (
-    <div className="bg-stone-100 text-stone-900 antialiased min-h-screen">
-      <AdminNavbar />
-
+    <>
       {/* Header */}
-      <div className="bg-white border-b border-stone-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+      <div className="bg-white border-b border-admin-card-border -mx-4 -mt-4 sm:-mx-8 sm:-mt-8 px-4 sm:px-8 py-8 mb-8">
+        <div className="max-w-7xl mx-auto">
           <div className="flex items-start justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-stone-900 flex items-center gap-3">
+              <h1 className="text-[22px] font-extrabold text-admin-text tracking-[-0.02em] flex items-center gap-3">
                 <TrophyIcon />
                 Tournament Schedule
               </h1>
-              <p className="text-stone-500 mt-1">
+              <p className="text-admin-text-secondary mt-1">
                 Manage tournaments and assign teams
               </p>
             </div>
             <button
               onClick={handleCreate}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-tne-red hover:bg-tne-red-dark text-white font-medium transition-colors"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-[12px] bg-admin-red hover:opacity-85 text-white font-medium transition-colors"
             >
               <PlusIcon />
               Add Tournament
@@ -609,11 +607,10 @@ export default function AdminGamesPage() {
         </div>
       </div>
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+      <div className="max-w-7xl mx-auto">
         {/* Error State */}
         {error && (
-          <div className="mb-6 px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm">
+          <div className="mb-6 px-4 py-3 rounded-[12px] bg-red-50 border border-red-200 text-red-700 text-sm">
             Failed to load: {error}
           </div>
         )}
@@ -622,7 +619,7 @@ export default function AdminGamesPage() {
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {[...Array(6)].map((_, i) => (
-              <div key={i} className="rounded-2xl bg-white border border-stone-200 h-52 animate-pulse" />
+              <div key={i} className="rounded-[14px] bg-white border-[1.5px] border-admin-card-border h-52 animate-pulse" />
             ))}
           </div>
         ) : tournaments.length === 0 ? (
@@ -630,11 +627,11 @@ export default function AdminGamesPage() {
             <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-stone-100 flex items-center justify-center">
               <TrophyIcon />
             </div>
-            <h3 className="text-lg font-medium text-stone-900 mb-2">No tournaments yet</h3>
-            <p className="text-stone-500 mb-6">Create a tournament, then assign teams to it</p>
+            <h3 className="text-base font-bold text-admin-text mb-2">No tournaments yet</h3>
+            <p className="text-admin-text-secondary mb-6">Create a tournament, then assign teams to it</p>
             <button
               onClick={handleCreate}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-tne-red hover:bg-tne-red-dark text-white font-medium transition-colors"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-[12px] bg-admin-red hover:opacity-85 text-white font-medium transition-colors"
             >
               <PlusIcon />
               Add Tournament
@@ -657,7 +654,7 @@ export default function AdminGamesPage() {
             </div>
           </div>
         )}
-      </main>
+      </div>
 
       {/* Create/Edit Modal */}
       {modalOpen && (
@@ -692,15 +689,15 @@ export default function AdminGamesPage() {
       {/* Delete Confirmation */}
       {deleteConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="bg-white rounded-2xl w-full max-w-md p-6 shadow-xl">
-            <h3 className="text-lg font-semibold text-stone-900 mb-2">Delete Tournament?</h3>
-            <p className="text-stone-600 mb-6">
+          <div className="bg-white rounded-[14px] w-full max-w-md p-6 shadow-xl">
+            <h3 className="text-base font-bold text-admin-text mb-2">Delete Tournament?</h3>
+            <p className="text-admin-text-secondary mb-6">
               Are you sure you want to delete <strong>{deleteConfirm.name}</strong>? This will also remove all team assignments.
             </p>
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => setDeleteConfirm(null)}
-                className="px-4 py-2 rounded-lg border border-stone-300 text-stone-700 hover:bg-stone-50 transition-colors"
+                className="px-4 py-2 rounded-lg border border-admin-card-border text-admin-text hover:bg-stone-50 transition-colors"
               >
                 Cancel
               </button>
@@ -714,6 +711,6 @@ export default function AdminGamesPage() {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }
