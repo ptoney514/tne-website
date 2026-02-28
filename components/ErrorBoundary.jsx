@@ -1,5 +1,6 @@
 import { Component } from 'react';
 import Link from 'next/link';
+import * as Sentry from '@sentry/nextjs';
 
 class ErrorBoundary extends Component {
   constructor(props) {
@@ -13,7 +14,9 @@ class ErrorBoundary extends Component {
 
   componentDidCatch(error, errorInfo) {
     this.setState({ errorInfo });
-    // Log error to console in development
+    Sentry.captureException(error, {
+      contexts: { react: { componentStack: errorInfo?.componentStack } },
+    });
     if (process.env.NODE_ENV === 'development') {
       console.error('ErrorBoundary caught an error:', error, errorInfo);
     }
