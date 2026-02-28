@@ -27,5 +27,8 @@ test-results/
 .vercel
 
 
+# Sentry
+.sentryclirc
+
 # Seed data (may contain PII, generate locally)
 data/team-data.xlsx
