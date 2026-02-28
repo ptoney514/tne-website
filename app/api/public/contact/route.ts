@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { contactSubmissions } from '@/lib/schema';
+import { createRateLimiter } from '@/lib/rate-limit';
+
+// Rate limiter: 3 submissions per minute per IP
+const limiter = createRateLimiter('contact', { max: 3, windowMs: 60_000 });
 
 interface ContactPayload {
   name: string;
@@ -11,6 +15,10 @@ interface ContactPayload {
 }
 
 export async function POST(request: NextRequest) {
+  // Rate limit check
+  const limited = limiter.check(request);
+  if (limited) return limited;
+
   try {
     const body = (await request.json()) as ContactPayload;
 
