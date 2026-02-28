@@ -33,9 +33,39 @@ Last updated: 2026-02-28
 
 This means if you discover data corruption, you have up to **6 hours** to catch it and restore.
 
-### Weekly pg_dump (GitHub Actions)
+### Weekly pg_dump — Local (Primary)
 
-A scheduled GitHub Action runs every Sunday at 3:00 AM UTC and uploads a `pg_dump` to GitHub Actions artifacts (retained for 30 days). This provides an **external backup outside of Neon**.
+A macOS **launchd** agent runs `scripts/backup-db.sh` every Sunday at 3:00 AM local time. If the Mac is asleep, it runs when it wakes up. Backups are saved to `~/backups/tne-website/` and auto-cleaned after 30 days.
+
+**Plist location**: `~/Library/LaunchAgents/com.tne.db-backup.plist`
+**Log file**: `~/backups/tne-website/backup.log`
+
+```bash
+# Monitor — check log
+cat ~/backups/tne-website/backup.log
+
+# Monitor — list recent backups
+ls -lh ~/backups/tne-website/tne-*.dump
+
+# Manual trigger
+launchctl start com.tne.db-backup
+
+# On-demand via npm
+npm run db:backup        # production
+npm run db:backup:dev    # dev branch
+
+# Manage the scheduled agent
+launchctl list | grep tne              # verify it's loaded
+launchctl stop com.tne.db-backup       # stop a running backup
+launchctl unload ~/Library/LaunchAgents/com.tne.db-backup.plist   # disable
+launchctl load ~/Library/LaunchAgents/com.tne.db-backup.plist     # re-enable
+```
+
+After each backup, copy the dump file to your NAS and/or Google Drive for offsite redundancy.
+
+### Weekly pg_dump — GitHub Actions (Secondary)
+
+A GitHub Action also runs every Sunday at 3:00 AM UTC as a fallback. Uploads to GitHub Actions artifacts (retained 30 days). Requires GitHub Actions billing to be active.
 
 See `.github/workflows/backup.yml`.
 
@@ -44,7 +74,8 @@ See `.github/workflows/backup.yml`.
 | Data | Backup method | Retention |
 |------|--------------|-----------|
 | Database (schema + data) | Neon PITR | 6 hours rolling |
-| Database (full dump) | Weekly pg_dump → GitHub artifact | 30 days |
+| Database (full dump) | Weekly local pg_dump → `~/backups/tne-website/` | 30 days |
+| Database (full dump) | Weekly GitHub Actions pg_dump → artifact | 30 days |
 | Source code | GitHub | Permanent (git history) |
 | Deployments | Vercel | Automatic rollback to any previous deploy |
 | Environment variables | Documented in `.env.example` | Manual (see Secret Recovery below) |
@@ -92,17 +123,20 @@ vercel promote <deployment-url>
 6. Redeploy
 
 **If outside PITR window — use weekly pg_dump:**
-1. Go to GitHub → Actions → **Weekly Database Backup** workflow
-2. Download the most recent artifact (`tne-db-backup-YYYY-MM-DD`)
-3. Create a new Neon branch for the restore:
+1. Find the most recent backup:
+   ```bash
+   ls -lh ~/backups/tne-website/tne-production-*.dump
+   ```
+   Or download from GitHub → Actions → **Weekly Database Backup** workflow artifacts.
+2. Create a new Neon branch for the restore:
    ```bash
    neonctl branches create --project-id noisy-sea-79276165 --name restore-YYYY-MM-DD --org-id org-morning-pine-04214347
    ```
-4. Get the connection string and restore:
+3. Get the connection string and restore:
    ```bash
    pg_restore --no-owner --no-acl -d "<new-branch-connection-string>" backup.dump
    ```
-5. Verify, then update `DATABASE_URL` in Vercel
+4. Verify, then update `DATABASE_URL` in Vercel
 
 ### 3. Seed script accidentally ran against production
 
@@ -172,7 +206,8 @@ vercel domains ls
 
 | Task | Frequency | How |
 |------|-----------|-----|
-| Verify weekly backup runs | Weekly (check GitHub Actions) | Actions → Weekly Database Backup |
-| Test backup restore | Monthly | Download artifact, restore to test branch |
+| Verify weekly backup runs | Weekly | `ls -lh ~/backups/tne-website/` or check GitHub Actions |
+| Copy backup to NAS/Google Drive | Weekly (after backup) | Copy latest `.dump` from `~/backups/tne-website/` |
+| Test backup restore | Monthly | Restore dump to a test Neon branch, verify data |
 | Rotate Sentry auth token | Every 6 months | Sentry → Settings → Auth Tokens |
 | Review Neon PITR window | Quarterly | Neon Console → Settings → Instant restore |
