@@ -46,6 +46,9 @@ export default function TryoutRegistrationForm({
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!formData.parentFirstName.trim() || !formData.parentLastName.trim()) {
+      return;
+    }
     const result = await onSubmit({
       ...formData,
       sessionId: selectedSession?.id || '',
@@ -259,7 +262,7 @@ export default function TryoutRegistrationForm({
               htmlFor="parentEmail"
               className="block text-sm font-medium text-neutral-700 mb-1"
             >
-              Email Address *
+              Email Address
             </label>
             <input
               type="email"
@@ -267,12 +270,9 @@ export default function TryoutRegistrationForm({
               name="parentEmail"
               value={formData.parentEmail}
               onChange={handleChange}
-              required
               className="block w-full rounded-xl border border-neutral-300 bg-neutral-50 px-4 py-2.5 text-sm text-neutral-900 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-tne-red/50 focus:border-tne-red/50"
+              placeholder="Optional — we'll send confirmation if provided"
             />
-            <p className="mt-1 text-xs text-neutral-500">
-              We'll send your registration confirmation here
-            </p>
           </div>
           <div>
             <label
@@ -294,7 +294,7 @@ export default function TryoutRegistrationForm({
           </div>
         </div>
 
-        {/* Parent/Guardian Details (optional) */}
+        {/* Parent/Guardian Details */}
         <div className="space-y-4 pt-2 border-t border-neutral-200">
           <h3 className="text-sm font-medium text-neutral-900 uppercase tracking-wide pt-2">
             Parent/Guardian Details
@@ -305,7 +305,7 @@ export default function TryoutRegistrationForm({
                 htmlFor="parentFirstName"
                 className="block text-sm font-medium text-neutral-700 mb-1"
               >
-                First Name
+                First Name *
               </label>
               <input
                 type="text"
@@ -313,6 +313,7 @@ export default function TryoutRegistrationForm({
                 name="parentFirstName"
                 value={formData.parentFirstName}
                 onChange={handleChange}
+                required
                 className="block w-full rounded-xl border border-neutral-300 bg-neutral-50 px-4 py-2.5 text-sm text-neutral-900 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-tne-red/50 focus:border-tne-red/50"
               />
             </div>
@@ -321,7 +322,7 @@ export default function TryoutRegistrationForm({
                 htmlFor="parentLastName"
                 className="block text-sm font-medium text-neutral-700 mb-1"
               >
-                Last Name
+                Last Name *
               </label>
               <input
                 type="text"
@@ -329,6 +330,7 @@ export default function TryoutRegistrationForm({
                 name="parentLastName"
                 value={formData.parentLastName}
                 onChange={handleChange}
+                required
                 className="block w-full rounded-xl border border-neutral-300 bg-neutral-50 px-4 py-2.5 text-sm text-neutral-900 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-tne-red/50 focus:border-tne-red/50"
               />
             </div>
