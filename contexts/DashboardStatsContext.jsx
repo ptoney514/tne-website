@@ -34,7 +34,7 @@ export function DashboardStatsProvider({ children }) {
 
       setStats({
         teams: data.teams?.total || 0,
-        players: data.players?.total || 0,
+        players: data.players?.onRoster || 0,
         registrations: data.registrations?.total || 0,
         pendingRegistrations: data.registrations?.pending || 0,
         pendingPayments: 0,

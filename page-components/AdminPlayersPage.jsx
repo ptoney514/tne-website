@@ -745,7 +745,7 @@ export default function AdminPlayersPage() {
       {/* Page Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
           <div>
-            <h1 className="text-[22px] font-extrabold text-admin-text tracking-[-0.02em]">Players</h1>
+            <h1 className="text-[22px] font-extrabold text-admin-text tracking-[-0.02em]">Active Players</h1>
             <p className="text-sm text-admin-text-secondary mt-1">
               {filteredPlayers.length} of {players.length} player{players.length !== 1 ? 's' : ''}
             </p>
