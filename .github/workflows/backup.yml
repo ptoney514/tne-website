@@ -28,7 +28,7 @@ jobs:
           echo "Backup size: $(du -h backup.dump | cut -f1)"
 
       - name: Upload backup artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: tne-db-backup-${{ github.run_id }}
           path: backup.dump
