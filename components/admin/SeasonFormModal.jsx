@@ -69,15 +69,15 @@ export default function SeasonFormModal({ isOpen, season, onClose, onSave }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="bg-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-xl">
+      <div className="bg-white rounded-[14px] w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-xl">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-stone-200">
-          <h2 className="text-xl font-semibold text-stone-900">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-admin-card-border">
+          <h2 className="text-base font-bold text-admin-text">
             {isEditing ? 'Edit Season' : 'Create Season'}
           </h2>
           <button
             onClick={onClose}
-            className="p-1 hover:bg-stone-100 rounded-lg transition-colors text-stone-500"
+            className="p-1 hover:bg-stone-100 rounded-lg transition-colors text-admin-text-secondary"
           >
             <X className="w-5 h-5" />
           </button>
@@ -93,7 +93,7 @@ export default function SeasonFormModal({ isOpen, season, onClose, onSave }) {
 
           {/* Name */}
           <div>
-            <label className="block text-sm font-medium text-stone-700 mb-1.5">
+            <label className="block text-sm font-medium text-admin-text mb-1.5">
               Season Name *
             </label>
             <input
@@ -102,13 +102,13 @@ export default function SeasonFormModal({ isOpen, season, onClose, onSave }) {
               value={formData.name}
               onChange={(e) => handleChange('name', e.target.value)}
               placeholder="e.g. Winter 2025"
-              className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+              className="w-full px-3 py-2 rounded-lg border border-admin-card-border text-admin-text placeholder-admin-text-muted focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
             />
           </div>
 
           {/* Start Date */}
           <div>
-            <label className="block text-sm font-medium text-stone-700 mb-1.5">
+            <label className="block text-sm font-medium text-admin-text mb-1.5">
               Start Date *
             </label>
             <input
@@ -116,13 +116,13 @@ export default function SeasonFormModal({ isOpen, season, onClose, onSave }) {
               required
               value={formData.start_date}
               onChange={(e) => handleChange('start_date', e.target.value)}
-              className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+              className="w-full px-3 py-2 rounded-lg border border-admin-card-border text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
             />
           </div>
 
           {/* End Date */}
           <div>
-            <label className="block text-sm font-medium text-stone-700 mb-1.5">
+            <label className="block text-sm font-medium text-admin-text mb-1.5">
               End Date *
             </label>
             <input
@@ -130,15 +130,15 @@ export default function SeasonFormModal({ isOpen, season, onClose, onSave }) {
               required
               value={formData.end_date}
               onChange={(e) => handleChange('end_date', e.target.value)}
-              className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+              className="w-full px-3 py-2 rounded-lg border border-admin-card-border text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
             />
           </div>
 
           {/* Active Toggle */}
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-stone-700">Active</p>
-              <p className="text-xs text-stone-500">Active seasons appear in the public teams dropdown</p>
+              <p className="text-sm font-medium text-admin-text">Active</p>
+              <p className="text-xs text-admin-text-secondary">Active seasons appear in the public teams dropdown</p>
             </div>
             <button
               type="button"
@@ -146,7 +146,7 @@ export default function SeasonFormModal({ isOpen, season, onClose, onSave }) {
               aria-checked={formData.is_active}
               onClick={() => handleChange('is_active', !formData.is_active)}
               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                formData.is_active ? 'bg-tne-red' : 'bg-stone-300'
+                formData.is_active ? 'bg-admin-red' : 'bg-stone-300'
               }`}
             >
               <span
@@ -162,14 +162,14 @@ export default function SeasonFormModal({ isOpen, season, onClose, onSave }) {
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-lg border border-stone-300 text-stone-700 hover:bg-stone-50 transition-colors"
+              className="px-4 py-2 rounded-lg border border-admin-card-border text-admin-text hover:bg-stone-50 transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSaving}
-              className="px-4 py-2 rounded-lg bg-tne-red hover:bg-tne-red-dark text-white font-medium transition-colors disabled:opacity-50 flex items-center gap-2"
+              className="px-4 py-2 rounded-lg bg-admin-red hover:opacity-85 text-white font-medium transition-colors disabled:opacity-50 flex items-center gap-2"
             >
               {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}
               {isEditing ? 'Save Changes' : 'Create Season'}

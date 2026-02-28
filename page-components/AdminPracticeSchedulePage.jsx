@@ -1,7 +1,6 @@
 import { useState, useMemo } from 'react';
 import { usePracticeSchedulesAdmin } from '@/hooks/usePracticeSchedulesAdmin';
 import { formatPracticeTime } from '@/hooks/usePracticeSchedule';
-import AdminNavbar from '@/components/AdminNavbar';
 
 // Icons as inline SVGs
 const PlusIcon = () => (
@@ -103,12 +102,12 @@ function PracticeModal({ isOpen, onClose, practice, teams, onSave, isSaving }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-xl">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-stone-200">
-          <h2 className="text-lg font-semibold text-stone-900">
+      <div className="bg-white rounded-[14px] w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-xl">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-admin-card-border">
+          <h2 className="text-base font-bold text-admin-text">
             {practice ? 'Edit Practice Session' : 'Add Practice Session'}
           </h2>
-          <button onClick={onClose} className="p-1 hover:bg-stone-100 rounded-lg transition-colors text-stone-500">
+          <button onClick={onClose} className="p-1 hover:bg-stone-100 rounded-lg transition-colors text-admin-text-secondary">
             <XIcon />
           </button>
         </div>
@@ -116,12 +115,12 @@ function PracticeModal({ isOpen, onClose, practice, teams, onSave, isSaving }) {
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-stone-700 mb-1">Day of Week *</label>
+              <label className="block text-sm font-medium text-admin-text mb-1">Day of Week *</label>
               <select
                 required
                 value={formData.day_of_week}
                 onChange={(e) => handleChange('day_of_week', e.target.value)}
-                className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+                className="w-full px-3 py-2 rounded-lg border border-admin-card-border text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
               >
                 {DAYS_OF_WEEK.map((day) => (
                   <option key={day} value={day}>
@@ -132,64 +131,64 @@ function PracticeModal({ isOpen, onClose, practice, teams, onSave, isSaving }) {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-stone-700 mb-1">Location *</label>
+              <label className="block text-sm font-medium text-admin-text mb-1">Location *</label>
               <input
                 type="text"
                 required
                 value={formData.location}
                 onChange={(e) => handleChange('location', e.target.value)}
-                className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+                className="w-full px-3 py-2 rounded-lg border border-admin-card-border text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
                 placeholder="e.g., Monroe MS"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-stone-700 mb-1">Start Time *</label>
+              <label className="block text-sm font-medium text-admin-text mb-1">Start Time *</label>
               <input
                 type="time"
                 required
                 value={formData.start_time}
                 onChange={(e) => handleChange('start_time', e.target.value)}
-                className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+                className="w-full px-3 py-2 rounded-lg border border-admin-card-border text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-stone-700 mb-1">End Time *</label>
+              <label className="block text-sm font-medium text-admin-text mb-1">End Time *</label>
               <input
                 type="time"
                 required
                 value={formData.end_time}
                 onChange={(e) => handleChange('end_time', e.target.value)}
-                className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+                className="w-full px-3 py-2 rounded-lg border border-admin-card-border text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-stone-700 mb-1">Address (optional)</label>
+            <label className="block text-sm font-medium text-admin-text mb-1">Address (optional)</label>
             <input
               type="text"
               value={formData.address}
               onChange={(e) => handleChange('address', e.target.value)}
-              className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+              className="w-full px-3 py-2 rounded-lg border border-admin-card-border text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
               placeholder="Full address"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-stone-700 mb-1">Notes (optional)</label>
+            <label className="block text-sm font-medium text-admin-text mb-1">Notes (optional)</label>
             <textarea
               value={formData.notes}
               onChange={(e) => handleChange('notes', e.target.value)}
               rows={2}
-              className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+              className="w-full px-3 py-2 rounded-lg border border-admin-card-border text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
               placeholder="Additional notes..."
             />
           </div>
 
-          <div className="border-t border-stone-200 pt-4">
-            <label className="block text-sm font-medium text-stone-700 mb-3">
+          <div className="border-t border-admin-card-border pt-4">
+            <label className="block text-sm font-medium text-admin-text mb-3">
               Assign Teams (select all that practice at this time)
             </label>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-48 overflow-y-auto">
@@ -198,19 +197,19 @@ function PracticeModal({ isOpen, onClose, practice, teams, onSave, isSaving }) {
                   key={team.id}
                   className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${
                     selectedTeamIds.includes(team.id)
-                      ? 'border-tne-red bg-tne-red/5'
-                      : 'border-stone-200 hover:bg-stone-50'
+                      ? 'border-admin-red bg-admin-red/5'
+                      : 'border-admin-card-border hover:bg-stone-50'
                   }`}
                 >
                   <input
                     type="checkbox"
                     checked={selectedTeamIds.includes(team.id)}
                     onChange={() => toggleTeam(team.id)}
-                    className="rounded border-stone-300 text-tne-red focus:ring-tne-red"
+                    className="rounded border-admin-card-border text-admin-red focus:ring-admin-red/20"
                   />
                   <div>
-                    <div className="font-medium text-stone-900 text-sm">{team.name}</div>
-                    <div className="text-xs text-stone-500">{team.grade_level}</div>
+                    <div className="font-medium text-admin-text text-sm">{team.name}</div>
+                    <div className="text-xs text-admin-text-secondary">{team.grade_level}</div>
                   </div>
                 </label>
               ))}
@@ -223,25 +222,25 @@ function PracticeModal({ isOpen, onClose, practice, teams, onSave, isSaving }) {
               id="is_active"
               checked={formData.is_active}
               onChange={(e) => handleChange('is_active', e.target.checked)}
-              className="rounded border-stone-300"
+              className="rounded border-admin-card-border"
             />
-            <label htmlFor="is_active" className="text-sm text-stone-700">
+            <label htmlFor="is_active" className="text-sm text-admin-text">
               Practice is active
             </label>
           </div>
 
-          <div className="flex justify-end gap-3 pt-4 border-t border-stone-200">
+          <div className="flex justify-end gap-3 pt-4 border-t border-admin-card-border">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-lg border border-stone-300 text-stone-700 hover:bg-stone-50 transition-colors"
+              className="px-4 py-2 rounded-lg border border-admin-card-border text-admin-text hover:bg-stone-50 transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSaving}
-              className="px-4 py-2 rounded-lg bg-tne-red hover:bg-tne-red-dark text-white font-medium transition-colors disabled:opacity-50 flex items-center gap-2"
+              className="px-4 py-2 rounded-lg bg-admin-red hover:opacity-85 text-white font-medium transition-colors disabled:opacity-50 flex items-center gap-2"
             >
               {isSaving && <LoaderIcon />}
               {practice ? 'Update' : 'Add Practice'}
@@ -260,16 +259,16 @@ function PracticeCard({ practice, onEdit, onDelete }) {
   const teams = practice.practice_session_teams || [];
 
   return (
-    <div className={`bg-white rounded-xl border border-stone-200 p-4 ${!practice.is_active ? 'opacity-60' : ''}`}>
+    <div className={`bg-white rounded-[12px] border-[1.5px] border-admin-card-border p-4 ${!practice.is_active ? 'opacity-60' : ''}`}>
       <div className="flex items-start justify-between mb-3">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="text-sm font-semibold text-stone-900">{practice.day_of_week}</span>
+            <span className="text-sm font-semibold text-admin-text">{practice.day_of_week}</span>
             {!practice.is_active && (
-              <span className="text-xs px-2 py-0.5 rounded-full bg-stone-100 text-stone-500">Inactive</span>
+              <span className="text-xs px-2 py-0.5 rounded-full bg-admin-content-bg text-admin-text-secondary">Inactive</span>
             )}
           </div>
-          <div className="flex items-center gap-1.5 text-sm text-stone-600">
+          <div className="flex items-center gap-1.5 text-sm text-admin-text-secondary">
             <ClockIcon />
             <span>{startTime} - {endTime}</span>
           </div>
@@ -277,31 +276,31 @@ function PracticeCard({ practice, onEdit, onDelete }) {
         <div className="flex items-center gap-1">
           <button
             onClick={() => onEdit(practice)}
-            className="p-1.5 hover:bg-stone-100 rounded-lg text-stone-400 hover:text-stone-600 transition-colors"
+            className="p-1.5 hover:bg-stone-100 rounded-lg text-admin-text-muted hover:text-admin-text-secondary transition-colors"
           >
             <PencilIcon />
           </button>
           <button
             onClick={() => onDelete(practice)}
-            className="p-1.5 hover:bg-red-50 rounded-lg text-stone-400 hover:text-red-600 transition-colors"
+            className="p-1.5 hover:bg-red-50 rounded-lg text-admin-text-muted hover:text-red-600 transition-colors"
           >
             <TrashIcon />
           </button>
         </div>
       </div>
 
-      <div className="flex items-center gap-1.5 text-sm text-stone-600 mb-3">
+      <div className="flex items-center gap-1.5 text-sm text-admin-text-secondary mb-3">
         <MapPinIcon />
         <span>{practice.location}</span>
       </div>
 
       {practice.notes && (
-        <p className="text-xs text-stone-500 mb-3 italic">{practice.notes}</p>
+        <p className="text-xs text-admin-text-secondary mb-3 italic">{practice.notes}</p>
       )}
 
       {teams.length > 0 && (
-        <div className="pt-3 border-t border-stone-100">
-          <div className="flex items-center gap-1.5 text-xs text-stone-500 mb-2">
+        <div className="pt-3 border-t border-[#F2F2F0]">
+          <div className="flex items-center gap-1.5 text-xs text-admin-text-secondary mb-2">
             <UsersIcon />
             <span>{teams.length} team{teams.length !== 1 ? 's' : ''}</span>
           </div>
@@ -309,7 +308,7 @@ function PracticeCard({ practice, onEdit, onDelete }) {
             {teams.map((pst) => (
               <span
                 key={pst.id}
-                className="text-xs px-2 py-1 rounded-full bg-stone-100 text-stone-600"
+                className="text-xs px-2 py-1 rounded-full bg-admin-content-bg text-admin-text-secondary"
               >
                 {pst.team.name}
               </span>
@@ -380,79 +379,75 @@ export default function AdminPracticeSchedulePage() {
   };
 
   return (
-    <div className="bg-stone-100 text-stone-900 antialiased min-h-screen">
-      <AdminNavbar />
+    <>
+      {/* Page Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+        <div>
+          <h1 className="text-[22px] font-extrabold text-admin-text tracking-[-0.02em]">Practice Schedule</h1>
+          <p className="text-sm text-admin-text-secondary mt-1">Manage practice sessions and team assignments</p>
+        </div>
+        <button
+          onClick={handleCreate}
+          className="px-5 py-2.5 bg-admin-red text-white text-sm font-semibold rounded-[12px] hover:opacity-85 transition-colors flex items-center justify-center gap-2 shadow-lg shadow-admin-red/20"
+        >
+          <PlusIcon />
+          Add Practice
+        </button>
+      </div>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
-        {/* Page Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-          <div>
-            <h1 className="text-2xl font-bold text-stone-900">Practice Schedule</h1>
-            <p className="text-sm text-stone-500 mt-1">Manage practice sessions and team assignments</p>
+      {/* Error State */}
+      {error && (
+        <div className="mb-6 px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm">
+          Failed to load practice schedules: {error}
+        </div>
+      )}
+
+      {/* Loading State */}
+      {loading ? (
+        <div className="bg-white rounded-[14px] border-[1.5px] border-admin-card-border shadow-sm p-8 text-center">
+          <LoaderIcon />
+          <p className="text-admin-text-secondary mt-2">Loading practice schedules...</p>
+        </div>
+      ) : practices.length === 0 ? (
+        <div className="bg-white rounded-[14px] border-[1.5px] border-admin-card-border shadow-sm p-8 text-center">
+          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-admin-content-bg flex items-center justify-center">
+            <ClockIcon />
           </div>
+          <h3 className="text-lg font-medium text-admin-text mb-2">No practice sessions yet</h3>
+          <p className="text-admin-text-secondary mb-6">Add your first practice session to get started</p>
           <button
             onClick={handleCreate}
-            className="px-5 py-2.5 bg-tne-red text-white text-sm font-semibold rounded-xl hover:bg-tne-red-dark transition-colors flex items-center justify-center gap-2 shadow-lg shadow-tne-red/20"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-[12px] bg-admin-red hover:opacity-85 text-white font-medium transition-colors"
           >
             <PlusIcon />
             Add Practice
           </button>
         </div>
+      ) : (
+        /* Weekly Grid */
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          {DAYS_OF_WEEK.map((day) => {
+            const dayPractices = practicesByDay[day];
+            if (dayPractices.length === 0) return null;
 
-        {/* Error State */}
-        {error && (
-          <div className="mb-6 px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm">
-            Failed to load practice schedules: {error}
-          </div>
-        )}
-
-        {/* Loading State */}
-        {loading ? (
-          <div className="bg-white rounded-2xl border border-stone-200 shadow-sm p-8 text-center">
-            <LoaderIcon />
-            <p className="text-stone-500 mt-2">Loading practice schedules...</p>
-          </div>
-        ) : practices.length === 0 ? (
-          <div className="bg-white rounded-2xl border border-stone-200 shadow-sm p-8 text-center">
-            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-stone-100 flex items-center justify-center">
-              <ClockIcon />
-            </div>
-            <h3 className="text-lg font-medium text-stone-900 mb-2">No practice sessions yet</h3>
-            <p className="text-stone-500 mb-6">Add your first practice session to get started</p>
-            <button
-              onClick={handleCreate}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-tne-red hover:bg-tne-red-dark text-white font-medium transition-colors"
-            >
-              <PlusIcon />
-              Add Practice
-            </button>
-          </div>
-        ) : (
-          /* Weekly Grid */
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {DAYS_OF_WEEK.map((day) => {
-              const dayPractices = practicesByDay[day];
-              if (dayPractices.length === 0) return null;
-
-              return (
-                <div key={day}>
-                  <h3 className="text-sm font-semibold text-stone-600 uppercase tracking-wider mb-3">{day}</h3>
-                  <div className="space-y-3">
-                    {dayPractices.map((practice) => (
-                      <PracticeCard
-                        key={practice.id}
-                        practice={practice}
-                        onEdit={handleEdit}
-                        onDelete={handleDelete}
-                      />
-                    ))}
-                  </div>
+            return (
+              <div key={day}>
+                <h3 className="text-sm font-semibold text-admin-text-secondary uppercase tracking-wider mb-3">{day}</h3>
+                <div className="space-y-3">
+                  {dayPractices.map((practice) => (
+                    <PracticeCard
+                      key={practice.id}
+                      practice={practice}
+                      onEdit={handleEdit}
+                      onDelete={handleDelete}
+                    />
+                  ))}
                 </div>
-              );
-            })}
-          </div>
-        )}
-      </main>
+              </div>
+            );
+          })}
+        </div>
+      )}
 
       {/* Create/Edit Modal */}
       <PracticeModal
@@ -471,16 +466,16 @@ export default function AdminPracticeSchedulePage() {
       {/* Delete Confirmation */}
       {deleteConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="bg-white rounded-2xl w-full max-w-md p-6 shadow-xl">
-            <h3 className="text-lg font-semibold text-stone-900 mb-2">Delete Practice Session?</h3>
-            <p className="text-stone-600 mb-6">
+          <div className="bg-white rounded-[14px] w-full max-w-md p-6 shadow-xl">
+            <h3 className="text-base font-bold text-admin-text mb-2">Delete Practice Session?</h3>
+            <p className="text-admin-text-secondary mb-6">
               Are you sure you want to delete this {deleteConfirm.day_of_week} practice at{' '}
               <strong>{deleteConfirm.location}</strong>? This action cannot be undone.
             </p>
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => setDeleteConfirm(null)}
-                className="px-4 py-2 rounded-lg border border-stone-300 text-stone-700 hover:bg-stone-50 transition-colors"
+                className="px-4 py-2 rounded-lg border border-admin-card-border text-admin-text hover:bg-stone-50 transition-colors"
               >
                 Cancel
               </button>
@@ -494,6 +489,6 @@ export default function AdminPracticeSchedulePage() {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }

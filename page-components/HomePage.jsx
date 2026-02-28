@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   ArrowRight,
   Users,
@@ -390,7 +391,7 @@ export default function HomePage() {
 
               {/* Item 1 (Photo) */}
               <div className="snap-center shrink-0 w-[85vw] md:w-[400px] aspect-[4/5] relative rounded-lg overflow-hidden group cursor-pointer border border-white/10">
-                <img src="https://images.unsplash.com/photo-1546519638-68e109498ffc?q=80&w=1000&auto=format&fit=crop" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-80 group-hover:opacity-100" alt="Game Action" />
+                <Image src="https://images.unsplash.com/photo-1546519638-68e109498ffc?q=80&w=1000&auto=format&fit=crop" fill sizes="(max-width: 768px) 85vw, 400px" className="object-cover transition-transform duration-700 group-hover:scale-105 opacity-80 group-hover:opacity-100" alt="Game Action" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
                 <div className="absolute bottom-6 left-6 right-6">
                   <div className="text-xs font-mono text-tne-red mb-1">Elite 8</div>
@@ -400,7 +401,7 @@ export default function HomePage() {
 
               {/* Item 2 (Video Mockup) */}
               <div className="snap-center shrink-0 w-[85vw] md:w-[400px] aspect-[4/5] relative rounded-lg overflow-hidden group cursor-pointer border border-white/10">
-                <img src="https://images.unsplash.com/photo-1505666287802-931dc83948e9?q=80&w=1000&auto=format&fit=crop" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-60 group-hover:opacity-90" alt="Training" />
+                <Image src="https://images.unsplash.com/photo-1505666287802-931dc83948e9?q=80&w=1000&auto=format&fit=crop" fill sizes="(max-width: 768px) 85vw, 400px" className="object-cover transition-transform duration-700 group-hover:scale-105 opacity-60 group-hover:opacity-90" alt="Training" />
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="w-14 h-14 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center group-hover:scale-110 transition-transform">
                     <Play className="w-5 h-5 text-white ml-1 fill-white" />
@@ -414,7 +415,7 @@ export default function HomePage() {
 
               {/* Item 3 (Photo) */}
               <div className="snap-center shrink-0 w-[85vw] md:w-[400px] aspect-[4/5] relative rounded-lg overflow-hidden group cursor-pointer border border-white/10">
-                <img src="https://images.unsplash.com/photo-1544919982-b61976f0ba43?q=80&w=1000&auto=format&fit=crop" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-80 group-hover:opacity-100" alt="Huddle" />
+                <Image src="https://images.unsplash.com/photo-1544919982-b61976f0ba43?q=80&w=1000&auto=format&fit=crop" fill sizes="(max-width: 768px) 85vw, 400px" className="object-cover transition-transform duration-700 group-hover:scale-105 opacity-80 group-hover:opacity-100" alt="Huddle" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
                 <div className="absolute bottom-6 left-6 right-6">
                   <div className="text-xs font-mono text-tne-red mb-1">Culture</div>
@@ -424,7 +425,7 @@ export default function HomePage() {
 
               {/* Item 4 (Video Mockup) */}
               <div className="snap-center shrink-0 w-[85vw] md:w-[400px] aspect-[4/5] relative rounded-lg overflow-hidden group cursor-pointer border border-white/10">
-                <img src="https://images.unsplash.com/photo-1519861531473-920026393112?q=80&w=1000&auto=format&fit=crop" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-60 group-hover:opacity-90" alt="Dunk" />
+                <Image src="https://images.unsplash.com/photo-1519861531473-920026393112?q=80&w=1000&auto=format&fit=crop" fill sizes="(max-width: 768px) 85vw, 400px" className="object-cover transition-transform duration-700 group-hover:scale-105 opacity-60 group-hover:opacity-90" alt="Dunk" />
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="w-14 h-14 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center group-hover:scale-110 transition-transform">
                     <Play className="w-5 h-5 text-white ml-1 fill-white" />
@@ -438,7 +439,7 @@ export default function HomePage() {
 
               {/* Item 5 (Photo) */}
               <div className="snap-center shrink-0 w-[85vw] md:w-[400px] aspect-[4/5] relative rounded-lg overflow-hidden group cursor-pointer border border-white/10">
-                <img src="https://images.unsplash.com/photo-1574629810360-7efbbe195018?q=80&w=1000&auto=format&fit=crop" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-80 group-hover:opacity-100" alt="Celebration" />
+                <Image src="https://images.unsplash.com/photo-1574629810360-7efbbe195018?q=80&w=1000&auto=format&fit=crop" fill sizes="(max-width: 768px) 85vw, 400px" className="object-cover transition-transform duration-700 group-hover:scale-105 opacity-80 group-hover:opacity-100" alt="Celebration" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
                 <div className="absolute bottom-6 left-6 right-6">
                   <div className="text-xs font-mono text-tne-red mb-1">Victory</div>
@@ -448,7 +449,7 @@ export default function HomePage() {
 
               {/* Item 6 (Photo) */}
               <div className="snap-center shrink-0 w-[85vw] md:w-[400px] aspect-[4/5] relative rounded-lg overflow-hidden group cursor-pointer border border-white/10">
-                <img src="https://images.unsplash.com/photo-1628779238951-be2c9f255915?q=80&w=1000&auto=format&fit=crop" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-80 group-hover:opacity-100" alt="Coach" />
+                <Image src="https://images.unsplash.com/photo-1628779238951-be2c9f255915?q=80&w=1000&auto=format&fit=crop" fill sizes="(max-width: 768px) 85vw, 400px" className="object-cover transition-transform duration-700 group-hover:scale-105 opacity-80 group-hover:opacity-100" alt="Coach" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
                 <div className="absolute bottom-6 left-6 right-6">
                   <div className="text-xs font-mono text-tne-red mb-1">Staff</div>
@@ -496,9 +497,11 @@ export default function HomePage() {
                 <div className="relative z-10 flex flex-col items-center">
                   <div className="relative">
                     <div className="absolute -inset-4 bg-gradient-to-b from-tne-red/20 to-transparent rounded-3xl blur-xl opacity-60" />
-                    <img
-                      src={mitchHeadshot.src}
+                    <Image
+                      src={mitchHeadshot}
                       alt="Mitch"
+                      width={320}
+                      height={420}
                       className="relative w-56 h-72 sm:w-72 sm:h-96 lg:w-80 lg:h-[420px] rounded-2xl object-cover object-top border-4 border-white/10 shadow-2xl grayscale group-hover:grayscale-0 transition-all duration-700"
                     />
                   </div>

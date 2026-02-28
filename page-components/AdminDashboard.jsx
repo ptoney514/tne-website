@@ -1,27 +1,18 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
-import { useDashboardStats } from '@/hooks/useDashboardStats';
+import { useDashboardStats } from '@/contexts/DashboardStatsContext';
 import { useSeason } from '@/contexts/SeasonContext';
 import { api } from '@/lib/api-client';
 import { generateTemplateFile, exportToExcel } from '@/lib/excelParser';
-import AdminNavbar from '@/components/AdminNavbar';
 import ExcelUploadModal from '@/components/admin/ExcelUploadModal';
 import {
-  Users,
-  UserCheck,
-  ClipboardList,
-  CalendarCheck,
-  AlertTriangle,
   ChevronRight,
-  Radio,
   Power,
   Pencil,
   Check,
   X,
   ExternalLink,
-  Zap,
-  Activity,
   Clock,
   Upload,
   Download,
@@ -84,121 +75,104 @@ function TryoutsControl({ season, onUpdate }) {
   };
 
   return (
-    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-stone-900 via-stone-900 to-stone-800 border border-stone-700/50 p-6">
-      {/* Background pattern */}
-      <div className="absolute inset-0 opacity-5">
-        <div className="absolute inset-0" style={{
-          backgroundImage: `radial-gradient(circle at 1px 1px, white 1px, transparent 0)`,
-          backgroundSize: '24px 24px'
-        }} />
-      </div>
-
-      {/* Live indicator */}
-      <div className="absolute top-4 right-4">
-        <div className={`flex items-center gap-2 px-2 py-1 rounded-full text-[10px] font-mono uppercase tracking-widest ${
+    <div className="bg-white rounded-[14px] p-5 border-[1.5px] border-admin-card-border">
+      {/* Header row */}
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-base font-bold text-admin-text">Tryouts</h3>
+        <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-semibold ${
           isOpen
-            ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
-            : 'bg-stone-700/50 text-stone-500 border border-stone-600/30'
+            ? 'bg-admin-success-bg text-admin-success'
+            : 'bg-stone-100 text-admin-text-muted'
         }`}>
-          <div className={`w-1.5 h-1.5 rounded-full ${isOpen ? 'bg-blue-400 animate-pulse' : 'bg-stone-500'}`} />
+          <div className={`w-1.5 h-1.5 rounded-full ${isOpen ? 'bg-[#4CAF50]' : 'bg-admin-text-muted'}`} />
           {isOpen ? 'Live' : 'Off'}
         </div>
       </div>
 
-      <div className="relative z-10">
-        {/* Header */}
-        <div className="flex items-center gap-3 mb-6">
-          <div className={`p-2 rounded-lg ${isOpen ? 'bg-blue-500/20' : 'bg-stone-700/50'}`}>
-            <CalendarCheck className={`w-5 h-5 ${isOpen ? 'text-blue-400' : 'text-stone-500'}`} />
-          </div>
-          <div>
-            <h3 className="text-white font-semibold">Tryouts</h3>
-            <p className="text-stone-500 text-xs">Control tryout signup access</p>
-          </div>
-        </div>
+      {/* Description */}
+      <p className="text-[13px] text-admin-text-secondary mb-4">
+        {isOpen ? 'Open' : 'Closed'} · {season?.name || 'No season'} · {label || 'No label'}
+      </p>
 
-        {/* Toggle Switch */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={handleToggle}
-              disabled={saving || !season}
-              className={`relative w-14 h-8 rounded-full transition-all duration-300 ${
-                isOpen
-                  ? 'bg-blue-500 shadow-lg shadow-blue-500/30'
-                  : 'bg-stone-700'
-              } ${saving ? 'opacity-50 cursor-wait' : 'cursor-pointer'}`}
-            >
-              <div className={`absolute top-1 w-6 h-6 rounded-full bg-white shadow-md transition-all duration-300 flex items-center justify-center ${
-                isOpen ? 'left-7' : 'left-1'
-              }`}>
-                <Power className={`w-3 h-3 ${isOpen ? 'text-blue-500' : 'text-stone-400'}`} />
-              </div>
+      {/* Toggle */}
+      <div className="flex items-center gap-3 mb-4">
+        <button
+          onClick={handleToggle}
+          disabled={saving || !season}
+          className={`relative w-12 h-7 rounded-full transition-all duration-300 ${
+            isOpen ? 'bg-admin-success' : 'bg-stone-300'
+          } ${saving ? 'opacity-50 cursor-wait' : 'cursor-pointer'}`}
+        >
+          <div className={`absolute top-0.5 w-6 h-6 rounded-full bg-white shadow-sm transition-all duration-300 flex items-center justify-center ${
+            isOpen ? 'left-[22px]' : 'left-0.5'
+          }`}>
+            <Power className={`w-3 h-3 ${isOpen ? 'text-admin-success' : 'text-stone-400'}`} />
+          </div>
+        </button>
+        <span className={`text-sm font-medium ${isOpen ? 'text-admin-success' : 'text-admin-text-muted'}`}>
+          {isOpen ? 'Open' : 'Closed'}
+        </span>
+      </div>
+
+      {/* Label Editor */}
+      <div className="bg-admin-content-bg rounded-[10px] p-3 border border-admin-card-border mb-4">
+        <label className="text-[10px] font-admin-mono text-admin-text-muted uppercase tracking-[0.05em] mb-1.5 block">
+          Tryout Label
+        </label>
+        {isEditingLabel ? (
+          <div className="flex items-center gap-2">
+            <input
+              type="text"
+              value={tempLabel}
+              onChange={(e) => setTempLabel(e.target.value)}
+              placeholder="e.g., Winter '25-26 Tryouts"
+              className="flex-1 bg-white border border-admin-card-border rounded-[10px] px-3 py-2 text-admin-text text-sm focus:outline-none focus:border-admin-red/40"
+              autoFocus
+            />
+            <button onClick={handleLabelSave} disabled={saving} className="p-2 rounded-lg text-admin-success hover:bg-admin-success-bg transition-colors">
+              <Check className="w-4 h-4" />
             </button>
-            <span className={`text-sm font-medium ${isOpen ? 'text-blue-400' : 'text-stone-500'}`}>
-              {isOpen ? 'Tryouts Open' : 'Tryouts Closed'}
-            </span>
+            <button onClick={() => setIsEditingLabel(false)} className="p-2 rounded-lg text-admin-text-muted hover:bg-stone-100 transition-colors">
+              <X className="w-4 h-4" />
+            </button>
           </div>
-        </div>
-
-        {/* Label Editor */}
-        <div className="bg-stone-800/50 rounded-xl p-4 border border-stone-700/50">
-          <label className="text-[10px] font-mono text-stone-500 uppercase tracking-widest mb-2 block">
-            Tryout Label
-          </label>
-
-          {isEditingLabel ? (
-            <div className="flex items-center gap-2">
-              <input
-                type="text"
-                value={tempLabel}
-                onChange={(e) => setTempLabel(e.target.value)}
-                placeholder="e.g., Winter '25-26 Tryouts"
-                className="flex-1 bg-stone-900 border border-stone-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-blue-500"
-                autoFocus
-              />
-              <button
-                onClick={handleLabelSave}
-                disabled={saving}
-                className="p-2 rounded-lg bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 transition-colors"
-              >
-                <Check className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => setIsEditingLabel(false)}
-                className="p-2 rounded-lg bg-stone-700 text-stone-400 hover:bg-stone-600 transition-colors"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-          ) : (
-            <div className="flex items-center justify-between">
-              <span className={`text-sm ${label ? 'text-white' : 'text-stone-600 italic'}`}>
-                {label || 'No label set'}
-              </span>
-              <button
-                onClick={startEditingLabel}
-                disabled={!season}
-                className="p-1.5 rounded-lg text-stone-500 hover:text-white hover:bg-stone-700 transition-colors"
-              >
-                <Pencil className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          )}
-        </div>
-
-        {/* Preview Link */}
-        {isOpen && (
-          <Link
-            href="/tryouts"
-            target="_blank"
-            className="mt-4 flex items-center justify-center gap-2 text-xs text-stone-500 hover:text-blue-400 transition-colors"
-          >
-            <span>View tryouts page</span>
-            <ExternalLink className="w-3 h-3" />
-          </Link>
+        ) : (
+          <div className="flex items-center justify-between">
+            <span className={`text-sm ${label ? 'text-admin-text' : 'text-admin-text-muted italic'}`}>
+              {label || 'No label set'}
+            </span>
+            <button onClick={startEditingLabel} disabled={!season} className="p-1.5 rounded-lg text-admin-text-muted hover:text-admin-text hover:bg-stone-100 transition-colors">
+              <Pencil className="w-3.5 h-3.5" />
+            </button>
+          </div>
         )}
       </div>
+
+      {/* Action buttons */}
+      <div className="flex gap-2">
+        <Link
+          href="/admin/tryouts"
+          className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-[10px] border-[1.5px] border-admin-card-border text-sm font-medium text-admin-text hover:bg-stone-50 transition-colors"
+        >
+          View Signups
+        </Link>
+        <button
+          onClick={startEditingLabel}
+          className="flex items-center justify-center px-3 py-2.5 rounded-[10px] border-[1.5px] border-admin-card-border text-admin-text-secondary hover:bg-stone-50 transition-colors"
+        >
+          <Pencil className="w-4 h-4" />
+        </button>
+      </div>
+
+      {isOpen && (
+        <Link
+          href="/tryouts"
+          target="_blank"
+          className="mt-3 flex items-center justify-center gap-1.5 text-xs text-admin-text-muted hover:text-admin-red transition-colors"
+        >
+          View tryouts page <ExternalLink className="w-3 h-3" />
+        </Link>
+      )}
     </div>
   );
 }
@@ -255,121 +229,104 @@ function RegistrationControl({ season, onUpdate }) {
   };
 
   return (
-    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-stone-900 via-stone-900 to-stone-800 border border-stone-700/50 p-6">
-      {/* Background pattern */}
-      <div className="absolute inset-0 opacity-5">
-        <div className="absolute inset-0" style={{
-          backgroundImage: `radial-gradient(circle at 1px 1px, white 1px, transparent 0)`,
-          backgroundSize: '24px 24px'
-        }} />
-      </div>
-
-      {/* Live indicator */}
-      <div className="absolute top-4 right-4">
-        <div className={`flex items-center gap-2 px-2 py-1 rounded-full text-[10px] font-mono uppercase tracking-widest ${
+    <div className="bg-white rounded-[14px] p-5 border-[1.5px] border-admin-card-border">
+      {/* Header row */}
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-base font-bold text-admin-text">Registration</h3>
+        <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-semibold ${
           isOpen
-            ? 'bg-green-500/20 text-green-400 border border-green-500/30'
-            : 'bg-stone-700/50 text-stone-500 border border-stone-600/30'
+            ? 'bg-admin-success-bg text-admin-success'
+            : 'bg-stone-100 text-admin-text-muted'
         }`}>
-          <div className={`w-1.5 h-1.5 rounded-full ${isOpen ? 'bg-green-400 animate-pulse' : 'bg-stone-500'}`} />
+          <div className={`w-1.5 h-1.5 rounded-full ${isOpen ? 'bg-[#4CAF50]' : 'bg-admin-text-muted'}`} />
           {isOpen ? 'Live' : 'Off'}
         </div>
       </div>
 
-      <div className="relative z-10">
-        {/* Header */}
-        <div className="flex items-center gap-3 mb-6">
-          <div className={`p-2 rounded-lg ${isOpen ? 'bg-green-500/20' : 'bg-stone-700/50'}`}>
-            <Radio className={`w-5 h-5 ${isOpen ? 'text-green-400' : 'text-stone-500'}`} />
-          </div>
-          <div>
-            <h3 className="text-white font-semibold">Registration</h3>
-            <p className="text-stone-500 text-xs">Control public registration access</p>
-          </div>
-        </div>
+      {/* Description */}
+      <p className="text-[13px] text-admin-text-secondary mb-4">
+        {isOpen ? 'Open' : 'Closed'} · {season?.name || 'No season'} · {label || 'No label'}
+      </p>
 
-        {/* Toggle Switch */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={handleToggle}
-              disabled={saving || !season}
-              className={`relative w-14 h-8 rounded-full transition-all duration-300 ${
-                isOpen
-                  ? 'bg-green-500 shadow-lg shadow-green-500/30'
-                  : 'bg-stone-700'
-              } ${saving ? 'opacity-50 cursor-wait' : 'cursor-pointer'}`}
-            >
-              <div className={`absolute top-1 w-6 h-6 rounded-full bg-white shadow-md transition-all duration-300 flex items-center justify-center ${
-                isOpen ? 'left-7' : 'left-1'
-              }`}>
-                <Power className={`w-3 h-3 ${isOpen ? 'text-green-500' : 'text-stone-400'}`} />
-              </div>
+      {/* Toggle */}
+      <div className="flex items-center gap-3 mb-4">
+        <button
+          onClick={handleToggle}
+          disabled={saving || !season}
+          className={`relative w-12 h-7 rounded-full transition-all duration-300 ${
+            isOpen ? 'bg-admin-success' : 'bg-stone-300'
+          } ${saving ? 'opacity-50 cursor-wait' : 'cursor-pointer'}`}
+        >
+          <div className={`absolute top-0.5 w-6 h-6 rounded-full bg-white shadow-sm transition-all duration-300 flex items-center justify-center ${
+            isOpen ? 'left-[22px]' : 'left-0.5'
+          }`}>
+            <Power className={`w-3 h-3 ${isOpen ? 'text-admin-success' : 'text-stone-400'}`} />
+          </div>
+        </button>
+        <span className={`text-sm font-medium ${isOpen ? 'text-admin-success' : 'text-admin-text-muted'}`}>
+          {isOpen ? 'Open' : 'Closed'}
+        </span>
+      </div>
+
+      {/* Label Editor */}
+      <div className="bg-admin-content-bg rounded-[10px] p-3 border border-admin-card-border mb-4">
+        <label className="text-[10px] font-admin-mono text-admin-text-muted uppercase tracking-[0.05em] mb-1.5 block">
+          Season Label
+        </label>
+        {isEditingLabel ? (
+          <div className="flex items-center gap-2">
+            <input
+              type="text"
+              value={tempLabel}
+              onChange={(e) => setTempLabel(e.target.value)}
+              placeholder="e.g., Fall/Winter '25-26"
+              className="flex-1 bg-white border border-admin-card-border rounded-[10px] px-3 py-2 text-admin-text text-sm focus:outline-none focus:border-admin-red/40"
+              autoFocus
+            />
+            <button onClick={handleLabelSave} disabled={saving} className="p-2 rounded-lg text-admin-success hover:bg-admin-success-bg transition-colors">
+              <Check className="w-4 h-4" />
             </button>
-            <span className={`text-sm font-medium ${isOpen ? 'text-green-400' : 'text-stone-500'}`}>
-              {isOpen ? 'Registration Open' : 'Registration Closed'}
-            </span>
+            <button onClick={() => setIsEditingLabel(false)} className="p-2 rounded-lg text-admin-text-muted hover:bg-stone-100 transition-colors">
+              <X className="w-4 h-4" />
+            </button>
           </div>
-        </div>
-
-        {/* Label Editor */}
-        <div className="bg-stone-800/50 rounded-xl p-4 border border-stone-700/50">
-          <label className="text-[10px] font-mono text-stone-500 uppercase tracking-widest mb-2 block">
-            Season Label
-          </label>
-
-          {isEditingLabel ? (
-            <div className="flex items-center gap-2">
-              <input
-                type="text"
-                value={tempLabel}
-                onChange={(e) => setTempLabel(e.target.value)}
-                placeholder="e.g., Fall/Winter '25-26"
-                className="flex-1 bg-stone-900 border border-stone-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-tne-red"
-                autoFocus
-              />
-              <button
-                onClick={handleLabelSave}
-                disabled={saving}
-                className="p-2 rounded-lg bg-green-500/20 text-green-400 hover:bg-green-500/30 transition-colors"
-              >
-                <Check className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => setIsEditingLabel(false)}
-                className="p-2 rounded-lg bg-stone-700 text-stone-400 hover:bg-stone-600 transition-colors"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-          ) : (
-            <div className="flex items-center justify-between">
-              <span className={`text-sm ${label ? 'text-white' : 'text-stone-600 italic'}`}>
-                {label || 'No label set'}
-              </span>
-              <button
-                onClick={startEditingLabel}
-                disabled={!season}
-                className="p-1.5 rounded-lg text-stone-500 hover:text-white hover:bg-stone-700 transition-colors"
-              >
-                <Pencil className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          )}
-        </div>
-
-        {/* Preview Link */}
-        {isOpen && (
-          <Link
-            href="/"
-            target="_blank"
-            className="mt-4 flex items-center justify-center gap-2 text-xs text-stone-500 hover:text-tne-red transition-colors"
-          >
-            <span>View on homepage</span>
-            <ExternalLink className="w-3 h-3" />
-          </Link>
+        ) : (
+          <div className="flex items-center justify-between">
+            <span className={`text-sm ${label ? 'text-admin-text' : 'text-admin-text-muted italic'}`}>
+              {label || 'No label set'}
+            </span>
+            <button onClick={startEditingLabel} disabled={!season} className="p-1.5 rounded-lg text-admin-text-muted hover:text-admin-text hover:bg-stone-100 transition-colors">
+              <Pencil className="w-3.5 h-3.5" />
+            </button>
+          </div>
         )}
       </div>
+
+      {/* Action buttons */}
+      <div className="flex gap-2">
+        <Link
+          href="/admin/registrations"
+          className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-[10px] border-[1.5px] border-admin-card-border text-sm font-medium text-admin-text hover:bg-stone-50 transition-colors"
+        >
+          View Signups
+        </Link>
+        <button
+          onClick={startEditingLabel}
+          className="flex items-center justify-center px-3 py-2.5 rounded-[10px] border-[1.5px] border-admin-card-border text-admin-text-secondary hover:bg-stone-50 transition-colors"
+        >
+          <Pencil className="w-4 h-4" />
+        </button>
+      </div>
+
+      {isOpen && (
+        <Link
+          href="/"
+          target="_blank"
+          className="mt-3 flex items-center justify-center gap-1.5 text-xs text-admin-text-muted hover:text-admin-red transition-colors"
+        >
+          View on homepage <ExternalLink className="w-3 h-3" />
+        </Link>
+      )}
     </div>
   );
 }
@@ -378,29 +335,32 @@ function RegistrationControl({ season, onUpdate }) {
 // STAT COMPONENTS
 // ============================================
 
-// Compact inline stat item for the stats bar
+// Stat card — 4-column grid per design spec
 // eslint-disable-next-line no-unused-vars -- Icon is used in JSX
-function StatItem({ label, value, loading, icon: Icon, href }) {
+function StatCard({ label, value, subtitle, loading, accent, href }) {
   const content = (
-    <div className="flex items-center gap-3 group">
-      <div className="p-1.5 rounded-lg bg-stone-100 text-stone-500 group-hover:bg-tne-red/10 group-hover:text-tne-red transition-colors">
-        <Icon className="w-3.5 h-3.5" />
-      </div>
-      <div>
-        <p className="text-2xl font-bebas text-stone-900 tracking-tight leading-none">
-          {loading ? (
-            <span className="animate-pulse bg-stone-200 rounded w-8 h-6 inline-block" />
-          ) : (
-            value
-          )}
-        </p>
-        <p className="text-[10px] text-stone-500 uppercase tracking-wider">{label}</p>
-      </div>
+    <div className={`relative bg-white rounded-[12px] p-5 border-[1.5px] border-admin-card-border overflow-hidden hover:bg-stone-50/50 transition-colors ${accent ? '' : ''}`}>
+      {accent && (
+        <div className="absolute top-0 left-0 right-0 h-[3px] bg-admin-red" />
+      )}
+      <p className="text-[11px] font-semibold uppercase tracking-[0.05em] text-admin-text-secondary mb-2">
+        {label}
+      </p>
+      <p className="text-[36px] md:text-[36px] font-admin-mono font-extrabold text-admin-text leading-none tracking-[-0.03em]">
+        {loading ? (
+          <span className="animate-pulse bg-stone-200 rounded w-12 h-9 inline-block" />
+        ) : (
+          value
+        )}
+      </p>
+      {subtitle && (
+        <p className="text-xs text-admin-text-muted mt-1.5">{subtitle}</p>
+      )}
     </div>
   );
 
   if (href) {
-    return <Link href={href} className="hover:opacity-80 transition-opacity">{content}</Link>;
+    return <Link href={href}>{content}</Link>;
   }
   return content;
 }
@@ -410,18 +370,11 @@ function StatItem({ label, value, loading, icon: Icon, href }) {
 // ============================================
 
 function ActivityItem({ activity }) {
-  const statusColors = {
-    pending: 'bg-amber-500',
-    approved: 'bg-green-500',
-    rejected: 'bg-red-500',
-    registered: 'bg-blue-500',
-    attended: 'bg-emerald-500',
-    offered: 'bg-purple-500',
-    declined: 'bg-stone-400',
-    no_show: 'bg-red-400',
-  };
-
   const isTryout = activity.type === 'tryout_signup';
+
+  const iconConfig = isTryout
+    ? { bg: 'bg-blue-50', emoji: '\u{1F3C0}' }
+    : { bg: 'bg-red-50', emoji: '\u{1F4B2}' };
 
   const timeAgo = (dateString) => {
     const date = new Date(dateString);
@@ -437,45 +390,31 @@ function ActivityItem({ activity }) {
   };
 
   return (
-    <div className="flex items-center justify-between py-3 border-b border-stone-100 last:border-0 group">
-      <div className="flex items-center gap-3">
-        <div className={`w-2 h-2 rounded-full ${statusColors[activity.status] || 'bg-stone-300'}`} />
-        <div>
-          <p className="text-sm font-medium text-stone-900">
-            {activity.player_first_name} {activity.player_last_name}
-          </p>
-          <div className="flex items-center gap-1.5">
-            <span className={`inline-flex items-center px-1.5 py-0.5 text-[10px] font-semibold rounded ${
-              isTryout
-                ? 'bg-blue-50 text-blue-700'
-                : 'bg-red-50 text-red-700'
-            }`}>
-              {isTryout ? 'TRYOUT' : 'REG'}
-            </span>
-            <span className="text-xs text-stone-500 capitalize">{activity.status}</span>
-            {isTryout && activity.session_name && (
-              <span className="text-xs text-stone-400 truncate max-w-[100px]">{activity.session_name}</span>
-            )}
-          </div>
+    <div className="flex items-center gap-3 py-3 border-b border-[#F2F2F0] last:border-0 group">
+      <div className={`w-10 h-10 rounded-[10px] ${iconConfig.bg} flex items-center justify-center shrink-0 text-lg`}>
+        {iconConfig.emoji}
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-medium text-admin-text truncate">
+          {activity.player_first_name} {activity.player_last_name}
+        </p>
+        <div className="flex items-center gap-1.5">
+          <span className={`inline-flex items-center px-1.5 py-0.5 text-[10px] font-semibold rounded ${
+            isTryout ? 'bg-blue-50 text-blue-700' : 'bg-[#FFF3F0] text-admin-red'
+          }`}>
+            {isTryout ? 'Tryout' : 'Reg'}
+          </span>
+          <span className="text-xs text-admin-text-secondary capitalize">{activity.status}</span>
         </div>
       </div>
-      <div className="flex items-center gap-2">
-        <span className="text-xs text-stone-400">{timeAgo(activity.created_at)}</span>
-        <ChevronRight className="w-3 h-3 text-stone-300 opacity-0 group-hover:opacity-100 transition-opacity" />
+      <div className="flex items-center gap-2 shrink-0">
+        <span className="text-[11px] text-admin-text-muted">{timeAgo(activity.created_at)}</span>
       </div>
     </div>
   );
 }
 
 function EventItem({ event }) {
-  const typeColors = {
-    practice: 'bg-blue-500',
-    game: 'bg-green-500',
-    tournament: 'bg-purple-500',
-    tryout: 'bg-amber-500',
-    other: 'bg-stone-400',
-  };
-
   const formatDate = (dateString) => {
     const date = new Date(dateString + 'T00:00:00');
     const day = date.getDate();
@@ -495,20 +434,18 @@ function EventItem({ event }) {
   const { day, month } = formatDate(event.date);
 
   return (
-    <div className="flex items-center gap-4 py-3 border-b border-stone-100 last:border-0 group">
-      <div className="text-center w-12 shrink-0">
-        <p className="text-[10px] text-stone-500 uppercase">{month}</p>
-        <p className="text-xl font-bebas text-stone-900">{day}</p>
+    <div className="flex items-center gap-3 py-3 border-b border-[#F2F2F0] last:border-0 group">
+      <div className="w-10 h-10 rounded-[10px] bg-blue-50 flex flex-col items-center justify-center shrink-0">
+        <p className="text-[9px] text-admin-text-secondary uppercase leading-none">{month}</p>
+        <p className="text-base font-admin-mono font-bold text-admin-text leading-none">{day}</p>
       </div>
-      <div className={`w-1 h-10 rounded-full ${typeColors[event.event_type] || typeColors.other}`} />
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium text-stone-900 truncate">{event.title}</p>
-        <div className="flex items-center gap-2 text-xs text-stone-500">
+        <p className="text-sm font-medium text-admin-text truncate">{event.title}</p>
+        <div className="flex items-center gap-2 text-xs text-admin-text-secondary">
           {event.start_time && <span>{formatTime(event.start_time)}</span>}
-          {event.location && <span className="truncate">• {event.location}</span>}
+          {event.location && <span className="truncate">{event.location}</span>}
         </div>
       </div>
-      <ChevronRight className="w-4 h-4 text-stone-300 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
     </div>
   );
 }
@@ -607,8 +544,7 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className="bg-stone-100 text-stone-900 antialiased min-h-screen flex flex-col font-sans">
-      <AdminNavbar />
+    <>
       <ExcelUploadModal
         isOpen={showUploadModal}
         onClose={() => setShowUploadModal(false)}
@@ -616,88 +552,105 @@ export default function AdminDashboard() {
         seasonId={selectedSeason?.id}
       />
 
-      <main className="flex-1 px-4 py-6 lg:py-8">
-        <div className="max-w-7xl mx-auto">
+      <div className="max-w-7xl mx-auto">
 
-          {/* ============================================
-              HEADER (compact)
-              ============================================ */}
-          <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div>
-              <h1 className="text-3xl font-bebas tracking-tight text-stone-900">
-                {getGreeting()}, {profile?.first_name || (isAdmin ? 'Admin' : 'Coach')}
-              </h1>
-              <div className="flex items-center gap-2 text-stone-400 text-xs font-mono">
-                <Clock className="w-3 h-3" />
-                <span>{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</span>
-              </div>
-            </div>
-            <button
-              onClick={refetch}
-              className="self-start sm:self-auto px-3 py-1.5 text-xs font-medium rounded-lg border border-stone-300 text-stone-500 hover:text-stone-900 hover:border-stone-400 hover:bg-white transition-all flex items-center gap-1.5"
-            >
-              <Activity className="w-3 h-3" />
-              Refresh
+        {/* Greeting */}
+        <div className="mb-6">
+          <h1 className="text-[22px] md:text-[22px] font-extrabold text-admin-text tracking-[-0.02em] leading-tight">
+            {getGreeting()}, {profile?.first_name || (isAdmin ? 'Admin' : 'Coach')}
+          </h1>
+          <div className="flex items-center gap-2 text-admin-text-muted text-[11px] mt-1">
+            <Clock className="w-3 h-3" />
+            <span>{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</span>
+          </div>
+        </div>
+
+        {/* Error State */}
+        {error && (
+          <div className="mb-4 px-4 py-3 rounded-[12px] bg-red-50 border-[1.5px] border-red-200 text-red-700 text-sm flex items-center gap-2">
+            <span className="flex-1">Failed to load dashboard data: {error}</span>
+            <button onClick={refetch} className="ml-auto text-red-800 underline hover:text-red-900 font-medium whitespace-nowrap">
+              Retry
             </button>
           </div>
+        )}
 
-          {/* Error State */}
-          {error && (
-            <div className="mb-4 px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm flex items-center gap-2">
-              <span className="flex-1">Failed to load dashboard data: {error}</span>
-              <button onClick={refetch} className="ml-auto text-red-800 underline hover:text-red-900 font-medium whitespace-nowrap">
-                Retry
-              </button>
-            </div>
+        {/* Stat Cards — 4-column grid */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5 mb-6">
+          <StatCard
+            label="Events"
+            value={upcomingEvents.length}
+            subtitle={upcomingEvents.length === 0 ? 'No upcoming' : `${upcomingEvents.length} upcoming`}
+            loading={loading}
+            href="/admin/games"
+          />
+          <StatCard
+            label="Players"
+            value={stats.players}
+            subtitle={stats.players > 0 ? `${stats.players} total` : 'No players yet'}
+            loading={loading}
+            href="/admin/players"
+          />
+          <StatCard
+            label="Registrations"
+            value={stats.registrations}
+            subtitle={stats.pendingRegistrations > 0 ? `${stats.pendingRegistrations} pending` : 'All processed'}
+            loading={loading}
+            href="/admin/registrations"
+          />
+          {isAdmin && (
+            <StatCard
+              label="Tryout Signups"
+              value={stats.tryoutSignups}
+              subtitle={stats.tryoutSignups > 0 ? `+${stats.tryoutSignups} new` : 'None yet'}
+              loading={loading}
+              accent
+              href="/admin/tryouts"
+            />
           )}
+        </div>
 
-          {/* ============================================
-              STATS BAR — single compact card
-              ============================================ */}
-          <div className="rounded-3xl bg-white border border-stone-200 px-6 py-4 mb-6">
-            <div className="flex flex-wrap items-center gap-6 lg:gap-10">
-              <StatItem label="Teams" value={stats.teams} loading={loading} icon={Users} href="/admin/teams" />
-              <div className="w-px h-8 bg-stone-200 hidden sm:block" />
-              <StatItem label="Players" value={stats.players} loading={loading} icon={UserCheck} href="/admin/players" />
-              <div className="w-px h-8 bg-stone-200 hidden sm:block" />
-              <StatItem label="Registrations" value={stats.registrations} loading={loading} icon={ClipboardList} href="/admin/registrations" />
-              {isAdmin && (
-                <>
-                  <div className="w-px h-8 bg-stone-200 hidden sm:block" />
-                  <StatItem label="Tryouts" value={stats.tryoutSignups} loading={loading} icon={CalendarCheck} href="/admin/tryouts" />
-                </>
-              )}
-              {/* Inline alert badge */}
-              {stats.pendingRegistrations > 0 && (
-                <>
-                  <div className="w-px h-8 bg-stone-200 hidden sm:block" />
-                  <Link
-                    href="/admin/registrations?status=pending"
-                    className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-50 border border-amber-200 hover:bg-amber-100 transition-colors group"
-                  >
-                    <AlertTriangle className="w-3.5 h-3.5 text-amber-600" />
-                    <span className="text-xs font-semibold text-amber-800">
-                      {stats.pendingRegistrations} pending
-                    </span>
-                    <ChevronRight className="w-3 h-3 text-amber-400 group-hover:translate-x-0.5 transition-transform" />
-                  </Link>
-                </>
+        {/* Two-column: Activity feed (wider) + right column */}
+        <div className="grid grid-cols-1 lg:grid-cols-[1.4fr_1fr] gap-5">
+
+          {/* Left: Recent Activity */}
+          <div className="bg-white rounded-[14px] border-[1.5px] border-admin-card-border overflow-hidden">
+            <div className="px-5 py-4 flex items-center justify-between">
+              <h2 className="text-base font-bold text-admin-text">Recent Activity</h2>
+              <Link
+                href="/admin/registrations"
+                className="text-xs text-admin-text-muted hover:text-admin-red transition-colors flex items-center gap-0.5"
+              >
+                View all <ChevronRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+            <div className="px-5 pb-4">
+              {loading ? (
+                <div className="space-y-2">
+                  {[...Array(3)].map((_, i) => (
+                    <div key={i} className="h-12 bg-stone-100 rounded-lg animate-pulse" />
+                  ))}
+                </div>
+              ) : recentActivity.length > 0 ? (
+                <div>
+                  {recentActivity.slice(0, 5).map((activity) => (
+                    <ActivityItem key={activity.id} activity={activity} />
+                  ))}
+                </div>
+              ) : (
+                <div className="py-8 text-center">
+                  <p className="text-2xl opacity-50 mb-1">📋</p>
+                  <p className="text-[13px] text-admin-text-muted">No recent activity</p>
+                </div>
               )}
             </div>
           </div>
 
-          {/* ============================================
-              TWO-COLUMN GRID
-              ============================================ */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-
-            {/* Left: Control Panel (stacked) */}
+          {/* Right: Control panels + Upcoming Events stacked */}
+          <div className="space-y-4">
+            {/* Control Panels */}
             {isAdmin && (
-              <div className="lg:col-span-5 space-y-4">
-                <div className="flex items-center gap-2">
-                  <Zap className="w-4 h-4 text-tne-red" />
-                  <h2 className="text-xs font-mono text-stone-500 uppercase tracking-widest">Control Panel</h2>
-                </div>
+              <>
                 <TryoutsControl
                   season={selectedSeason}
                   onUpdate={handleControlUpdate}
@@ -706,112 +659,75 @@ export default function AdminDashboard() {
                   season={selectedSeason}
                   onUpdate={handleControlUpdate}
                 />
-              </div>
+              </>
             )}
 
-            {/* Right: Quick Actions + Activity/Events */}
-            <div className={isAdmin ? 'lg:col-span-7' : 'lg:col-span-12'}>
-              {/* Quick Actions (compact inline) */}
-              {isAdmin && (
-                <div className="mb-6">
-                  <div className="flex items-center gap-2 mb-3">
-                    <FileSpreadsheet className="w-4 h-4 text-stone-400" />
-                    <h2 className="text-xs font-mono text-stone-500 uppercase tracking-widest">Quick Actions</h2>
+            {/* Upcoming Events */}
+            <div className="bg-white rounded-[14px] border-[1.5px] border-admin-card-border overflow-hidden">
+              <div className="px-5 py-4 flex items-center justify-between">
+                <h2 className="text-base font-bold text-admin-text">Upcoming Events</h2>
+                <Link
+                  href="/admin/games"
+                  className="text-xs text-admin-text-muted hover:text-admin-red transition-colors flex items-center gap-0.5"
+                >
+                  View all <ChevronRight className="w-3.5 h-3.5" />
+                </Link>
+              </div>
+              <div className="px-5 pb-4">
+                {loading ? (
+                  <div className="space-y-2">
+                    {[...Array(2)].map((_, i) => (
+                      <div key={i} className="h-12 bg-stone-100 rounded-lg animate-pulse" />
+                    ))}
                   </div>
-                  <div className="flex flex-wrap gap-2">
-                    <button
-                      onClick={() => setShowUploadModal(true)}
-                      className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-tne-red text-white text-xs font-medium hover:bg-tne-red-dark transition-colors"
-                    >
-                      <Upload className="w-3.5 h-3.5" />
-                      Upload Data
-                    </button>
-                    <button
-                      onClick={handleExportCurrentData}
-                      className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-white border border-stone-200 text-stone-600 text-xs font-medium hover:bg-stone-50 hover:border-stone-300 transition-colors"
-                    >
-                      <Download className="w-3.5 h-3.5" />
-                      Export Data
-                    </button>
-                    <button
-                      onClick={handleDownloadTemplate}
-                      className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-white border border-stone-200 text-stone-600 text-xs font-medium hover:bg-stone-50 hover:border-stone-300 transition-colors"
-                    >
-                      <FileSpreadsheet className="w-3.5 h-3.5" />
-                      Template
-                    </button>
+                ) : upcomingEvents.length > 0 ? (
+                  <div>
+                    {upcomingEvents.slice(0, 4).map((event) => (
+                      <EventItem key={event.id} event={event} />
+                    ))}
                   </div>
-                </div>
-              )}
-
-              {/* Activity & Events side by side */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-
-                {/* Recent Activity (limited to 4) */}
-                <div className="rounded-2xl bg-white border border-stone-200 overflow-hidden">
-                  <div className="px-4 py-3 border-b border-stone-100 flex items-center justify-between">
-                    <h2 className="text-sm font-semibold text-stone-900">Recent Activity</h2>
-                    <Link
-                      href="/admin/registrations"
-                      className="text-[10px] text-stone-400 hover:text-tne-red transition-colors flex items-center gap-0.5"
-                    >
-                      View all <ChevronRight className="w-3 h-3" />
-                    </Link>
+                ) : (
+                  <div className="py-6 text-center">
+                    <p className="text-2xl opacity-50 mb-1">📅</p>
+                    <p className="text-[13px] text-admin-text-muted">No upcoming events</p>
                   </div>
-                  <div className="px-4 py-1">
-                    {loading ? (
-                      <div className="space-y-2 py-2">
-                        {[...Array(3)].map((_, i) => (
-                          <div key={i} className="h-10 bg-stone-100 rounded animate-pulse" />
-                        ))}
-                      </div>
-                    ) : recentActivity.length > 0 ? (
-                      <div>
-                        {recentActivity.slice(0, 4).map((activity) => (
-                          <ActivityItem key={activity.id} activity={activity} />
-                        ))}
-                      </div>
-                    ) : (
-                      <p className="text-stone-400 text-sm py-6 text-center">No recent activity</p>
-                    )}
-                  </div>
-                </div>
-
-                {/* Upcoming Events (limited to 4) */}
-                <div className="rounded-2xl bg-white border border-stone-200 overflow-hidden">
-                  <div className="px-4 py-3 border-b border-stone-100 flex items-center justify-between">
-                    <h2 className="text-sm font-semibold text-stone-900">Upcoming Events</h2>
-                    <Link
-                      href="/admin/games"
-                      className="text-[10px] text-stone-400 hover:text-tne-red transition-colors flex items-center gap-0.5"
-                    >
-                      View all <ChevronRight className="w-3 h-3" />
-                    </Link>
-                  </div>
-                  <div className="px-4 py-1">
-                    {loading ? (
-                      <div className="space-y-2 py-2">
-                        {[...Array(3)].map((_, i) => (
-                          <div key={i} className="h-10 bg-stone-100 rounded animate-pulse" />
-                        ))}
-                      </div>
-                    ) : upcomingEvents.length > 0 ? (
-                      <div>
-                        {upcomingEvents.slice(0, 4).map((event) => (
-                          <EventItem key={event.id} event={event} />
-                        ))}
-                      </div>
-                    ) : (
-                      <p className="text-stone-400 text-sm py-6 text-center">No upcoming events</p>
-                    )}
-                  </div>
-                </div>
+                )}
               </div>
             </div>
-          </div>
 
+            {/* Quick Actions */}
+            {isAdmin && (
+              <div className="bg-white rounded-[14px] border-[1.5px] border-admin-card-border p-5">
+                <h3 className="text-[11px] font-semibold uppercase tracking-[0.05em] text-admin-text-secondary mb-3">Quick Actions</h3>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    onClick={() => setShowUploadModal(true)}
+                    className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-admin-red text-white text-xs font-medium hover:opacity-85 transition-opacity"
+                  >
+                    <Upload className="w-3.5 h-3.5" />
+                    Upload Data
+                  </button>
+                  <button
+                    onClick={handleExportCurrentData}
+                    className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-white border-[1.5px] border-admin-card-border text-admin-text-secondary text-xs font-medium hover:bg-stone-50 transition-colors"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    Export Data
+                  </button>
+                  <button
+                    onClick={handleDownloadTemplate}
+                    className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-white border-[1.5px] border-admin-card-border text-admin-text-secondary text-xs font-medium hover:bg-stone-50 transition-colors"
+                  >
+                    <FileSpreadsheet className="w-3.5 h-3.5" />
+                    Template
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
-      </main>
-    </div>
+
+      </div>
+    </>
   );
 }

@@ -111,13 +111,13 @@ export default function InviteUserModal({ isOpen, onClose, onSuccess }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="bg-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-xl">
+      <div className="bg-white rounded-[14px] w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-xl">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-stone-200">
-          <h2 className="text-xl font-semibold text-stone-900">Invite User</h2>
+        <div className="flex items-center justify-between px-6 py-4 border-b border-admin-card-border">
+          <h2 className="text-base font-bold text-admin-text">Invite User</h2>
           <button
             onClick={handleClose}
-            className="p-1 hover:bg-stone-100 rounded-lg transition-colors text-stone-500"
+            className="p-1 hover:bg-stone-100 rounded-lg transition-colors text-admin-text-secondary"
           >
             <X className="w-5 h-5" />
           </button>
@@ -137,8 +137,8 @@ export default function InviteUserModal({ isOpen, onClose, onSuccess }) {
             </div>
 
             <div>
-              <label className="flex items-center gap-2 text-sm font-medium text-stone-700 mb-1.5">
-                <LinkIcon className="w-4 h-4 text-stone-400" />
+              <label className="flex items-center gap-2 text-sm font-medium text-admin-text mb-1.5">
+                <LinkIcon className="w-4 h-4 text-admin-text-muted" />
                 Invite Link
               </label>
               <div className="flex gap-2">
@@ -146,12 +146,12 @@ export default function InviteUserModal({ isOpen, onClose, onSuccess }) {
                   type="text"
                   value={inviteUrl}
                   readOnly
-                  className="flex-1 px-3 py-2 rounded-lg border border-stone-300 text-stone-900 bg-stone-50 text-sm"
+                  className="flex-1 px-3 py-2 rounded-lg border border-admin-card-border text-admin-text bg-admin-content-bg text-sm"
                 />
                 <button
                   type="button"
                   onClick={handleCopyLink}
-                  className="px-3 py-2 rounded-lg border border-stone-300 text-stone-700 hover:bg-stone-50 transition-colors flex items-center gap-1.5 text-sm"
+                  className="px-3 py-2 rounded-lg border border-admin-card-border text-admin-text hover:bg-stone-50 transition-colors flex items-center gap-1.5 text-sm"
                 >
                   {copied ? (
                     <>
@@ -166,7 +166,7 @@ export default function InviteUserModal({ isOpen, onClose, onSuccess }) {
                   )}
                 </button>
               </div>
-              <p className="mt-2 text-xs text-stone-500">
+              <p className="mt-2 text-xs text-admin-text-secondary">
                 This link expires in 7 days.
               </p>
             </div>
@@ -175,7 +175,7 @@ export default function InviteUserModal({ isOpen, onClose, onSuccess }) {
               <button
                 type="button"
                 onClick={handleClose}
-                className="px-4 py-2 rounded-lg bg-tne-red hover:bg-tne-red-dark text-white font-medium transition-colors"
+                className="px-4 py-2 rounded-lg bg-admin-red hover:opacity-85 text-white font-medium transition-colors"
               >
                 Done
               </button>
@@ -192,8 +192,8 @@ export default function InviteUserModal({ isOpen, onClose, onSuccess }) {
 
             {/* Email */}
             <div>
-              <label className="flex items-center gap-2 text-sm font-medium text-stone-700 mb-1.5">
-                <Mail className="w-4 h-4 text-stone-400" />
+              <label className="flex items-center gap-2 text-sm font-medium text-admin-text mb-1.5">
+                <Mail className="w-4 h-4 text-admin-text-muted" />
                 Email Address *
               </label>
               <input
@@ -202,14 +202,14 @@ export default function InviteUserModal({ isOpen, onClose, onSuccess }) {
                 value={formData.email}
                 onChange={(e) => handleChange('email', e.target.value)}
                 placeholder="user@example.com"
-                className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+                className="w-full px-3 py-2 rounded-lg border border-admin-card-border text-admin-text placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
               />
             </div>
 
             {/* Display Name */}
             <div>
-              <label className="flex items-center gap-2 text-sm font-medium text-stone-700 mb-1.5">
-                <User className="w-4 h-4 text-stone-400" />
+              <label className="flex items-center gap-2 text-sm font-medium text-admin-text mb-1.5">
+                <User className="w-4 h-4 text-admin-text-muted" />
                 Display Name
               </label>
               <input
@@ -217,21 +217,21 @@ export default function InviteUserModal({ isOpen, onClose, onSuccess }) {
                 value={formData.display_name}
                 onChange={(e) => handleChange('display_name', e.target.value)}
                 placeholder="John Smith (optional)"
-                className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+                className="w-full px-3 py-2 rounded-lg border border-admin-card-border text-admin-text placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
               />
             </div>
 
             {/* Role */}
             <div>
-              <label className="flex items-center gap-2 text-sm font-medium text-stone-700 mb-1.5">
-                <Shield className="w-4 h-4 text-stone-400" />
+              <label className="flex items-center gap-2 text-sm font-medium text-admin-text mb-1.5">
+                <Shield className="w-4 h-4 text-admin-text-muted" />
                 Role *
               </label>
               <div className="relative">
                 <select
                   value={formData.role}
                   onChange={(e) => handleChange('role', e.target.value)}
-                  className="w-full appearance-none px-3 py-2 pr-10 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red cursor-pointer"
+                  className="w-full appearance-none px-3 py-2 pr-10 rounded-lg border border-admin-card-border text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40 cursor-pointer"
                 >
                   {ROLE_OPTIONS.map((opt) => (
                     <option key={opt.value} value={opt.value}>
@@ -239,16 +239,16 @@ export default function InviteUserModal({ isOpen, onClose, onSuccess }) {
                     </option>
                   ))}
                 </select>
-                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400 pointer-events-none" />
+                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-admin-text-muted pointer-events-none" />
               </div>
-              <p className="mt-1.5 text-xs text-stone-500">
+              <p className="mt-1.5 text-xs text-admin-text-secondary">
                 {ROLE_OPTIONS.find((r) => r.value === formData.role)?.description}
               </p>
             </div>
 
             {/* Personal Message */}
             <div>
-              <label className="block text-sm font-medium text-stone-700 mb-1.5">
+              <label className="block text-sm font-medium text-admin-text mb-1.5">
                 Personal Message (optional)
               </label>
               <textarea
@@ -256,7 +256,7 @@ export default function InviteUserModal({ isOpen, onClose, onSuccess }) {
                 onChange={(e) => handleChange('personal_message', e.target.value)}
                 placeholder="Add a personal note to the invitation email..."
                 rows={3}
-                className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red resize-none"
+                className="w-full px-3 py-2 rounded-lg border border-admin-card-border text-admin-text placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40 resize-none"
               />
             </div>
 
@@ -281,14 +281,14 @@ export default function InviteUserModal({ isOpen, onClose, onSuccess }) {
               <button
                 type="button"
                 onClick={handleClose}
-                className="px-4 py-2 rounded-lg border border-stone-300 text-stone-700 hover:bg-stone-50 transition-colors"
+                className="px-4 py-2 rounded-lg border border-admin-card-border text-admin-text hover:bg-stone-50 transition-colors"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={isSaving || !formData.email}
-                className="px-4 py-2 rounded-lg bg-tne-red hover:bg-tne-red-dark text-white font-medium transition-colors disabled:opacity-50 flex items-center gap-2"
+                className="px-4 py-2 rounded-lg bg-admin-red hover:opacity-85 text-white font-medium transition-colors disabled:opacity-50 flex items-center gap-2"
               >
                 {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}
                 Send Invite

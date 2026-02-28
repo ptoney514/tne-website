@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { Instagram, Twitter, LogIn, Calendar } from 'lucide-react';
 import tneLogoWhite from '@/assets/tne-logo-white-transparent.png';
 
@@ -9,10 +10,12 @@ export default function HomeFooter({ hideStatusBadge = false }) {
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-12 mb-20">
           <div className="col-span-2 lg:col-span-2 pr-8">
             <Link href="/" className="inline-block mb-6">
-              <img
-                src={tneLogoWhite.src}
+              <Image
+                src={tneLogoWhite}
                 alt="TNE United Express"
-                className="h-16 w-16 object-contain"
+                width={64}
+                height={64}
+                className="object-contain"
               />
             </Link>
             <p className="text-sm leading-7 text-[#8A8F98] max-w-xs mb-8">

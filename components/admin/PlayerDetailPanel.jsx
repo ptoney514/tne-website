@@ -24,8 +24,8 @@ function TabButton({ active, onClick, children }) {
       onClick={onClick}
       className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
         active
-          ? 'border-tne-red text-tne-red'
-          : 'border-transparent text-stone-500 hover:text-stone-700 hover:border-stone-300'
+          ? 'border-admin-red text-admin-red'
+          : 'border-transparent text-admin-text-secondary hover:text-admin-text hover:border-admin-card-border'
       }`}
     >
       {children}
@@ -37,10 +37,10 @@ function TabButton({ active, onClick, children }) {
 function InfoRow({ label, value, icon: Icon }) {
   return (
     <div className="flex items-start gap-3 py-2">
-      {Icon && <Icon className="w-4 h-4 text-stone-400 mt-0.5 flex-shrink-0" />}
+      {Icon && <Icon className="w-4 h-4 text-admin-text-muted mt-0.5 flex-shrink-0" />}
       <div className="flex-1 min-w-0">
-        <p className="text-xs text-stone-500">{label}</p>
-        <p className="text-sm text-stone-900">{value || <span className="text-stone-400 italic">Not provided</span>}</p>
+        <p className="text-xs text-admin-text-secondary">{label}</p>
+        <p className="text-sm text-admin-text">{value || <span className="text-admin-text-muted italic">Not provided</span>}</p>
       </div>
     </div>
   );
@@ -50,7 +50,7 @@ function InfoRow({ label, value, icon: Icon }) {
 function TeamBadge({ team }) {
   const color = getGradeColor(team.grade_level);
   return (
-    <div className="flex items-center gap-2 p-2 rounded-lg bg-stone-50 border border-stone-100">
+    <div className="flex items-center gap-2 p-2 rounded-lg bg-admin-content-bg border border-[#F2F2F0]">
       <div
         className="w-7 h-7 rounded-lg flex items-center justify-center text-white text-[10px] font-bold"
         style={{ backgroundColor: color.hex }}
@@ -58,7 +58,7 @@ function TeamBadge({ team }) {
         {formatGradeShort(team.grade_level)}
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium text-stone-900 truncate">{team.name}</p>
+        <p className="text-sm font-medium text-admin-text truncate">{team.name}</p>
       </div>
     </div>
   );
@@ -86,12 +86,12 @@ function PaymentBadge({ status }) {
 function StatBox({ label, value, icon }) {
   const Icon = icon;
   return (
-    <div className="p-3 rounded-lg bg-stone-50 border border-stone-100">
+    <div className="p-3 rounded-lg bg-admin-content-bg border border-[#F2F2F0]">
       <div className="flex items-center gap-2 mb-1">
-        <Icon className="w-4 h-4 text-stone-400" />
-        <span className="text-xs text-stone-500">{label}</span>
+        <Icon className="w-4 h-4 text-admin-text-muted" />
+        <span className="text-xs text-admin-text-secondary">{label}</span>
       </div>
-      <p className="text-xl font-bold text-stone-900">{value}</p>
+      <p className="text-xl font-bold text-admin-text">{value}</p>
     </div>
   );
 }
@@ -103,21 +103,21 @@ function SeasonHistoryItem({ entry }) {
   const isCurrentSeason = entry.season?.is_active;
 
   return (
-    <div className="flex items-start gap-3 py-3 border-b border-stone-100 last:border-0">
+    <div className="flex items-start gap-3 py-3 border-b border-[#F2F2F0] last:border-0">
       <div
         className="w-2 h-2 rounded-full mt-1.5 flex-shrink-0"
         style={{ backgroundColor: color.hex }}
       />
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
-          <p className="text-sm font-medium text-stone-900">{entry.team?.name || 'Unknown Team'}</p>
+          <p className="text-sm font-medium text-admin-text">{entry.team?.name || 'Unknown Team'}</p>
           {isCurrentSeason && (
             <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-green-100 text-green-700">
               CURRENT
             </span>
           )}
         </div>
-        <p className="text-xs text-stone-500">
+        <p className="text-xs text-admin-text-secondary">
           #{entry.jersey_number || '-'} {entry.position && `\u2022 ${entry.position}`} \u2022 {seasonName}
         </p>
         <div className="mt-1">
@@ -212,18 +212,18 @@ export default function PlayerDetailPanel({ player, onClose, onEdit, onDelete, o
   const seasonsPlayed = [...new Set(history.map((h) => h.season?.name))].filter(Boolean).length;
 
   return (
-    <div className="fixed right-0 top-14 bottom-0 w-[480px] bg-white border-l border-stone-200 shadow-xl flex flex-col z-40">
+    <div className="fixed right-0 top-0 bottom-0 w-[480px] bg-white border-l border-admin-card-border shadow-xl flex flex-col z-[60]">
       {/* Header */}
-      <div className="flex items-center justify-between px-6 py-4 border-b border-stone-200">
+      <div className="flex items-center justify-between px-6 py-4 border-b border-admin-card-border">
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-tne-maroon to-tne-red flex items-center justify-center text-white text-lg font-bold">
             {player.first_name[0]}{player.last_name[0]}
           </div>
           <div>
-            <h2 className="text-lg font-semibold text-stone-900">
+            <h2 className="text-base font-bold text-admin-text">
               {player.first_name} {player.last_name}
             </h2>
-            <p className="text-sm text-stone-500">
+            <p className="text-sm text-admin-text-secondary">
               {player.current_grade && `${player.current_grade} Grade`}
               {age && ` \u2022 ${age} years old`}
               {player.jersey_number && ` \u2022 #${player.jersey_number}`}
@@ -233,7 +233,7 @@ export default function PlayerDetailPanel({ player, onClose, onEdit, onDelete, o
         <div className="flex items-center gap-1">
           <button
             onClick={() => onEdit(player)}
-            className="p-2 rounded-lg hover:bg-stone-100 transition-colors text-stone-400 hover:text-stone-600"
+            className="p-2 rounded-lg hover:bg-stone-100 transition-colors text-admin-text-muted hover:text-admin-text-secondary"
             title="Edit player"
           >
             <Edit className="w-4 h-4" />
@@ -241,7 +241,7 @@ export default function PlayerDetailPanel({ player, onClose, onEdit, onDelete, o
           {onMoveTeam && (
             <button
               onClick={() => onMoveTeam(player)}
-              className="p-2 rounded-lg hover:bg-stone-100 transition-colors text-stone-400 hover:text-stone-600"
+              className="p-2 rounded-lg hover:bg-stone-100 transition-colors text-admin-text-muted hover:text-admin-text-secondary"
               title="Move team"
             >
               <UserCog className="w-4 h-4" />
@@ -249,14 +249,14 @@ export default function PlayerDetailPanel({ player, onClose, onEdit, onDelete, o
           )}
           <button
             onClick={() => onDelete(player)}
-            className="p-2 rounded-lg hover:bg-red-50 transition-colors text-stone-400 hover:text-red-500"
+            className="p-2 rounded-lg hover:bg-red-50 transition-colors text-admin-text-muted hover:text-red-500"
             title="Delete player"
           >
             <Trash2 className="w-4 h-4" />
           </button>
           <button
             onClick={onClose}
-            className="p-2 rounded-lg hover:bg-stone-100 transition-colors text-stone-400 hover:text-stone-600"
+            className="p-2 rounded-lg hover:bg-stone-100 transition-colors text-admin-text-muted hover:text-admin-text-secondary"
           >
             <X className="w-5 h-5" />
           </button>
@@ -264,7 +264,7 @@ export default function PlayerDetailPanel({ player, onClose, onEdit, onDelete, o
       </div>
 
       {/* Tabs */}
-      <div className="flex border-b border-stone-200 px-4">
+      <div className="flex border-b border-admin-card-border px-4">
         <TabButton
           active={activeTab === 'overview'}
           onClick={() => setActiveTab('overview')}
@@ -298,7 +298,7 @@ export default function PlayerDetailPanel({ player, onClose, onEdit, onDelete, o
 
             {/* Current Teams */}
             <div>
-              <h3 className="text-xs font-semibold text-stone-500 uppercase tracking-wider mb-3">
+              <h3 className="text-xs font-semibold text-admin-text-secondary uppercase tracking-wider mb-3">
                 Current Team{currentTeams.length !== 1 ? 's' : ''}
               </h3>
               {currentTeams.length > 0 ? (
@@ -308,16 +308,16 @@ export default function PlayerDetailPanel({ player, onClose, onEdit, onDelete, o
                   ))}
                 </div>
               ) : (
-                <p className="text-sm text-stone-400 italic">Not assigned to any team</p>
+                <p className="text-sm text-admin-text-muted italic">Not assigned to any team</p>
               )}
             </div>
 
             {/* Player Info */}
             <div>
-              <h3 className="text-xs font-semibold text-stone-500 uppercase tracking-wider mb-3">
+              <h3 className="text-xs font-semibold text-admin-text-secondary uppercase tracking-wider mb-3">
                 Player Information
               </h3>
-              <div className="space-y-1 bg-stone-50 rounded-lg p-4">
+              <div className="space-y-1 bg-admin-content-bg rounded-lg p-4">
                 <InfoRow label="Date of Birth" value={formatDate(player.date_of_birth)} icon={Calendar} />
                 <InfoRow label="Gender" value={player.gender === 'male' ? 'Male' : 'Female'} icon={User} />
                 <InfoRow label="Position" value={player.position} icon={MapPin} />
@@ -325,7 +325,7 @@ export default function PlayerDetailPanel({ player, onClose, onEdit, onDelete, o
                 <InfoRow label="Graduating Year" value={player.graduating_year} />
                 {player.prior_tne_player && (
                   <div className="pt-2">
-                    <span className="px-2 py-1 rounded text-xs font-semibold bg-tne-red/10 text-tne-red">
+                    <span className="px-2 py-1 rounded text-xs font-semibold bg-admin-red/10 text-admin-red">
                       Prior TNE Player
                     </span>
                   </div>
@@ -335,10 +335,10 @@ export default function PlayerDetailPanel({ player, onClose, onEdit, onDelete, o
 
             {/* Emergency Contact */}
             <div>
-              <h3 className="text-xs font-semibold text-stone-500 uppercase tracking-wider mb-3">
+              <h3 className="text-xs font-semibold text-admin-text-secondary uppercase tracking-wider mb-3">
                 Emergency Contact
               </h3>
-              <div className="space-y-1 bg-stone-50 rounded-lg p-4">
+              <div className="space-y-1 bg-admin-content-bg rounded-lg p-4">
                 <InfoRow label="Name" value={player.emergency_contact_name} icon={Shield} />
                 <InfoRow label="Phone" value={formatPhone(player.emergency_contact_phone)} icon={Phone} />
                 <InfoRow label="Relationship" value={player.emergency_contact_relationship} />
@@ -348,7 +348,7 @@ export default function PlayerDetailPanel({ player, onClose, onEdit, onDelete, o
             {/* Medical Notes */}
             {player.medical_notes && (
               <div>
-                <h3 className="text-xs font-semibold text-stone-500 uppercase tracking-wider mb-3">
+                <h3 className="text-xs font-semibold text-admin-text-secondary uppercase tracking-wider mb-3">
                   Medical Notes
                 </h3>
                 <div className="p-4 rounded-lg bg-amber-50 border border-amber-200">
@@ -363,10 +363,10 @@ export default function PlayerDetailPanel({ player, onClose, onEdit, onDelete, o
             {/* Notes */}
             {player.notes && (
               <div>
-                <h3 className="text-xs font-semibold text-stone-500 uppercase tracking-wider mb-3">
+                <h3 className="text-xs font-semibold text-admin-text-secondary uppercase tracking-wider mb-3">
                   Notes
                 </h3>
-                <p className="text-sm text-stone-700 whitespace-pre-wrap">{player.notes}</p>
+                <p className="text-sm text-admin-text whitespace-pre-wrap">{player.notes}</p>
               </div>
             )}
           </div>
@@ -378,43 +378,43 @@ export default function PlayerDetailPanel({ player, onClose, onEdit, onDelete, o
               <>
                 {/* Parent Header */}
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-full bg-stone-200 flex items-center justify-center text-stone-600 text-lg font-bold">
+                  <div className="w-12 h-12 rounded-full bg-stone-200 flex items-center justify-center text-admin-text-secondary text-lg font-bold">
                     {parent.first_name?.[0]}{parent.last_name?.[0]}
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-stone-900">
+                    <h3 className="text-base font-bold text-admin-text">
                       {parent.first_name} {parent.last_name}
                     </h3>
-                    <p className="text-sm text-stone-500">Primary Parent/Guardian</p>
+                    <p className="text-sm text-admin-text-secondary">Primary Parent/Guardian</p>
                   </div>
                 </div>
 
                 {/* Contact Info */}
                 <div>
-                  <h3 className="text-xs font-semibold text-stone-500 uppercase tracking-wider mb-3">
+                  <h3 className="text-xs font-semibold text-admin-text-secondary uppercase tracking-wider mb-3">
                     Contact Information
                   </h3>
                   <div className="space-y-2">
                     {parent.email && (
                       <a
                         href={`mailto:${parent.email}`}
-                        className="flex items-center gap-3 p-3 rounded-lg bg-stone-50 hover:bg-stone-100 transition-colors"
+                        className="flex items-center gap-3 p-3 rounded-lg bg-admin-content-bg hover:bg-stone-100 transition-colors"
                       >
-                        <Mail className="w-4 h-4 text-stone-400" />
-                        <span className="text-sm text-stone-700">{parent.email}</span>
+                        <Mail className="w-4 h-4 text-admin-text-muted" />
+                        <span className="text-sm text-admin-text">{parent.email}</span>
                       </a>
                     )}
                     {parent.phone && (
                       <a
                         href={`tel:${parent.phone}`}
-                        className="flex items-center gap-3 p-3 rounded-lg bg-stone-50 hover:bg-stone-100 transition-colors"
+                        className="flex items-center gap-3 p-3 rounded-lg bg-admin-content-bg hover:bg-stone-100 transition-colors"
                       >
-                        <Phone className="w-4 h-4 text-stone-400" />
-                        <span className="text-sm text-stone-700">{formatPhone(parent.phone)}</span>
+                        <Phone className="w-4 h-4 text-admin-text-muted" />
+                        <span className="text-sm text-admin-text">{formatPhone(parent.phone)}</span>
                       </a>
                     )}
                     {!parent.email && !parent.phone && (
-                      <p className="text-sm text-stone-400 italic">No contact information</p>
+                      <p className="text-sm text-admin-text-muted italic">No contact information</p>
                     )}
                   </div>
                 </div>
@@ -422,13 +422,13 @@ export default function PlayerDetailPanel({ player, onClose, onEdit, onDelete, o
                 {/* Additional Parent Fields (if available) */}
                 {(parent.address || parent.city || parent.state || parent.zip) && (
                   <div>
-                    <h3 className="text-xs font-semibold text-stone-500 uppercase tracking-wider mb-3">
+                    <h3 className="text-xs font-semibold text-admin-text-secondary uppercase tracking-wider mb-3">
                       Address
                     </h3>
-                    <div className="p-4 rounded-lg bg-stone-50">
-                      {parent.address && <p className="text-sm text-stone-700">{parent.address}</p>}
+                    <div className="p-4 rounded-lg bg-admin-content-bg">
+                      {parent.address && <p className="text-sm text-admin-text">{parent.address}</p>}
                       {(parent.city || parent.state || parent.zip) && (
-                        <p className="text-sm text-stone-700">
+                        <p className="text-sm text-admin-text">
                           {[parent.city, parent.state, parent.zip].filter(Boolean).join(', ')}
                         </p>
                       )}
@@ -438,9 +438,9 @@ export default function PlayerDetailPanel({ player, onClose, onEdit, onDelete, o
               </>
             ) : (
               <div className="text-center py-12">
-                <Users className="w-10 h-10 mx-auto text-stone-300 mb-3" />
-                <h3 className="text-sm font-medium text-stone-900 mb-1">No Parent Linked</h3>
-                <p className="text-sm text-stone-500">
+                <Users className="w-10 h-10 mx-auto text-admin-text-muted mb-3" />
+                <h3 className="text-sm font-medium text-admin-text mb-1">No Parent Linked</h3>
+                <p className="text-sm text-admin-text-secondary">
                   This player doesn&apos;t have a parent/guardian linked yet.
                 </p>
               </div>
@@ -453,7 +453,7 @@ export default function PlayerDetailPanel({ player, onClose, onEdit, onDelete, o
             {loadingHistory ? (
               <div className="space-y-3">
                 {[...Array(3)].map((_, i) => (
-                  <div key={i} className="h-16 bg-stone-100 rounded animate-pulse" />
+                  <div key={i} className="h-16 bg-admin-content-bg rounded animate-pulse" />
                 ))}
               </div>
             ) : history.length > 0 ? (
@@ -464,9 +464,9 @@ export default function PlayerDetailPanel({ player, onClose, onEdit, onDelete, o
               </div>
             ) : (
               <div className="text-center py-12">
-                <Clock className="w-10 h-10 mx-auto text-stone-300 mb-3" />
-                <h3 className="text-sm font-medium text-stone-900 mb-1">No History Yet</h3>
-                <p className="text-sm text-stone-500">
+                <Clock className="w-10 h-10 mx-auto text-admin-text-muted mb-3" />
+                <h3 className="text-sm font-medium text-admin-text mb-1">No History Yet</h3>
+                <p className="text-sm text-admin-text-secondary">
                   Player history will appear here once assigned to teams.
                 </p>
               </div>
@@ -476,10 +476,10 @@ export default function PlayerDetailPanel({ player, onClose, onEdit, onDelete, o
       </div>
 
       {/* Footer */}
-      <div className="px-6 py-4 border-t border-stone-200 bg-stone-50">
-        <div className="flex items-center justify-between text-xs text-stone-500">
+      <div className="px-6 py-4 border-t border-admin-card-border bg-admin-content-bg">
+        <div className="flex items-center justify-between text-xs text-admin-text-secondary">
           <span>
-            ID: <span className="font-mono">{player.id?.slice(0, 8)}</span>
+            ID: <span className="font-admin-mono">{player.id?.slice(0, 8)}</span>
           </span>
           <span>
             Added {formatDate(player.created_at)}

@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import SeasonBadge from '@/components/SeasonBadge';
 
 export default function TournamentHubHero({
@@ -12,11 +13,13 @@ export default function TournamentHubHero({
     <header className="relative border-b border-white/5 overflow-hidden">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(227,24,55,0.2),transparent_60%),radial-gradient(circle_at_bottom_left,rgba(139,31,58,0.15),transparent_55%)]" />
       <div className="absolute inset-0 opacity-20 mix-blend-screen">
-        <img
+        <Image
           src="https://images.pexels.com/photos/2834917/pexels-photo-2834917.jpeg?auto=compress&cs=tinysrgb&w=1600"
           alt=""
-          className="w-full h-full object-cover"
-          loading="eager"
+          fill
+          sizes="100vw"
+          className="object-cover"
+          priority
         />
       </div>
       <div className="absolute inset-0 bg-gradient-to-b from-black via-black/90 to-black" />

@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   ArrowLeft,
   MapPin,
@@ -66,10 +67,13 @@ function VenueSection({ venue }) {
       <div className="rounded-2xl overflow-hidden min-h-[280px] relative">
         {venue.image_url ? (
           <>
-            <img
+            <Image
               src={venue.image_url}
               alt={venue.name}
-              className="w-full h-full object-cover absolute inset-0"
+              fill
+              sizes="(max-width: 768px) 100vw, 50vw"
+              className="object-cover"
+              unoptimized
             />
             <div className="absolute bottom-3 left-3">
               <span className="px-3 py-1 rounded-full bg-tne-red text-white text-xs font-medium">

@@ -19,7 +19,7 @@ function StatusBadge({ isActive }) {
       className={`px-2 py-0.5 rounded text-[10px] font-semibold ${
         isActive
           ? 'bg-green-100 text-green-700'
-          : 'bg-stone-100 text-stone-500'
+          : 'bg-admin-content-bg text-admin-text-secondary'
       }`}
     >
       {isActive ? 'Active' : 'Inactive'}
@@ -100,17 +100,17 @@ export default function AdminSeasonsSettingsPage() {
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="bg-white border-b border-stone-200 px-6 py-6">
+      <div className="bg-white border-b border-admin-card-border px-6 py-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-stone-900">Seasons</h1>
-            <p className="text-sm text-stone-500 mt-1">
+            <h1 className="text-[22px] font-extrabold text-admin-text tracking-[-0.02em]">Seasons</h1>
+            <p className="text-sm text-admin-text-secondary mt-1">
               Manage seasons and control which appear in the public teams dropdown
             </p>
           </div>
           <button
             onClick={handleCreate}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-tne-red hover:bg-tne-red-dark text-white font-medium transition-colors"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-admin-red hover:opacity-85 text-white font-medium transition-colors"
           >
             <Plus className="w-4 h-4" />
             Create Season
@@ -121,7 +121,7 @@ export default function AdminSeasonsSettingsPage() {
       {/* Table */}
       <div className="flex-1 overflow-auto bg-white">
         {error && (
-          <div className="m-4 px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm flex items-center gap-2">
+          <div className="m-4 px-4 py-3 rounded-[12px] bg-red-50 border border-red-200 text-red-700 text-sm flex items-center gap-2">
             <AlertCircle className="w-4 h-4" />
             Failed to load seasons: {error}
           </div>
@@ -129,16 +129,16 @@ export default function AdminSeasonsSettingsPage() {
 
         {loading ? (
           <div className="flex items-center justify-center py-16">
-            <Loader2 className="w-8 h-8 text-stone-400 animate-spin" />
+            <Loader2 className="w-8 h-8 text-admin-text-muted animate-spin" />
           </div>
         ) : seasons.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center">
-            <Calendar className="w-12 h-12 text-stone-300 mb-4" />
-            <h3 className="text-lg font-medium text-stone-900 mb-2">No seasons yet</h3>
-            <p className="text-stone-500 mb-6">Create your first season to get started</p>
+            <Calendar className="w-12 h-12 text-admin-text-muted mb-4" />
+            <h3 className="text-lg font-medium text-admin-text mb-2">No seasons yet</h3>
+            <p className="text-admin-text-secondary mb-6">Create your first season to get started</p>
             <button
               onClick={handleCreate}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-tne-red hover:bg-tne-red-dark text-white font-medium transition-colors"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-[12px] bg-admin-red hover:opacity-85 text-white font-medium transition-colors"
             >
               <Plus className="w-4 h-4" />
               Create Season
@@ -146,18 +146,18 @@ export default function AdminSeasonsSettingsPage() {
           </div>
         ) : (
           <table className="w-full">
-            <thead className="bg-stone-50 sticky top-0">
+            <thead className="bg-admin-content-bg sticky top-0">
               <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium text-stone-500 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-medium text-admin-text-secondary uppercase tracking-wider">
                   Name
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-stone-500 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-medium text-admin-text-secondary uppercase tracking-wider">
                   Date Range
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-stone-500 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-medium text-admin-text-secondary uppercase tracking-wider">
                   Status
                 </th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-stone-500 uppercase tracking-wider">
+                <th className="px-4 py-3 text-right text-xs font-medium text-admin-text-secondary uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
@@ -166,12 +166,12 @@ export default function AdminSeasonsSettingsPage() {
               {seasons.map((season) => (
                 <tr
                   key={season.id}
-                  className="border-b border-stone-100 hover:bg-stone-50 transition-colors"
+                  className="border-b border-[#F2F2F0] hover:bg-stone-50 transition-colors"
                 >
                   <td className="px-4 py-3">
-                    <p className="font-medium text-stone-900">{season.name}</p>
+                    <p className="font-medium text-admin-text">{season.name}</p>
                   </td>
-                  <td className="px-4 py-3 text-sm text-stone-600">
+                  <td className="px-4 py-3 text-sm text-admin-text-secondary">
                     {formatDateRange(season.start_date, season.end_date)}
                   </td>
                   <td className="px-4 py-3">
@@ -181,7 +181,7 @@ export default function AdminSeasonsSettingsPage() {
                     <div className="flex items-center justify-end gap-2">
                       <button
                         onClick={() => handleToggleActive(season)}
-                        className="p-1.5 rounded-lg text-stone-500 hover:bg-stone-100 hover:text-stone-700 transition-colors"
+                        className="p-1.5 rounded-lg text-admin-text-secondary hover:bg-stone-100 hover:text-admin-text transition-colors"
                         title={season.is_active ? 'Deactivate' : 'Activate'}
                       >
                         {season.is_active ? (
@@ -192,14 +192,14 @@ export default function AdminSeasonsSettingsPage() {
                       </button>
                       <button
                         onClick={() => handleEdit(season)}
-                        className="p-1.5 rounded-lg text-stone-500 hover:bg-stone-100 hover:text-stone-700 transition-colors"
+                        className="p-1.5 rounded-lg text-admin-text-secondary hover:bg-stone-100 hover:text-admin-text transition-colors"
                         title="Edit"
                       >
                         <Pencil className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => handleDelete(season)}
-                        className="p-1.5 rounded-lg text-stone-500 hover:bg-red-50 hover:text-red-600 transition-colors"
+                        className="p-1.5 rounded-lg text-admin-text-secondary hover:bg-red-50 hover:text-red-600 transition-colors"
                         title="Delete"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -215,8 +215,8 @@ export default function AdminSeasonsSettingsPage() {
 
       {/* Footer */}
       {seasons.length > 0 && (
-        <div className="bg-white border-t border-stone-200 px-4 py-2">
-          <p className="text-sm text-stone-500">
+        <div className="bg-white border-t border-admin-card-border px-4 py-2">
+          <p className="text-sm text-admin-text-secondary">
             {seasons.length} season{seasons.length !== 1 ? 's' : ''}
             {' • '}
             {seasons.filter((s) => s.is_active).length} active
@@ -238,11 +238,11 @@ export default function AdminSeasonsSettingsPage() {
       {/* Delete Confirmation */}
       {deleteConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="bg-white rounded-2xl w-full max-w-md p-6 shadow-xl">
-            <h3 className="text-lg font-semibold text-stone-900 mb-2">
+          <div className="bg-white rounded-[14px] w-full max-w-md p-6 shadow-xl">
+            <h3 className="text-base font-bold text-admin-text mb-2">
               Delete Season?
             </h3>
-            <p className="text-stone-600 mb-2">
+            <p className="text-admin-text-secondary mb-2">
               Are you sure you want to delete <strong>{deleteConfirm.name}</strong>?
             </p>
             <p className="text-sm text-red-600 mb-6">
@@ -251,7 +251,7 @@ export default function AdminSeasonsSettingsPage() {
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => setDeleteConfirm(null)}
-                className="px-4 py-2 rounded-lg border border-stone-300 text-stone-700 hover:bg-stone-50 transition-colors"
+                className="px-4 py-2 rounded-lg border border-admin-card-border text-admin-text hover:bg-stone-50 transition-colors"
               >
                 Cancel
               </button>

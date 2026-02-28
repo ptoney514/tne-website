@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Menu } from 'lucide-react';
 import tneLogoWhite from '@/assets/tne-logo-white-transparent.png';
 import MobileDrawer from './MobileDrawer';
@@ -17,10 +18,13 @@ export default function HomeNavbar() {
         >
           <div className="relative">
             <div className="absolute inset-0 bg-black/40 rounded-full blur-xl scale-90" />
-            <img
-              src={tneLogoWhite.src}
+            <Image
+              src={tneLogoWhite}
               alt="TNE United Express"
-              className="relative h-[88px] w-[88px] object-contain drop-shadow-2xl"
+              width={88}
+              height={88}
+              className="relative object-contain drop-shadow-2xl"
+              priority
             />
           </div>
         </Link>

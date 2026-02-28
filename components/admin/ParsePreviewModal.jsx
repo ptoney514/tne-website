@@ -29,9 +29,9 @@ export default function ParsePreviewModal({
       />
 
       {/* Modal */}
-      <div className="absolute inset-4 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-full md:max-w-2xl bg-white rounded-2xl shadow-2xl flex flex-col max-h-[90vh]">
+      <div className="absolute inset-4 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-full md:max-w-2xl bg-white rounded-[14px] shadow-2xl flex flex-col max-h-[90vh]">
         {/* Header */}
-        <div className="px-6 py-4 border-b border-stone-200 flex items-center gap-4">
+        <div className="px-6 py-4 border-b border-admin-card-border flex items-center gap-4">
           <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
             <svg
               className="w-5 h-5 text-green-600"
@@ -48,8 +48,8 @@ export default function ParsePreviewModal({
             </svg>
           </div>
           <div>
-            <h2 className="text-lg font-bold text-stone-900">Confirm New Players</h2>
-            <p className="text-sm text-stone-500">
+            <h2 className="text-base font-bold text-admin-text">Confirm New Players</h2>
+            <p className="text-sm text-admin-text-secondary">
               Review parsed data before adding to roster
             </p>
           </div>
@@ -63,7 +63,7 @@ export default function ParsePreviewModal({
               <div
                 key={index}
                 className={`
-                  flex items-center gap-4 p-4 rounded-xl border
+                  flex items-center gap-4 p-4 rounded-[12px] border
                   ${
                     player.isValid === false
                       ? 'bg-red-50 border-red-200'
@@ -78,7 +78,7 @@ export default function ParsePreviewModal({
                     ${
                       player.jerseyNumber
                         ? `${gradeColor.bg} text-white`
-                        : 'bg-stone-100 text-stone-400'
+                        : 'bg-stone-100 text-admin-text-muted'
                     }
                   `}
                 >
@@ -87,10 +87,10 @@ export default function ParsePreviewModal({
 
                 {/* Player Info */}
                 <div className="flex-1">
-                  <div className="font-medium text-stone-900">
+                  <div className="font-medium text-admin-text">
                     {player.firstName} {player.lastName}
                   </div>
-                  <div className="text-sm text-stone-500">
+                  <div className="text-sm text-admin-text-secondary">
                     {player.jerseyNumber && `Jersey #${player.jerseyNumber}`}
                     {player.jerseyNumber && player.position && ' \u2022 '}
                     {player.position}
@@ -112,7 +112,7 @@ export default function ParsePreviewModal({
           </div>
 
           {/* Info Box */}
-          <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-xl">
+          <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-[12px]">
             <div className="flex items-start gap-3">
               <svg
                 className="w-5 h-5 text-blue-500 mt-0.5 flex-shrink-0"
@@ -144,16 +144,16 @@ export default function ParsePreviewModal({
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-4 border-t border-stone-200 flex items-center justify-between">
+        <div className="px-6 py-4 border-t border-admin-card-border flex items-center justify-between">
           <button
             onClick={onClose}
             disabled={isLoading}
-            className="px-4 py-2 text-sm font-medium text-stone-700 hover:bg-stone-100 rounded-lg transition-colors disabled:opacity-50"
+            className="px-4 py-2 text-sm font-medium text-admin-text hover:bg-stone-100 rounded-lg transition-colors disabled:opacity-50"
           >
             Cancel
           </button>
           <div className="flex items-center gap-3">
-            <span className="text-sm text-stone-500">
+            <span className="text-sm text-admin-text-secondary">
               {validPlayers.length} player{validPlayers.length !== 1 ? 's' : ''} ready
             </span>
             <button
@@ -165,7 +165,7 @@ export default function ParsePreviewModal({
                 ${
                   isLoading || validPlayers.length === 0
                     ? 'bg-stone-200 text-stone-400 cursor-not-allowed'
-                    : 'bg-tne-red text-white hover:bg-tne-red-dark'
+                    : 'bg-admin-red text-white hover:opacity-85'
                 }
               `}
             >

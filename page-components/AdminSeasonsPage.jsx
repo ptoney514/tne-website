@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useSeasons } from '@/hooks/useSeasons';
 import { useSeason } from '@/contexts/SeasonContext';
 import { api } from '@/lib/api-client';
-import AdminNavbar from '@/components/AdminNavbar';
+
 import SeasonFormModal from '@/components/admin/SeasonFormModal';
 import CopyTeamsModal from '@/components/admin/CopyTeamsModal';
 import SeasonFeesList from '@/components/admin/SeasonFeesList';
@@ -33,7 +33,7 @@ function StatusBadge({ isActive }) {
       className={`px-2.5 py-1 rounded-full text-[10px] font-semibold uppercase tracking-wider ${
         isActive
           ? 'bg-green-100 text-green-700'
-          : 'bg-stone-100 text-stone-500'
+          : 'bg-admin-content-bg text-admin-text-secondary'
       }`}
     >
       {isActive ? 'Active' : 'Inactive'}
@@ -78,10 +78,10 @@ function InlineToggle({ label, isOpen, color, saving, onToggle }) {
             isOpen ? 'left-5' : 'left-0.5'
           }`}
         >
-          <Power className={`w-2.5 h-2.5 ${isOpen ? c.dot : 'text-stone-400'}`} />
+          <Power className={`w-2.5 h-2.5 ${isOpen ? c.dot : 'text-admin-text-muted'}`} />
         </div>
       </button>
-      <span className={`text-xs font-medium ${isOpen ? c.text : 'text-stone-500'}`}>
+      <span className={`text-xs font-medium ${isOpen ? c.text : 'text-admin-text-secondary'}`}>
         {label}: {isOpen ? 'Open' : 'Closed'}
       </span>
     </div>
@@ -91,18 +91,18 @@ function InlineToggle({ label, isOpen, color, saving, onToggle }) {
 // Mini team card for display within season cards
 function MiniTeamCard({ team }) {
   return (
-    <div className="flex items-center gap-3 px-3 py-2 rounded-xl bg-stone-50 border border-stone-100">
+    <div className="flex items-center gap-3 px-3 py-2 rounded-[12px] bg-admin-content-bg border border-[#F2F2F0]">
       <div className="w-8 h-8 rounded-lg bg-stone-200 flex items-center justify-center shrink-0">
-        <Users className="w-4 h-4 text-stone-500" />
+        <Users className="w-4 h-4 text-admin-text-secondary" />
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium text-stone-900 truncate">{team.name}</p>
-        <p className="text-[11px] text-stone-500">
+        <p className="text-sm font-medium text-admin-text truncate">{team.name}</p>
+        <p className="text-[11px] text-admin-text-secondary">
           {team.grade_level} &middot; {team.gender}
           {team.head_coach && ` \u00b7 ${team.head_coach.first_name} ${team.head_coach.last_name}`}
         </p>
       </div>
-      <span className="text-xs font-mono text-stone-400 shrink-0">
+      <span className="text-xs font-admin-mono text-admin-text-muted shrink-0">
         {team.player_count || 0}
       </span>
     </div>
@@ -162,23 +162,23 @@ function SeasonCard({
   const teamCount = seasonTeams?.length || 0;
 
   return (
-    <div className="rounded-3xl bg-white border border-stone-200 overflow-hidden hover:border-stone-300 transition-colors">
+    <div className="rounded-[14px] bg-white border-[1.5px] border-admin-card-border overflow-hidden hover:border-admin-card-border transition-colors">
       {/* Header */}
       <div className="p-6">
         <div className="flex items-start justify-between mb-4">
           <div>
             <div className="flex items-center gap-3 mb-1">
-              <h3 className="text-xl font-bold text-stone-900">{season.name}</h3>
+              <h3 className="text-base font-bold text-admin-text">{season.name}</h3>
               <StatusBadge isActive={season.is_active} />
             </div>
-            <p className="text-sm text-stone-500">
+            <p className="text-sm text-admin-text-secondary">
               {formatDateRange(season.start_date, season.end_date)}
             </p>
           </div>
           <div className="flex items-center gap-1.5">
             <button
               onClick={() => onToggleActive(season)}
-              className="p-2 rounded-lg text-stone-400 hover:bg-stone-100 hover:text-stone-700 transition-colors"
+              className="p-2 rounded-lg text-admin-text-muted hover:bg-stone-100 hover:text-admin-text transition-colors"
               title={season.is_active ? 'Deactivate' : 'Activate'}
             >
               {season.is_active ? (
@@ -189,14 +189,14 @@ function SeasonCard({
             </button>
             <button
               onClick={() => onEdit(season)}
-              className="p-2 rounded-lg text-stone-400 hover:bg-stone-100 hover:text-stone-700 transition-colors"
+              className="p-2 rounded-lg text-admin-text-muted hover:bg-stone-100 hover:text-admin-text transition-colors"
               title="Edit"
             >
               <Pencil className="w-4 h-4" />
             </button>
             <button
               onClick={() => onDelete(season)}
-              className="p-2 rounded-lg text-stone-400 hover:bg-red-50 hover:text-red-600 transition-colors"
+              className="p-2 rounded-lg text-admin-text-muted hover:bg-red-50 hover:text-red-600 transition-colors"
               title="Delete"
             >
               <Trash2 className="w-4 h-4" />
@@ -226,7 +226,7 @@ function SeasonCard({
         <div className="flex flex-wrap items-center gap-4">
           <button
             onClick={() => setExpanded(!expanded)}
-            className="flex items-center gap-2 text-sm text-stone-600 hover:text-stone-900 transition-colors"
+            className="flex items-center gap-2 text-sm text-admin-text-secondary hover:text-admin-text transition-colors"
           >
             <Users className="w-4 h-4" />
             <span className="font-medium">
@@ -240,7 +240,7 @@ function SeasonCard({
           </button>
           <button
             onClick={() => setFeesExpanded(!feesExpanded)}
-            className="flex items-center gap-2 text-sm text-stone-600 hover:text-stone-900 transition-colors"
+            className="flex items-center gap-2 text-sm text-admin-text-secondary hover:text-admin-text transition-colors"
           >
             <DollarSign className="w-4 h-4" />
             <span className="font-medium">Fees</span>
@@ -256,10 +256,10 @@ function SeasonCard({
       {/* Expanded Teams Grid */}
       {expanded && (
         <div className="px-6 pb-6 pt-0">
-          <div className="border-t border-stone-100 pt-4">
+          <div className="border-t border-[#F2F2F0] pt-4">
             {loadingTeams ? (
               <div className="flex items-center justify-center py-6">
-                <Loader2 className="w-5 h-5 text-stone-400 animate-spin" />
+                <Loader2 className="w-5 h-5 text-admin-text-muted animate-spin" />
               </div>
             ) : teamCount > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -269,7 +269,7 @@ function SeasonCard({
               </div>
             ) : (
               <div className="text-center py-6">
-                <p className="text-sm text-stone-500 mb-3">No teams in this season</p>
+                <p className="text-sm text-admin-text-secondary mb-3">No teams in this season</p>
                 <button
                   onClick={() => onCopyTeams(season)}
                   className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-50 text-blue-700 text-sm font-medium hover:bg-blue-100 transition-colors"
@@ -283,10 +283,10 @@ function SeasonCard({
 
           {/* Copy Teams button for seasons with teams too (less prominent) */}
           {teamCount > 0 && (
-            <div className="mt-3 pt-3 border-t border-stone-100">
+            <div className="mt-3 pt-3 border-t border-[#F2F2F0]">
               <button
                 onClick={() => onCopyTeams(season)}
-                className="text-xs text-stone-500 hover:text-blue-600 transition-colors flex items-center gap-1.5"
+                className="text-xs text-admin-text-secondary hover:text-blue-600 transition-colors flex items-center gap-1.5"
               >
                 <Copy className="w-3.5 h-3.5" />
                 Copy teams from another season
@@ -299,7 +299,7 @@ function SeasonCard({
       {/* Expanded Fees Section */}
       {feesExpanded && (
         <div className="px-6 pb-6 pt-0">
-          <div className="border-t border-stone-100 pt-4">
+          <div className="border-t border-[#F2F2F0] pt-4">
             <SeasonFeesList seasonId={season.id} />
           </div>
         </div>
@@ -424,91 +424,87 @@ export default function AdminSeasonsPage() {
   };
 
   return (
-    <div className="bg-stone-100 text-stone-900 antialiased min-h-screen flex flex-col font-sans">
-      <AdminNavbar />
+    <>
+      <div className="max-w-5xl mx-auto">
+        {/* Header */}
+        <div className="mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+          <div>
+            <h1 className="text-[22px] font-extrabold text-admin-text tracking-[-0.02em]">
+              Seasons
+            </h1>
+            <p className="text-sm text-admin-text-secondary mt-1">
+              Manage seasons, control tryout/registration access, and view team structures
+            </p>
+          </div>
+          <button
+            onClick={handleCreate}
+            className="self-start sm:self-auto flex items-center gap-2 px-4 py-2.5 rounded-[12px] bg-admin-red hover:opacity-85 text-white font-medium transition-colors shadow-sm"
+          >
+            <Plus className="w-4 h-4" />
+            New Season
+          </button>
+        </div>
 
-      <main className="flex-1 px-4 py-6 lg:py-8">
-        <div className="max-w-5xl mx-auto">
-          {/* Header */}
-          <div className="mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-            <div>
-              <h1 className="text-3xl lg:text-4xl font-bebas tracking-tight text-stone-900">
-                Seasons
-              </h1>
-              <p className="text-sm text-stone-500 mt-1">
-                Manage seasons, control tryout/registration access, and view team structures
-              </p>
-            </div>
-            <button
-              onClick={handleCreate}
-              className="self-start sm:self-auto flex items-center gap-2 px-4 py-2.5 rounded-xl bg-tne-red hover:bg-tne-red-dark text-white font-medium transition-colors shadow-sm"
-            >
-              <Plus className="w-4 h-4" />
-              New Season
+        {/* Error */}
+        {error && (
+          <div className="mb-6 px-4 py-3 rounded-[12px] bg-red-50 border border-red-200 text-red-700 text-sm flex items-center gap-2">
+            <span className="flex-1">Failed to load seasons: {error}</span>
+            <button onClick={refetch} className="ml-auto text-red-800 underline hover:text-red-900 font-medium whitespace-nowrap">
+              Retry
             </button>
           </div>
+        )}
 
-          {/* Error */}
-          {error && (
-            <div className="mb-6 px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm flex items-center gap-2">
-              <span className="flex-1">Failed to load seasons: {error}</span>
-              <button onClick={refetch} className="ml-auto text-red-800 underline hover:text-red-900 font-medium whitespace-nowrap">
-                Retry
-              </button>
+        {/* Content */}
+        {loading ? (
+          <div className="flex items-center justify-center py-20">
+            <Loader2 className="w-8 h-8 text-admin-text-muted animate-spin" />
+          </div>
+        ) : seasons.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-20 text-center">
+            <div className="w-16 h-16 rounded-[14px] bg-stone-200 flex items-center justify-center mb-4">
+              <Calendar className="w-8 h-8 text-admin-text-muted" />
             </div>
-          )}
+            <h3 className="text-lg font-medium text-admin-text mb-2">No seasons yet</h3>
+            <p className="text-admin-text-secondary mb-6">Create your first season to get started</p>
+            <button
+              onClick={handleCreate}
+              className="flex items-center gap-2 px-5 py-2.5 rounded-[12px] bg-admin-red hover:opacity-85 text-white font-medium transition-colors"
+            >
+              <Plus className="w-4 h-4" />
+              Create Season
+            </button>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {seasons.map((season) => (
+              <SeasonCard
+                key={season.id}
+                season={season}
+                teams={teamsPerSeason[season.id]}
+                loadingTeams={!!loadingTeams[season.id]}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+                onToggleActive={handleToggleActive}
+                onToggleTryouts={handleToggleTryouts}
+                onToggleRegistration={handleToggleRegistration}
+                onCopyTeams={handleCopyTeams}
+              />
+            ))}
+          </div>
+        )}
 
-          {/* Content */}
-          {loading ? (
-            <div className="flex items-center justify-center py-20">
-              <Loader2 className="w-8 h-8 text-stone-400 animate-spin" />
-            </div>
-          ) : seasons.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-20 text-center">
-              <div className="w-16 h-16 rounded-2xl bg-stone-200 flex items-center justify-center mb-4">
-                <Calendar className="w-8 h-8 text-stone-400" />
-              </div>
-              <h3 className="text-lg font-medium text-stone-900 mb-2">No seasons yet</h3>
-              <p className="text-stone-500 mb-6">Create your first season to get started</p>
-              <button
-                onClick={handleCreate}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-tne-red hover:bg-tne-red-dark text-white font-medium transition-colors"
-              >
-                <Plus className="w-4 h-4" />
-                Create Season
-              </button>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {seasons.map((season) => (
-                <SeasonCard
-                  key={season.id}
-                  season={season}
-                  teams={teamsPerSeason[season.id]}
-                  loadingTeams={!!loadingTeams[season.id]}
-                  onEdit={handleEdit}
-                  onDelete={handleDelete}
-                  onToggleActive={handleToggleActive}
-                  onToggleTryouts={handleToggleTryouts}
-                  onToggleRegistration={handleToggleRegistration}
-                  onCopyTeams={handleCopyTeams}
-                />
-              ))}
-            </div>
-          )}
-
-          {/* Footer count */}
-          {seasons.length > 0 && (
-            <div className="mt-6 text-center">
-              <p className="text-sm text-stone-400">
-                {seasons.length} season{seasons.length !== 1 ? 's' : ''}
-                {' \u00b7 '}
-                {seasons.filter((s) => s.is_active).length} active
-              </p>
-            </div>
-          )}
-        </div>
-      </main>
+        {/* Footer count */}
+        {seasons.length > 0 && (
+          <div className="mt-6 text-center">
+            <p className="text-sm text-admin-text-muted">
+              {seasons.length} season{seasons.length !== 1 ? 's' : ''}
+              {' \u00b7 '}
+              {seasons.filter((s) => s.is_active).length} active
+            </p>
+          </div>
+        )}
+      </div>
 
       {/* Form Modal */}
       <SeasonFormModal
@@ -533,11 +529,11 @@ export default function AdminSeasonsPage() {
       {/* Delete Confirmation */}
       {deleteConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="bg-white rounded-2xl w-full max-w-md p-6 shadow-xl">
-            <h3 className="text-lg font-semibold text-stone-900 mb-2">
+          <div className="bg-white rounded-[14px] w-full max-w-md p-6 shadow-xl">
+            <h3 className="text-base font-bold text-admin-text mb-2">
               Delete Season?
             </h3>
-            <p className="text-stone-600 mb-2">
+            <p className="text-admin-text-secondary mb-2">
               Are you sure you want to delete <strong>{deleteConfirm.name}</strong>?
             </p>
             <p className="text-sm text-red-600 mb-6">
@@ -546,7 +542,7 @@ export default function AdminSeasonsPage() {
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => setDeleteConfirm(null)}
-                className="px-4 py-2 rounded-lg border border-stone-300 text-stone-700 hover:bg-stone-50 transition-colors"
+                className="px-4 py-2 rounded-lg border border-admin-card-border text-admin-text hover:bg-stone-50 transition-colors"
               >
                 Cancel
               </button>
@@ -560,6 +556,6 @@ export default function AdminSeasonsPage() {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }

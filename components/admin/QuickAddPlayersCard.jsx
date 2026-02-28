@@ -14,9 +14,9 @@ export default function QuickAddPlayersCard({
   const hasContent = value && value.trim().length > 0;
 
   return (
-    <div className="bg-white rounded-2xl border border-stone-200 shadow-sm mb-8 overflow-hidden">
+    <div className="bg-white rounded-[14px] border-[1.5px] border-admin-card-border shadow-sm mb-8 overflow-hidden">
       {/* Header */}
-      <div className="px-5 py-4 border-b border-stone-100 flex items-center gap-3">
+      <div className="px-5 py-4 border-b border-[#F2F2F0] flex items-center gap-3">
         <div className="w-8 h-8 rounded-full bg-gradient-to-br from-tne-maroon to-tne-red flex items-center justify-center">
           <svg
             className="w-4 h-4 text-white"
@@ -33,8 +33,8 @@ export default function QuickAddPlayersCard({
           </svg>
         </div>
         <div>
-          <h3 className="font-semibold text-stone-900">Quick Add Players</h3>
-          <p className="text-xs text-stone-500">
+          <h3 className="font-semibold text-admin-text">Quick Add Players</h3>
+          <p className="text-xs text-admin-text-secondary">
             Paste names, jersey numbers, or full roster &mdash; I'll figure it out
           </p>
         </div>
@@ -44,8 +44,8 @@ export default function QuickAddPlayersCard({
       <div className="p-5">
         <div
           className={`
-            border border-stone-200 rounded-xl transition-all
-            focus-within:border-tne-red focus-within:ring-2 focus-within:ring-tne-red/10
+            border-[1.5px] border-admin-card-border rounded-[12px] transition-all
+            focus-within:border-admin-red/40 focus-within:ring-2 focus-within:ring-admin-red/10
           `}
         >
           <textarea
@@ -54,10 +54,10 @@ export default function QuickAddPlayersCard({
             disabled={disabled}
             rows={3}
             placeholder="e.g. Marcus Johnson #23, Tyler Smith, Jaylen Williams #11 (PG)..."
-            className="w-full px-4 py-3 text-sm resize-none focus:outline-none rounded-t-xl disabled:bg-stone-50 disabled:cursor-not-allowed"
+            className="w-full px-4 py-3 text-sm resize-none focus:outline-none rounded-t-[12px] disabled:bg-stone-50 disabled:cursor-not-allowed"
           />
-          <div className="px-4 py-3 bg-stone-50 border-t border-stone-100 flex items-center justify-between rounded-b-xl">
-            <div className="flex items-center gap-4 text-xs text-stone-500">
+          <div className="px-4 py-3 bg-admin-content-bg border-t border-[#F2F2F0] flex items-center justify-between rounded-b-[12px]">
+            <div className="flex items-center gap-4 text-xs text-admin-text-secondary">
               <span className="flex items-center gap-1">
                 <svg
                   className="w-3.5 h-3.5"
@@ -83,7 +83,7 @@ export default function QuickAddPlayersCard({
                 flex items-center gap-2 transition-colors
                 ${
                   hasContent && !disabled
-                    ? 'bg-tne-red text-white hover:bg-tne-red-dark'
+                    ? 'bg-admin-red text-white hover:opacity-85'
                     : 'bg-stone-200 text-stone-400 cursor-not-allowed'
                 }
               `}

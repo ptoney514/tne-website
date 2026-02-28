@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useTournamentEvents } from '@/hooks/useEvents';
 import { useTeams } from '@/hooks/useTeams';
-import AdminNavbar from '@/components/AdminNavbar';
+
 
 // Icons
 const PlusIcon = () => (
@@ -108,12 +108,12 @@ function TournamentModal({ isOpen, onClose, event, teams, onSave, isSaving }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="bg-white rounded-2xl w-full max-w-xl max-h-[90vh] overflow-y-auto shadow-xl">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-stone-200">
-          <h2 className="text-lg font-semibold text-stone-900">
+      <div className="bg-white rounded-[14px] w-full max-w-xl max-h-[90vh] overflow-y-auto shadow-xl">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-admin-card-border">
+          <h2 className="text-base font-bold text-admin-text">
             {event ? 'Edit Tournament' : 'Add Tournament to Schedule'}
           </h2>
-          <button onClick={onClose} className="p-1 hover:bg-stone-100 rounded-lg transition-colors text-stone-500">
+          <button onClick={onClose} className="p-1 hover:bg-stone-100 rounded-lg transition-colors text-admin-text-secondary">
             <XIcon />
           </button>
         </div>
@@ -121,25 +121,25 @@ function TournamentModal({ isOpen, onClose, event, teams, onSave, isSaving }) {
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-stone-700 mb-1">Tournament Name *</label>
+              <label className="block text-sm font-medium text-admin-text mb-1">Tournament Name *</label>
               <input
                 type="text"
                 required
                 value={formData.tournament_name}
                 onChange={(e) => handleChange('tournament_name', e.target.value)}
-                className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+                className="w-full px-3 py-2 rounded-lg border border-admin-card-border text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
                 placeholder="e.g., MLK Weekend Classic"
               />
-              <p className="text-xs text-stone-500 mt-1">Use the same name for all teams in this tournament</p>
+              <p className="text-xs text-admin-text-secondary mt-1">Use the same name for all teams in this tournament</p>
             </div>
 
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-stone-700 mb-1">Team *</label>
+              <label className="block text-sm font-medium text-admin-text mb-1">Team *</label>
               <select
                 required
                 value={formData.team_id || ''}
                 onChange={(e) => handleChange('team_id', e.target.value)}
-                className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+                className="w-full px-3 py-2 rounded-lg border border-admin-card-border text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
               >
                 <option value="">Select a team...</option>
                 {teams.map((team) => (
@@ -151,79 +151,79 @@ function TournamentModal({ isOpen, onClose, event, teams, onSave, isSaving }) {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-stone-700 mb-1">Date *</label>
+              <label className="block text-sm font-medium text-admin-text mb-1">Date *</label>
               <input
                 type="date"
                 required
                 value={formData.date || ''}
                 onChange={(e) => handleChange('date', e.target.value)}
-                className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+                className="w-full px-3 py-2 rounded-lg border border-admin-card-border text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
               />
             </div>
 
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <label className="block text-sm font-medium text-stone-700 mb-1">Start Time</label>
+                <label className="block text-sm font-medium text-admin-text mb-1">Start Time</label>
                 <input
                   type="time"
                   value={formData.start_time || ''}
                   onChange={(e) => handleChange('start_time', e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+                  className="w-full px-3 py-2 rounded-lg border border-admin-card-border text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-stone-700 mb-1">End Time</label>
+                <label className="block text-sm font-medium text-admin-text mb-1">End Time</label>
                 <input
                   type="time"
                   value={formData.end_time || ''}
                   onChange={(e) => handleChange('end_time', e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+                  className="w-full px-3 py-2 rounded-lg border border-admin-card-border text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-stone-700 mb-1">Location *</label>
+              <label className="block text-sm font-medium text-admin-text mb-1">Location *</label>
               <input
                 type="text"
                 required
                 value={formData.location || ''}
                 onChange={(e) => handleChange('location', e.target.value)}
-                className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+                className="w-full px-3 py-2 rounded-lg border border-admin-card-border text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
                 placeholder="e.g., Omaha Sports Complex"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-stone-700 mb-1">Address</label>
+              <label className="block text-sm font-medium text-admin-text mb-1">Address</label>
               <input
                 type="text"
                 value={formData.address || ''}
                 onChange={(e) => handleChange('address', e.target.value)}
-                className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+                className="w-full px-3 py-2 rounded-lg border border-admin-card-border text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
                 placeholder="Full address"
               />
             </div>
 
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-stone-700 mb-1">Tournament Website</label>
+              <label className="block text-sm font-medium text-admin-text mb-1">Tournament Website</label>
               <input
                 type="url"
                 value={formData.external_url || ''}
                 onChange={(e) => handleChange('external_url', e.target.value)}
-                className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+                className="w-full px-3 py-2 rounded-lg border border-admin-card-border text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
                 placeholder="https://..."
               />
-              <p className="text-xs text-stone-500 mt-1">Link to tournament details, schedule, and registration</p>
+              <p className="text-xs text-admin-text-secondary mt-1">Link to tournament details, schedule, and registration</p>
             </div>
 
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-stone-700 mb-1">Notes</label>
+              <label className="block text-sm font-medium text-admin-text mb-1">Notes</label>
               <textarea
                 value={formData.notes || ''}
                 onChange={(e) => handleChange('notes', e.target.value)}
                 rows={2}
-                className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+                className="w-full px-3 py-2 rounded-lg border border-admin-card-border text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
                 placeholder="Internal notes..."
               />
             </div>
@@ -234,26 +234,26 @@ function TournamentModal({ isOpen, onClose, event, teams, onSave, isSaving }) {
                 id="is_featured"
                 checked={formData.is_featured || false}
                 onChange={(e) => handleChange('is_featured', e.target.checked)}
-                className="rounded border-stone-300"
+                className="rounded border-admin-card-border"
               />
-              <label htmlFor="is_featured" className="text-sm text-stone-700">
+              <label htmlFor="is_featured" className="text-sm text-admin-text">
                 Featured tournament (highlight on public schedule)
               </label>
             </div>
           </div>
 
-          <div className="flex justify-end gap-3 pt-4 border-t border-stone-200">
+          <div className="flex justify-end gap-3 pt-4 border-t border-admin-card-border">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-lg border border-stone-300 text-stone-700 hover:bg-stone-50 transition-colors"
+              className="px-4 py-2 rounded-lg border border-admin-card-border text-admin-text hover:bg-stone-50 transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSaving}
-              className="px-4 py-2 rounded-lg bg-tne-red hover:bg-tne-red-dark text-white font-medium transition-colors disabled:opacity-50 flex items-center gap-2"
+              className="px-4 py-2 rounded-lg bg-admin-red hover:opacity-85 text-white font-medium transition-colors disabled:opacity-50 flex items-center gap-2"
             >
               {isSaving && <LoaderIcon />}
               {event ? 'Update' : 'Add to Schedule'}
@@ -273,7 +273,7 @@ function TournamentEventCard({ event, onEdit, onDelete }) {
   const isPast = daysUntil < 0;
 
   return (
-    <div className={`rounded-2xl bg-white border border-stone-200 shadow-sm overflow-hidden hover:shadow-md transition-shadow ${isPast ? 'opacity-60' : ''}`}>
+    <div className={`rounded-[14px] bg-white border-[1.5px] border-admin-card-border shadow-sm overflow-hidden hover:shadow-md transition-shadow ${isPast ? 'opacity-60' : ''}`}>
       {/* Header */}
       <div className={`px-4 py-3 ${event.is_featured ? 'bg-amber-500' : 'bg-stone-900'} text-white`}>
         <div className="flex items-center justify-between">
@@ -291,11 +291,11 @@ function TournamentEventCard({ event, onEdit, onDelete }) {
 
       {/* Body */}
       <div className="p-4">
-        <h3 className="font-semibold text-lg text-stone-900">
+        <h3 className="font-semibold text-lg text-admin-text">
           {event.tournament_name || event.title}
         </h3>
 
-        <div className="mt-3 space-y-2 text-sm text-stone-600">
+        <div className="mt-3 space-y-2 text-sm text-admin-text-secondary">
           <div className="flex items-center gap-2">
             <CalendarIcon />
             <span>{formatDate(event.date)}</span>
@@ -315,7 +315,7 @@ function TournamentEventCard({ event, onEdit, onDelete }) {
                 href={event.external_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-tne-red hover:text-tne-red-dark hover:underline"
+                className="text-admin-red hover:opacity-85 hover:underline"
               >
                 Tournament Website
               </a>
@@ -324,24 +324,24 @@ function TournamentEventCard({ event, onEdit, onDelete }) {
         </div>
 
         {!isPast && daysUntil <= 14 && (
-          <p className="mt-3 text-xs text-tne-red font-medium">
+          <p className="mt-3 text-xs text-admin-red font-medium">
             {daysUntil === 0 ? 'Today!' : daysUntil === 1 ? 'Tomorrow' : `${daysUntil} days away`}
           </p>
         )}
       </div>
 
       {/* Footer */}
-      <div className="px-4 py-3 border-t border-stone-100 flex items-center justify-end gap-1">
+      <div className="px-4 py-3 border-t border-[#F2F2F0] flex items-center justify-end gap-1">
         <button
           onClick={() => onEdit(event)}
-          className="p-1.5 rounded-lg hover:bg-stone-100 transition-colors text-stone-400 hover:text-stone-600"
+          className="p-1.5 rounded-lg hover:bg-stone-100 transition-colors text-admin-text-muted hover:text-admin-text-secondary"
           title="Edit tournament"
         >
           <EditIcon />
         </button>
         <button
           onClick={() => onDelete(event)}
-          className="p-1.5 rounded-lg hover:bg-red-50 transition-colors text-stone-400 hover:text-red-500"
+          className="p-1.5 rounded-lg hover:bg-red-50 transition-colors text-admin-text-muted hover:text-red-500"
           title="Delete tournament"
         >
           <TrashIcon />
@@ -356,12 +356,12 @@ function CreateTournamentCard({ onClick }) {
   return (
     <button
       onClick={onClick}
-      className="rounded-2xl border-2 border-dashed border-stone-300 bg-white/50 p-8 flex flex-col items-center justify-center gap-3 hover:border-stone-400 hover:bg-white transition-all min-h-[220px]"
+      className="rounded-[14px] border-2 border-dashed border-admin-card-border bg-white/50 p-8 flex flex-col items-center justify-center gap-3 hover:border-stone-400 hover:bg-white transition-all min-h-[220px]"
     >
       <div className="w-12 h-12 rounded-full bg-stone-100 flex items-center justify-center">
         <PlusIcon />
       </div>
-      <span className="text-sm font-medium text-stone-600">Add Tournament</span>
+      <span className="text-sm font-medium text-admin-text-secondary">Add Tournament</span>
     </button>
   );
 }
@@ -439,25 +439,23 @@ export default function AdminTournamentsPage() {
   });
 
   return (
-    <div className="bg-stone-100 text-stone-900 antialiased min-h-screen">
-      <AdminNavbar />
-
+    <>
       {/* Header */}
-      <div className="bg-white border-b border-stone-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+      <div className="bg-white border-b border-admin-card-border -mx-4 -mt-4 sm:-mx-8 sm:-mt-8 px-4 sm:px-8 py-8 mb-8">
+        <div className="max-w-7xl mx-auto">
           <div className="flex items-start justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-stone-900 flex items-center gap-3">
+              <h1 className="text-[22px] font-extrabold text-admin-text tracking-[-0.02em] flex items-center gap-3">
                 <TrophyIcon />
                 Tournaments
               </h1>
-              <p className="text-stone-500 mt-1">
+              <p className="text-admin-text-secondary mt-1">
                 Add tournaments to team schedules
               </p>
             </div>
             <button
               onClick={handleCreate}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-tne-red hover:bg-tne-red-dark text-white font-medium transition-colors"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-[12px] bg-admin-red hover:opacity-85 text-white font-medium transition-colors"
             >
               <PlusIcon />
               Add Tournament
@@ -466,11 +464,10 @@ export default function AdminTournamentsPage() {
         </div>
       </div>
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+      <div className="max-w-7xl mx-auto">
         {/* Error State */}
         {error && (
-          <div className="mb-6 px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm">
+          <div className="mb-6 px-4 py-3 rounded-[12px] bg-red-50 border border-red-200 text-red-700 text-sm">
             Failed to load tournaments: {error}
           </div>
         )}
@@ -479,7 +476,7 @@ export default function AdminTournamentsPage() {
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {[...Array(6)].map((_, i) => (
-              <div key={i} className="rounded-2xl bg-white border border-stone-200 h-52 animate-pulse" />
+              <div key={i} className="rounded-[14px] bg-white border-[1.5px] border-admin-card-border h-52 animate-pulse" />
             ))}
           </div>
         ) : tournaments.length === 0 ? (
@@ -487,11 +484,11 @@ export default function AdminTournamentsPage() {
             <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-stone-100 flex items-center justify-center">
               <TrophyIcon />
             </div>
-            <h3 className="text-lg font-medium text-stone-900 mb-2">No tournaments on schedule</h3>
-            <p className="text-stone-500 mb-6">Add tournaments to team schedules to track upcoming events</p>
+            <h3 className="text-base font-bold text-admin-text mb-2">No tournaments on schedule</h3>
+            <p className="text-admin-text-secondary mb-6">Add tournaments to team schedules to track upcoming events</p>
             <button
               onClick={handleCreate}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-tne-red hover:bg-tne-red-dark text-white font-medium transition-colors"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-[12px] bg-admin-red hover:opacity-85 text-white font-medium transition-colors"
             >
               <PlusIcon />
               Add Tournament
@@ -501,9 +498,9 @@ export default function AdminTournamentsPage() {
           <div className="space-y-8">
             {tournamentNames.map((name) => (
               <div key={name}>
-                <h2 className="text-lg font-semibold text-stone-900 mb-4 flex items-center gap-2">
+                <h2 className="text-base font-bold text-admin-text mb-4 flex items-center gap-2">
                   {name}
-                  <span className="text-sm font-normal text-stone-500">
+                  <span className="text-sm font-normal text-admin-text-secondary">
                     ({tournamentsByName[name].length} team{tournamentsByName[name].length !== 1 ? 's' : ''})
                   </span>
                 </h2>
@@ -524,7 +521,7 @@ export default function AdminTournamentsPage() {
             </div>
           </div>
         )}
-      </main>
+      </div>
 
       {/* Create/Edit Modal */}
       {modalOpen && (
@@ -545,16 +542,16 @@ export default function AdminTournamentsPage() {
       {/* Delete Confirmation */}
       {deleteConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="bg-white rounded-2xl w-full max-w-md p-6 shadow-xl">
-            <h3 className="text-lg font-semibold text-stone-900 mb-2">Remove from Schedule?</h3>
-            <p className="text-stone-600 mb-6">
+          <div className="bg-white rounded-[14px] w-full max-w-md p-6 shadow-xl">
+            <h3 className="text-base font-bold text-admin-text mb-2">Remove from Schedule?</h3>
+            <p className="text-admin-text-secondary mb-6">
               Remove <strong>{deleteConfirm.tournament_name || deleteConfirm.title}</strong> for{' '}
               <strong>{deleteConfirm.team?.name || 'this team'}</strong> from the schedule?
             </p>
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => setDeleteConfirm(null)}
-                className="px-4 py-2 rounded-lg border border-stone-300 text-stone-700 hover:bg-stone-50 transition-colors"
+                className="px-4 py-2 rounded-lg border border-admin-card-border text-admin-text hover:bg-stone-50 transition-colors"
               >
                 Cancel
               </button>
@@ -568,6 +565,6 @@ export default function AdminTournamentsPage() {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }

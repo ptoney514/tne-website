@@ -48,17 +48,17 @@ function TeamRow({ team, status }) {
       <td className="px-4 py-3">
         <StatusBadge status={status} />
       </td>
-      <td className="px-4 py-3 font-medium text-stone-900">{team.name}</td>
-      <td className="px-4 py-3 text-stone-600">{team.grade_level}</td>
-      <td className="px-4 py-3 text-stone-600 capitalize">{team.gender}</td>
+      <td className="px-4 py-3 font-medium text-admin-text">{team.name}</td>
+      <td className="px-4 py-3 text-admin-text-secondary">{team.grade_level}</td>
+      <td className="px-4 py-3 text-admin-text-secondary capitalize">{team.gender}</td>
       <td className="px-4 py-3">
         <span className={`text-xs px-2 py-0.5 rounded-full ${
-          team.tier === 'tne' ? 'bg-tne-red/10 text-tne-red' : 'bg-stone-100 text-stone-600'
+          team.tier === 'tne' ? 'bg-admin-red/10 text-admin-red' : 'bg-stone-100 text-admin-text-secondary'
         }`}>
           {team.tier?.toUpperCase()}
         </span>
       </td>
-      <td className="px-4 py-3 text-stone-600 text-sm">
+      <td className="px-4 py-3 text-admin-text-secondary text-sm">
         {team.head_coach_id || '-'}
       </td>
     </tr>
@@ -73,12 +73,12 @@ function CoachRow({ coach, status }) {
       <td className="px-4 py-3">
         <StatusBadge status={status} />
       </td>
-      <td className="px-4 py-3 font-medium text-stone-900">
+      <td className="px-4 py-3 font-medium text-admin-text">
         {coach.first_name} {coach.last_name}
       </td>
-      <td className="px-4 py-3 text-stone-600">{coach.email || '-'}</td>
-      <td className="px-4 py-3 text-stone-600 capitalize">{coach.role}</td>
-      <td className="px-4 py-3 text-stone-600 text-sm">
+      <td className="px-4 py-3 text-admin-text-secondary">{coach.email || '-'}</td>
+      <td className="px-4 py-3 text-admin-text-secondary capitalize">{coach.role}</td>
+      <td className="px-4 py-3 text-admin-text-secondary text-sm">
         {coach.certifications?.join(', ') || '-'}
       </td>
     </tr>
@@ -97,21 +97,21 @@ function RosterSection({ roster, teamName, status }) {
       >
         <div className="flex items-center gap-3">
           {isExpanded ? (
-            <ChevronDown className="w-4 h-4 text-stone-400" />
+            <ChevronDown className="w-4 h-4 text-admin-text-muted" />
           ) : (
-            <ChevronRight className="w-4 h-4 text-stone-400" />
+            <ChevronRight className="w-4 h-4 text-admin-text-muted" />
           )}
-          <span className="font-medium text-stone-900">{teamName}</span>
-          <span className="text-sm text-stone-500">({roster.players?.length || 0} players)</span>
+          <span className="font-medium text-admin-text">{teamName}</span>
+          <span className="text-sm text-admin-text-secondary">({roster.players?.length || 0} players)</span>
         </div>
         <StatusBadge status={status} />
       </button>
 
       {isExpanded && roster.players?.length > 0 && (
-        <div className="border-t border-stone-200 p-3">
+        <div className="border-t border-admin-card-border p-3">
           <table className="w-full text-sm">
             <thead>
-              <tr className="text-left text-[10px] font-mono text-stone-500 uppercase tracking-wider">
+              <tr className="text-left text-[10px] font-admin-mono text-admin-text-secondary uppercase tracking-wider">
                 <th className="pb-2 pr-4">Name</th>
                 <th className="pb-2 pr-4">Jersey</th>
                 <th className="pb-2 pr-4">Position</th>
@@ -120,13 +120,13 @@ function RosterSection({ roster, teamName, status }) {
             </thead>
             <tbody>
               {roster.players.map((player, idx) => (
-                <tr key={idx} className="border-t border-stone-100">
-                  <td className="py-2 pr-4 text-stone-900">
+                <tr key={idx} className="border-t border-[#F2F2F0]">
+                  <td className="py-2 pr-4 text-admin-text">
                     {player.first_name} {player.last_name}
                   </td>
-                  <td className="py-2 pr-4 text-stone-600">{player.jersey_number || '-'}</td>
-                  <td className="py-2 pr-4 text-stone-600">{player.position || '-'}</td>
-                  <td className="py-2 pr-4 text-stone-600">{player.grade || '-'}</td>
+                  <td className="py-2 pr-4 text-admin-text-secondary">{player.jersey_number || '-'}</td>
+                  <td className="py-2 pr-4 text-admin-text-secondary">{player.position || '-'}</td>
+                  <td className="py-2 pr-4 text-admin-text-secondary">{player.grade || '-'}</td>
                 </tr>
               ))}
             </tbody>
@@ -141,26 +141,26 @@ function DataSection({ title, count, children, defaultExpanded = true }) {
   const [isExpanded, setIsExpanded] = useState(defaultExpanded);
 
   return (
-    <div className="rounded-xl border border-stone-200 overflow-hidden bg-white">
+    <div className="rounded-[12px] border-[1.5px] border-admin-card-border overflow-hidden bg-white">
       <button
         onClick={() => setIsExpanded(!isExpanded)}
         className="w-full flex items-center justify-between p-4 hover:bg-stone-50 transition-colors"
       >
         <div className="flex items-center gap-2">
           {isExpanded ? (
-            <ChevronDown className="w-4 h-4 text-stone-400" />
+            <ChevronDown className="w-4 h-4 text-admin-text-muted" />
           ) : (
-            <ChevronRight className="w-4 h-4 text-stone-400" />
+            <ChevronRight className="w-4 h-4 text-admin-text-muted" />
           )}
-          <span className="font-semibold text-stone-900">{title}</span>
-          <span className="px-2 py-0.5 rounded-full bg-stone-100 text-stone-600 text-xs">
+          <span className="font-semibold text-admin-text">{title}</span>
+          <span className="px-2 py-0.5 rounded-full bg-stone-100 text-admin-text-secondary text-xs">
             {count}
           </span>
         </div>
       </button>
 
       {isExpanded && (
-        <div className="border-t border-stone-200">
+        <div className="border-t border-admin-card-border">
           {children}
         </div>
       )}
@@ -187,7 +187,7 @@ export default function ExcelPreviewTable({ parsedData, diff }) {
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="bg-stone-50 text-left text-[10px] font-mono text-stone-500 uppercase tracking-wider">
+                  <tr className="bg-admin-content-bg text-left text-[10px] font-admin-mono text-admin-text-secondary uppercase tracking-wider">
                     <th className="px-4 py-2">Status</th>
                     <th className="px-4 py-2">Team Name</th>
                     <th className="px-4 py-2">Grade</th>
@@ -218,7 +218,7 @@ export default function ExcelPreviewTable({ parsedData, diff }) {
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="bg-stone-50 text-left text-[10px] font-mono text-stone-500 uppercase tracking-wider">
+                  <tr className="bg-admin-content-bg text-left text-[10px] font-admin-mono text-admin-text-secondary uppercase tracking-wider">
                     <th className="px-4 py-2">Status</th>
                     <th className="px-4 py-2">Name</th>
                     <th className="px-4 py-2">Email</th>
@@ -285,7 +285,7 @@ export default function ExcelPreviewTable({ parsedData, diff }) {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="bg-stone-50 text-left text-[10px] font-mono text-stone-500 uppercase tracking-wider">
+                <tr className="bg-admin-content-bg text-left text-[10px] font-admin-mono text-admin-text-secondary uppercase tracking-wider">
                   <th className="px-4 py-2">Team Name</th>
                   <th className="px-4 py-2">Grade</th>
                   <th className="px-4 py-2">Gender</th>
@@ -295,18 +295,18 @@ export default function ExcelPreviewTable({ parsedData, diff }) {
               </thead>
               <tbody>
                 {parsedData.teams.map((team, idx) => (
-                  <tr key={idx} className="border-b border-stone-100">
-                    <td className="px-4 py-3 font-medium text-stone-900">{team.name}</td>
-                    <td className="px-4 py-3 text-stone-600">{team.grade_level}</td>
-                    <td className="px-4 py-3 text-stone-600 capitalize">{team.gender}</td>
+                  <tr key={idx} className="border-b border-[#F2F2F0]">
+                    <td className="px-4 py-3 font-medium text-admin-text">{team.name}</td>
+                    <td className="px-4 py-3 text-admin-text-secondary">{team.grade_level}</td>
+                    <td className="px-4 py-3 text-admin-text-secondary capitalize">{team.gender}</td>
                     <td className="px-4 py-3">
                       <span className={`text-xs px-2 py-0.5 rounded-full ${
-                        team.tier === 'tne' ? 'bg-tne-red/10 text-tne-red' : 'bg-stone-100 text-stone-600'
+                        team.tier === 'tne' ? 'bg-admin-red/10 text-admin-red' : 'bg-stone-100 text-admin-text-secondary'
                       }`}>
                         {team.tier?.toUpperCase()}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-stone-600 text-sm">{team.head_coach_id || '-'}</td>
+                    <td className="px-4 py-3 text-admin-text-secondary text-sm">{team.head_coach_id || '-'}</td>
                   </tr>
                 ))}
               </tbody>
@@ -320,7 +320,7 @@ export default function ExcelPreviewTable({ parsedData, diff }) {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="bg-stone-50 text-left text-[10px] font-mono text-stone-500 uppercase tracking-wider">
+                <tr className="bg-admin-content-bg text-left text-[10px] font-admin-mono text-admin-text-secondary uppercase tracking-wider">
                   <th className="px-4 py-2">Name</th>
                   <th className="px-4 py-2">Email</th>
                   <th className="px-4 py-2">Role</th>
@@ -328,12 +328,12 @@ export default function ExcelPreviewTable({ parsedData, diff }) {
               </thead>
               <tbody>
                 {parsedData.coaches.map((coach, idx) => (
-                  <tr key={idx} className="border-b border-stone-100">
-                    <td className="px-4 py-3 font-medium text-stone-900">
+                  <tr key={idx} className="border-b border-[#F2F2F0]">
+                    <td className="px-4 py-3 font-medium text-admin-text">
                       {coach.first_name} {coach.last_name}
                     </td>
-                    <td className="px-4 py-3 text-stone-600">{coach.email || '-'}</td>
-                    <td className="px-4 py-3 text-stone-600 capitalize">{coach.role}</td>
+                    <td className="px-4 py-3 text-admin-text-secondary">{coach.email || '-'}</td>
+                    <td className="px-4 py-3 text-admin-text-secondary capitalize">{coach.role}</td>
                   </tr>
                 ))}
               </tbody>

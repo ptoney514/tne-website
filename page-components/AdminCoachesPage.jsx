@@ -1,7 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useCoaches } from '@/hooks/useCoaches';
 import { getGradeColor, formatGradeShort } from '@/utils/gradeColors';
-import AdminNavbar from '@/components/AdminNavbar';
 import CoachDetailPanel from '@/components/admin/CoachDetailPanel';
 import {
   CertBadge,
@@ -60,14 +59,14 @@ function CoachModal({ isOpen, onClose, coach, onSave, isSaving }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-xl">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-stone-200">
-          <h2 className="text-xl font-semibold text-stone-900">
+      <div className="bg-white rounded-[14px] w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-xl">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-admin-card-border">
+          <h2 className="text-base font-bold text-admin-text">
             {coach ? 'Edit Coach' : 'Add Coach'}
           </h2>
           <button
             onClick={onClose}
-            className="p-1 hover:bg-stone-100 rounded-lg transition-colors text-stone-500"
+            className="p-1 hover:bg-stone-100 rounded-lg transition-colors text-admin-text-secondary"
           >
             <X className="w-5 h-5" />
           </button>
@@ -77,7 +76,7 @@ function CoachModal({ isOpen, onClose, coach, onSave, isSaving }) {
           {/* Basic Info */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-stone-700 mb-1">
+              <label className="block text-sm font-medium text-admin-text mb-1">
                 First Name *
               </label>
               <input
@@ -85,12 +84,12 @@ function CoachModal({ isOpen, onClose, coach, onSave, isSaving }) {
                 required
                 value={formData.first_name}
                 onChange={(e) => handleChange('first_name', e.target.value)}
-                className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+                className="w-full px-3 py-2 rounded-lg border border-admin-card-border text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-stone-700 mb-1">
+              <label className="block text-sm font-medium text-admin-text mb-1">
                 Last Name *
               </label>
               <input
@@ -98,42 +97,42 @@ function CoachModal({ isOpen, onClose, coach, onSave, isSaving }) {
                 required
                 value={formData.last_name}
                 onChange={(e) => handleChange('last_name', e.target.value)}
-                className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+                className="w-full px-3 py-2 rounded-lg border border-admin-card-border text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-stone-700 mb-1">
+              <label className="block text-sm font-medium text-admin-text mb-1">
                 Email
               </label>
               <input
                 type="email"
                 value={formData.email || ''}
                 onChange={(e) => handleChange('email', e.target.value)}
-                className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+                className="w-full px-3 py-2 rounded-lg border border-admin-card-border text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-stone-700 mb-1">
+              <label className="block text-sm font-medium text-admin-text mb-1">
                 Phone
               </label>
               <input
                 type="tel"
                 value={formData.phone || ''}
                 onChange={(e) => handleChange('phone', e.target.value)}
-                className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+                className="w-full px-3 py-2 rounded-lg border border-admin-card-border text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-stone-700 mb-1">
+              <label className="block text-sm font-medium text-admin-text mb-1">
                 Role
               </label>
               <select
                 value={formData.role || 'head_coach'}
                 onChange={(e) => handleChange('role', e.target.value)}
-                className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+                className="w-full px-3 py-2 rounded-lg border border-admin-card-border text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
               >
                 <option value="head_coach">Head Coach</option>
                 <option value="assistant_coach">Assistant Coach</option>
@@ -142,7 +141,7 @@ function CoachModal({ isOpen, onClose, coach, onSave, isSaving }) {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-stone-700 mb-1">
+              <label className="block text-sm font-medium text-admin-text mb-1">
                 Years with TNE
               </label>
               <input
@@ -153,12 +152,12 @@ function CoachModal({ isOpen, onClose, coach, onSave, isSaving }) {
                 onChange={(e) =>
                   handleChange('years_with_org', parseInt(e.target.value) || 0)
                 }
-                className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+                className="w-full px-3 py-2 rounded-lg border border-admin-card-border text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
               />
             </div>
 
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-stone-700 mb-1">
+              <label className="block text-sm font-medium text-admin-text mb-1">
                 Specialty
               </label>
               <input
@@ -166,68 +165,68 @@ function CoachModal({ isOpen, onClose, coach, onSave, isSaving }) {
                 value={formData.specialty || ''}
                 onChange={(e) => handleChange('specialty', e.target.value)}
                 placeholder="e.g., Offense, Defense, Skills Development"
-                className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+                className="w-full px-3 py-2 rounded-lg border border-admin-card-border text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
               />
             </div>
 
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-stone-700 mb-1">
+              <label className="block text-sm font-medium text-admin-text mb-1">
                 Bio
               </label>
               <textarea
                 value={formData.bio || ''}
                 onChange={(e) => handleChange('bio', e.target.value)}
                 rows={3}
-                className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red resize-none"
+                className="w-full px-3 py-2 rounded-lg border border-admin-card-border text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40 resize-none"
                 placeholder="Brief coaching background and philosophy..."
               />
             </div>
           </div>
 
           {/* Certifications */}
-          <div className="border-t border-stone-200 pt-4 mt-4">
-            <h3 className="text-sm font-medium text-stone-900 mb-3">
+          <div className="border-t border-admin-card-border pt-4 mt-4">
+            <h3 className="text-sm font-medium text-admin-text mb-3">
               Certifications
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <label className="flex items-center gap-3 p-3 rounded-lg border border-stone-200 cursor-pointer hover:bg-stone-50 transition-colors">
+              <label className="flex items-center gap-3 p-3 rounded-lg border-[1.5px] border-admin-card-border cursor-pointer hover:bg-stone-50 transition-colors">
                 <input
                   type="checkbox"
                   checked={formData.has_usa_cert}
                   onChange={(e) => handleChange('has_usa_cert', e.target.checked)}
-                  className="rounded border-stone-300 text-tne-red focus:ring-tne-red"
+                  className="rounded border-admin-card-border text-admin-red focus:ring-admin-red/20"
                 />
                 <div>
-                  <p className="text-sm font-medium text-stone-900">USA Basketball</p>
-                  <p className="text-xs text-stone-500">Coaching certification</p>
+                  <p className="text-sm font-medium text-admin-text">USA Basketball</p>
+                  <p className="text-xs text-admin-text-secondary">Coaching certification</p>
                 </div>
               </label>
 
-              <label className="flex items-center gap-3 p-3 rounded-lg border border-stone-200 cursor-pointer hover:bg-stone-50 transition-colors">
+              <label className="flex items-center gap-3 p-3 rounded-lg border-[1.5px] border-admin-card-border cursor-pointer hover:bg-stone-50 transition-colors">
                 <input
                   type="checkbox"
                   checked={formData.has_cpr_cert}
                   onChange={(e) => handleChange('has_cpr_cert', e.target.checked)}
-                  className="rounded border-stone-300 text-tne-red focus:ring-tne-red"
+                  className="rounded border-admin-card-border text-admin-red focus:ring-admin-red/20"
                 />
                 <div>
-                  <p className="text-sm font-medium text-stone-900">CPR/First Aid</p>
-                  <p className="text-xs text-stone-500">Medical certification</p>
+                  <p className="text-sm font-medium text-admin-text">CPR/First Aid</p>
+                  <p className="text-xs text-admin-text-secondary">Medical certification</p>
                 </div>
               </label>
 
-              <label className="flex items-center gap-3 p-3 rounded-lg border border-stone-200 cursor-pointer hover:bg-stone-50 transition-colors">
+              <label className="flex items-center gap-3 p-3 rounded-lg border-[1.5px] border-admin-card-border cursor-pointer hover:bg-stone-50 transition-colors">
                 <input
                   type="checkbox"
                   checked={formData.has_background_check}
                   onChange={(e) =>
                     handleChange('has_background_check', e.target.checked)
                   }
-                  className="rounded border-stone-300 text-tne-red focus:ring-tne-red"
+                  className="rounded border-admin-card-border text-admin-red focus:ring-admin-red/20"
                 />
                 <div>
-                  <p className="text-sm font-medium text-stone-900">Background Check</p>
-                  <p className="text-xs text-stone-500">Verified clear</p>
+                  <p className="text-sm font-medium text-admin-text">Background Check</p>
+                  <p className="text-xs text-admin-text-secondary">Verified clear</p>
                 </div>
               </label>
             </div>
@@ -240,25 +239,25 @@ function CoachModal({ isOpen, onClose, coach, onSave, isSaving }) {
               id="is_active"
               checked={formData.is_active}
               onChange={(e) => handleChange('is_active', e.target.checked)}
-              className="rounded border-stone-300 text-tne-red focus:ring-tne-red"
+              className="rounded border-admin-card-border text-admin-red focus:ring-admin-red/20"
             />
-            <label htmlFor="is_active" className="text-sm text-stone-700">
+            <label htmlFor="is_active" className="text-sm text-admin-text">
               Coach is active
             </label>
           </div>
 
-          <div className="flex justify-end gap-3 pt-4 border-t border-stone-200">
+          <div className="flex justify-end gap-3 pt-4 border-t border-admin-card-border">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-lg border border-stone-300 text-stone-700 hover:bg-stone-50 transition-colors"
+              className="px-4 py-2 rounded-lg border border-admin-card-border text-admin-text hover:bg-stone-50 transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSaving}
-              className="px-4 py-2 rounded-lg bg-tne-red hover:bg-tne-red-dark text-white font-medium transition-colors disabled:opacity-50 flex items-center gap-2"
+              className="px-4 py-2 rounded-lg bg-admin-red hover:opacity-85 text-white font-medium transition-colors disabled:opacity-50 flex items-center gap-2"
             >
               {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}
               {coach ? 'Update Coach' : 'Add Coach'}
@@ -293,36 +292,36 @@ function CoachStatusBadge({ isActive }) {
 // Certification Legend Component
 function CertificationLegend() {
   return (
-    <div className="bg-white border border-stone-200 rounded-xl p-4 mb-4">
+    <div className="bg-white border-[1.5px] border-admin-card-border rounded-[12px] p-4 mb-4">
       <div className="flex flex-wrap items-center gap-6 text-xs">
         <div className="flex items-center gap-2">
-          <span className="font-semibold text-stone-700">Legend:</span>
+          <span className="font-semibold text-admin-text">Legend:</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <span className="px-2 py-0.5 rounded border bg-stone-100 text-stone-600 font-medium">USA</span>
-          <span className="text-stone-500">= USA Basketball</span>
+          <span className="px-2 py-0.5 rounded border bg-admin-content-bg text-admin-text-secondary font-medium">USA</span>
+          <span className="text-admin-text-secondary">= USA Basketball</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <span className="px-2 py-0.5 rounded border bg-stone-100 text-stone-600 font-medium">CPR</span>
-          <span className="text-stone-500">= CPR/First Aid</span>
+          <span className="px-2 py-0.5 rounded border bg-admin-content-bg text-admin-text-secondary font-medium">CPR</span>
+          <span className="text-admin-text-secondary">= CPR/First Aid</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <span className="px-2 py-0.5 rounded border bg-stone-100 text-stone-600 font-medium">BG</span>
-          <span className="text-stone-500">= Background Check</span>
+          <span className="px-2 py-0.5 rounded border bg-admin-content-bg text-admin-text-secondary font-medium">BG</span>
+          <span className="text-admin-text-secondary">= Background Check</span>
         </div>
-        <div className="h-4 border-l border-stone-200 mx-2" />
+        <div className="h-4 border-l border-admin-card-border mx-2" />
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-emerald-500" />
-            <span className="text-stone-500">Valid</span>
+            <span className="text-admin-text-secondary">Valid</span>
           </div>
           <div className="flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-amber-500" />
-            <span className="text-stone-500">Expiring</span>
+            <span className="text-admin-text-secondary">Expiring</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-stone-300" />
-            <span className="text-stone-500">Missing</span>
+            <span className="w-2 h-2 rounded-full bg-admin-text-muted" />
+            <span className="text-admin-text-secondary">Missing</span>
           </div>
         </div>
       </div>
@@ -335,7 +334,7 @@ function StatsCard(props) {
   const { label, value, icon, color = 'stone' } = props;
   const IconComponent = icon;
   const colorClasses = {
-    stone: 'bg-stone-50 border-stone-200 text-stone-600',
+    stone: 'bg-admin-content-bg border-admin-card-border text-admin-text-secondary',
     green: 'bg-emerald-50 border-emerald-200 text-emerald-600',
     amber: 'bg-amber-50 border-amber-200 text-amber-600',
     orange: 'bg-orange-50 border-orange-200 text-orange-600',
@@ -343,7 +342,7 @@ function StatsCard(props) {
   };
 
   return (
-    <div className={`p-4 rounded-xl border ${colorClasses[color]}`}>
+    <div className={`p-4 rounded-[12px] border ${colorClasses[color]}`}>
       <div className="flex items-center gap-2 mb-1">
         <IconComponent className="w-4 h-4" />
         <span className="text-xs font-medium">{label}</span>
@@ -360,7 +359,7 @@ function FilterDropdown({ value, options, onChange }) {
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="appearance-none pl-3 pr-8 py-1.5 rounded-lg border border-stone-300 text-sm text-stone-700 bg-white focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red cursor-pointer"
+        className="appearance-none pl-3 pr-8 py-1.5 rounded-lg border border-admin-card-border text-sm text-admin-text bg-white focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40 cursor-pointer"
       >
         {options.map((opt) => (
           <option key={opt.value} value={opt.value}>
@@ -368,7 +367,7 @@ function FilterDropdown({ value, options, onChange }) {
           </option>
         ))}
       </select>
-      <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400 pointer-events-none" />
+      <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-admin-text-muted pointer-events-none" />
     </div>
   );
 }
@@ -581,37 +580,33 @@ export default function AdminCoachesPage() {
   };
 
   return (
-    <div className="bg-stone-100 text-stone-900 antialiased min-h-screen font-sans">
-      <AdminNavbar />
-
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
-        {/* Page Header */}
+    <>
+      {/* Page Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
           <div>
-            <h1 className="text-2xl font-bold text-stone-900">Coaches</h1>
-            <p className="text-sm text-stone-500 mt-1">
+            <h1 className="text-[22px] font-extrabold text-admin-text tracking-[-0.02em]">Coaches</h1>
+            <p className="text-sm text-admin-text-secondary mt-1">
               {filteredCoaches.length} of {coaches.length} coach{coaches.length !== 1 ? 'es' : ''}
             </p>
           </div>
           <div className="flex items-center gap-2">
             <button
               onClick={refetch}
-              className="p-2 text-stone-400 hover:text-stone-600 hover:bg-stone-100 rounded-lg transition-colors"
+              className="p-2 text-admin-text-muted hover:text-admin-text-secondary hover:bg-stone-100 rounded-lg transition-colors"
               title="Refresh"
             >
               <RefreshCw className="w-4 h-4" />
             </button>
             <button
               onClick={handleExport}
-              className="p-2 text-stone-400 hover:text-stone-600 hover:bg-stone-100 rounded-lg transition-colors"
+              className="p-2 text-admin-text-muted hover:text-admin-text-secondary hover:bg-stone-100 rounded-lg transition-colors"
               title="Export"
             >
               <Download className="w-4 h-4" />
             </button>
             <button
               onClick={handleCreate}
-              className="flex items-center gap-2 px-5 py-2.5 bg-tne-red text-white text-sm font-semibold rounded-xl hover:bg-tne-red-dark transition-colors shadow-lg shadow-tne-red/20"
+              className="flex items-center gap-2 px-5 py-2.5 bg-admin-red text-white text-sm font-semibold rounded-[12px] hover:opacity-85 transition-colors shadow-lg shadow-admin-red/20"
             >
               <Plus className="w-4 h-4" />
               Add Coach
@@ -631,17 +626,17 @@ export default function AdminCoachesPage() {
         )}
 
         {/* Filter Card */}
-        <div className="bg-white rounded-2xl border border-stone-200 shadow-sm p-4 mb-4">
+        <div className="bg-white rounded-[14px] border-[1.5px] border-admin-card-border shadow-sm p-4 mb-4">
           <div className="flex flex-col lg:flex-row lg:items-center gap-4">
             {/* Search */}
             <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-admin-text-muted" />
               <input
                 type="text"
                 placeholder="Search by name, email, or phone..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-tne-maroon/20 focus:border-tne-maroon/50 transition-all"
+                className="w-full pl-10 pr-4 py-2.5 bg-admin-content-bg border border-admin-card-border rounded-[12px] text-sm focus:outline-none focus:ring-2 focus:ring-tne-maroon/20 focus:border-tne-maroon/50 transition-all"
               />
             </div>
 
@@ -670,8 +665,8 @@ export default function AdminCoachesPage() {
           </div>
 
           {/* Quick Filter Pills */}
-          <div className="flex flex-wrap items-center gap-2 mt-4 pt-4 border-t border-stone-100">
-            <span className="text-xs text-stone-400 font-medium">Quick filters:</span>
+          <div className="flex flex-wrap items-center gap-2 mt-4 pt-4 border-t border-[#F2F2F0]">
+            <span className="text-xs text-admin-text-muted font-medium">Quick filters:</span>
 
             <FilterPill
               active={quickFilters.missingCerts}
@@ -705,7 +700,7 @@ export default function AdminCoachesPage() {
             {hasActiveFilters && (
               <button
                 onClick={clearFilters}
-                className="flex items-center gap-1 px-2 py-1.5 rounded-lg text-xs text-stone-500 hover:text-stone-700 hover:bg-stone-100 transition-colors ml-2"
+                className="flex items-center gap-1 px-2 py-1.5 rounded-lg text-xs text-admin-text-secondary hover:text-admin-text hover:bg-stone-100 transition-colors ml-2"
               >
                 <X className="w-3 h-3" />
                 Clear all
@@ -718,25 +713,25 @@ export default function AdminCoachesPage() {
         <CertificationLegend />
 
         {/* Coaches Table */}
-        <div className="bg-white rounded-2xl border border-stone-200 shadow-sm overflow-hidden">
+        <div className="bg-white rounded-[14px] border-[1.5px] border-admin-card-border shadow-sm overflow-hidden">
             {loading ? (
               <div className="p-4 space-y-3">
                 {[...Array(8)].map((_, i) => (
                   <div
                     key={i}
-                    className="h-14 bg-stone-100 rounded animate-pulse"
+                    className="h-14 bg-admin-content-bg rounded animate-pulse"
                   />
                 ))}
               </div>
             ) : filteredCoaches.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-16 text-center">
-                <User className="w-12 h-12 text-stone-300 mb-4" />
-                <h3 className="text-lg font-medium text-stone-900 mb-2">
+                <User className="w-12 h-12 text-admin-text-muted mb-4" />
+                <h3 className="text-lg font-medium text-admin-text mb-2">
                   {hasActiveFilters
                     ? 'No coaches found'
                     : 'No coaches yet'}
                 </h3>
-                <p className="text-stone-500 mb-6">
+                <p className="text-admin-text-secondary mb-6">
                   {error
                     ? 'There was a problem loading data'
                     : hasActiveFilters
@@ -746,7 +741,7 @@ export default function AdminCoachesPage() {
                 {error ? (
                   <button
                     onClick={refetch}
-                    className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-tne-red hover:bg-tne-red-dark text-white font-medium transition-colors"
+                    className="flex items-center gap-2 px-4 py-2.5 rounded-[12px] bg-admin-red hover:opacity-85 text-white font-medium transition-colors"
                   >
                     <RefreshCw className="w-4 h-4" />
                     Retry
@@ -754,7 +749,7 @@ export default function AdminCoachesPage() {
                 ) : !hasActiveFilters && (
                   <button
                     onClick={handleCreate}
-                    className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-tne-red hover:bg-tne-red-dark text-white font-medium transition-colors"
+                    className="flex items-center gap-2 px-4 py-2.5 rounded-[12px] bg-admin-red hover:opacity-85 text-white font-medium transition-colors"
                   >
                     <Plus className="w-4 h-4" />
                     Add Coach
@@ -764,30 +759,30 @@ export default function AdminCoachesPage() {
             ) : (
               <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-stone-50 sticky top-0">
+                <thead className="bg-admin-content-bg sticky top-0">
                   <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-stone-500 uppercase tracking-wider">
+                    <th className="px-4 py-3 text-left text-xs font-medium text-admin-text-secondary uppercase tracking-wider">
                       Coach
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-stone-500 uppercase tracking-wider">
+                    <th className="px-4 py-3 text-left text-xs font-medium text-admin-text-secondary uppercase tracking-wider">
                       Email
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-stone-500 uppercase tracking-wider">
+                    <th className="px-4 py-3 text-left text-xs font-medium text-admin-text-secondary uppercase tracking-wider">
                       Phone
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-stone-500 uppercase tracking-wider">
+                    <th className="px-4 py-3 text-left text-xs font-medium text-admin-text-secondary uppercase tracking-wider">
                       Teams
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-stone-500 uppercase tracking-wider">
+                    <th className="px-4 py-3 text-left text-xs font-medium text-admin-text-secondary uppercase tracking-wider">
                       Certifications
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-stone-500 uppercase tracking-wider">
+                    <th className="px-4 py-3 text-left text-xs font-medium text-admin-text-secondary uppercase tracking-wider">
                       Status
                     </th>
                     <th className="w-10 px-4 py-3"></th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-stone-100">
+                <tbody className="divide-y divide-[#F2F2F0]">
                   {filteredCoaches.map((coach) => {
                     const hasMissingCerts = !coach.has_usa_cert || !coach.has_cpr_cert || !coach.has_background_check;
                     const isSelected = selectedCoach?.id === coach.id;
@@ -807,20 +802,20 @@ export default function AdminCoachesPage() {
                       >
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-full bg-tne-red flex items-center justify-center text-white text-xs font-semibold">
+                            <div className="w-9 h-9 rounded-full bg-admin-red flex items-center justify-center text-white text-xs font-semibold">
                               {coach.first_name[0]}
                               {coach.last_name[0]}
                             </div>
                             <div>
                               <div className="flex items-center gap-2">
-                                <p className="font-medium text-stone-900">
+                                <p className="font-medium text-admin-text">
                                   {coach.first_name} {coach.last_name}
                                 </p>
                                 {hasMissingCerts && (
                                   <AlertCircle className="w-3.5 h-3.5 text-red-500" />
                                 )}
                               </div>
-                              <p className="text-xs text-stone-500">
+                              <p className="text-xs text-admin-text-secondary">
                                 {coach.role === 'head_coach'
                                   ? 'Head Coach'
                                   : coach.role === 'assistant_coach'
@@ -836,22 +831,22 @@ export default function AdminCoachesPage() {
                         </td>
                         <td className="px-4 py-3">
                           {coach.email ? (
-                            <div className="flex items-center gap-1.5 text-sm text-stone-600">
-                              <Mail className="w-3.5 h-3.5 text-stone-400" />
+                            <div className="flex items-center gap-1.5 text-sm text-admin-text-secondary">
+                              <Mail className="w-3.5 h-3.5 text-admin-text-muted" />
                               {coach.email}
                             </div>
                           ) : (
-                            <span className="text-sm text-stone-400">-</span>
+                            <span className="text-sm text-admin-text-muted">-</span>
                           )}
                         </td>
                         <td className="px-4 py-3">
                           {coach.phone ? (
-                            <div className="flex items-center gap-1.5 text-sm text-stone-600">
-                              <Phone className="w-3.5 h-3.5 text-stone-400" />
+                            <div className="flex items-center gap-1.5 text-sm text-admin-text-secondary">
+                              <Phone className="w-3.5 h-3.5 text-admin-text-muted" />
                               {coach.phone}
                             </div>
                           ) : (
-                            <span className="text-sm text-stone-400">-</span>
+                            <span className="text-sm text-admin-text-muted">-</span>
                           )}
                         </td>
                         <td className="px-4 py-3">
@@ -865,7 +860,7 @@ export default function AdminCoachesPage() {
                               ))}
                             </div>
                           ) : (
-                            <span className="text-sm text-stone-500">
+                            <span className="text-sm text-admin-text-secondary">
                               Unassigned
                             </span>
                           )}
@@ -881,7 +876,7 @@ export default function AdminCoachesPage() {
                           <CoachStatusBadge isActive={coach.is_active} />
                         </td>
                         <td className="px-4 py-3">
-                          <ChevronRight className="w-4 h-4 text-stone-400" />
+                          <ChevronRight className="w-4 h-4 text-admin-text-muted" />
                         </td>
                       </tr>
                     );
@@ -919,7 +914,6 @@ export default function AdminCoachesPage() {
             color="red"
           />
         </div>
-      </main>
 
       {/* Detail Panel */}
       {selectedCoach && (
@@ -946,11 +940,11 @@ export default function AdminCoachesPage() {
       {/* Delete Confirmation */}
       {deleteConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="bg-white rounded-2xl w-full max-w-md p-6 shadow-xl">
-            <h3 className="text-lg font-semibold text-stone-900 mb-2">
+          <div className="bg-white rounded-[14px] w-full max-w-md p-6 shadow-xl">
+            <h3 className="text-base font-bold text-admin-text mb-2">
               Delete Coach?
             </h3>
-            <p className="text-stone-600 mb-6">
+            <p className="text-admin-text-secondary mb-6">
               Are you sure you want to delete{' '}
               <strong>
                 {deleteConfirm.first_name} {deleteConfirm.last_name}
@@ -960,7 +954,7 @@ export default function AdminCoachesPage() {
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => setDeleteConfirm(null)}
-                className="px-4 py-2 rounded-lg border border-stone-300 text-stone-700 hover:bg-stone-50 transition-colors"
+                className="px-4 py-2 rounded-lg border border-admin-card-border text-admin-text hover:bg-stone-50 transition-colors"
               >
                 Cancel
               </button>
@@ -974,6 +968,6 @@ export default function AdminCoachesPage() {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }

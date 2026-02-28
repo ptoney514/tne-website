@@ -63,14 +63,14 @@ export default function RosterTableRow({
 
       {/* Player Name & Grade */}
       <td className="px-5 py-4">
-        <div className="font-medium text-stone-900">
+        <div className="font-medium text-admin-text">
           {player.first_name} {player.last_name}
         </div>
-        <div className="text-xs text-stone-500">{player.current_grade} Grade</div>
+        <div className="text-xs text-admin-text-secondary">{player.current_grade} Grade</div>
       </td>
 
       {/* Position */}
-      <td className="px-5 py-4 text-sm text-stone-600">
+      <td className="px-5 py-4 text-sm text-admin-text-secondary">
         {position ? getPositionName(position) : '-'}
       </td>
 
@@ -78,13 +78,13 @@ export default function RosterTableRow({
       <td className="px-5 py-4">
         {parent ? (
           <>
-            <div className="text-sm text-stone-900">
+            <div className="text-sm text-admin-text">
               {parent.first_name} {parent.last_name}
             </div>
-            <div className="text-xs text-stone-500">{parent.phone || 'No phone'}</div>
+            <div className="text-xs text-admin-text-secondary">{parent.phone || 'No phone'}</div>
           </>
         ) : (
-          <span className="text-sm text-stone-400">No parent linked</span>
+          <span className="text-sm text-admin-text-muted">No parent linked</span>
         )}
       </td>
 
@@ -102,7 +102,7 @@ export default function RosterTableRow({
         <button
           ref={buttonRef}
           onClick={handleToggleMenu}
-          className="p-2 text-stone-400 hover:text-stone-600 hover:bg-stone-100 rounded-lg transition-colors"
+          className="p-2 text-admin-text-muted hover:text-admin-text-secondary hover:bg-stone-100 rounded-lg transition-colors"
         >
           <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
             <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
@@ -117,7 +117,7 @@ export default function RosterTableRow({
               onClick={() => setShowMenu(false)}
             />
             <div
-              className={`absolute right-0 w-48 bg-white rounded-lg shadow-lg border border-stone-200 py-1 z-20 ${
+              className={`absolute right-0 w-48 bg-white rounded-lg shadow-lg border border-admin-card-border py-1 z-20 ${
                 openUpward ? 'bottom-full mb-2' : 'top-full mt-2'
               }`}
             >
@@ -126,7 +126,7 @@ export default function RosterTableRow({
                   setShowMenu(false);
                   onEdit?.(entry);
                 }}
-                className="w-full px-4 py-2 text-left text-sm text-stone-700 hover:bg-stone-100 flex items-center gap-2"
+                className="w-full px-4 py-2 text-left text-sm text-admin-text hover:bg-stone-100 flex items-center gap-2"
               >
                 <svg
                   className="w-4 h-4"
@@ -148,7 +148,7 @@ export default function RosterTableRow({
                   setShowMenu(false);
                   onUpdatePayment?.(entry);
                 }}
-                className="w-full px-4 py-2 text-left text-sm text-stone-700 hover:bg-stone-100 flex items-center gap-2"
+                className="w-full px-4 py-2 text-left text-sm text-admin-text hover:bg-stone-100 flex items-center gap-2"
               >
                 <svg
                   className="w-4 h-4"

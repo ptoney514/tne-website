@@ -96,21 +96,21 @@ export default function EditPlayerModal({
       />
 
       {/* Modal */}
-      <div className="absolute inset-4 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-full md:max-w-lg bg-white rounded-2xl shadow-2xl flex flex-col max-h-[90vh]">
+      <div className="absolute inset-4 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-full md:max-w-lg bg-white rounded-[14px] shadow-2xl flex flex-col max-h-[90vh]">
         {/* Header */}
-        <div className="px-6 py-4 border-b border-stone-200 flex items-center gap-4">
+        <div className="px-6 py-4 border-b border-admin-card-border flex items-center gap-4">
           <div
-            className={`w-12 h-12 rounded-xl ${gradeColor.bg} flex items-center justify-center`}
+            className={`w-12 h-12 rounded-[12px] ${gradeColor.bg} flex items-center justify-center`}
           >
             <span className="text-white font-bold text-lg">
               {formData.jerseyNumber || '#'}
             </span>
           </div>
           <div>
-            <h2 className="text-lg font-bold text-stone-900">
+            <h2 className="text-base font-bold text-admin-text">
               Edit {player.first_name} {player.last_name}
             </h2>
-            <p className="text-sm text-stone-500">{gradeLevel} Grade</p>
+            <p className="text-sm text-admin-text-secondary">{gradeLevel} Grade</p>
           </div>
         </div>
 
@@ -118,9 +118,9 @@ export default function EditPlayerModal({
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6">
           {/* Player Details Section */}
           <div className="mb-6">
-            <h3 className="text-sm font-semibold text-stone-900 mb-3 flex items-center gap-2">
+            <h3 className="text-sm font-semibold text-admin-text mb-3 flex items-center gap-2">
               <svg
-                className="w-4 h-4 text-stone-400"
+                className="w-4 h-4 text-admin-text-muted"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -138,7 +138,7 @@ export default function EditPlayerModal({
             <div className="grid grid-cols-2 gap-4">
               {/* Jersey Number */}
               <div>
-                <label className="block text-xs font-medium text-stone-600 mb-1.5">
+                <label className="block text-xs font-medium text-admin-text-secondary mb-1.5">
                   Jersey Number
                 </label>
                 <input
@@ -148,13 +148,13 @@ export default function EditPlayerModal({
                     setFormData({ ...formData, jerseyNumber: e.target.value })
                   }
                   placeholder="e.g. 23"
-                  className="w-full px-3 py-2.5 text-sm border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+                  className="w-full px-3 py-2.5 text-sm border border-admin-card-border rounded-lg focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
                 />
               </div>
 
               {/* Position */}
               <div>
-                <label className="block text-xs font-medium text-stone-600 mb-1.5">
+                <label className="block text-xs font-medium text-admin-text-secondary mb-1.5">
                   Position
                 </label>
                 <select
@@ -162,7 +162,7 @@ export default function EditPlayerModal({
                   onChange={(e) =>
                     setFormData({ ...formData, position: e.target.value })
                   }
-                  className="w-full px-3 py-2.5 text-sm border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red bg-white"
+                  className="w-full px-3 py-2.5 text-sm border border-admin-card-border rounded-lg focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40 bg-white"
                 >
                   {POSITIONS.map((pos) => (
                     <option key={pos.value} value={pos.value}>
@@ -176,9 +176,9 @@ export default function EditPlayerModal({
 
           {/* Parent/Guardian Section */}
           <div>
-            <h3 className="text-sm font-semibold text-stone-900 mb-3 flex items-center gap-2">
+            <h3 className="text-sm font-semibold text-admin-text mb-3 flex items-center gap-2">
               <svg
-                className="w-4 h-4 text-stone-400"
+                className="w-4 h-4 text-admin-text-muted"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -197,7 +197,7 @@ export default function EditPlayerModal({
               {/* Parent Name Row */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-medium text-stone-600 mb-1.5">
+                  <label className="block text-xs font-medium text-admin-text-secondary mb-1.5">
                     First Name
                   </label>
                   <input
@@ -210,11 +210,11 @@ export default function EditPlayerModal({
                       })
                     }
                     placeholder="Parent first name"
-                    className="w-full px-3 py-2.5 text-sm border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+                    className="w-full px-3 py-2.5 text-sm border border-admin-card-border rounded-lg focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-stone-600 mb-1.5">
+                  <label className="block text-xs font-medium text-admin-text-secondary mb-1.5">
                     Last Name
                   </label>
                   <input
@@ -227,7 +227,7 @@ export default function EditPlayerModal({
                       })
                     }
                     placeholder="Parent last name"
-                    className="w-full px-3 py-2.5 text-sm border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+                    className="w-full px-3 py-2.5 text-sm border border-admin-card-border rounded-lg focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
                   />
                 </div>
               </div>
@@ -235,7 +235,7 @@ export default function EditPlayerModal({
               {/* Contact Row */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-medium text-stone-600 mb-1.5">
+                  <label className="block text-xs font-medium text-admin-text-secondary mb-1.5">
                     Phone
                   </label>
                   <input
@@ -245,11 +245,11 @@ export default function EditPlayerModal({
                       setFormData({ ...formData, parentPhone: e.target.value })
                     }
                     placeholder="(555) 123-4567"
-                    className="w-full px-3 py-2.5 text-sm border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+                    className="w-full px-3 py-2.5 text-sm border border-admin-card-border rounded-lg focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-stone-600 mb-1.5">
+                  <label className="block text-xs font-medium text-admin-text-secondary mb-1.5">
                     Email
                   </label>
                   <input
@@ -259,7 +259,7 @@ export default function EditPlayerModal({
                       setFormData({ ...formData, parentEmail: e.target.value })
                     }
                     placeholder="parent@email.com"
-                    className="w-full px-3 py-2.5 text-sm border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+                    className="w-full px-3 py-2.5 text-sm border border-admin-card-border rounded-lg focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
                   />
                 </div>
               </div>
@@ -275,12 +275,12 @@ export default function EditPlayerModal({
         </form>
 
         {/* Footer */}
-        <div className="px-6 py-4 border-t border-stone-200 flex items-center justify-end gap-3">
+        <div className="px-6 py-4 border-t border-admin-card-border flex items-center justify-end gap-3">
           <button
             type="button"
             onClick={onClose}
             disabled={isSaving}
-            className="px-4 py-2 text-sm font-medium text-stone-700 hover:bg-stone-100 rounded-lg transition-colors disabled:opacity-50"
+            className="px-4 py-2 text-sm font-medium text-admin-text hover:bg-stone-100 rounded-lg transition-colors disabled:opacity-50"
           >
             Cancel
           </button>
@@ -293,7 +293,7 @@ export default function EditPlayerModal({
               ${
                 isSaving
                   ? 'bg-stone-200 text-stone-400 cursor-not-allowed'
-                  : 'bg-tne-red text-white hover:bg-tne-red-dark'
+                  : 'bg-admin-red text-white hover:opacity-85'
               }
             `}
           >

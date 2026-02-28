@@ -28,7 +28,7 @@ export default function JerseyBadge({
         inline-flex items-center justify-center
         rounded-lg font-bold
         ${hasNumber ? color.bg : 'bg-stone-200'}
-        ${hasNumber ? 'text-white' : 'text-stone-400'}
+        ${hasNumber ? 'text-white' : 'text-admin-text-muted'}
         ${sizeClasses[size] || sizeClasses.md}
         ${className}
       `}

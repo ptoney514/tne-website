@@ -10,13 +10,13 @@ function SummaryCard({ icon: Icon, label, value, color = 'stone' }) {
   };
 
   return (
-    <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white border border-stone-200">
+    <div className="flex items-center gap-3 px-4 py-3 rounded-[12px] bg-white border-[1.5px] border-admin-card-border">
       <div className={`p-2 rounded-lg ${colorClasses[color]}`}>
         <Icon className="w-4 h-4" />
       </div>
       <div>
-        <p className="text-2xl font-bebas text-stone-900">{value}</p>
-        <p className="text-[10px] text-stone-500 uppercase tracking-wider">{label}</p>
+        <p className="text-2xl text-admin-text">{value}</p>
+        <p className="text-[10px] text-admin-text-secondary uppercase tracking-wider">{label}</p>
       </div>
     </div>
   );
@@ -45,22 +45,22 @@ function ChangesSummary({ diff }) {
       <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-green-50 border border-green-200">
         <Plus className="w-4 h-4 text-green-600" />
         <div>
-          <p className="text-lg font-bebas text-green-700">{newCount}</p>
+          <p className="text-lg text-green-700">{newCount}</p>
           <p className="text-[10px] text-green-600">New</p>
         </div>
       </div>
       <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-amber-50 border border-amber-200">
         <RefreshCw className="w-4 h-4 text-amber-600" />
         <div>
-          <p className="text-lg font-bebas text-amber-700">{updatedCount}</p>
+          <p className="text-lg text-amber-700">{updatedCount}</p>
           <p className="text-[10px] text-amber-600">Updated</p>
         </div>
       </div>
-      <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-stone-50 border border-stone-200">
-        <CheckCircle className="w-4 h-4 text-stone-400" />
+      <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-admin-content-bg border-[1.5px] border-admin-card-border">
+        <CheckCircle className="w-4 h-4 text-admin-text-muted" />
         <div>
-          <p className="text-lg font-bebas text-stone-600">{unchangedCount}</p>
-          <p className="text-[10px] text-stone-500">Unchanged</p>
+          <p className="text-lg text-admin-text-secondary">{unchangedCount}</p>
+          <p className="text-[10px] text-admin-text-secondary">Unchanged</p>
         </div>
       </div>
     </div>
@@ -84,7 +84,7 @@ export default function ExcelValidationSummary({ parsedData, diff, errors = [], 
   return (
     <div className="space-y-4">
       {/* Overall Status */}
-      <div className={`rounded-xl p-4 flex items-start gap-3 ${
+      <div className={`rounded-[12px] p-4 flex items-start gap-3 ${
         hasErrors
           ? 'bg-red-50 border border-red-200'
           : hasWarnings
@@ -124,12 +124,12 @@ export default function ExcelValidationSummary({ parsedData, diff, errors = [], 
 
       {/* Sheets Found */}
       {parsedData.sheets?.length > 0 && (
-        <div className="flex items-center gap-2 text-sm text-stone-600">
+        <div className="flex items-center gap-2 text-sm text-admin-text-secondary">
           <FileSpreadsheet className="w-4 h-4" />
           <span>Sheets found:</span>
           <div className="flex gap-1">
             {parsedData.sheets.map((sheet, idx) => (
-              <span key={idx} className="px-2 py-0.5 rounded-full bg-stone-100 text-stone-700 text-xs">
+              <span key={idx} className="px-2 py-0.5 rounded-full bg-stone-100 text-admin-text text-xs">
                 {sheet}
               </span>
             ))}
@@ -170,7 +170,7 @@ export default function ExcelValidationSummary({ parsedData, diff, errors = [], 
 
       {/* Errors List */}
       {hasErrors && (
-        <div className="rounded-xl border border-red-200 overflow-hidden">
+        <div className="rounded-[12px] border border-red-200 overflow-hidden">
           <div className="px-4 py-2 bg-red-50 border-b border-red-200">
             <h4 className="text-sm font-medium text-red-700">Errors</h4>
           </div>
@@ -188,7 +188,7 @@ export default function ExcelValidationSummary({ parsedData, diff, errors = [], 
 
       {/* Warnings List */}
       {hasWarnings && (
-        <div className="rounded-xl border border-amber-200 overflow-hidden">
+        <div className="rounded-[12px] border border-amber-200 overflow-hidden">
           <div className="px-4 py-2 bg-amber-50 border-b border-amber-200">
             <h4 className="text-sm font-medium text-amber-700">Warnings</h4>
           </div>

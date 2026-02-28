@@ -5,7 +5,6 @@ import { useTournamentDetailAdmin, useTournamentDetailForEdit } from '@/hooks/us
 import { useVenues } from '@/hooks/useVenues';
 import { useHotels } from '@/hooks/useHotels';
 import { useNearbyPlaces } from '@/hooks/useNearbyPlaces';
-import AdminNavbar from '@/components/AdminNavbar';
 import {
   ArrowLeft,
   Building2,
@@ -31,8 +30,8 @@ function TabButton({ active, onClick, icon, label }) {
       onClick={onClick}
       className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
         active
-          ? 'border-tne-red text-tne-red'
-          : 'border-transparent text-stone-500 hover:text-stone-700 hover:border-stone-300'
+          ? 'border-admin-red text-admin-red'
+          : 'border-transparent text-admin-text-secondary hover:text-admin-text hover:border-admin-card-border'
       }`}
     >
       <Icon className="w-4 h-4" />
@@ -51,20 +50,20 @@ function DetailsTab({ details, onChange, onSave, saving }) {
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="md:col-span-2">
-          <label className="block text-sm font-medium text-stone-700 mb-1">
+          <label className="block text-sm font-medium text-admin-text mb-1">
             Tournament Description
           </label>
           <textarea
             value={details.description || ''}
             onChange={(e) => handleChange('description', e.target.value)}
             rows={4}
-            className="w-full px-3 py-2 rounded-lg border border-stone-300 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+            className="w-full px-3 py-2 rounded-lg border border-admin-card-border focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
             placeholder="Describe the tournament for families..."
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-stone-700 mb-1">
+          <label className="block text-sm font-medium text-admin-text mb-1">
             Number of Divisions
           </label>
           <input
@@ -72,12 +71,12 @@ function DetailsTab({ details, onChange, onSave, saving }) {
             min="1"
             value={details.division_count || ''}
             onChange={(e) => handleChange('division_count', parseInt(e.target.value) || null)}
-            className="w-full px-3 py-2 rounded-lg border border-stone-300 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+            className="w-full px-3 py-2 rounded-lg border border-admin-card-border focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-stone-700 mb-1">
+          <label className="block text-sm font-medium text-admin-text mb-1">
             Total Teams Expected
           </label>
           <input
@@ -85,12 +84,12 @@ function DetailsTab({ details, onChange, onSave, saving }) {
             min="1"
             value={details.total_teams || ''}
             onChange={(e) => handleChange('total_teams', parseInt(e.target.value) || null)}
-            className="w-full px-3 py-2 rounded-lg border border-stone-300 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+            className="w-full px-3 py-2 rounded-lg border border-admin-card-border focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-stone-700 mb-1">
+          <label className="block text-sm font-medium text-admin-text mb-1">
             Entry Fee ($)
           </label>
           <input
@@ -99,104 +98,104 @@ function DetailsTab({ details, onChange, onSave, saving }) {
             step="0.01"
             value={details.entry_fee || ''}
             onChange={(e) => handleChange('entry_fee', parseFloat(e.target.value) || null)}
-            className="w-full px-3 py-2 rounded-lg border border-stone-300 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+            className="w-full px-3 py-2 rounded-lg border border-admin-card-border focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-stone-700 mb-1">
+          <label className="block text-sm font-medium text-admin-text mb-1">
             Registration Deadline
           </label>
           <input
             type="date"
             value={details.registration_deadline || ''}
             onChange={(e) => handleChange('registration_deadline', e.target.value)}
-            className="w-full px-3 py-2 rounded-lg border border-stone-300 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+            className="w-full px-3 py-2 rounded-lg border border-admin-card-border focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
           />
         </div>
 
         <div className="md:col-span-2">
-          <label className="block text-sm font-medium text-stone-700 mb-1">
+          <label className="block text-sm font-medium text-admin-text mb-1">
             Registration URL
           </label>
           <input
             type="url"
             value={details.registration_url || ''}
             onChange={(e) => handleChange('registration_url', e.target.value)}
-            className="w-full px-3 py-2 rounded-lg border border-stone-300 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+            className="w-full px-3 py-2 rounded-lg border border-admin-card-border focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
             placeholder="https://..."
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-stone-700 mb-1">
+          <label className="block text-sm font-medium text-admin-text mb-1">
             Schedule PDF URL
           </label>
           <input
             type="url"
             value={details.schedule_pdf_url || ''}
             onChange={(e) => handleChange('schedule_pdf_url', e.target.value)}
-            className="w-full px-3 py-2 rounded-lg border border-stone-300 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+            className="w-full px-3 py-2 rounded-lg border border-admin-card-border focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
             placeholder="https://..."
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-stone-700 mb-1">
+          <label className="block text-sm font-medium text-admin-text mb-1">
             Rules PDF URL
           </label>
           <input
             type="url"
             value={details.rules_pdf_url || ''}
             onChange={(e) => handleChange('rules_pdf_url', e.target.value)}
-            className="w-full px-3 py-2 rounded-lg border border-stone-300 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+            className="w-full px-3 py-2 rounded-lg border border-admin-card-border focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
             placeholder="https://..."
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-stone-700 mb-1">
+          <label className="block text-sm font-medium text-admin-text mb-1">
             Bracket URL
           </label>
           <input
             type="url"
             value={details.bracket_url || ''}
             onChange={(e) => handleChange('bracket_url', e.target.value)}
-            className="w-full px-3 py-2 rounded-lg border border-stone-300 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+            className="w-full px-3 py-2 rounded-lg border border-admin-card-border focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
             placeholder="https://..."
           />
         </div>
       </div>
 
-      <div className="border-t border-stone-200 pt-6">
-        <h4 className="font-medium text-stone-900 mb-4">Display Settings</h4>
+      <div className="border-t border-admin-card-border pt-6">
+        <h4 className="font-medium text-admin-text mb-4">Display Settings</h4>
         <div className="space-y-3">
           <label className="flex items-center gap-2">
             <input
               type="checkbox"
               checked={details.show_hotels !== false}
               onChange={(e) => handleChange('show_hotels', e.target.checked)}
-              className="rounded border-stone-300"
+              className="rounded border-admin-card-border"
             />
-            <span className="text-sm text-stone-700">Show hotels section on public page</span>
+            <span className="text-sm text-admin-text">Show hotels section on public page</span>
           </label>
           <label className="flex items-center gap-2">
             <input
               type="checkbox"
               checked={details.show_attractions !== false}
               onChange={(e) => handleChange('show_attractions', e.target.checked)}
-              className="rounded border-stone-300"
+              className="rounded border-admin-card-border"
             />
-            <span className="text-sm text-stone-700">Show attractions section on public page</span>
+            <span className="text-sm text-admin-text">Show attractions section on public page</span>
           </label>
           <label className="flex items-center gap-2">
             <input
               type="checkbox"
               checked={details.show_restaurants !== false}
               onChange={(e) => handleChange('show_restaurants', e.target.checked)}
-              className="rounded border-stone-300"
+              className="rounded border-admin-card-border"
             />
-            <span className="text-sm text-stone-700">Show restaurants section on public page</span>
+            <span className="text-sm text-admin-text">Show restaurants section on public page</span>
           </label>
         </div>
       </div>
@@ -206,7 +205,7 @@ function DetailsTab({ details, onChange, onSave, saving }) {
           type="button"
           onClick={onSave}
           disabled={saving}
-          className="flex items-center gap-2 px-4 py-2 bg-tne-red text-white rounded-lg hover:bg-tne-red-dark transition-colors disabled:opacity-50"
+          className="flex items-center gap-2 px-4 py-2 bg-admin-red text-white rounded-lg hover:opacity-85 transition-colors disabled:opacity-50"
         >
           {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
           Save Details
@@ -229,24 +228,24 @@ function VenueTab({ currentVenue, venues, onSave, saving }) {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h4 className="font-medium text-stone-900">Select Venue</h4>
-          <p className="text-sm text-stone-500">Choose a venue from the library or create a new one</p>
+          <h4 className="font-medium text-admin-text">Select Venue</h4>
+          <p className="text-sm text-admin-text-secondary">Choose a venue from the library or create a new one</p>
         </div>
         <Link
           href="/admin/venues"
-          className="text-sm text-tne-red hover:text-tne-red-dark font-medium"
+          className="text-sm text-admin-red hover:opacity-85 font-medium"
         >
           Manage Venues
         </Link>
       </div>
 
       {venues.length === 0 ? (
-        <div className="text-center py-8 border border-dashed border-stone-300 rounded-xl">
-          <Building2 className="w-8 h-8 text-stone-400 mx-auto mb-2" />
-          <p className="text-stone-600">No venues in library</p>
+        <div className="text-center py-8 border border-dashed border-admin-card-border rounded-[12px]">
+          <Building2 className="w-8 h-8 text-admin-text-muted mx-auto mb-2" />
+          <p className="text-admin-text-secondary">No venues in library</p>
           <Link
             href="/admin/venues"
-            className="text-sm text-tne-red hover:text-tne-red-dark font-medium mt-2 inline-block"
+            className="text-sm text-admin-red hover:opacity-85 font-medium mt-2 inline-block"
           >
             Create a venue
           </Link>
@@ -258,24 +257,24 @@ function VenueTab({ currentVenue, venues, onSave, saving }) {
               key={venue.id}
               type="button"
               onClick={() => setSelectedVenueId(venue.id)}
-              className={`p-4 rounded-xl border text-left transition-colors ${
+              className={`p-4 rounded-[12px] border text-left transition-colors ${
                 selectedVenueId === venue.id
-                  ? 'border-tne-red bg-red-50'
-                  : 'border-stone-200 hover:border-stone-300'
+                  ? 'border-admin-red bg-red-50'
+                  : 'border-admin-card-border hover:border-admin-card-border'
               }`}
             >
               <div className="flex items-start justify-between">
                 <div>
-                  <h5 className="font-medium text-stone-900">{venue.name}</h5>
-                  <p className="text-sm text-stone-500 mt-1">
+                  <h5 className="font-medium text-admin-text">{venue.name}</h5>
+                  <p className="text-sm text-admin-text-secondary mt-1">
                     {venue.city}, {venue.state}
                   </p>
                   {venue.court_count && (
-                    <p className="text-xs text-stone-400 mt-1">{venue.court_count} courts</p>
+                    <p className="text-xs text-admin-text-muted mt-1">{venue.court_count} courts</p>
                   )}
                 </div>
                 {selectedVenueId === venue.id && (
-                  <Check className="w-5 h-5 text-tne-red" />
+                  <Check className="w-5 h-5 text-admin-red" />
                 )}
               </div>
             </button>
@@ -283,12 +282,12 @@ function VenueTab({ currentVenue, venues, onSave, saving }) {
         </div>
       )}
 
-      <div className="flex justify-end pt-4 border-t border-stone-200">
+      <div className="flex justify-end pt-4 border-t border-admin-card-border">
         <button
           type="button"
           onClick={handleSave}
           disabled={saving || !selectedVenueId}
-          className="flex items-center gap-2 px-4 py-2 bg-tne-red text-white rounded-lg hover:bg-tne-red-dark transition-colors disabled:opacity-50"
+          className="flex items-center gap-2 px-4 py-2 bg-admin-red text-white rounded-lg hover:opacity-85 transition-colors disabled:opacity-50"
         >
           {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
           Save Venue
@@ -320,13 +319,13 @@ function HotelsTab({ linkedHotels, allHotels, onLinkHotel, onUnlinkHotel, saving
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h4 className="font-medium text-stone-900">Linked Hotels</h4>
-          <p className="text-sm text-stone-500">Hotels with team rates for this tournament</p>
+          <h4 className="font-medium text-admin-text">Linked Hotels</h4>
+          <p className="text-sm text-admin-text-secondary">Hotels with team rates for this tournament</p>
         </div>
         <div className="flex gap-2">
           <Link
             href="/admin/hotels"
-            className="text-sm text-stone-600 hover:text-stone-800 font-medium"
+            className="text-sm text-admin-text-secondary hover:text-admin-text font-medium"
           >
             Manage Hotels
           </Link>
@@ -334,7 +333,7 @@ function HotelsTab({ linkedHotels, allHotels, onLinkHotel, onUnlinkHotel, saving
             <button
               type="button"
               onClick={() => setAddingHotel(true)}
-              className="flex items-center gap-1 text-sm text-tne-red hover:text-tne-red-dark font-medium"
+              className="flex items-center gap-1 text-sm text-admin-red hover:opacity-85 font-medium"
             >
               <Plus className="w-4 h-4" />
               Add Hotel
@@ -345,21 +344,21 @@ function HotelsTab({ linkedHotels, allHotels, onLinkHotel, onUnlinkHotel, saving
 
       {/* Add Hotel Form */}
       {addingHotel && (
-        <div className="p-4 border border-tne-red/30 bg-red-50/30 rounded-xl space-y-4">
+        <div className="p-4 border border-admin-red/30 bg-red-50/30 rounded-[12px] space-y-4">
           <div className="flex items-center justify-between">
-            <h5 className="font-medium text-stone-900">Add Hotel</h5>
-            <button type="button" onClick={() => setAddingHotel(false)} className="text-stone-400 hover:text-stone-600">
+            <h5 className="font-medium text-admin-text">Add Hotel</h5>
+            <button type="button" onClick={() => setAddingHotel(false)} className="text-admin-text-muted hover:text-admin-text-secondary">
               <X className="w-5 h-5" />
             </button>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-stone-700 mb-1">Select Hotel</label>
+              <label className="block text-sm font-medium text-admin-text mb-1">Select Hotel</label>
               <select
                 value={selectedHotelId}
                 onChange={(e) => setSelectedHotelId(e.target.value)}
-                className="w-full px-3 py-2 rounded-lg border border-stone-300 focus:outline-none focus:ring-2 focus:ring-tne-red/20"
+                className="w-full px-3 py-2 rounded-lg border border-admin-card-border focus:outline-none focus:ring-2 focus:ring-admin-red/20"
               >
                 <option value="">Choose a hotel...</option>
                 {availableHotels.map((h) => (
@@ -371,24 +370,24 @@ function HotelsTab({ linkedHotels, allHotels, onLinkHotel, onUnlinkHotel, saving
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-stone-700 mb-1">Nightly Rate ($)</label>
+              <label className="block text-sm font-medium text-admin-text mb-1">Nightly Rate ($)</label>
               <input
                 type="number"
                 min="0"
                 step="0.01"
                 value={hotelRate.nightly_rate}
                 onChange={(e) => setHotelRate({ ...hotelRate, nightly_rate: e.target.value })}
-                className="w-full px-3 py-2 rounded-lg border border-stone-300 focus:outline-none focus:ring-2 focus:ring-tne-red/20"
+                className="w-full px-3 py-2 rounded-lg border border-admin-card-border focus:outline-none focus:ring-2 focus:ring-admin-red/20"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-stone-700 mb-1">Team Rate Code</label>
+              <label className="block text-sm font-medium text-admin-text mb-1">Team Rate Code</label>
               <input
                 type="text"
                 value={hotelRate.team_rate_code}
                 onChange={(e) => setHotelRate({ ...hotelRate, team_rate_code: e.target.value })}
-                className="w-full px-3 py-2 rounded-lg border border-stone-300 focus:outline-none focus:ring-2 focus:ring-tne-red/20"
+                className="w-full px-3 py-2 rounded-lg border border-admin-card-border focus:outline-none focus:ring-2 focus:ring-admin-red/20"
                 placeholder="e.g., TNEHOOPS25"
               />
             </div>
@@ -399,9 +398,9 @@ function HotelsTab({ linkedHotels, allHotels, onLinkHotel, onUnlinkHotel, saving
                 id="is_team_rate"
                 checked={hotelRate.is_team_rate}
                 onChange={(e) => setHotelRate({ ...hotelRate, is_team_rate: e.target.checked })}
-                className="rounded border-stone-300"
+                className="rounded border-admin-card-border"
               />
-              <label htmlFor="is_team_rate" className="text-sm text-stone-700">This is a special team rate</label>
+              <label htmlFor="is_team_rate" className="text-sm text-admin-text">This is a special team rate</label>
             </div>
           </div>
 
@@ -409,7 +408,7 @@ function HotelsTab({ linkedHotels, allHotels, onLinkHotel, onUnlinkHotel, saving
             <button
               type="button"
               onClick={() => setAddingHotel(false)}
-              className="px-3 py-1.5 text-sm text-stone-600 hover:bg-stone-100 rounded-lg"
+              className="px-3 py-1.5 text-sm text-admin-text-secondary hover:bg-stone-100 rounded-lg"
             >
               Cancel
             </button>
@@ -417,7 +416,7 @@ function HotelsTab({ linkedHotels, allHotels, onLinkHotel, onUnlinkHotel, saving
               type="button"
               onClick={handleAddHotel}
               disabled={!selectedHotelId || saving}
-              className="flex items-center gap-1 px-3 py-1.5 text-sm bg-tne-red text-white rounded-lg hover:bg-tne-red-dark disabled:opacity-50"
+              className="flex items-center gap-1 px-3 py-1.5 text-sm bg-admin-red text-white rounded-lg hover:opacity-85 disabled:opacity-50"
             >
               {saving && <Loader2 className="w-3 h-3 animate-spin" />}
               Add Hotel
@@ -428,21 +427,21 @@ function HotelsTab({ linkedHotels, allHotels, onLinkHotel, onUnlinkHotel, saving
 
       {/* Linked Hotels List */}
       {linkedHotels.length === 0 ? (
-        <div className="text-center py-8 border border-dashed border-stone-300 rounded-xl">
-          <Hotel className="w-8 h-8 text-stone-400 mx-auto mb-2" />
-          <p className="text-stone-600">No hotels linked</p>
-          <p className="text-sm text-stone-500">Add hotels with team rates for families</p>
+        <div className="text-center py-8 border border-dashed border-admin-card-border rounded-[12px]">
+          <Hotel className="w-8 h-8 text-admin-text-muted mx-auto mb-2" />
+          <p className="text-admin-text-secondary">No hotels linked</p>
+          <p className="text-sm text-admin-text-secondary">Add hotels with team rates for families</p>
         </div>
       ) : (
         <div className="space-y-3">
           {linkedHotels.map((lh) => (
             <div
               key={lh.id}
-              className="p-4 border border-stone-200 rounded-xl flex items-center justify-between"
+              className="p-4 border-[1.5px] border-admin-card-border rounded-[12px] flex items-center justify-between"
             >
               <div>
                 <div className="flex items-center gap-2">
-                  <h5 className="font-medium text-stone-900">{lh.hotel?.name}</h5>
+                  <h5 className="font-medium text-admin-text">{lh.hotel?.name}</h5>
                   {lh.is_team_rate && (
                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-amber-100 text-amber-700 text-xs">
                       <Star className="w-3 h-3" />
@@ -450,18 +449,18 @@ function HotelsTab({ linkedHotels, allHotels, onLinkHotel, onUnlinkHotel, saving
                     </span>
                   )}
                 </div>
-                <p className="text-sm text-stone-500">
+                <p className="text-sm text-admin-text-secondary">
                   {lh.hotel?.city}, {lh.hotel?.state}
                   {lh.nightly_rate && ` - $${lh.nightly_rate}/night`}
                 </p>
                 {lh.team_rate_code && (
-                  <p className="text-xs text-tne-red mt-1">Code: {lh.team_rate_code}</p>
+                  <p className="text-xs text-admin-red mt-1">Code: {lh.team_rate_code}</p>
                 )}
               </div>
               <button
                 type="button"
                 onClick={() => onUnlinkHotel(lh.hotel_id)}
-                className="p-2 text-stone-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                className="p-2 text-admin-text-muted hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
               >
                 <Trash2 className="w-4 h-4" />
               </button>
@@ -498,14 +497,14 @@ function PlacesTab({ linkedPlaces, allPlaces, onLinkPlace, onUnlinkPlace, saving
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h4 className="font-medium text-stone-900">Nearby Places</h4>
-          <p className="text-sm text-stone-500">Attractions and restaurants for families</p>
+          <h4 className="font-medium text-admin-text">Nearby Places</h4>
+          <p className="text-sm text-admin-text-secondary">Attractions and restaurants for families</p>
         </div>
         {!addingPlace && (
           <button
             type="button"
             onClick={() => setAddingPlace(true)}
-            className="flex items-center gap-1 text-sm text-tne-red hover:text-tne-red-dark font-medium"
+            className="flex items-center gap-1 text-sm text-admin-red hover:opacity-85 font-medium"
           >
             <Plus className="w-4 h-4" />
             Add Place
@@ -515,21 +514,21 @@ function PlacesTab({ linkedPlaces, allPlaces, onLinkPlace, onUnlinkPlace, saving
 
       {/* Add Place Form */}
       {addingPlace && (
-        <div className="p-4 border border-tne-red/30 bg-red-50/30 rounded-xl space-y-4">
+        <div className="p-4 border border-admin-red/30 bg-red-50/30 rounded-[12px] space-y-4">
           <div className="flex items-center justify-between">
-            <h5 className="font-medium text-stone-900">Add Place</h5>
-            <button type="button" onClick={() => setAddingPlace(false)} className="text-stone-400 hover:text-stone-600">
+            <h5 className="font-medium text-admin-text">Add Place</h5>
+            <button type="button" onClick={() => setAddingPlace(false)} className="text-admin-text-muted hover:text-admin-text-secondary">
               <X className="w-5 h-5" />
             </button>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-stone-700 mb-1">Filter by Type</label>
+              <label className="block text-sm font-medium text-admin-text mb-1">Filter by Type</label>
               <select
                 value={placeType}
                 onChange={(e) => setPlaceType(e.target.value)}
-                className="w-full px-3 py-2 rounded-lg border border-stone-300"
+                className="w-full px-3 py-2 rounded-lg border border-admin-card-border"
               >
                 <option value="all">All Places</option>
                 <option value="attraction">Attractions</option>
@@ -538,11 +537,11 @@ function PlacesTab({ linkedPlaces, allPlaces, onLinkPlace, onUnlinkPlace, saving
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-stone-700 mb-1">Select Place</label>
+              <label className="block text-sm font-medium text-admin-text mb-1">Select Place</label>
               <select
                 value={selectedPlaceId}
                 onChange={(e) => setSelectedPlaceId(e.target.value)}
-                className="w-full px-3 py-2 rounded-lg border border-stone-300"
+                className="w-full px-3 py-2 rounded-lg border border-admin-card-border"
               >
                 <option value="">Choose a place...</option>
                 {availablePlaces.map((p) => (
@@ -558,7 +557,7 @@ function PlacesTab({ linkedPlaces, allPlaces, onLinkPlace, onUnlinkPlace, saving
             <button
               type="button"
               onClick={() => setAddingPlace(false)}
-              className="px-3 py-1.5 text-sm text-stone-600 hover:bg-stone-100 rounded-lg"
+              className="px-3 py-1.5 text-sm text-admin-text-secondary hover:bg-stone-100 rounded-lg"
             >
               Cancel
             </button>
@@ -566,7 +565,7 @@ function PlacesTab({ linkedPlaces, allPlaces, onLinkPlace, onUnlinkPlace, saving
               type="button"
               onClick={handleAddPlace}
               disabled={!selectedPlaceId || saving}
-              className="flex items-center gap-1 px-3 py-1.5 text-sm bg-tne-red text-white rounded-lg hover:bg-tne-red-dark disabled:opacity-50"
+              className="flex items-center gap-1 px-3 py-1.5 text-sm bg-admin-red text-white rounded-lg hover:opacity-85 disabled:opacity-50"
             >
               {saving && <Loader2 className="w-3 h-3 animate-spin" />}
               Add Place
@@ -577,29 +576,29 @@ function PlacesTab({ linkedPlaces, allPlaces, onLinkPlace, onUnlinkPlace, saving
 
       {/* Attractions */}
       <div>
-        <h5 className="text-sm font-medium text-stone-700 mb-3 flex items-center gap-2">
+        <h5 className="text-sm font-medium text-admin-text mb-3 flex items-center gap-2">
           <MapPin className="w-4 h-4" />
           Attractions ({attractions.length})
         </h5>
         {attractions.length === 0 ? (
-          <div className="text-center py-4 border border-dashed border-stone-200 rounded-lg">
-            <p className="text-sm text-stone-500">No attractions linked</p>
+          <div className="text-center py-4 border border-dashed border-admin-card-border rounded-lg">
+            <p className="text-sm text-admin-text-secondary">No attractions linked</p>
           </div>
         ) : (
           <div className="space-y-2">
             {attractions.map((lp) => (
               <div
                 key={lp.id}
-                className="p-3 border border-stone-200 rounded-lg flex items-center justify-between"
+                className="p-3 border-[1.5px] border-admin-card-border rounded-lg flex items-center justify-between"
               >
                 <div>
-                  <h6 className="font-medium text-stone-900">{lp.nearby_place?.name}</h6>
-                  <p className="text-xs text-stone-500">{lp.nearby_place?.category}</p>
+                  <h6 className="font-medium text-admin-text">{lp.nearby_place?.name}</h6>
+                  <p className="text-xs text-admin-text-secondary">{lp.nearby_place?.category}</p>
                 </div>
                 <button
                   type="button"
                   onClick={() => onUnlinkPlace(lp.nearby_place_id)}
-                  className="p-1.5 text-stone-400 hover:text-red-500 hover:bg-red-50 rounded-lg"
+                  className="p-1.5 text-admin-text-muted hover:text-red-500 hover:bg-red-50 rounded-lg"
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
@@ -611,31 +610,31 @@ function PlacesTab({ linkedPlaces, allPlaces, onLinkPlace, onUnlinkPlace, saving
 
       {/* Restaurants */}
       <div>
-        <h5 className="text-sm font-medium text-stone-700 mb-3 flex items-center gap-2">
+        <h5 className="text-sm font-medium text-admin-text mb-3 flex items-center gap-2">
           <UtensilsCrossed className="w-4 h-4" />
           Restaurants ({restaurants.length})
         </h5>
         {restaurants.length === 0 ? (
-          <div className="text-center py-4 border border-dashed border-stone-200 rounded-lg">
-            <p className="text-sm text-stone-500">No restaurants linked</p>
+          <div className="text-center py-4 border border-dashed border-admin-card-border rounded-lg">
+            <p className="text-sm text-admin-text-secondary">No restaurants linked</p>
           </div>
         ) : (
           <div className="space-y-2">
             {restaurants.map((lp) => (
               <div
                 key={lp.id}
-                className="p-3 border border-stone-200 rounded-lg flex items-center justify-between"
+                className="p-3 border-[1.5px] border-admin-card-border rounded-lg flex items-center justify-between"
               >
                 <div>
-                  <h6 className="font-medium text-stone-900">{lp.nearby_place?.name}</h6>
-                  <p className="text-xs text-stone-500">
+                  <h6 className="font-medium text-admin-text">{lp.nearby_place?.name}</h6>
+                  <p className="text-xs text-admin-text-secondary">
                     {lp.nearby_place?.cuisine_type} {lp.nearby_place?.price_range && `- ${'$'.repeat(lp.nearby_place.price_range)}`}
                   </p>
                 </div>
                 <button
                   type="button"
                   onClick={() => onUnlinkPlace(lp.nearby_place_id)}
-                  className="p-1.5 text-stone-400 hover:text-red-500 hover:bg-red-50 rounded-lg"
+                  className="p-1.5 text-admin-text-muted hover:text-red-500 hover:bg-red-50 rounded-lg"
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
@@ -779,29 +778,23 @@ export default function AdminTournamentDetailPage() {
 
   if (loading) {
     return (
-      <div className="bg-stone-100 min-h-screen">
-        <AdminNavbar />
-        <div className="flex items-center justify-center py-20">
-          <Loader2 className="w-8 h-8 text-tne-red animate-spin" />
-        </div>
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="w-8 h-8 text-admin-red animate-spin" />
       </div>
     );
   }
 
   if (error || !data?.game) {
     return (
-      <div className="bg-stone-100 min-h-screen">
-        <AdminNavbar />
-        <div className="max-w-4xl mx-auto px-4 py-12 text-center">
-          <h2 className="text-xl font-semibold text-stone-900 mb-2">Tournament Not Found</h2>
-          <p className="text-stone-500 mb-6">{error || 'This tournament does not exist.'}</p>
-          <button
-            onClick={() => router.push('/admin/games')}
-            className="text-tne-red hover:text-tne-red-dark font-medium"
-          >
-            Back to Tournaments
-          </button>
-        </div>
+      <div className="max-w-4xl mx-auto px-4 py-12 text-center">
+        <h2 className="text-base font-bold text-admin-text mb-2">Tournament Not Found</h2>
+        <p className="text-admin-text-secondary mb-6">{error || 'This tournament does not exist.'}</p>
+        <button
+          onClick={() => router.push('/admin/games')}
+          className="text-admin-red hover:opacity-85 font-medium"
+        >
+          Back to Tournaments
+        </button>
       </div>
     );
   }
@@ -809,15 +802,13 @@ export default function AdminTournamentDetailPage() {
   const { game } = data;
 
   return (
-    <div className="bg-stone-100 min-h-screen">
-      <AdminNavbar />
-
+    <>
       {/* Header */}
-      <div className="bg-white border-b border-stone-200">
+      <div className="bg-white border-b border-admin-card-border">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6">
           <Link
             href="/admin/games"
-            className="inline-flex items-center gap-2 text-stone-500 hover:text-stone-700 text-sm mb-4"
+            className="inline-flex items-center gap-2 text-admin-text-secondary hover:text-admin-text text-sm mb-4"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to Tournaments
@@ -825,8 +816,8 @@ export default function AdminTournamentDetailPage() {
 
           <div className="flex items-start justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-stone-900">{game.name}</h1>
-              <p className="text-stone-500 mt-1">
+              <h1 className="text-[22px] font-extrabold text-admin-text tracking-[-0.02em]">{game.name}</h1>
+              <p className="text-admin-text-secondary mt-1">
                 {new Date(game.date + 'T00:00:00').toLocaleDateString('en-US', {
                   weekday: 'long',
                   month: 'long',
@@ -841,7 +832,7 @@ export default function AdminTournamentDetailPage() {
                 href={game.external_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-1 text-sm text-stone-600 hover:text-stone-800"
+                className="flex items-center gap-1 text-sm text-admin-text-secondary hover:text-admin-text"
               >
                 <ExternalLink className="w-4 h-4" />
                 View Site
@@ -850,7 +841,7 @@ export default function AdminTournamentDetailPage() {
           </div>
 
           {/* Tabs */}
-          <div className="flex gap-1 mt-6 border-b border-stone-200 -mb-px">
+          <div className="flex gap-1 mt-6 border-b border-admin-card-border -mb-px">
             <TabButton
               active={activeTab === 'details'}
               onClick={() => setActiveTab('details')}
@@ -880,8 +871,8 @@ export default function AdminTournamentDetailPage() {
       </div>
 
       {/* Content */}
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
-        <div className="bg-white rounded-2xl border border-stone-200 p-6">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
+        <div className="bg-white rounded-[14px] border-[1.5px] border-admin-card-border p-6">
           {activeTab === 'details' && (
             <DetailsTab
               details={editedDetails}
@@ -918,7 +909,7 @@ export default function AdminTournamentDetailPage() {
             />
           )}
         </div>
-      </main>
-    </div>
+      </div>
+    </>
   );
 }

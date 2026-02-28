@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { X } from 'lucide-react';
 import tneLogoWhite from '@/assets/tne-logo-white-transparent.png';
@@ -52,10 +53,12 @@ export default function MobileDrawer({ isOpen, onClose, showPayLink = false }) {
       >
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-white/10">
-          <img
-            src={tneLogoWhite.src}
+          <Image
+            src={tneLogoWhite}
             alt="TNE"
-            className="h-12 w-12 object-contain"
+            width={48}
+            height={48}
+            className="object-contain"
           />
           <button
             onClick={onClose}

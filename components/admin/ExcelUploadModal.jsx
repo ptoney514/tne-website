@@ -342,23 +342,23 @@ export default function ExcelUploadModal({ isOpen, onClose, onSuccess, seasonId 
       />
 
       {/* Modal */}
-      <div className="relative w-full max-w-4xl max-h-[90vh] mx-4 bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col">
+      <div className="relative w-full max-w-4xl max-h-[90vh] mx-4 bg-white rounded-[14px] shadow-2xl overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-stone-200">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-admin-card-border">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-tne-red/10">
-              <Upload className="w-5 h-5 text-tne-red" />
+            <div className="p-2 rounded-lg bg-admin-red/10">
+              <Upload className="w-5 h-5 text-admin-red" />
             </div>
             <div>
-              <h2 className="text-lg font-semibold text-stone-900">Upload Team Data</h2>
-              <p className="text-sm text-stone-500">Import teams, coaches, and rosters from Excel</p>
+              <h2 className="text-base font-bold text-admin-text">Upload Team Data</h2>
+              <p className="text-sm text-admin-text-secondary">Import teams, coaches, and rosters from Excel</p>
             </div>
           </div>
           <button
             onClick={onClose}
             className="p-2 rounded-lg hover:bg-stone-100 transition-colors"
           >
-            <X className="w-5 h-5 text-stone-500" />
+            <X className="w-5 h-5 text-admin-text-secondary" />
           </button>
         </div>
 
@@ -370,14 +370,14 @@ export default function ExcelUploadModal({ isOpen, onClose, onSuccess, seasonId 
               <div className="flex gap-3">
                 <button
                   onClick={handleDownloadTemplate}
-                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-stone-700 bg-stone-100 hover:bg-stone-200 rounded-lg transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-admin-text bg-admin-content-bg hover:bg-stone-200 rounded-lg transition-colors"
                 >
                   <FileSpreadsheet className="w-4 h-4" />
                   Download Template
                 </button>
                 <button
                   onClick={handleExportCurrent}
-                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-stone-700 bg-stone-100 hover:bg-stone-200 rounded-lg transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-admin-text bg-admin-content-bg hover:bg-stone-200 rounded-lg transition-colors"
                 >
                   <Download className="w-4 h-4" />
                   Export Current Data
@@ -386,8 +386,8 @@ export default function ExcelUploadModal({ isOpen, onClose, onSuccess, seasonId 
 
               <ExcelDropZone onFileSelect={handleFileSelect} />
 
-              <div className="bg-stone-50 rounded-xl p-4 text-sm text-stone-600">
-                <h4 className="font-medium text-stone-900 mb-2">Expected sheets:</h4>
+              <div className="bg-admin-content-bg rounded-[12px] p-4 text-sm text-admin-text-secondary">
+                <h4 className="font-medium text-admin-text mb-2">Expected sheets:</h4>
                 <ul className="space-y-1">
                   <li><strong>Teams</strong> - Team name, grade level, gender, tier, coaches, fees</li>
                   <li><strong>Coaches</strong> (optional) - Coach details with email and certifications</li>
@@ -412,10 +412,10 @@ export default function ExcelUploadModal({ isOpen, onClose, onSuccess, seasonId 
 
           {step === STEPS.UPLOADING && (
             <div className="flex flex-col items-center justify-center py-12">
-              <Loader2 className="w-12 h-12 text-tne-red animate-spin mb-4" />
-              <p className="text-lg font-medium text-stone-900">Uploading data...</p>
+              <Loader2 className="w-12 h-12 text-admin-red animate-spin mb-4" />
+              <p className="text-lg font-medium text-admin-text">Uploading data...</p>
               {uploadProgress && (
-                <p className="text-sm text-stone-500 mt-2">{uploadProgress}</p>
+                <p className="text-sm text-admin-text-secondary mt-2">{uploadProgress}</p>
               )}
             </div>
           )}
@@ -425,8 +425,8 @@ export default function ExcelUploadModal({ isOpen, onClose, onSuccess, seasonId 
               <div className="p-4 rounded-full bg-green-100 mb-4">
                 <CheckCircle className="w-12 h-12 text-green-600" />
               </div>
-              <p className="text-lg font-medium text-stone-900">Upload Complete!</p>
-              <p className="text-sm text-stone-500 mt-2">
+              <p className="text-lg font-medium text-admin-text">Upload Complete!</p>
+              <p className="text-sm text-admin-text-secondary mt-2">
                 Your team data has been synced to the database.
               </p>
               {uploadWarnings.length > 0 && (
@@ -447,19 +447,19 @@ export default function ExcelUploadModal({ isOpen, onClose, onSuccess, seasonId 
               <div className="p-4 rounded-full bg-red-100 mb-4">
                 <X className="w-12 h-12 text-red-600" />
               </div>
-              <p className="text-lg font-medium text-stone-900">Upload Failed</p>
+              <p className="text-lg font-medium text-admin-text">Upload Failed</p>
               <p className="text-sm text-red-600 mt-2 text-center max-w-md">{error}</p>
             </div>
           )}
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between px-6 py-4 border-t border-stone-200 bg-stone-50">
+        <div className="flex items-center justify-between px-6 py-4 border-t border-admin-card-border bg-admin-content-bg">
           <div>
             {step === STEPS.PREVIEW && (
               <button
                 onClick={handleBack}
-                className="px-4 py-2 text-sm font-medium text-stone-600 hover:text-stone-900 transition-colors"
+                className="px-4 py-2 text-sm font-medium text-admin-text-secondary hover:text-admin-text transition-colors"
               >
                 Back
               </button>
@@ -470,7 +470,7 @@ export default function ExcelUploadModal({ isOpen, onClose, onSuccess, seasonId 
             {step === STEPS.UPLOAD && (
               <button
                 onClick={onClose}
-                className="px-4 py-2 text-sm font-medium text-stone-600 hover:text-stone-900 transition-colors"
+                className="px-4 py-2 text-sm font-medium text-admin-text-secondary hover:text-admin-text transition-colors"
               >
                 Cancel
               </button>
@@ -480,7 +480,7 @@ export default function ExcelUploadModal({ isOpen, onClose, onSuccess, seasonId 
               <>
                 <button
                   onClick={onClose}
-                  className="px-4 py-2 text-sm font-medium text-stone-600 hover:text-stone-900 transition-colors"
+                  className="px-4 py-2 text-sm font-medium text-admin-text-secondary hover:text-admin-text transition-colors"
                 >
                   Cancel
                 </button>
@@ -490,7 +490,7 @@ export default function ExcelUploadModal({ isOpen, onClose, onSuccess, seasonId 
                   className={`flex items-center gap-2 px-6 py-2 text-sm font-medium text-white rounded-lg transition-colors ${
                     hasErrors
                       ? 'bg-stone-400 cursor-not-allowed'
-                      : 'bg-tne-red hover:bg-tne-red-dark'
+                      : 'bg-admin-red hover:opacity-85'
                   }`}
                 >
                   <Upload className="w-4 h-4" />
@@ -502,7 +502,7 @@ export default function ExcelUploadModal({ isOpen, onClose, onSuccess, seasonId 
             {(step === STEPS.SUCCESS || step === STEPS.ERROR) && (
               <button
                 onClick={onClose}
-                className="px-6 py-2 text-sm font-medium text-white bg-tne-red hover:bg-tne-red-dark rounded-lg transition-colors"
+                className="px-6 py-2 text-sm font-medium text-white bg-admin-red hover:opacity-85 rounded-lg transition-colors"
               >
                 Done
               </button>

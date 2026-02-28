@@ -2,7 +2,6 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import AdminNavbar from '@/components/AdminNavbar';
 import {
   Users,
   Shield,
@@ -33,10 +32,10 @@ function SettingsNavLink({ to, icon, label, disabled }) {
 
   if (disabled) {
     return (
-      <div className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-stone-400 cursor-not-allowed">
+      <div className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-admin-text-muted cursor-not-allowed">
         <Icon className="w-5 h-5" />
         <span className="text-sm font-medium">{label}</span>
-        <span className="ml-auto text-[10px] bg-stone-100 text-stone-400 px-1.5 py-0.5 rounded">
+        <span className="ml-auto text-[10px] bg-admin-content-bg text-admin-text-muted px-1.5 py-0.5 rounded">
           Soon
         </span>
       </div>
@@ -48,8 +47,8 @@ function SettingsNavLink({ to, icon, label, disabled }) {
       href={to}
       className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${
         isActive
-          ? 'bg-tne-red text-white'
-          : 'text-stone-600 hover:bg-stone-100 hover:text-stone-900'
+          ? 'bg-admin-red text-white'
+          : 'text-admin-text-secondary hover:bg-admin-content-bg hover:text-admin-text'
       }`}
     >
       <Icon className="w-5 h-5" />
@@ -60,35 +59,31 @@ function SettingsNavLink({ to, icon, label, disabled }) {
 
 export default function AdminSettingsLayout({ children }) {
   return (
-    <div className="min-h-screen bg-stone-100">
-      <AdminNavbar />
+    <div className="flex">
+      {/* Settings Sidebar */}
+      <aside className="w-60 min-h-[calc(100vh-3.5rem)] bg-white border-r border-admin-card-border p-4 flex-shrink-0">
+        <div className="mb-6">
+          <h2 className="text-xs font-semibold text-admin-text-secondary uppercase tracking-wider px-3 mb-2">
+            Settings
+          </h2>
+        </div>
 
-      <div className="flex">
-        {/* Settings Sidebar */}
-        <aside className="w-60 min-h-[calc(100vh-3.5rem)] bg-white border-r border-stone-200 p-4 flex-shrink-0">
-          <div className="mb-6">
-            <h2 className="text-xs font-semibold text-stone-500 uppercase tracking-wider px-3 mb-2">
-              Settings
-            </h2>
-          </div>
+        <nav className="space-y-1">
+          {SETTINGS_NAV.map((item) => (
+            <SettingsNavLink
+              key={item.to}
+              to={item.to}
+              icon={item.icon}
+              label={item.label}
+              disabled={item.disabled}
+            />
+          ))}
+        </nav>
+      </aside>
 
-          <nav className="space-y-1">
-            {SETTINGS_NAV.map((item) => (
-              <SettingsNavLink
-                key={item.to}
-                to={item.to}
-                icon={item.icon}
-                label={item.label}
-                disabled={item.disabled}
-              />
-            ))}
-          </nav>
-        </aside>
-
-        {/* Main Content Area */}
-        <main className="flex-1 min-h-[calc(100vh-3.5rem)]">
-          {children}
-        </main>
+      {/* Main Content Area */}
+      <div className="flex-1 min-h-[calc(100vh-3.5rem)]">
+        {children}
       </div>
     </div>
   );

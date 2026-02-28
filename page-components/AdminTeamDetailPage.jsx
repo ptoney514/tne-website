@@ -18,8 +18,6 @@ import QuickAddPlayersCard from '@/components/admin/QuickAddPlayersCard';
 import ParsePreviewModal from '@/components/admin/ParsePreviewModal';
 import EnhancedRosterTable from '@/components/admin/EnhancedRosterTable';
 import EditPlayerModal from '@/components/admin/EditPlayerModal';
-import AdminNavbar from '@/components/AdminNavbar';
-
 // Add Player Modal (for existing players)
 function AddPlayerModal({ isOpen, onClose, availablePlayers, onAdd, isAdding }) {
   const [selectedPlayer, setSelectedPlayer] = useState('');
@@ -41,12 +39,12 @@ function AddPlayerModal({ isOpen, onClose, availablePlayers, onAdd, isAdding }) 
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="bg-white rounded-2xl w-full max-w-md shadow-xl">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-stone-200">
-          <h2 className="text-lg font-semibold text-stone-900">Add Existing Player</h2>
+      <div className="bg-white rounded-[14px] w-full max-w-md shadow-xl">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-admin-card-border">
+          <h2 className="text-base font-bold text-admin-text">Add Existing Player</h2>
           <button
             onClick={onClose}
-            className="p-1 hover:bg-stone-100 rounded-lg transition-colors text-stone-500"
+            className="p-1 hover:bg-stone-100 rounded-lg transition-colors text-admin-text-secondary"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -56,14 +54,14 @@ function AddPlayerModal({ isOpen, onClose, availablePlayers, onAdd, isAdding }) 
 
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div>
-            <label className="block text-sm font-medium text-stone-700 mb-1">
+            <label className="block text-sm font-medium text-admin-text mb-1">
               Select Player *
             </label>
             <select
               required
               value={selectedPlayer}
               onChange={(e) => setSelectedPlayer(e.target.value)}
-              className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+              className="w-full px-3 py-2 rounded-lg border border-admin-card-border text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
             >
               <option value="">Choose a player...</option>
               {availablePlayers.map((player) => (
@@ -76,26 +74,26 @@ function AddPlayerModal({ isOpen, onClose, availablePlayers, onAdd, isAdding }) 
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-stone-700 mb-1">
+              <label className="block text-sm font-medium text-admin-text mb-1">
                 Jersey #
               </label>
               <input
                 type="text"
                 value={jerseyNumber}
                 onChange={(e) => setJerseyNumber(e.target.value)}
-                className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+                className="w-full px-3 py-2 rounded-lg border border-admin-card-border text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
                 placeholder="23"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-stone-700 mb-1">
+              <label className="block text-sm font-medium text-admin-text mb-1">
                 Position
               </label>
               <select
                 value={position}
                 onChange={(e) => setPosition(e.target.value)}
-                className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+                className="w-full px-3 py-2 rounded-lg border border-admin-card-border text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
               >
                 <option value="">Select</option>
                 <option value="PG">Point Guard</option>
@@ -111,14 +109,14 @@ function AddPlayerModal({ isOpen, onClose, availablePlayers, onAdd, isAdding }) 
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-lg border border-stone-300 text-stone-700 hover:bg-stone-50 transition-colors"
+              className="px-4 py-2 rounded-lg border border-admin-card-border text-admin-text hover:bg-stone-50 transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isAdding || !selectedPlayer}
-              className="px-4 py-2 rounded-lg bg-tne-red hover:bg-tne-red-dark text-white font-medium transition-colors disabled:opacity-50 flex items-center gap-2"
+              className="px-4 py-2 rounded-lg bg-admin-red hover:opacity-85 text-white font-medium transition-colors disabled:opacity-50 flex items-center gap-2"
             >
               {isAdding && (
                 <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
@@ -156,12 +154,12 @@ function PaymentModal({ rosterEntry, onClose, onSave, isSaving }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="bg-white rounded-2xl w-full max-w-md shadow-xl">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-stone-200">
-          <h2 className="text-lg font-semibold text-stone-900">Update Payment</h2>
+      <div className="bg-white rounded-[14px] w-full max-w-md shadow-xl">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-admin-card-border">
+          <h2 className="text-base font-bold text-admin-text">Update Payment</h2>
           <button
             onClick={onClose}
-            className="p-1 hover:bg-stone-100 rounded-lg transition-colors text-stone-500"
+            className="p-1 hover:bg-stone-100 rounded-lg transition-colors text-admin-text-secondary"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -171,13 +169,13 @@ function PaymentModal({ rosterEntry, onClose, onSave, isSaving }) {
 
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div>
-            <label className="block text-sm font-medium text-stone-700 mb-1">
+            <label className="block text-sm font-medium text-admin-text mb-1">
               Payment Status
             </label>
             <select
               value={paymentStatus}
               onChange={(e) => setPaymentStatus(e.target.value)}
-              className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+              className="w-full px-3 py-2 rounded-lg border border-admin-card-border text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
             >
               <option value="pending">Pending</option>
               <option value="partial">Partial</option>
@@ -188,7 +186,7 @@ function PaymentModal({ rosterEntry, onClose, onSave, isSaving }) {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-stone-700 mb-1">
+              <label className="block text-sm font-medium text-admin-text mb-1">
                 Amount ($)
               </label>
               <input
@@ -196,33 +194,33 @@ function PaymentModal({ rosterEntry, onClose, onSave, isSaving }) {
                 step="0.01"
                 value={paymentAmount}
                 onChange={(e) => setPaymentAmount(e.target.value)}
-                className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+                className="w-full px-3 py-2 rounded-lg border border-admin-card-border text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
                 placeholder="600.00"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-stone-700 mb-1">
+              <label className="block text-sm font-medium text-admin-text mb-1">
                 Payment Date
               </label>
               <input
                 type="date"
                 value={paymentDate}
                 onChange={(e) => setPaymentDate(e.target.value)}
-                className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red"
+                className="w-full px-3 py-2 rounded-lg border border-admin-card-border text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-stone-700 mb-1">
+            <label className="block text-sm font-medium text-admin-text mb-1">
               Notes
             </label>
             <textarea
               value={paymentNotes}
               onChange={(e) => setPaymentNotes(e.target.value)}
               rows={2}
-              className="w-full px-3 py-2 rounded-lg border border-stone-300 text-stone-900 focus:outline-none focus:ring-2 focus:ring-tne-red/20 focus:border-tne-red resize-none"
+              className="w-full px-3 py-2 rounded-lg border border-admin-card-border text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40 resize-none"
               placeholder="Any payment notes..."
             />
           </div>
@@ -231,14 +229,14 @@ function PaymentModal({ rosterEntry, onClose, onSave, isSaving }) {
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-lg border border-stone-300 text-stone-700 hover:bg-stone-50 transition-colors"
+              className="px-4 py-2 rounded-lg border border-admin-card-border text-admin-text hover:bg-stone-50 transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSaving}
-              className="px-4 py-2 rounded-lg bg-tne-red hover:bg-tne-red-dark text-white font-medium transition-colors disabled:opacity-50 flex items-center gap-2"
+              className="px-4 py-2 rounded-lg bg-admin-red hover:opacity-85 text-white font-medium transition-colors disabled:opacity-50 flex items-center gap-2"
             >
               {isSaving && (
                 <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
@@ -263,9 +261,9 @@ function RemoveConfirmModal({ entry, onClose, onConfirm }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="bg-white rounded-2xl w-full max-w-md p-6 shadow-xl">
-        <h3 className="text-lg font-semibold text-stone-900 mb-2">Remove Player?</h3>
-        <p className="text-stone-600 mb-6">
+      <div className="bg-white rounded-[14px] w-full max-w-md p-6 shadow-xl">
+        <h3 className="text-base font-bold text-admin-text mb-2">Remove Player?</h3>
+        <p className="text-admin-text-secondary mb-6">
           Are you sure you want to remove{' '}
           <strong>
             {player.first_name} {player.last_name}
@@ -275,7 +273,7 @@ function RemoveConfirmModal({ entry, onClose, onConfirm }) {
         <div className="flex justify-end gap-3">
           <button
             onClick={onClose}
-            className="px-4 py-2 rounded-lg border border-stone-300 text-stone-700 hover:bg-stone-50 transition-colors"
+            className="px-4 py-2 rounded-lg border border-admin-card-border text-admin-text hover:bg-stone-50 transition-colors"
           >
             Cancel
           </button>
@@ -294,9 +292,9 @@ function RemoveConfirmModal({ entry, onClose, onConfirm }) {
 // Placeholder tabs
 function PracticeScheduleTab({ team }) {
   return (
-    <div className="bg-white rounded-2xl border border-stone-200 shadow-sm p-8 text-center">
+    <div className="bg-white rounded-[14px] border-[1.5px] border-admin-card-border shadow-sm p-8 text-center">
       <svg
-        className="w-12 h-12 mx-auto mb-4 text-stone-300"
+        className="w-12 h-12 mx-auto mb-4 text-admin-text-muted"
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"
@@ -308,8 +306,8 @@ function PracticeScheduleTab({ team }) {
           d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
         />
       </svg>
-      <h3 className="text-lg font-semibold text-stone-900 mb-2">Practice Schedule</h3>
-      <p className="text-stone-500 mb-4">
+      <h3 className="text-base font-bold text-admin-text mb-2">Practice Schedule</h3>
+      <p className="text-admin-text-secondary mb-4">
         {team?.practice_days && team?.practice_time ? (
           <>
             {team.practice_days} at {team.practice_time}
@@ -320,16 +318,16 @@ function PracticeScheduleTab({ team }) {
           'No practice schedule set'
         )}
       </p>
-      <p className="text-sm text-stone-400">Full schedule management coming soon</p>
+      <p className="text-sm text-admin-text-muted">Full schedule management coming soon</p>
     </div>
   );
 }
 
 function TournamentsTab() {
   return (
-    <div className="bg-white rounded-2xl border border-stone-200 shadow-sm p-8 text-center">
+    <div className="bg-white rounded-[14px] border-[1.5px] border-admin-card-border shadow-sm p-8 text-center">
       <svg
-        className="w-12 h-12 mx-auto mb-4 text-stone-300"
+        className="w-12 h-12 mx-auto mb-4 text-admin-text-muted"
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"
@@ -341,18 +339,18 @@ function TournamentsTab() {
           d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"
         />
       </svg>
-      <h3 className="text-lg font-semibold text-stone-900 mb-2">Tournaments</h3>
-      <p className="text-stone-500 mb-4">View and register for tournaments</p>
-      <p className="text-sm text-stone-400">Tournament management coming soon</p>
+      <h3 className="text-base font-bold text-admin-text mb-2">Tournaments</h3>
+      <p className="text-admin-text-secondary mb-4">View and register for tournaments</p>
+      <p className="text-sm text-admin-text-muted">Tournament management coming soon</p>
     </div>
   );
 }
 
 function CoachSettingsTab({ team }) {
   return (
-    <div className="bg-white rounded-2xl border border-stone-200 shadow-sm p-8 text-center">
+    <div className="bg-white rounded-[14px] border-[1.5px] border-admin-card-border shadow-sm p-8 text-center">
       <svg
-        className="w-12 h-12 mx-auto mb-4 text-stone-300"
+        className="w-12 h-12 mx-auto mb-4 text-admin-text-muted"
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"
@@ -370,13 +368,13 @@ function CoachSettingsTab({ team }) {
           d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
         />
       </svg>
-      <h3 className="text-lg font-semibold text-stone-900 mb-2">Coach & Settings</h3>
-      <p className="text-stone-500 mb-4">
+      <h3 className="text-base font-bold text-admin-text mb-2">Coach & Settings</h3>
+      <p className="text-admin-text-secondary mb-4">
         {team?.head_coach
           ? `Head Coach: ${team.head_coach.first_name} ${team.head_coach.last_name}`
           : 'No head coach assigned'}
       </p>
-      <p className="text-sm text-stone-400">Team settings management coming soon</p>
+      <p className="text-sm text-admin-text-muted">Team settings management coming soon</p>
     </div>
   );
 }
@@ -569,12 +567,12 @@ export default function AdminTeamDetailPage() {
 
             {/* Loading State */}
             {loading ? (
-              <div className="bg-white rounded-2xl border border-stone-200 shadow-sm overflow-hidden">
+              <div className="bg-white rounded-[14px] border-[1.5px] border-admin-card-border shadow-sm overflow-hidden">
                 <div className="space-y-3 p-4">
                   {[...Array(5)].map((_, i) => (
                     <div
                       key={i}
-                      className="h-12 bg-stone-100 rounded animate-pulse"
+                      className="h-12 bg-admin-content-bg rounded animate-pulse"
                     />
                   ))}
                 </div>
@@ -603,9 +601,7 @@ export default function AdminTeamDetailPage() {
   };
 
   return (
-    <div className="bg-stone-100 text-stone-900 antialiased min-h-screen">
-      <AdminNavbar />
-
+    <>
       {/* Header */}
       <TeamDetailHeader
         team={team}
@@ -618,9 +614,9 @@ export default function AdminTeamDetailPage() {
       <TeamDetailTabs activeTab={activeTab} onTabChange={setActiveTab} />
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+      <div className="max-w-7xl mx-auto">
         {renderTabContent()}
-      </main>
+      </div>
 
       {/* Modals */}
       <ParsePreviewModal
@@ -667,6 +663,6 @@ export default function AdminTeamDetailPage() {
         onClose={() => setRemoveConfirm(null)}
         onConfirm={handleRemove}
       />
-    </div>
+    </>
   );
 }

@@ -23,6 +23,7 @@ import {
   FileText,
   Clock,
 } from 'lucide-react';
+import Image from 'next/image';
 import InteriorLayout from '@/components/layouts/InteriorLayout';
 import { useTournamentDetail } from '@/hooks/useTournamentDetail';
 
@@ -232,10 +233,13 @@ function VenueCard({ venue }) {
     <div className="rounded-3xl bg-white border border-neutral-200 overflow-hidden">
       {venue.image_url && (
         <div className="relative h-48">
-          <img
+          <Image
             src={venue.image_url}
             alt={venue.name}
-            className="w-full h-full object-cover"
+            fill
+            sizes="(max-width: 768px) 100vw, 50vw"
+            className="object-cover"
+            unoptimized
           />
           <div className="absolute bottom-3 left-3">
             <span className="px-3 py-1 rounded-full bg-tne-red text-white text-xs font-medium">
