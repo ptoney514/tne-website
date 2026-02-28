@@ -18,6 +18,70 @@ import { NextResponse } from 'next/server';
 import { verifyTurnstile, isConfigured as isTurnstileConfigured } from '@/lib/turnstile.js';
 import { appendRegistration, isConfigured as isSheetsConfigured } from '@/lib/googleSheets.js';
 import { insertRegistration, isDatabaseConfigured } from '@/lib/registrationDb.js';
+import { sendRegistrationConfirmation, sendAdminRegistrationNotification } from '@/lib/email';
+
+/**
+ * Fire-and-forget registration emails (parent confirmation + admin notification)
+ */
+function sendRegistrationEmails(registration, referenceId) {
+  const playerName = `${registration.player_first_name} ${registration.player_last_name}`;
+  const parentName = [registration.parent_first_name, registration.parent_last_name].filter(Boolean).join(' ') || '';
+  const isSeason = registration.registration_type === 'season';
+  const teamOrSeasonName = registration.team_name || registration.season_name || (isSeason ? 'Season Registration' : 'Team Registration');
+
+  // Parent confirmation
+  if (registration.parent_email) {
+    sendRegistrationConfirmation({
+      to: registration.parent_email,
+      playerName,
+      registrationType: isSeason ? 'season' : 'team',
+      teamOrSeasonName,
+      parentName,
+      referenceId,
+    }).catch((err) => console.error('[Register] Failed to send confirmation email:', err));
+  }
+
+  // Build full address if available
+  const addressParts = [
+    registration.parent_address_street,
+    registration.parent_address_city,
+    registration.parent_address_state,
+    registration.parent_address_zip,
+  ].filter(Boolean);
+  const fullAddress = addressParts.length > 0 ? addressParts.join(', ') : '';
+
+  // Admin notification
+  sendAdminRegistrationNotification({
+    registrationType: isSeason ? 'season' : 'team',
+    referenceId,
+    playerFirstName: registration.player_first_name,
+    playerLastName: registration.player_last_name,
+    playerDob: registration.player_date_of_birth || '',
+    playerAge: registration.player_age || '',
+    playerGrade: registration.player_current_grade || '',
+    playerGender: registration.player_gender || '',
+    jerseySize: registration.jersey_size || '',
+    desiredJerseyNumber: registration.desired_jersey_number || '',
+    lastTeamPlayedFor: registration.last_team_played_for || '',
+    parentFirstName: registration.parent_first_name || '',
+    parentLastName: registration.parent_last_name || '',
+    parentEmail: registration.parent_email || '',
+    parentPhone: registration.parent_phone || '',
+    parentHomePhone: registration.parent_home_phone || '',
+    parentRelationship: registration.parent_relationship || '',
+    parentAddress: fullAddress,
+    parent2FirstName: registration.parent2_first_name || '',
+    parent2LastName: registration.parent2_last_name || '',
+    parent2Email: registration.parent2_email || '',
+    parent2Phone: registration.parent2_phone || '',
+    parent2HomePhone: registration.parent2_home_phone || '',
+    parent2Relationship: registration.parent2_relationship || '',
+    emergencyContactName: registration.emergency_contact_name || '',
+    emergencyContactPhone: registration.emergency_contact_phone || '',
+    teamOrSeasonName,
+    paymentPlan: registration.payment_plan_type || '',
+  }).catch((err) => console.error('[Register] Failed to send admin notification:', err));
+}
 
 // Simple rate limiting map (per IP, in-memory)
 // Note: This resets on each serverless cold start, but provides some protection
@@ -191,6 +255,9 @@ export async function POST(request) {
         }
       }
 
+      // Fire-and-forget registration emails
+      sendRegistrationEmails(registration, sheetsResult.registrationId);
+
       // Success!
       return NextResponse.json({
         success: true,
@@ -210,6 +277,7 @@ export async function POST(request) {
         const supabaseResult = await insertRegistration(registration);
         if (supabaseResult.success && !supabaseResult.skipped) {
           console.log('[Register] Registration saved to Supabase:', supabaseResult.id);
+          sendRegistrationEmails(registration, referenceId);
           return NextResponse.json({
             success: true,
             referenceId,

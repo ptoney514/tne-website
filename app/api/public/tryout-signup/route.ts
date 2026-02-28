@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { tryoutSignups, tryoutSessions } from '@/lib/schema';
 import { eq, sql } from 'drizzle-orm';
-import { sendTryoutConfirmation } from '@/lib/email';
+import { sendTryoutConfirmation, sendAdminTryoutNotification } from '@/lib/email';
 
 interface TryoutSignupPayload {
   tryout_session_id: string;
@@ -132,14 +132,34 @@ export async function POST(request: NextRequest) {
       .returning();
 
     // Fire-and-forget confirmation email
+    const sessionTime = `${session.startTime}${session.endTime ? ` - ${session.endTime}` : ''}`;
     sendTryoutConfirmation({
       to: body.parent_email,
       playerName: `${body.player_first_name} ${body.player_last_name}`,
       sessionDate: session.date,
-      sessionTime: `${session.startTime}${session.endTime ? ` - ${session.endTime}` : ''}`,
+      sessionTime,
       location: session.location,
       grades: session.gradeLevels,
     }).catch((err) => console.error('Failed to send confirmation email:', err));
+
+    // Fire-and-forget admin notification
+    sendAdminTryoutNotification({
+      playerFirstName: body.player_first_name,
+      playerLastName: body.player_last_name,
+      playerDob: body.player_date_of_birth,
+      playerGrade: body.player_current_grade,
+      playerGender: body.player_gender,
+      playerSchool: '',
+      parentFirstName: body.parent_first_name,
+      parentLastName: body.parent_last_name,
+      parentEmail: body.parent_email,
+      parentPhone: body.parent_phone,
+      relationship: body.emergency_contact_relationship,
+      sessionDate: session.date,
+      sessionTime,
+      location: session.location,
+      grades: session.gradeLevels,
+    }).catch((err) => console.error('Failed to send admin tryout notification:', err));
 
     return NextResponse.json(
       {

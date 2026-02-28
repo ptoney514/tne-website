@@ -18,7 +18,6 @@ import {
 
   PlayCircle,
   Sparkles,
-  Camera,
 } from 'lucide-react';
 import InteriorLayout from '@/components/layouts/InteriorLayout';
 import TryoutSessionRow from '@/components/tryouts/TryoutSessionRow';
@@ -478,14 +477,6 @@ export default function TryoutsPage() {
                     <Bell className="w-4 h-4" />
                     Get notified of future tryouts
                   </Link>
-                </div>
-
-                {/* Placeholder Image */}
-                <div className="rounded-2xl overflow-hidden bg-neutral-200 h-48 sm:h-56 flex flex-col items-center justify-center mb-8">
-                  <Camera className="w-8 h-8 text-neutral-400 mb-2" />
-                  <span className="text-sm text-neutral-400 font-medium">
-                    Tryout photo coming soon
-                  </span>
                 </div>
 
                 {/* Gender Filter */}
