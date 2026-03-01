@@ -1,5 +1,4 @@
-import { useState, useEffect } from 'react';
-import { useCoaches } from '@/hooks/useCoaches';
+import { useState } from 'react';
 import { getGradeColor, formatGradeShort } from '@/utils/gradeColors';
 import {
   X,
@@ -129,43 +128,12 @@ function StatBox({ label, value, icon }) {
 }
 
 export default function CoachDetailPanel({ coach, onClose, onEdit, onDelete }) {
-  const { getCoachingHistory, getPlayersCoached } = useCoaches();
   const [activeTab, setActiveTab] = useState('overview');
-  const [history, setHistory] = useState([]);
-  const [playersCount, setPlayersCount] = useState(0);
-  const [loadingHistory, setLoadingHistory] = useState(true);
 
-  useEffect(() => {
-    let isMounted = true;
-
-    async function loadCoachDetails() {
-      if (!coach?.id) return;
-
-      try {
-        const [historyData, count] = await Promise.all([
-          getCoachingHistory(coach.id),
-          getPlayersCoached(coach.id),
-        ]);
-
-        if (isMounted) {
-          setHistory(historyData || []);
-          setPlayersCount(count || 0);
-          setLoadingHistory(false);
-        }
-      } catch (err) {
-        console.error('Error loading coach details:', err);
-        if (isMounted) {
-          setLoadingHistory(false);
-        }
-      }
-    }
-
-    loadCoachDetails();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [coach?.id, getCoachingHistory, getPlayersCoached]);
+  // Derive history directly from the coach prop — no extra hook/fetch needed
+  const history = coach?.team_assignments || [];
+  const playersCount = 0;
+  const loadingHistory = false;
 
   if (!coach) return null;
 
