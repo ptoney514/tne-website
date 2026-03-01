@@ -585,9 +585,9 @@ export default function AdminDashboard() {
             href="/admin/games"
           />
           <StatCard
-            label="Players"
+            label="Active Players"
             value={stats.players}
-            subtitle={stats.players > 0 ? `${stats.players} total` : 'No players yet'}
+            subtitle={stats.players > 0 ? `${stats.players} on roster` : 'No active players'}
             loading={loading}
             href="/admin/players"
           />

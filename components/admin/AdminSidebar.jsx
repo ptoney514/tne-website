@@ -22,7 +22,7 @@ const NAV_GROUPS = [
     label: 'ROSTER MANAGEMENT',
     items: [
       { href: '/admin/teams', label: 'Teams', icon: '⊞' },
-      { href: '/admin/players', label: 'Players', icon: '◉', badgeKey: 'players' },
+      { href: '/admin/players', label: 'Active Players', icon: '◉' },
       { href: '/admin/coaches', label: 'Coaches', icon: '◈', adminOnly: true },
     ],
   },
