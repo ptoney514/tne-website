@@ -622,7 +622,7 @@ export default function HomePage() {
             </h2>
 
             <p className="text-lg text-stone-500 mb-10 max-w-xl mx-auto leading-relaxed">
-              Fall/Winter 2025-26 evaluations are approaching. Spaces are limited by team capacity. Secure your spot at tryouts today.
+              Summer 2026 evaluations are approaching. Spaces are limited by team capacity. Secure your spot at tryouts today.
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
