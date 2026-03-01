@@ -532,19 +532,7 @@ export default function HomePage() {
 
             <div className="flex flex-wrap items-center justify-center gap-12 lg:gap-20">
               <div className="group cursor-pointer transition-all duration-300 opacity-40 grayscale hover:opacity-100 hover:grayscale-0">
-                <div className="font-bold text-3xl tracking-tighter text-stone-900">adidas</div>
-              </div>
-              <div className="group cursor-pointer transition-all duration-300 opacity-40 grayscale hover:opacity-100 hover:grayscale-0">
-                <div className="font-bold text-xl tracking-tight text-stone-900">PREP HOOPS</div>
-              </div>
-              <div className="group cursor-pointer transition-all duration-300 opacity-40 grayscale hover:opacity-100 hover:grayscale-0">
-                <div className="font-bold text-xl tracking-tight text-stone-900">NY2LA</div>
-              </div>
-              <div className="group cursor-pointer transition-all duration-300 opacity-40 grayscale hover:opacity-100 hover:grayscale-0">
-                <div className="font-bold text-xl tracking-tight text-stone-900">SLAM</div>
-              </div>
-              <div className="group cursor-pointer transition-all duration-300 opacity-40 grayscale hover:opacity-100 hover:grayscale-0">
-                <div className="font-bold text-lg tracking-tight text-stone-900">BASKETBALL NEBRASKA</div>
+                <div className="font-bold text-2xl tracking-tight text-stone-900">MALIBU HOMES</div>
               </div>
             </div>
           </div>

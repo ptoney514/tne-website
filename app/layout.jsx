@@ -7,6 +7,7 @@ export const dynamic = 'force-dynamic';
 export const metadata = {
   title: 'TNE United Express Basketball',
   description: 'Youth basketball program',
+  themeColor: '#0a0a0a',
 };
 
 export default function RootLayout({ children }) {
