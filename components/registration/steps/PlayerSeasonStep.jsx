@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { AlertCircle } from 'lucide-react';
 import { useWizard } from '../WizardContext';
 import { validateSeasonStep1 } from '../wizardValidation';
@@ -30,6 +31,13 @@ export default function PlayerSeasonStep({ seasons = [] }) {
     clearValidationError,
     nextStep,
   } = useWizard();
+
+  // Auto-set seasonId when there's only one season
+  useEffect(() => {
+    if (seasons.length === 1 && formData.seasonId !== seasons[0].id) {
+      updateField('seasonId', seasons[0].id);
+    }
+  }, [seasons, formData.seasonId, updateField]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
