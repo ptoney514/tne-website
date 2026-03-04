@@ -47,6 +47,7 @@ export async function GET(request: NextRequest) {
     // Get team assignments for all players
     const playerIds = playersData.map((p) => p.id);
     let rosterData: Array<{
+      rosterId: string;
       playerId: string;
       teamId: string;
       teamName: string;
@@ -56,11 +57,18 @@ export async function GET(request: NextRequest) {
       seasonName: string;
       isActive: boolean;
       jerseyNumber: string | null;
+      position: string | null;
+      notes: string | null;
+      paymentStatus: string | null;
+      paymentAmount: string | null;
+      paymentDate: string | null;
+      paymentNotes: string | null;
     }> = [];
 
     if (playerIds.length > 0) {
       rosterData = await db
         .select({
+          rosterId: teamRoster.id,
           playerId: teamRoster.playerId,
           teamId: teamRoster.teamId,
           teamName: teams.name,
@@ -70,6 +78,12 @@ export async function GET(request: NextRequest) {
           seasonName: seasons.name,
           isActive: teamRoster.isActive,
           jerseyNumber: teamRoster.jerseyNumber,
+          position: teamRoster.position,
+          notes: teamRoster.notes,
+          paymentStatus: teamRoster.paymentStatus,
+          paymentAmount: teamRoster.paymentAmount,
+          paymentDate: teamRoster.paymentDate,
+          paymentNotes: teamRoster.paymentNotes,
         })
         .from(teamRoster)
         .innerJoin(teams, eq(teamRoster.teamId, teams.id))
@@ -82,6 +96,7 @@ export async function GET(request: NextRequest) {
       (acc, r) => {
         if (!acc[r.playerId]) acc[r.playerId] = [];
         acc[r.playerId].push({
+          roster_id: r.rosterId,
           team_id: r.teamId,
           team_name: r.teamName,
           grade_level: r.gradeLevel,
@@ -90,6 +105,12 @@ export async function GET(request: NextRequest) {
           season_name: r.seasonName,
           is_active: r.isActive,
           jersey_number: r.jerseyNumber,
+          position: r.position,
+          notes: r.notes,
+          payment_status: r.paymentStatus,
+          payment_amount: r.paymentAmount,
+          payment_date: r.paymentDate,
+          payment_notes: r.paymentNotes,
         });
         return acc;
       },

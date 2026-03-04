@@ -8,6 +8,13 @@
       "when": 1772294180153,
       "tag": "0000_abnormal_whiplash",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1772582504682,
+      "tag": "0001_aspiring_vin_gonzales",
+      "breakpoints": true
     }
   ]
 }

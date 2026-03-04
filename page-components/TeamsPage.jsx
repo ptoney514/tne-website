@@ -25,11 +25,15 @@ function formatCoachName(coach) {
   return `Coach: ${coach.last_name}`;
 }
 
-// Extract raw grade (e.g., "4th" from "4th Grade" or "4th")
+// Extract raw grade (e.g., "4th" from "4th Grade" or "4")
 function extractGrade(gradeLevel) {
   if (!gradeLevel) return null;
   const match = gradeLevel.match(/(\d+)(st|nd|rd|th)?/i);
-  return match ? `${match[1]}${match[2] || 'th'}` : null;
+  if (!match) return null;
+  if (match[2]) return `${match[1]}${match[2]}`;
+  const n = parseInt(match[1], 10);
+  const suffixes = { 1: 'st', 2: 'nd', 3: 'rd' };
+  return `${n}${(n >= 11 && n <= 13) ? 'th' : (suffixes[n % 10] || 'th')}`;
 }
 
 // Transform Supabase team data for display
@@ -247,6 +251,7 @@ export default function TeamsPage() {
   // Grade options
   const gradeOptions = [
     { value: 'all', label: 'All Grades' },
+    { value: '3', label: '3rd Grade' },
     { value: '4', label: '4th Grade' },
     { value: '5', label: '5th Grade' },
     { value: '6', label: '6th Grade' },

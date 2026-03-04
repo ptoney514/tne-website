@@ -79,6 +79,7 @@ export async function GET(
         playerLastName: players.lastName,
         playerJerseyNumber: players.jerseyNumber,
         playerGraduatingYear: players.graduatingYear,
+        notes: teamRoster.notes,
       })
       .from(teamRoster)
       .innerJoin(players, eq(teamRoster.playerId, players.id))
@@ -118,6 +119,7 @@ export async function GET(
         id: r.id,
         jersey_number: r.jerseyNumber || r.playerJerseyNumber,
         position: r.position,
+        notes: r.notes,
         player: {
           id: r.playerId,
           first_name: r.playerFirstName,

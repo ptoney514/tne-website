@@ -171,8 +171,7 @@ export function useTeamRoster(teamId) {
   };
 
   const updateRosterEntry = async (rosterId, data) => {
-    // This would need a specific endpoint for roster entry updates
-    console.log('updateRosterEntry not yet implemented', rosterId, data);
+    await api.patch(`/admin/roster?id=${rosterId}`, data);
     await fetchRoster();
   };
 

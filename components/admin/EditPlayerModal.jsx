@@ -16,12 +16,19 @@ const POSITIONS = [
   { value: 'C', label: 'Center (C)' },
 ];
 
+// Find the roster entry for a specific team from team_assignments
+function getRosterAssignment(entry, teamId) {
+  if (!entry?.team_assignments || !teamId) return null;
+  return entry.team_assignments.find(ta => ta.team_id === teamId) || null;
+}
+
 // Derive initial form data from entry
-function getInitialFormData(entry) {
+function getInitialFormData(entry, teamId) {
   if (!entry) {
     return {
       jerseyNumber: '',
       position: '',
+      notes: '',
       parentFirstName: '',
       parentLastName: '',
       parentPhone: '',
@@ -29,10 +36,12 @@ function getInitialFormData(entry) {
     };
   }
   const player = entry.player || {};
-  const parent = player.primary_parent;
+  const parent = player.primary_parent || entry.primary_parent;
+  const rosterAssignment = getRosterAssignment(entry, teamId);
   return {
-    jerseyNumber: entry.jersey_number || player.jersey_number || '',
-    position: entry.position || player.position || '',
+    jerseyNumber: rosterAssignment?.jersey_number || entry.jersey_number || player.jersey_number || '',
+    position: rosterAssignment?.position || entry.position || player.position || '',
+    notes: rosterAssignment?.notes || '',
     parentFirstName: parent?.first_name || '',
     parentLastName: parent?.last_name || '',
     parentPhone: parent?.phone || '',
@@ -44,12 +53,13 @@ export default function EditPlayerModal({
   isOpen,
   onClose,
   entry,
+  teamId,
   gradeLevel,
   onSave,
   isSaving = false,
 }) {
   // Use entry.id as key to reset form state when entry changes
-  const initialData = useMemo(() => getInitialFormData(entry), [entry]);
+  const initialData = useMemo(() => getInitialFormData(entry, teamId), [entry, teamId]);
   const [formData, setFormData] = useState(initialData);
 
   // Reset form when entry changes (using key pattern via useMemo)
@@ -60,17 +70,20 @@ export default function EditPlayerModal({
   if (!isOpen || !entry) return null;
 
   const player = entry.player || {};
+  const parent = player.primary_parent || entry.primary_parent;
+  const rosterAssignment = getRosterAssignment(entry, teamId);
   const gradeColor = getGradeColor(gradeLevel);
 
   const handleSubmit = (e) => {
     e.preventDefault();
     onSave({
-      rosterId: entry.id,
-      playerId: player.id,
-      parentId: player.primary_parent?.id,
+      rosterId: rosterAssignment?.roster_id || entry.id,
+      playerId: player.id || entry.id,
+      parentId: parent?.id,
       rosterData: {
         jersey_number: formData.jerseyNumber || null,
         position: formData.position || null,
+        notes: formData.notes || null,
       },
       parentData: {
         first_name: formData.parentFirstName,
@@ -108,7 +121,7 @@ export default function EditPlayerModal({
           </div>
           <div>
             <h2 className="text-base font-bold text-admin-text">
-              Edit {player.first_name} {player.last_name}
+              Edit {player.first_name || entry.first_name} {player.last_name || entry.last_name}
             </h2>
             <p className="text-sm text-admin-text-secondary">{gradeLevel} Grade</p>
           </div>
@@ -171,6 +184,22 @@ export default function EditPlayerModal({
                   ))}
                 </select>
               </div>
+            </div>
+
+            {/* Notes */}
+            <div className="mt-4">
+              <label className="block text-xs font-medium text-admin-text-secondary mb-1.5">
+                Notes
+              </label>
+              <textarea
+                value={formData.notes}
+                onChange={(e) =>
+                  setFormData({ ...formData, notes: e.target.value })
+                }
+                placeholder="e.g. Will swing for some tournaments"
+                rows={2}
+                className="w-full px-3 py-2.5 text-sm border border-admin-card-border rounded-lg focus:outline-none focus:ring-2 focus:ring-admin-red/20 focus:border-admin-red/40 resize-none"
+              />
             </div>
           </div>
 
@@ -266,7 +295,7 @@ export default function EditPlayerModal({
             </div>
 
             {/* Info note */}
-            {!player.primary_parent && hasParentChanges && (
+            {!parent && hasParentChanges && (
               <p className="mt-3 text-xs text-blue-600 bg-blue-50 px-3 py-2 rounded-lg">
                 A new parent record will be created and linked to this player.
               </p>

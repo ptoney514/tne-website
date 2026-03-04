@@ -64,7 +64,14 @@ export async function GET(request: NextRequest) {
         isCancelled: games.isCancelled,
       })
       .from(games)
-      .where(gte(games.date, today))
+      .where(
+        and(
+          gte(games.date, today),
+          teamId
+            ? sql`${games.id} IN (SELECT ${gameTeams.gameId} FROM ${gameTeams} WHERE ${gameTeams.teamId} = ${teamId})`
+            : sql`true`
+        )
+      )
       .orderBy(games.date, games.startTime)
       .limit(limit);
 

@@ -28,6 +28,7 @@ function shouldOpenUpward(buttonElement) {
 
 export default function RosterTableRow({
   entry,
+  teamId,
   gradeLevel,
   onEdit,
   onUpdatePayment,
@@ -46,9 +47,15 @@ export default function RosterTableRow({
   };
 
   const player = entry.player || {};
-  const parent = player.primary_parent;
+  const parent = player.primary_parent || entry.primary_parent;
 
-  const jerseyNumber = entry.jersey_number || player.jersey_number;
+  // Resolve roster-specific data from team_assignments if available
+  const rosterAssignment = teamId && entry.team_assignments
+    ? entry.team_assignments.find(ta => ta.team_id === teamId)
+    : null;
+  const rosterNotes = rosterAssignment?.notes || entry.notes;
+
+  const jerseyNumber = rosterAssignment?.jersey_number || entry.jersey_number || player.jersey_number;
   const position = entry.position || player.position;
   const statusLabel =
     entry.payment_status?.charAt(0).toUpperCase() +
@@ -64,9 +71,19 @@ export default function RosterTableRow({
       {/* Player Name & Grade */}
       <td className="px-5 py-4">
         <div className="font-medium text-admin-text">
-          {player.first_name} {player.last_name}
+          {player.first_name || entry.first_name} {player.last_name || entry.last_name}
+          {rosterNotes && (
+            <span className="ml-1.5 text-xs text-amber-600" title={rosterNotes}>*</span>
+          )}
         </div>
-        <div className="text-xs text-admin-text-secondary">{player.current_grade} Grade</div>
+        <div className="text-xs text-admin-text-secondary">
+          {player.current_grade || entry.current_grade} Grade
+          {rosterNotes && (
+            <span className="ml-1 text-amber-500 truncate max-w-[180px] inline-block align-bottom" title={rosterNotes}>
+              — {rosterNotes}
+            </span>
+          )}
+        </div>
       </td>
 
       {/* Position */}
