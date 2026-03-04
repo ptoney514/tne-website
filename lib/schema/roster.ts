@@ -29,6 +29,7 @@ export const teamRoster = pgTable(
     paymentAmount: decimal('payment_amount', { precision: 10, scale: 2 }),
     paymentDate: date('payment_date'),
     paymentNotes: text('payment_notes'),
+    notes: text('notes'),
     joinedDate: date('joined_date').notNull().defaultNow(),
     isActive: boolean('is_active').notNull().default(true),
     createdAt: timestamp('created_at').notNull().defaultNow(),

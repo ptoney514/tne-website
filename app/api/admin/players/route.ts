@@ -47,6 +47,7 @@ export async function GET(request: NextRequest) {
     // Get team assignments for all players
     const playerIds = playersData.map((p) => p.id);
     let rosterData: Array<{
+      rosterId: string;
       playerId: string;
       teamId: string;
       teamName: string;
@@ -56,11 +57,13 @@ export async function GET(request: NextRequest) {
       seasonName: string;
       isActive: boolean;
       jerseyNumber: string | null;
+      notes: string | null;
     }> = [];
 
     if (playerIds.length > 0) {
       rosterData = await db
         .select({
+          rosterId: teamRoster.id,
           playerId: teamRoster.playerId,
           teamId: teamRoster.teamId,
           teamName: teams.name,
@@ -70,6 +73,7 @@ export async function GET(request: NextRequest) {
           seasonName: seasons.name,
           isActive: teamRoster.isActive,
           jerseyNumber: teamRoster.jerseyNumber,
+          notes: teamRoster.notes,
         })
         .from(teamRoster)
         .innerJoin(teams, eq(teamRoster.teamId, teams.id))
@@ -82,6 +86,7 @@ export async function GET(request: NextRequest) {
       (acc, r) => {
         if (!acc[r.playerId]) acc[r.playerId] = [];
         acc[r.playerId].push({
+          roster_id: r.rosterId,
           team_id: r.teamId,
           team_name: r.teamName,
           grade_level: r.gradeLevel,
@@ -90,6 +95,7 @@ export async function GET(request: NextRequest) {
           season_name: r.seasonName,
           is_active: r.isActive,
           jersey_number: r.jerseyNumber,
+          notes: r.notes,
         });
         return acc;
       },

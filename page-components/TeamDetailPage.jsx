@@ -99,6 +99,7 @@ function PlayerRow({ player, rosterEntry, index, isLast }) {
   const jerseyNumber = rosterEntry.jersey_number || player.jersey_number || '—';
   const playerName = `${player.first_name} ${player.last_name}`;
   const gradYear = player.graduating_year;
+  const hasNote = !!rosterEntry.notes;
 
   return (
     <div
@@ -110,6 +111,7 @@ function PlayerRow({ player, rosterEntry, index, isLast }) {
       </div>
       <div className="flex-1 min-w-0">
         <h4 className="font-medium text-neutral-900 group-hover:text-tne-red transition-colors">
+          {hasNote && <span className="text-tne-red">* </span>}
           {playerName}
         </h4>
         {gradYear && (
@@ -341,22 +343,50 @@ export default function TeamDetailPage() {
 
             {/* ─── Left Column ─── */}
             <div className="lg:col-span-7 space-y-8">
-              {/* Practice Schedule */}
+              {/* Roster */}
               <SectionCard>
-                <SectionHeader icon={Dumbbell} title="Practice Schedule" />
+                <SectionHeader
+                  icon={Users}
+                  title="Roster"
+                  action={
+                    rosterCount > 0 && (
+                      <span className="text-xs font-mono text-neutral-400 uppercase tracking-wider">
+                        {rosterCount} player{rosterCount !== 1 ? 's' : ''}
+                      </span>
+                    )
+                  }
+                />
                 <div className="px-5 py-2">
-                  {practices.length > 0 ? (
-                    practices.map((practice, index) => (
-                      <PracticeItem
-                        key={practice.id}
-                        practice={practice}
-                        isLast={index === practices.length - 1}
-                      />
-                    ))
+                  {roster.length > 0 ? (
+                    <>
+                      {roster.map((entry, index) => (
+                        <PlayerRow
+                          key={entry.id}
+                          player={entry.player}
+                          rosterEntry={entry}
+                          index={index}
+                          isLast={index === roster.length - 1}
+                        />
+                      ))}
+                      {/* Roster footnotes */}
+                      {(() => {
+                        const uniqueNotes = [...new Set(roster.filter(e => e.notes).map(e => e.notes))];
+                        if (uniqueNotes.length === 0) return null;
+                        return (
+                          <div className="mt-3 pt-3 border-t border-neutral-100">
+                            {uniqueNotes.map((note, i) => (
+                              <p key={i} className="text-xs text-neutral-400 leading-relaxed">
+                                <span className="text-tne-red font-medium">*</span> {note}
+                              </p>
+                            ))}
+                          </div>
+                        );
+                      })()}
+                    </>
                   ) : (
                     <EmptyState
-                      icon={Dumbbell}
-                      message="Practice schedule will be posted once the season begins"
+                      icon={Users}
+                      message="Roster will be announced soon"
                     />
                   )}
                 </div>
@@ -399,34 +429,22 @@ export default function TeamDetailPage() {
 
             {/* ─── Right Column ─── */}
             <div className="lg:col-span-5 space-y-8">
-              {/* Roster */}
+              {/* Practice Schedule */}
               <SectionCard>
-                <SectionHeader
-                  icon={Users}
-                  title="Roster"
-                  action={
-                    rosterCount > 0 && (
-                      <span className="text-xs font-mono text-neutral-400 uppercase tracking-wider">
-                        {rosterCount} player{rosterCount !== 1 ? 's' : ''}
-                      </span>
-                    )
-                  }
-                />
+                <SectionHeader icon={Dumbbell} title="Practice Schedule" />
                 <div className="px-5 py-2">
-                  {roster.length > 0 ? (
-                    roster.map((entry, index) => (
-                      <PlayerRow
-                        key={entry.id}
-                        player={entry.player}
-                        rosterEntry={entry}
-                        index={index}
-                        isLast={index === roster.length - 1}
+                  {practices.length > 0 ? (
+                    practices.map((practice, index) => (
+                      <PracticeItem
+                        key={practice.id}
+                        practice={practice}
+                        isLast={index === practices.length - 1}
                       />
                     ))
                   ) : (
                     <EmptyState
-                      icon={Users}
-                      message="Roster will be announced soon"
+                      icon={Dumbbell}
+                      message="Practice schedule will be posted once the season begins"
                     />
                   )}
                 </div>

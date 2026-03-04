@@ -580,6 +580,7 @@ export default function AdminTeamDetailPage() {
             ) : (
               <EnhancedRosterTable
                 roster={roster}
+                teamId={teamId}
                 gradeLevel={team?.grade_level}
                 onEdit={setEditModal}
                 onUpdatePayment={setPaymentModal}
@@ -642,6 +643,7 @@ export default function AdminTeamDetailPage() {
           isOpen={!!editModal}
           onClose={() => setEditModal(null)}
           entry={editModal}
+          teamId={teamId}
           gradeLevel={team?.grade_level}
           onSave={handleEditPlayer}
           isSaving={isEditing}
