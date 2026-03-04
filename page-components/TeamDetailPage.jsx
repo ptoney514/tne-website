@@ -6,11 +6,9 @@ import {
   CalendarDays,
   Clock,
   MapPin,
-  Award,
   ChevronRight,
   Loader2,
   AlertCircle,
-  Dumbbell,
   Trophy,
 } from 'lucide-react';
 import InteriorLayout from '@/components/layouts/InteriorLayout';
@@ -124,36 +122,40 @@ function PlayerRow({ player, rosterEntry, index, isLast }) {
   );
 }
 
-/* ─── Practice Item ─── */
-function PracticeItem({ practice, isLast }) {
+/* ─── Practice Strip (Hero metadata) ─── */
+function PracticeStrip({ practices }) {
+  if (!practices || practices.length === 0) return null;
+
+  const days = practices
+    .map((p) => formatDay(p.dayOfWeek || p.day_of_week))
+    .filter(Boolean);
+  const firstWithTime = practices.find((p) => p.startTime || p.start_time);
+  const firstWithLocation = practices.find((p) => p.location);
+
+  const timeStr = firstWithTime
+    ? `${formatTime(firstWithTime.startTime || firstWithTime.start_time)}${(firstWithTime.endTime || firstWithTime.end_time) ? ` – ${formatTime(firstWithTime.endTime || firstWithTime.end_time)}` : ''}`
+    : null;
+
   return (
-    <div className={`flex items-start gap-4 py-4 ${!isLast ? 'border-b border-neutral-100' : ''}`}>
-      <div className="w-10 h-10 flex items-center justify-center bg-emerald-50 rounded-2xl flex-shrink-0">
-        <Dumbbell className="w-4 h-4 text-emerald-600" />
-      </div>
-      <div className="flex-1 min-w-0">
-        <h4 className="font-medium text-neutral-900 text-sm">
-          {formatDay(practice.dayOfWeek || practice.day_of_week)}
-        </h4>
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-[0.8rem] text-neutral-500">
-          {(practice.startTime || practice.start_time) && (
-            <span className="inline-flex items-center gap-1.5">
-              <Clock className="w-3 h-3" />
-              {formatTime(practice.startTime || practice.start_time)}
-              {(practice.endTime || practice.end_time) && ` – ${formatTime(practice.endTime || practice.end_time)}`}
-            </span>
-          )}
-          {practice.location && (
-            <span className="inline-flex items-center gap-1.5">
-              <MapPin className="w-3 h-3" />
-              {practice.location}
-            </span>
-          )}
-        </div>
-        {practice.notes && (
-          <p className="mt-1 text-xs text-neutral-400">{practice.notes}</p>
-        )}
-      </div>
+    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-white/50">
+      {days.length > 0 && (
+        <span className="inline-flex items-center gap-1.5">
+          <CalendarDays className="w-3.5 h-3.5" />
+          {days.join(', ')}
+        </span>
+      )}
+      {timeStr && (
+        <span className="inline-flex items-center gap-1.5">
+          <Clock className="w-3.5 h-3.5" />
+          {timeStr}
+        </span>
+      )}
+      {firstWithLocation && (
+        <span className="inline-flex items-center gap-1.5">
+          <MapPin className="w-3.5 h-3.5" />
+          {firstWithLocation.location}
+        </span>
+      )}
     </div>
   );
 }
@@ -324,13 +326,16 @@ export default function TeamDetailPage() {
               <p className="mt-3 text-base text-white/50 flex flex-wrap items-center gap-x-3 gap-y-1">
                 {coachName && <span>{coachName}</span>}
                 {!coachName && <span className="italic">Coach TBA</span>}
-                {team.practice_location && (
+                {team.assistant_coach && (
                   <>
-                    <span className="text-white/20">·</span>
-                    <span>{team.practice_location}</span>
+                    <span className="text-white/20">|</span>
+                    <span>{formatCoachName(team.assistant_coach)}</span>
                   </>
                 )}
               </p>
+              <div className="mt-2">
+                <PracticeStrip practices={practices} />
+              </div>
             </div>
           </div>
         </div>
@@ -339,158 +344,89 @@ export default function TeamDetailPage() {
       {/* ─── Content ─── */}
       <main className="flex-1 w-full bg-neutral-50 text-neutral-900">
         <section className="max-w-6xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10">
-
-            {/* ─── Left Column ─── */}
-            <div className="lg:col-span-7 space-y-8">
-              {/* Roster */}
-              <SectionCard>
-                <SectionHeader
-                  icon={Users}
-                  title="Roster"
-                  action={
-                    rosterCount > 0 && (
-                      <span className="text-xs font-mono text-neutral-400 uppercase tracking-wider">
-                        {rosterCount} player{rosterCount !== 1 ? 's' : ''}
-                      </span>
-                    )
-                  }
-                />
-                <div className="px-5 py-2">
-                  {roster.length > 0 ? (
-                    <>
-                      {roster.map((entry, index) => (
-                        <PlayerRow
-                          key={entry.id}
-                          player={entry.player}
-                          rosterEntry={entry}
-                          index={index}
-                          isLast={index === roster.length - 1}
-                        />
-                      ))}
-                      {/* Roster footnotes */}
-                      {(() => {
-                        const uniqueNotes = [...new Set(roster.filter(e => e.notes).map(e => e.notes))];
-                        if (uniqueNotes.length === 0) return null;
-                        return (
-                          <div className="mt-3 pt-3 border-t border-neutral-100">
-                            {uniqueNotes.map((note, i) => (
-                              <p key={i} className="text-xs text-neutral-400 leading-relaxed">
-                                <span className="text-tne-red font-medium">*</span> {note}
-                              </p>
-                            ))}
-                          </div>
-                        );
-                      })()}
-                    </>
-                  ) : (
-                    <EmptyState
-                      icon={Users}
-                      message="Roster will be announced soon"
-                    />
-                  )}
-                </div>
-              </SectionCard>
-
-              {/* Tournament & Game Schedule */}
-              <SectionCard>
-                <SectionHeader
-                  icon={CalendarDays}
-                  title="Schedule"
-                  action={
-                    <Link
-                      href="/schedule"
-                      className="inline-flex items-center gap-1 text-xs font-medium text-tne-red hover:text-tne-red-dark transition-colors group"
-                    >
-                      Full Schedule
-                      <ChevronRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
-                    </Link>
-                  }
-                />
-                <div className="px-5 py-5">
-                  {schedule.length > 0 ? (
-                    schedule.map((item, index) => (
-                      <ScheduleItem
-                        key={item.id}
-                        item={item}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10">
+            {/* ─── Roster ─── */}
+            <SectionCard>
+              <SectionHeader
+                icon={Users}
+                title="Roster"
+                action={
+                  rosterCount > 0 && (
+                    <span className="text-xs font-mono text-neutral-400 uppercase tracking-wider">
+                      {rosterCount} player{rosterCount !== 1 ? 's' : ''}
+                    </span>
+                  )
+                }
+              />
+              <div className="px-5 py-2">
+                {roster.length > 0 ? (
+                  <>
+                    {roster.map((entry, index) => (
+                      <PlayerRow
+                        key={entry.id}
+                        player={entry.player}
+                        rosterEntry={entry}
                         index={index}
-                        isLast={index === schedule.length - 1}
+                        isLast={index === roster.length - 1}
                       />
-                    ))
-                  ) : (
-                    <EmptyState
-                      icon={Trophy}
-                      message="Tournament schedule coming soon — check back as the season approaches"
-                    />
-                  )}
-                </div>
-              </SectionCard>
-            </div>
-
-            {/* ─── Right Column ─── */}
-            <div className="lg:col-span-5 space-y-8">
-              {/* Practice Schedule */}
-              <SectionCard>
-                <SectionHeader icon={Dumbbell} title="Practice Schedule" />
-                <div className="px-5 py-2">
-                  {practices.length > 0 ? (
-                    practices.map((practice, index) => (
-                      <PracticeItem
-                        key={practice.id}
-                        practice={practice}
-                        isLast={index === practices.length - 1}
-                      />
-                    ))
-                  ) : (
-                    <EmptyState
-                      icon={Dumbbell}
-                      message="Practice schedule will be posted once the season begins"
-                    />
-                  )}
-                </div>
-              </SectionCard>
-
-              {/* Coach */}
-              <SectionCard>
-                <div className="px-5 py-4 bg-neutral-900 flex items-center gap-3 rounded-t-3xl">
-                  <Award className="w-4 h-4 text-tne-red" />
-                  <h2 className="font-semibold text-white text-sm uppercase tracking-wider">Coach</h2>
-                </div>
-                <div className="px-5 py-5">
-                  {team.head_coach ? (
-                    <>
-                      <h3 className="font-semibold text-neutral-900 text-lg mb-1">
-                        {coachName}
-                      </h3>
-                      {team.head_coach.bio ? (
-                        <p className="text-sm text-neutral-500 leading-relaxed">
-                          {team.head_coach.bio}
-                        </p>
-                      ) : (
-                        <p className="text-sm text-neutral-400 italic">
-                          Coach bio coming soon
-                        </p>
-                      )}
-                      {team.assistant_coach && (
-                        <div className="mt-4 pt-4 border-t border-neutral-100">
-                          <p className="text-xs font-mono text-neutral-400 uppercase tracking-wider mb-1">
-                            Assistant Coach
-                          </p>
-                          <p className="text-sm font-medium text-neutral-700">
-                            {formatCoachName(team.assistant_coach)}
-                          </p>
+                    ))}
+                    {/* Roster footnotes */}
+                    {(() => {
+                      const uniqueNotes = [...new Set(roster.filter(e => e.notes).map(e => e.notes))];
+                      if (uniqueNotes.length === 0) return null;
+                      return (
+                        <div className="mt-3 pt-3 border-t border-neutral-100">
+                          {uniqueNotes.map((note, i) => (
+                            <p key={i} className="text-xs text-neutral-400 leading-relaxed">
+                              <span className="text-tne-red font-medium">*</span> {note}
+                            </p>
+                          ))}
                         </div>
-                      )}
-                    </>
-                  ) : (
-                    <EmptyState
-                      icon={Award}
-                      message="Coach assignment coming soon"
+                      );
+                    })()}
+                  </>
+                ) : (
+                  <EmptyState
+                    icon={Users}
+                    message="Roster will be announced soon"
+                  />
+                )}
+              </div>
+            </SectionCard>
+
+            {/* ─── Schedule ─── */}
+            <SectionCard>
+              <SectionHeader
+                icon={CalendarDays}
+                title="Schedule"
+                action={
+                  <Link
+                    href="/schedule"
+                    className="inline-flex items-center gap-1 text-xs font-medium text-tne-red hover:text-tne-red-dark transition-colors group"
+                  >
+                    Full Schedule
+                    <ChevronRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
+                  </Link>
+                }
+              />
+              <div className="px-5 py-5">
+                {schedule.length > 0 ? (
+                  schedule.map((item, index) => (
+                    <ScheduleItem
+                      key={item.id}
+                      item={item}
+                      index={index}
+                      isLast={index === schedule.length - 1}
                     />
-                  )}
-                </div>
-              </SectionCard>
-            </div>
+                  ))
+                ) : (
+                  <EmptyState
+                    icon={Trophy}
+                    message="Tournament schedule coming soon — check back as the season approaches"
+                  />
+                )}
+              </div>
+            </SectionCard>
           </div>
         </section>
       </main>
