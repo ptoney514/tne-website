@@ -496,7 +496,9 @@ export default function AdminTeamDetailPage() {
   const handleUpdatePayment = async (paymentData) => {
     setIsSaving(true);
     try {
-      await updateRosterEntry(paymentModal.id, paymentData);
+      const rosterAssignment = paymentModal.team_assignments?.find(ta => ta.team_id === teamId);
+      const rosterId = rosterAssignment?.roster_id || paymentModal.id;
+      await updateRosterEntry(rosterId, paymentData);
       setPaymentModal(null);
     } catch (err) {
       console.error('Error updating payment:', err);
@@ -650,15 +652,18 @@ export default function AdminTeamDetailPage() {
         />
       )}
 
-      {paymentModal && (
-        <PaymentModal
-          key={paymentModal.id}
-          rosterEntry={paymentModal}
-          onClose={() => setPaymentModal(null)}
-          onSave={handleUpdatePayment}
-          isSaving={isSaving}
-        />
-      )}
+      {paymentModal && (() => {
+        const rosterAssignment = paymentModal.team_assignments?.find(ta => ta.team_id === teamId);
+        return (
+          <PaymentModal
+            key={rosterAssignment?.roster_id || paymentModal.id}
+            rosterEntry={rosterAssignment || paymentModal}
+            onClose={() => setPaymentModal(null)}
+            onSave={handleUpdatePayment}
+            isSaving={isSaving}
+          />
+        );
+      })()}
 
       <RemoveConfirmModal
         entry={removeConfirm}

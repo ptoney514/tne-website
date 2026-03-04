@@ -57,7 +57,12 @@ export async function GET(request: NextRequest) {
       seasonName: string;
       isActive: boolean;
       jerseyNumber: string | null;
+      position: string | null;
       notes: string | null;
+      paymentStatus: string | null;
+      paymentAmount: string | null;
+      paymentDate: string | null;
+      paymentNotes: string | null;
     }> = [];
 
     if (playerIds.length > 0) {
@@ -73,7 +78,12 @@ export async function GET(request: NextRequest) {
           seasonName: seasons.name,
           isActive: teamRoster.isActive,
           jerseyNumber: teamRoster.jerseyNumber,
+          position: teamRoster.position,
           notes: teamRoster.notes,
+          paymentStatus: teamRoster.paymentStatus,
+          paymentAmount: teamRoster.paymentAmount,
+          paymentDate: teamRoster.paymentDate,
+          paymentNotes: teamRoster.paymentNotes,
         })
         .from(teamRoster)
         .innerJoin(teams, eq(teamRoster.teamId, teams.id))
@@ -95,7 +105,12 @@ export async function GET(request: NextRequest) {
           season_name: r.seasonName,
           is_active: r.isActive,
           jersey_number: r.jerseyNumber,
+          position: r.position,
           notes: r.notes,
+          payment_status: r.paymentStatus,
+          payment_amount: r.paymentAmount,
+          payment_date: r.paymentDate,
+          payment_notes: r.paymentNotes,
         });
         return acc;
       },

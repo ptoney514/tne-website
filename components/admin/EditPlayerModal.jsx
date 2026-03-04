@@ -40,7 +40,7 @@ function getInitialFormData(entry, teamId) {
   const rosterAssignment = getRosterAssignment(entry, teamId);
   return {
     jerseyNumber: rosterAssignment?.jersey_number || entry.jersey_number || player.jersey_number || '',
-    position: entry.position || player.position || '',
+    position: rosterAssignment?.position || entry.position || player.position || '',
     notes: rosterAssignment?.notes || '',
     parentFirstName: parent?.first_name || '',
     parentLastName: parent?.last_name || '',
