@@ -207,6 +207,18 @@ export function getPositionName(position) {
  * @param {string} input
  * @returns {boolean}
  */
+/**
+ * Calculate graduating year from grade level
+ * @param {string|number} grade - Grade level (e.g., "3", "10", "3rd")
+ * @returns {number} Estimated graduating year
+ */
+export function calculateGraduatingYear(grade) {
+  const currentYear = new Date().getFullYear();
+  const gradeNum = parseInt(grade);
+  if (isNaN(gradeNum) || gradeNum < 1 || gradeNum > 12) return currentYear + 6;
+  return currentYear + (12 - gradeNum);
+}
+
 export function hasPlayerData(input) {
   if (!input || typeof input !== 'string') return false;
   // Must have at least 2 characters that aren't just whitespace/punctuation

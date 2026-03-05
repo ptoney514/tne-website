@@ -414,7 +414,9 @@ export default function AdminTeamDetailPage() {
     const fetchTeam = async () => {
       try {
         const data = await api.get(`/admin/teams?id=${teamId}`);
-        if (data) {
+        if (Array.isArray(data) && data.length > 0) {
+          setTeam(data[0]);
+        } else if (data && !Array.isArray(data)) {
           setTeam(data);
         }
       } catch (err) {
