@@ -25,18 +25,8 @@ const ADMIN_NAME = 'Admin User';
 async function createAdmin() {
   console.log('🔐 Creating admin user...\n');
 
-  // Check if profile already exists
-  const existing = await db
-    .select()
-    .from(userProfiles)
-    .where(eq(userProfiles.role, 'admin'))
-    .limit(1);
-
-  if (existing.length > 0) {
-    console.log(`  ⏭ Admin profile already exists (id: ${existing[0].id})`);
-    console.log('\n✅ Admin user ready.');
-    return;
-  }
+  // Try to sign up first; if user already exists, sign in to get the ID
+  // Then check if they already have an admin profile
 
   // Create user via Neon Auth HTTP API
   const signUpUrl = `${NEON_AUTH_BASE_URL}/sign-up/email`;
@@ -53,19 +43,42 @@ async function createAdmin() {
     }),
   });
 
+  let userId: string;
+
   if (!response.ok) {
-    const body = await response.text();
-    throw new Error(`Sign up failed (${response.status}): ${body}`);
+    // User may already exist in Neon Auth — try signing in to get the ID
+    const signInUrl = `${NEON_AUTH_BASE_URL}/sign-in/email`;
+    const signInResponse = await fetch(signInUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Origin': NEON_AUTH_BASE_URL,
+      },
+      body: JSON.stringify({
+        email: ADMIN_EMAIL,
+        password: ADMIN_PASSWORD,
+      }),
+    });
+
+    if (!signInResponse.ok) {
+      const body = await response.text();
+      throw new Error(`Sign up failed (${response.status}): ${body}`);
+    }
+
+    const signInResult = await signInResponse.json();
+    userId = signInResult.user?.id;
+    if (!userId) {
+      throw new Error('Sign in returned no user ID');
+    }
+    console.log(`  ✓ User already exists in Neon Auth: ${ADMIN_EMAIL}`);
+  } else {
+    const result = await response.json();
+    userId = result.user?.id;
+    if (!userId) {
+      throw new Error('Sign up returned no user ID');
+    }
+    console.log(`  ✓ Created user: ${ADMIN_EMAIL}`);
   }
-
-  const result = await response.json();
-  const userId = result.user?.id;
-
-  if (!userId) {
-    throw new Error('Sign up returned no user ID');
-  }
-
-  console.log(`  ✓ Created user: ${ADMIN_EMAIL}`);
 
   // Create user_profiles row with admin role
   await db

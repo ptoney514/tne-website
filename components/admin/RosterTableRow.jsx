@@ -57,9 +57,8 @@ export default function RosterTableRow({
 
   const jerseyNumber = rosterAssignment?.jersey_number || entry.jersey_number || player.jersey_number;
   const position = entry.position || player.position;
-  const statusLabel =
-    entry.payment_status?.charAt(0).toUpperCase() +
-    entry.payment_status?.slice(1);
+  const paymentStatus = rosterAssignment?.payment_status || entry.payment_status || 'pending';
+  const statusLabel = paymentStatus.charAt(0).toUpperCase() + paymentStatus.slice(1);
 
   return (
     <tr className="hover:bg-stone-50 transition-colors">
@@ -108,7 +107,7 @@ export default function RosterTableRow({
       {/* Status Badge */}
       <td className="px-5 py-4">
         <span
-          className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${STATUS_STYLES[entry.payment_status] || STATUS_STYLES.pending}`}
+          className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${STATUS_STYLES[paymentStatus] || STATUS_STYLES.pending}`}
         >
           {statusLabel}
         </span>

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { api } from '@/lib/api-client';
 import { useSeason } from '@/contexts/SeasonContext';
+import { calculateGraduatingYear } from '@/utils/playerParser';
 
 export function usePlayers() {
   const { selectedSeason } = useSeason();
@@ -192,6 +193,7 @@ export function useTeamRoster(teamId) {
           jersey_number: player.jerseyNumber || null,
           position: player.position || null,
           team_id: teamId,
+          graduating_year: calculateGraduatingYear(teamData.grade_level),
         });
         results.added++;
       } catch (err) {

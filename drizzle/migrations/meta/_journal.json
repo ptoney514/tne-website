@@ -15,6 +15,13 @@
       "when": 1772582504682,
       "tag": "0001_aspiring_vin_gonzales",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1772680384456,
+      "tag": "0002_make-dob-nullable",
+      "breakpoints": true
     }
   ]
 }

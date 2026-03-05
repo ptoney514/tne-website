@@ -17,7 +17,7 @@ export const players = pgTable(
     id: uuid('id').primaryKey().defaultRandom(),
     firstName: text('first_name').notNull(),
     lastName: text('last_name').notNull(),
-    dateOfBirth: date('date_of_birth').notNull(),
+    dateOfBirth: date('date_of_birth'),
     graduatingYear: integer('graduating_year').notNull(),
     currentGrade: text('current_grade').notNull(),
     gender: genderEnum('gender').notNull(),

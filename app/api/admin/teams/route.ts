@@ -16,9 +16,11 @@ export async function GET(request: NextRequest) {
     }
 
     const seasonId = request.nextUrl.searchParams.get('seasonId');
+    const id = request.nextUrl.searchParams.get('id');
 
     // Build WHERE conditions
     const conditions = [];
+    if (id) conditions.push(eq(teams.id, id));
     if (seasonId) conditions.push(eq(teams.seasonId, seasonId));
     if (isCoach) conditions.push(inArray(teams.id, coachTeamIds));
     const whereClause = conditions.length > 0 ? and(...conditions) : undefined;

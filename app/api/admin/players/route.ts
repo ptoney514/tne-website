@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { players, teamRoster, teams, seasons } from '@/lib/schema';
 import { requireAdmin, requireRole, getCoachTeamIds } from '@/lib/auth-middleware';
-import { eq, sql } from 'drizzle-orm';
+import { eq, and, sql } from 'drizzle-orm';
 
 export async function GET(request: NextRequest) {
   try {
@@ -182,14 +182,41 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
 
+    // Handle team assignment/removal actions
+    if (body.action === 'assign_team') {
+      await db.insert(teamRoster).values({
+        teamId: body.team_id,
+        playerId: body.player_id,
+        isActive: true,
+      }).onConflictDoNothing();
+      return NextResponse.json({ success: true });
+    }
+
+    if (body.action === 'remove_team') {
+      await db.delete(teamRoster).where(
+        and(
+          eq(teamRoster.playerId, body.player_id),
+          eq(teamRoster.teamId, body.team_id)
+        )
+      );
+      return NextResponse.json({ success: true });
+    }
+
+    const currentGrade = body.current_grade ?? body.grade ?? '';
+    const graduatingYear = body.graduating_year || (() => {
+      const gradeNum = parseInt(currentGrade);
+      if (isNaN(gradeNum) || gradeNum < 1 || gradeNum > 12) return new Date().getFullYear() + 6;
+      return new Date().getFullYear() + (12 - gradeNum);
+    })();
+
     const [newPlayer] = await db
       .insert(players)
       .values({
         firstName: body.first_name,
         lastName: body.last_name,
-        dateOfBirth: body.date_of_birth,
-        graduatingYear: body.graduating_year,
-        currentGrade: body.current_grade ?? body.grade,
+        dateOfBirth: body.date_of_birth || null,
+        graduatingYear,
+        currentGrade,
         gender: body.gender,
         emergencyContactName: body.emergency_contact_name,
         emergencyContactPhone: body.emergency_contact_phone,

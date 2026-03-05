@@ -32,7 +32,8 @@
     "db:create-admin": "npx tsx scripts/create-admin.ts",
     "db:migrate-from-supabase": "npx tsx scripts/migrate-from-supabase.ts",
     "db:backup": "./scripts/backup-db.sh",
-    "db:backup:dev": "./scripts/backup-db.sh --dev"
+    "db:backup:dev": "./scripts/backup-db.sh --dev",
+    "db:migrate-to-prod": "npx tsx scripts/migrate-dev-to-prod.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.32.1",
