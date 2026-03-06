@@ -2,6 +2,7 @@
 
 export function validateStep1(formData) {
   const errors = {};
+  const isOther = formData.teamId === 'other';
 
   if (!formData.teamId) errors.teamId = 'Please select a team';
   if (!formData.playerFirstName?.trim()) errors.playerFirstName = 'First name is required';
@@ -9,8 +10,8 @@ export function validateStep1(formData) {
   if (!formData.playerDob) errors.playerDob = 'Date of birth is required';
   if (!formData.playerGrade) errors.playerGrade = 'Grade is required';
   if (!formData.playerGender) errors.playerGender = 'Gender is required';
-  if (!formData.jerseySize) errors.jerseySize = 'Jersey size is required';
-  if (!formData.desiredJerseyNumber?.trim()) errors.desiredJerseyNumber = 'Desired jersey number is required';
+  if (!isOther && !formData.jerseySize) errors.jerseySize = 'Jersey size is required';
+  if (!isOther && !formData.desiredJerseyNumber?.trim()) errors.desiredJerseyNumber = 'Desired jersey number is required';
   if (!formData.lastTeamPlayedFor?.trim()) errors.lastTeamPlayedFor = 'Last team played for is required';
 
   return errors;
@@ -69,6 +70,7 @@ export function validateStep3(formData) {
 
 export function validateStep4(formData) {
   const errors = {};
+  const isOther = formData.teamId === 'other';
 
   if (!formData.waiverLiability) {
     errors.waiverLiability = 'You must accept the liability waiver';
@@ -79,42 +81,9 @@ export function validateStep4(formData) {
   if (!formData.waiverMedia) {
     errors.waiverMedia = 'You must accept the media release';
   }
-  if (!formData.paymentTermsAcknowledged) {
+  if (!isOther && !formData.paymentTermsAcknowledged) {
     errors.paymentTermsAcknowledged = 'You must acknowledge the payment terms';
   }
-
-  return errors;
-}
-
-// Season registration validations (no team/jersey fields, requires seasonId)
-
-export function validateSeasonStep1(formData) {
-  const errors = {};
-
-  if (!formData.seasonId) errors.seasonId = 'Please select a season';
-  if (!formData.playerFirstName?.trim()) errors.playerFirstName = 'First name is required';
-  if (!formData.playerLastName?.trim()) errors.playerLastName = 'Last name is required';
-  if (!formData.playerDob) errors.playerDob = 'Date of birth is required';
-  if (!formData.playerGrade) errors.playerGrade = 'Grade is required';
-  if (!formData.playerGender) errors.playerGender = 'Gender is required';
-  if (!formData.lastTeamPlayedFor?.trim()) errors.lastTeamPlayedFor = 'Last team played for is required';
-
-  return errors;
-}
-
-export function validateSeasonStep3(formData) {
-  const errors = {};
-
-  if (!formData.waiverLiability) {
-    errors.waiverLiability = 'You must accept the liability waiver';
-  }
-  if (!formData.waiverMedical) {
-    errors.waiverMedical = 'You must accept the medical authorization';
-  }
-  if (!formData.waiverMedia) {
-    errors.waiverMedia = 'You must accept the media release';
-  }
-  // No paymentTermsAcknowledged for season registration
 
   return errors;
 }

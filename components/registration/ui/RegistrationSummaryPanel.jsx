@@ -2,66 +2,34 @@ import { useState } from 'react';
 import { ChevronDown, ChevronUp, Users, DollarSign, Shirt, CreditCard, Info } from 'lucide-react';
 import { useWizard } from '../WizardContext';
 import { getPaymentPlanDetails } from '@/constants/payments';
-import { useSeasonFees } from '@/hooks/useSeasonFees';
 
 export default function RegistrationSummaryPanel() {
-  const { formData, selectedTeam, currentStep, registrationType } = useWizard();
+  const { formData, selectedTeam, currentStep } = useWizard();
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const { fees, loading: feesLoading } = useSeasonFees(
-    registrationType === 'season' ? formData.seasonId : null
-  );
 
-  // Season mode: show dynamic fee preview from API
-  if (registrationType === 'season') {
+  // "Other" team: show simplified panel
+  if (formData.teamId === 'other') {
     return (
       <div className="rounded-3xl bg-white border border-neutral-300 shadow-sm overflow-hidden sticky top-24">
-        <button
-          onClick={() => setIsCollapsed(!isCollapsed)}
-          className="w-full px-5 py-4 border-b border-neutral-200 bg-gradient-to-r from-blue-50 to-transparent flex items-center justify-between md:cursor-default"
-          aria-expanded={!isCollapsed}
-        >
-          <div className="flex items-center gap-2">
-            <div className="p-1.5 rounded-lg bg-blue-100">
-              <Info className="w-4 h-4 text-blue-600" />
+        <div className="px-5 py-4 border-b border-neutral-200 bg-gradient-to-r from-blue-50 to-transparent flex items-center gap-2">
+          <div className="p-1.5 rounded-lg bg-blue-100">
+            <Info className="w-4 h-4 text-blue-600" />
+          </div>
+          <h2 className="text-lg font-semibold text-neutral-900">Your Registration</h2>
+        </div>
+        <div className="px-5 py-4">
+          <div className="flex items-start gap-3">
+            <div className="p-2 rounded-lg bg-purple-100">
+              <Users className="w-4 h-4 text-purple-600" />
             </div>
-            <h2 className="text-lg font-semibold text-neutral-900">Season Fee Preview</h2>
+            <div>
+              <p className="text-xs font-medium text-neutral-500 uppercase tracking-wide">Team</p>
+              <p className="font-medium text-neutral-900">To Be Determined</p>
+            </div>
           </div>
-          <span className="md:hidden text-neutral-400">
-            {isCollapsed ? <ChevronDown className="w-5 h-5" /> : <ChevronUp className="w-5 h-5" />}
-          </span>
-        </button>
-
-        <div className={`${isCollapsed ? 'hidden md:block' : 'block'}`}>
-          <div className="px-5 py-4">
-            {feesLoading ? (
-              <p className="text-sm text-neutral-500">Loading fee information...</p>
-            ) : fees.length > 0 ? (
-              <div className="divide-y divide-neutral-100">
-                {fees.map((fee, i) => {
-                  const amount = parseFloat(fee.amount);
-                  return (
-                    <div key={fee.id} className={`py-3 ${i === 0 ? 'first:pt-0' : ''} ${i === fees.length - 1 ? 'last:pb-0' : ''}`}>
-                      <div className="flex items-center justify-between gap-3">
-                        <p className="font-medium text-neutral-900 text-sm">{fee.name}</p>
-                        <span className={`text-lg font-semibold ${amount >= 1000 ? 'text-tne-red' : 'text-neutral-900'}`}>
-                          ${amount.toLocaleString()}
-                        </span>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            ) : (
-              <div className="py-1 space-y-1.5">
-                <p className="text-sm text-neutral-500">
-                  Payment information will be updated soon. Please check with your coach in the meantime if you have any questions.
-                </p>
-              </div>
-            )}
-          </div>
-          <div className="px-5 py-3 bg-blue-50 border-t border-blue-200">
-            <p className="text-xs text-blue-800 font-medium">
-              No payment due until team placement. Fees apply after tryouts.
+          <div className="mt-3 rounded-xl bg-blue-50 p-3">
+            <p className="text-sm text-blue-800">
+              No payment required at this time. You&apos;ll be contacted once a team has been assigned.
             </p>
           </div>
         </div>

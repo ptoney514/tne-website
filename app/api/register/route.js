@@ -30,15 +30,15 @@ const limiter = createRateLimiter('register', { max: 5, windowMs: 60_000 });
 function sendRegistrationEmails(registration, referenceId) {
   const playerName = `${registration.player_first_name} ${registration.player_last_name}`;
   const parentName = [registration.parent_first_name, registration.parent_last_name].filter(Boolean).join(' ') || '';
-  const isSeason = registration.registration_type === 'season';
-  const teamOrSeasonName = registration.team_name || registration.season_name || (isSeason ? 'Season Registration' : 'Team Registration');
+  const isOther = registration.team_other === true;
+  const teamOrSeasonName = registration.team_name || (isOther ? 'Team Pending' : 'Team Registration');
 
   // Parent confirmation
   if (registration.parent_email) {
     sendRegistrationConfirmation({
       to: registration.parent_email,
       playerName,
-      registrationType: isSeason ? 'season' : 'team',
+      registrationType: 'team',
       teamOrSeasonName,
       parentName,
       referenceId,
@@ -56,7 +56,7 @@ function sendRegistrationEmails(registration, referenceId) {
 
   // Admin notification
   sendAdminRegistrationNotification({
-    registrationType: isSeason ? 'season' : 'team',
+    registrationType: 'team',
     referenceId,
     playerFirstName: registration.player_first_name,
     playerLastName: registration.player_last_name,
@@ -93,13 +93,10 @@ function sendRegistrationEmails(registration, referenceId) {
  */
 function validateRegistration(data) {
   const errors = [];
-  const isSeason = data.registration_type === 'season';
+  const isOther = data.team_other === true;
 
-  // Season-specific validations
-  if (isSeason) {
-    if (!data.season_id) errors.push('Season is required');
-  } else {
-    // Team-specific validations
+  // Team-specific validations (skip for "Other" registrations)
+  if (!isOther) {
     if (!data.team_id) errors.push('Team is required');
     if (!data.jersey_size) errors.push('Jersey size is required');
     if (!data.desired_jersey_number?.trim()) errors.push('Desired jersey number is required');
@@ -142,8 +139,8 @@ function validateRegistration(data) {
   if (!data.waiver_medical) errors.push('Medical authorization is required');
   if (!data.waiver_media) errors.push('Media release is required');
 
-  // Payment (team only)
-  if (!isSeason) {
+  // Payment (team only, skip for "Other")
+  if (!isOther) {
     if (!data.payment_plan_type) errors.push('Payment option is required');
     if (!data.payment_terms_acknowledged) errors.push('Payment terms acknowledgment is required');
   }
@@ -160,6 +157,11 @@ export async function POST(request) {
   if (limited) return limited;
 
   try {
+    // Extract client IP for rate limiting and audit trail
+    const clientIP = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
+      || request.headers.get('x-real-ip')
+      || 'unknown';
+
     // Parse request body
     const body = await request.json();
     const { registration, turnstileToken } = body || {};

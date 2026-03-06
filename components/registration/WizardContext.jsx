@@ -3,12 +3,6 @@ import { createContext, useContext, useReducer, useEffect, useCallback } from 'r
 const STORAGE_KEY = 'tne_registration_draft';
 
 const initialFormData = {
-  // Registration type: 'season' or 'team'
-  registrationType: '',
-
-  // Season registration fields
-  seasonId: '',
-
   // Step 1: Player & Team Info
   teamId: '',
   playerFirstName: '',
@@ -59,7 +53,7 @@ const initialFormData = {
 const initialState = {
   currentStep: 1,
   totalSteps: 4,
-  registrationType: null, // null = type selector, 'season' or 'team'
+  registrationType: null, // null = type selector, 'team' = team registration
   formData: initialFormData,
   validationErrors: {},
   selectedTeam: null,
@@ -107,15 +101,20 @@ function wizardReducer(state, action) {
         currentStep: Math.max(state.currentStep - 1, 1),
       };
 
-    case ACTIONS.UPDATE_FIELD:
+    case ACTIONS.UPDATE_FIELD: {
+      const newFormData = {
+        ...state.formData,
+        [action.payload.name]: action.payload.value,
+      };
+      // Dynamically adjust totalSteps when teamId changes
+      const newTotalSteps = newFormData.teamId === 'other' ? 3 : 4;
       return {
         ...state,
-        formData: {
-          ...state.formData,
-          [action.payload.name]: action.payload.value,
-        },
+        formData: newFormData,
+        totalSteps: newTotalSteps,
         isDraft: true,
       };
+    }
 
     case ACTIONS.UPDATE_FIELDS:
       return {
@@ -147,23 +146,19 @@ function wizardReducer(state, action) {
       return {
         ...state,
         registrationType: type,
-        totalSteps: type === 'season' ? 3 : 4,
-        formData: {
-          ...state.formData,
-          registrationType: type,
-        },
+        totalSteps: state.formData.teamId === 'other' ? 3 : 4,
         isDraft: true,
       };
     }
 
     case ACTIONS.LOAD_DRAFT: {
-      const draftType = action.payload.registrationType || action.payload.formData?.registrationType || null;
+      const draftFormData = { ...initialFormData, ...action.payload.formData };
       return {
         ...state,
-        formData: { ...initialFormData, ...action.payload.formData },
+        formData: draftFormData,
         currentStep: action.payload.currentStep || 1,
-        registrationType: draftType,
-        totalSteps: draftType === 'season' ? 3 : 4,
+        registrationType: action.payload.registrationType || null,
+        totalSteps: draftFormData.teamId === 'other' ? 3 : 4,
         selectedTeam: action.payload.selectedTeam || null,
         paymentReferenceId: action.payload.paymentReferenceId || state.paymentReferenceId,
         isDraft: true,

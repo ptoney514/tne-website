@@ -8,16 +8,16 @@ const teamSteps = [
   { number: 4, title: 'Review & Confirm', shortTitle: 'Confirm', subtitle: 'Final review and agreements' },
 ];
 
-const seasonSteps = [
+const otherSteps = [
   { number: 1, title: 'Player Info', shortTitle: 'Player', subtitle: 'Enter player information' },
   { number: 2, title: 'Parent & Contact', shortTitle: 'Contact', subtitle: 'Guardian and emergency contact' },
   { number: 3, title: 'Review & Confirm', shortTitle: 'Confirm', subtitle: 'Final review and agreements' },
 ];
 
 export default function StepIndicator() {
-  const { currentStep, registrationType } = useWizard();
+  const { currentStep, formData } = useWizard();
 
-  const steps = registrationType === 'season' ? seasonSteps : teamSteps;
+  const steps = formData.teamId === 'other' ? otherSteps : teamSteps;
 
   return (
     <div className="w-full">

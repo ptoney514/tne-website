@@ -108,6 +108,7 @@ export default function PlayerTeamStep() {
                 {team.name} - {team.gender === 'male' ? 'Boys' : 'Girls'}
               </option>
             ))}
+            <option value="other">Other (Team not yet formed)</option>
           </select>
           {validationErrors.teamId && (
             <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
@@ -117,7 +118,15 @@ export default function PlayerTeamStep() {
           )}
         </div>
 
-        {selectedTeam && totalFee > 0 && (
+        {formData.teamId === 'other' && (
+          <div className="p-4 rounded-xl bg-blue-50 border border-blue-200">
+            <p className="text-sm text-blue-800">
+              <strong>Team placement pending.</strong> You&apos;ll be contacted once your team is formed. No payment is required at this time.
+            </p>
+          </div>
+        )}
+
+        {selectedTeam && totalFee > 0 && formData.teamId !== 'other' && (
           <div className="p-4 rounded-xl bg-tne-red/5 border border-tne-red/20">
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium text-neutral-700">Season Fee:</span>
@@ -262,53 +271,55 @@ export default function PlayerTeamStep() {
           )}
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div data-error={!!validationErrors.jerseySize}>
-            <label htmlFor="jerseySize" className="block text-sm font-medium text-neutral-700 mb-1">
-              Jersey Size *
-            </label>
-            <select
-              id="jerseySize"
-              name="jerseySize"
-              value={formData.jerseySize}
-              onChange={handleChange}
-              className={selectClass('jerseySize')}
-            >
-              {jerseySizeOptions.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-            {validationErrors.jerseySize && (
-              <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
-                <AlertCircle className="w-4 h-4" />
-                {validationErrors.jerseySize}
-              </p>
-            )}
-          </div>
+        {formData.teamId !== 'other' && (
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div data-error={!!validationErrors.jerseySize}>
+              <label htmlFor="jerseySize" className="block text-sm font-medium text-neutral-700 mb-1">
+                Jersey Size *
+              </label>
+              <select
+                id="jerseySize"
+                name="jerseySize"
+                value={formData.jerseySize}
+                onChange={handleChange}
+                className={selectClass('jerseySize')}
+              >
+                {jerseySizeOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+              {validationErrors.jerseySize && (
+                <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+                  <AlertCircle className="w-4 h-4" />
+                  {validationErrors.jerseySize}
+                </p>
+              )}
+            </div>
 
-          <div data-error={!!validationErrors.desiredJerseyNumber}>
-            <label htmlFor="desiredJerseyNumber" className="block text-sm font-medium text-neutral-700 mb-1">
-              Desired Jersey # *
-            </label>
-            <input
-              type="text"
-              id="desiredJerseyNumber"
-              name="desiredJerseyNumber"
-              value={formData.desiredJerseyNumber}
-              onChange={handleChange}
-              className={inputClass('desiredJerseyNumber')}
-              placeholder="e.g. 23"
-            />
-            {validationErrors.desiredJerseyNumber && (
-              <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
-                <AlertCircle className="w-4 h-4" />
-                {validationErrors.desiredJerseyNumber}
-              </p>
-            )}
+            <div data-error={!!validationErrors.desiredJerseyNumber}>
+              <label htmlFor="desiredJerseyNumber" className="block text-sm font-medium text-neutral-700 mb-1">
+                Desired Jersey # *
+              </label>
+              <input
+                type="text"
+                id="desiredJerseyNumber"
+                name="desiredJerseyNumber"
+                value={formData.desiredJerseyNumber}
+                onChange={handleChange}
+                className={inputClass('desiredJerseyNumber')}
+                placeholder="e.g. 23"
+              />
+              {validationErrors.desiredJerseyNumber && (
+                <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+                  <AlertCircle className="w-4 h-4" />
+                  {validationErrors.desiredJerseyNumber}
+                </p>
+              )}
+            </div>
           </div>
-        </div>
+        )}
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div>

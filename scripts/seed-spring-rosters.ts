@@ -4,12 +4,31 @@
  * Seeds the dev database with 5 teams and 38 players for the spring season.
  * Uses the active season already in the database.
  *
- * Run with: npx tsx scripts/seed-spring-rosters.ts
+ * Run with:
+ *   npx tsx scripts/seed-spring-rosters.ts          # dev (default)
+ *   CONFIRM_PRODUCTION=true npx tsx scripts/seed-spring-rosters.ts  # prod
  */
 
 import 'dotenv/config';
-import { guardAgainstProduction } from './lib/db-guard';
-guardAgainstProduction();
+
+// Production safety check — requires explicit opt-in
+const databaseUrl = process.env.DATABASE_URL ?? '';
+const productionEndpoint = process.env.NEON_PRODUCTION_ENDPOINT ?? '';
+const isProduction = productionEndpoint && databaseUrl.includes(productionEndpoint);
+
+if (isProduction && process.env.CONFIRM_PRODUCTION !== 'true') {
+  console.error(
+    '\n🛑 ABORT: DATABASE_URL points to the PRODUCTION database.\n' +
+      '   To run against production, set CONFIRM_PRODUCTION=true:\n\n' +
+      '   CONFIRM_PRODUCTION=true npx tsx scripts/seed-spring-rosters.ts\n'
+  );
+  process.exit(1);
+}
+
+if (isProduction) {
+  console.log('\n⚠️  PRODUCTION MODE — writing to production database');
+  console.log(`   Endpoint: ...${productionEndpoint}\n`);
+}
 import { neon } from '@neondatabase/serverless';
 import { drizzle } from 'drizzle-orm/neon-http';
 import { eq, and, desc } from 'drizzle-orm';
