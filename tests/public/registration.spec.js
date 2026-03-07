@@ -2,8 +2,9 @@
 import { test, expect } from '@playwright/test';
 
 /**
- * Navigate to registration page and select "Team Registration" if type selector appears.
- * Since both tryouts + team registration are open, the type selector shows first.
+ * Navigate to registration page and select "Register" if type selector appears.
+ * When both tryouts + team registration are open, the type selector shows first.
+ * When only team registration is open, the wizard loads directly (auto-selected).
  */
 async function selectTeamRegistration(page) {
   // Clear any saved registration draft to prevent stale state
@@ -16,8 +17,8 @@ async function selectTeamRegistration(page) {
   const isSelectorVisible = await typeSelector.isVisible().catch(() => false);
 
   if (isSelectorVisible) {
-    // Click the "Register for a Team" card
-    await page.getByText('Register for a Team').click();
+    // Click the "Register" card (button with "Get Started" CTA)
+    await page.locator('button').filter({ hasText: 'Get Started' }).click();
     // Wait for team wizard to load
     await page.waitForSelector('select#teamId', { timeout: 10000 });
   }
@@ -668,5 +669,65 @@ test.describe('Registration Wizard - Mobile Responsiveness', () => {
 
     // Mobile step indicator should show step count
     await expect(page.getByText(/Step 1 of 4/i)).toBeVisible();
+  });
+});
+
+test.describe('Registration Wizard - "Other" Team Flow', () => {
+  test.setTimeout(60000);
+
+  test('should show 3-step flow when "Other" team is selected', async ({ page }) => {
+    await page.goto('/register');
+    await selectTeamRegistration(page);
+
+    // Select "Other" team option
+    await page.locator('select#teamId').selectOption('other');
+
+    // Jersey size and desired jersey number should be hidden
+    await expect(page.locator('select#jerseySize')).not.toBeVisible();
+    await expect(page.locator('input#desiredJerseyNumber')).not.toBeVisible();
+
+    // Step indicator should show 3 steps on mobile
+    await page.setViewportSize({ width: 375, height: 812 });
+    await expect(page.getByText(/Step 1 of 3/i)).toBeVisible();
+  });
+
+  test('should skip payment step and go to Review for "Other" team', async ({ page }) => {
+    await page.goto('/register');
+    await selectTeamRegistration(page);
+
+    // Select "Other" and fill Step 1
+    await page.locator('select#teamId').selectOption('other');
+    await page.locator('input#playerFirstName').fill('Test');
+    await page.locator('input#playerLastName').fill('Player');
+    await page.locator('input#playerDob').fill('2015-06-15');
+    await page.locator('select#playerGrade').selectOption('5');
+    await page.locator('input[name="playerGender"][value="male"]').check();
+    await page.locator('input#lastTeamPlayedFor').fill('None');
+    await page.getByRole('button', { name: /Continue/i }).click();
+
+    // Step 2 - Parent/Guardian
+    await expect(page.getByText('Parent/Guardian Information')).toBeVisible({ timeout: 5000 });
+    await page.locator('input#parentFirstName').fill('Jane');
+    await page.locator('input#parentLastName').fill('Doe');
+    await page.locator('input#parentEmail').fill('jane@example.com');
+    await page.locator('input#parentPhone').fill('4025551234');
+    await page.locator('input#parentHomePhone').fill('4025559876');
+    await page.locator('select#relationship').selectOption('mother');
+    await page.locator('input#addressStreet').fill('123 Main St');
+    await page.locator('input#addressCity').fill('Omaha');
+    await page.locator('select#addressState').selectOption('NE');
+    await page.locator('input#addressZip').fill('68114');
+    await page.locator('input#emergencyName').fill('Bob Doe');
+    await page.locator('input#emergencyPhone').fill('4025559999');
+    await page.getByRole('button', { name: /Continue/i }).click();
+
+    // Step 3 should be Review (not Payment)
+    await expect(page.getByRole('heading', { name: 'Review & Confirm' })).toBeVisible({ timeout: 5000 });
+
+    // Should show "Submit Registration" button (not "Secure Player Spot")
+    await expect(page.getByRole('button', { name: /Submit Registration/i })).toBeVisible();
+
+    // Should NOT show payment terms checkbox (only 3 waivers)
+    await expect(page.getByText('Payment Terms')).not.toBeVisible();
   });
 });

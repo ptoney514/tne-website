@@ -5,13 +5,14 @@ import { generateRegistrationData } from '../../fixtures/mockData.js';
 /**
  * Registration Form Submission Tests
  *
- * Tests submitting 12 varied entries through the 4-step registration wizard
+ * Tests submitting 12 varied entries through the registration wizard
  * and verifying the data is correctly saved.
  */
 
 /**
- * Navigate to registration page and select "Team Registration" if type selector appears.
- * Since both tryouts + team registration are open, the type selector shows first.
+ * Navigate to registration page and select "Register" if type selector appears.
+ * When both tryouts + team registration are open, the type selector shows first.
+ * When only team registration is open, the wizard loads directly (auto-selected).
  */
 async function selectTeamRegistration(page) {
   // Clear any saved registration draft to prevent stale state
@@ -24,8 +25,8 @@ async function selectTeamRegistration(page) {
   const isSelectorVisible = await typeSelector.isVisible().catch(() => false);
 
   if (isSelectorVisible) {
-    // Click the "Register for a Team" card
-    await page.getByText('Register for a Team').click();
+    // Click the "Register" card (button with "Get Started" CTA)
+    await page.locator('button').filter({ hasText: 'Get Started' }).click();
     // Wait for team wizard to load
     await page.waitForSelector('select#teamId', { timeout: 10000 });
   }

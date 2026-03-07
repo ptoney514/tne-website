@@ -1,7 +1,6 @@
-import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
-  Bell, ArrowLeft, Calendar, UserPlus, ClipboardList,
+  Bell, ArrowLeft, UserPlus, ClipboardList,
   ListChecks, FileText, CheckCircle, PartyPopper,
   Trophy, Heart, Users, Shield,
 } from 'lucide-react';
@@ -11,7 +10,6 @@ import { WizardContent } from '@/components/registration/RegistrationWizard';
 import RegistrationSummaryPanel from '@/components/registration/ui/RegistrationSummaryPanel';
 import { useTeamRegistration } from '@/hooks/useTeamRegistration';
 import { useRegistrationStatus } from '@/hooks/useRegistrationStatus';
-import { api } from '@/lib/api-client';
 
 // Red dot section label — matches site-wide pattern
 function SectionLabel({ children }) {
@@ -73,19 +71,6 @@ function RegistrationTypeSelector({ onSelect, isTryoutsOpen, isRegistrationOpen,
       cta: 'View Sessions',
     });
 
-    cards.push({
-      key: 'season',
-      type: 'button',
-      icon: Calendar,
-      iconBg: 'bg-blue-100 group-hover:bg-blue-200',
-      iconColor: 'text-blue-600',
-      title: 'Register for a Season',
-      description: 'Sign up for an upcoming season. No payment required until you\'re placed on a team.',
-      badge: tryoutsLabel,
-      badgeBg: 'bg-blue-50 text-blue-700',
-      badgeDot: 'bg-blue-500',
-      cta: 'Get Started',
-    });
   }
 
   if (isRegistrationOpen) {
@@ -95,8 +80,8 @@ function RegistrationTypeSelector({ onSelect, isTryoutsOpen, isRegistrationOpen,
       icon: UserPlus,
       iconBg: 'bg-purple-100 group-hover:bg-purple-200',
       iconColor: 'text-purple-600',
-      title: 'Register for a Team',
-      description: 'Already placed on a team? Complete your registration and payment.',
+      title: 'Register',
+      description: 'Select your team and complete registration. Choose "Other" if your team isn\'t listed yet.',
       badge: 'Current teams',
       badgeBg: 'bg-purple-50 text-purple-700',
       badgeDot: 'bg-purple-500',
@@ -176,7 +161,7 @@ const howItWorksSteps = [
     iconBg: 'bg-tne-red/10',
     iconColor: 'text-tne-red',
     title: 'Choose Your Path',
-    description: 'Select tryouts, season registration, or team registration.',
+    description: 'Register for tryouts or complete your team registration.',
   },
   {
     icon: FileText,
@@ -302,15 +287,8 @@ function SidebarContent() {
 }
 
 // Inner content component — uses wizard context to switch between views
-function RegistrationContent({ onSubmit, submitting, submitSuccess, onReset, isTryoutsOpen, isRegistrationOpen, tryoutsLabel, seasons, loading }) {
-  const { registrationType, setRegistrationType, resetWizard, formData, updateField } = useWizard();
-
-  // Auto-populate seasonId when entering season flow with a single available season
-  useEffect(() => {
-    if (registrationType === 'season' && seasons.length === 1 && !formData.seasonId) {
-      updateField('seasonId', seasons[0].id);
-    }
-  }, [registrationType, seasons, formData.seasonId, updateField]);
+function RegistrationContent({ onSubmit, submitting, submitSuccess, onReset, isTryoutsOpen, isRegistrationOpen, tryoutsLabel, loading }) {
+  const { registrationType, setRegistrationType, resetWizard } = useWizard();
 
   // Loading state
   if (loading) {
@@ -358,10 +336,6 @@ function RegistrationContent({ onSubmit, submitting, submitSuccess, onReset, isT
   const onlyTeam = !isTryoutsOpen && isRegistrationOpen;
 
   if (!registrationType) {
-    if (onlyTryouts) {
-      setRegistrationType('season');
-      return null;
-    }
     if (onlyTeam) {
       setRegistrationType('team');
       return null;
@@ -407,7 +381,6 @@ function RegistrationContent({ onSubmit, submitting, submitSuccess, onReset, isT
               submitting={submitting}
               submitSuccess={submitSuccess}
               onReset={onReset}
-              seasons={seasons}
             />
           </div>
         </div>
@@ -433,48 +406,6 @@ export default function RegistrationPage() {
   } = useTeamRegistration();
 
   const { isRegistrationOpen, isTryoutsOpen, tryoutsLabel, registrationLabel, loading } = useRegistrationStatus();
-
-  // Build seasons list from API (admin-configured seasons)
-  const [seasons, setSeasons] = useState([]);
-
-  useEffect(() => {
-    api.get('/public/seasons')
-      .then(seasonsData => {
-        const available = (seasonsData || []).filter(
-          s => s.tryouts_open || s.registration_open
-        );
-        if (available.length > 0) {
-          setSeasons(available.map(s => ({ id: s.id, name: s.name })));
-          return;
-        }
-        return fetch('/data/json/config.json')
-          .then(res => res.json())
-          .then(config => {
-            if (config.tryouts?.is_open && config.season) {
-              const nextSeasonId = config.tryouts?.next_season_id || `spring-${new Date().getFullYear()}`;
-              const nextSeasonName = config.tryouts?.next_season_name || config.tryouts?.label || `Spring ${new Date().getFullYear()}`;
-              setSeasons([{ id: nextSeasonId, name: nextSeasonName }]);
-            }
-          });
-      })
-      .catch(() => {
-        fetch('/data/json/config.json')
-          .then(res => res.json())
-          .then(config => {
-            if (config.tryouts?.is_open && config.season) {
-              const nextSeasonId = config.tryouts?.next_season_id || `spring-${new Date().getFullYear()}`;
-              const nextSeasonName = config.tryouts?.next_season_name || config.tryouts?.label || `Spring ${new Date().getFullYear()}`;
-              setSeasons([{ id: nextSeasonId, name: nextSeasonName }]);
-            }
-          })
-          .catch(() => {
-            setSeasons([{
-              id: `spring-${new Date().getFullYear()}`,
-              name: `Spring ${new Date().getFullYear()}`,
-            }]);
-          });
-      });
-  }, []);
 
   return (
     <InteriorLayout>
@@ -517,7 +448,6 @@ export default function RegistrationPage() {
             isTryoutsOpen={isTryoutsOpen}
             isRegistrationOpen={isRegistrationOpen}
             tryoutsLabel={tryoutsLabel}
-            seasons={seasons}
             loading={loading}
           />
         </WizardProvider>

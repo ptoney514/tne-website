@@ -224,6 +224,8 @@ interface RegistrationConfirmationParams {
   teamOrSeasonName: string;
   parentName: string;
   referenceId: string;
+  waiverAccepted?: boolean;
+  parentPolicyAccepted?: boolean;
 }
 
 export async function sendRegistrationConfirmation({
@@ -233,6 +235,8 @@ export async function sendRegistrationConfirmation({
   teamOrSeasonName,
   parentName,
   referenceId,
+  waiverAccepted,
+  parentPolicyAccepted,
 }: RegistrationConfirmationParams) {
   if (!resend) {
     console.warn('Skipping registration confirmation — Resend not configured');
@@ -240,6 +244,15 @@ export async function sendRegistrationConfirmation({
   }
 
   const typeLabel = registrationType === 'season' ? 'Season' : 'Team';
+
+  const checkMark = '&#9989;';
+  const crossMark = '&#10060;';
+  const agreementsSection = `
+    <h3 style="margin:24px 0 8px;color:#8B1F3A;font-size:14px;text-transform:uppercase;letter-spacing:0.05em;">Agreements</h3>
+    ${detailsTable(
+      detailRow('Waivers (Liability, Medical, Media)', waiverAccepted ? `${checkMark} Accepted` : `${crossMark} Not Accepted`) +
+      detailRow('TNE United Parent Policy', parentPolicyAccepted ? `${checkMark} Accepted` : `${crossMark} Not Accepted`)
+    )}`;
 
   const body = `
     <h2 style="margin:0 0 16px;color:#050505;font-size:20px;">Registration Confirmed</h2>
@@ -254,6 +267,7 @@ export async function sendRegistrationConfirmation({
       detailRow(typeLabel, teamOrSeasonName) +
       detailRow('Reference ID', referenceId)
     )}
+    ${agreementsSection}
     <p style="margin:24px 0 0;color:#374151;font-size:14px;line-height:1.5;">
       Please save your reference ID for your records. A coach or program director will follow up with next steps.
     </p>
@@ -310,6 +324,8 @@ interface AdminRegistrationNotificationParams {
   // Registration
   teamOrSeasonName: string;
   paymentPlan?: string;
+  waiverAccepted?: boolean;
+  parentPolicyAccepted?: boolean;
 }
 
 export async function sendAdminRegistrationNotification(params: AdminRegistrationNotificationParams) {
@@ -380,7 +396,13 @@ export async function sendAdminRegistrationNotification(params: AdminRegistratio
     ${detailsTable(parent1Rows)}
 
     ${parent2Section}
-    ${emergencySection}`;
+    ${emergencySection}
+
+    <h3 style="margin:24px 0 8px;color:#8B1F3A;font-size:14px;text-transform:uppercase;letter-spacing:0.05em;">Agreements</h3>
+    ${detailsTable(
+      detailRow('Waivers', params.waiverAccepted ? '✅ Accepted' : '❌ Not Accepted') +
+      detailRow('Parent Policy', params.parentPolicyAccepted ? '✅ Accepted' : '❌ Not Accepted')
+    )}`;
 
   const { error } = await resend.emails.send({
     from: FROM_ADDRESS,
