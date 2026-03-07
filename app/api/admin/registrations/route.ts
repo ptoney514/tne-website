@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { and, desc, eq, inArray, isNull, or } from 'drizzle-orm';
+import { and, desc, eq, inArray, isNull } from 'drizzle-orm';
 import { requireAdmin, requireRole, getCoachTeamIds } from '@/lib/auth-middleware';
 import { db } from '@/lib/db';
 import { players, registrations, seasons, teamRoster, teams } from '@/lib/schema';
@@ -34,7 +34,11 @@ export async function GET(request: NextRequest) {
     const status = request.nextUrl.searchParams.get('status');
 
     const conditions = [];
-    if (seasonId) conditions.push(or(eq(teams.seasonId, seasonId), isNull(registrations.teamId)));
+    if (seasonId === 'unassigned') {
+      conditions.push(isNull(registrations.teamId));
+    } else if (seasonId) {
+      conditions.push(eq(teams.seasonId, seasonId));
+    }
     if (teamId) conditions.push(eq(registrations.teamId, teamId));
     if (status) conditions.push(eq(registrations.status, normalizeStatus(status)));
     if (isCoach) conditions.push(inArray(registrations.teamId, coachTeamIds));
@@ -380,6 +384,33 @@ export async function PATCH(request: NextRequest) {
       updateData.waiverMedicalAcceptedAt = accepted ? new Date() : null;
       updateData.waiverMediaAcceptedAt = accepted ? new Date() : null;
       updateData.parentPolicyAcceptedAt = accepted ? new Date() : null;
+    }
+
+    // If assigning a team to an approved registration with a player, create roster entry
+    if (body.team_id) {
+      const [reg] = await db
+        .select({
+          status: registrations.status,
+          createdPlayerId: registrations.createdPlayerId,
+          paymentStatus: registrations.paymentStatus,
+          paymentAmount: registrations.paymentAmount,
+        })
+        .from(registrations)
+        .where(eq(registrations.id, id))
+        .limit(1);
+
+      if (reg?.status === 'approved' && reg.createdPlayerId) {
+        await db
+          .insert(teamRoster)
+          .values({
+            teamId: body.team_id,
+            playerId: reg.createdPlayerId,
+            paymentStatus: reg.paymentStatus,
+            paymentAmount: reg.paymentAmount,
+            isActive: true,
+          })
+          .onConflictDoNothing();
+      }
     }
 
     const [updated] = await db
