@@ -424,9 +424,9 @@ function RegistrationDetailPanel({
           </div>
         )}
 
-        {/* Waiver */}
+        {/* Waivers & Policy */}
         <div className="space-y-3">
-          <h3 className="text-sm font-semibold text-admin-text uppercase tracking-wide">Waiver</h3>
+          <h3 className="text-sm font-semibold text-admin-text uppercase tracking-wide">Waivers & Policy</h3>
           <div className={`rounded-[12px] p-4 ${registration.waiver_accepted ? 'bg-emerald-50 border border-emerald-200' : 'bg-red-50 border border-red-200'}`}>
             <div className="flex items-center gap-2">
               {registration.waiver_accepted ? (
@@ -435,12 +435,29 @@ function RegistrationDetailPanel({
                 <XCircle className="w-4 h-4 text-red-600" />
               )}
               <span className={`text-sm font-medium ${registration.waiver_accepted ? 'text-emerald-700' : 'text-red-700'}`}>
-                {registration.waiver_accepted ? 'Waiver Accepted' : 'Waiver Not Accepted'}
+                {registration.waiver_accepted ? 'All Waivers Accepted' : 'Waivers Not Complete'}
               </span>
             </div>
             {registration.waiver_accepted_at && (
               <p className="text-xs text-admin-text-secondary mt-1">
                 Accepted on {formatDateTime(registration.waiver_accepted_at)}
+              </p>
+            )}
+          </div>
+          <div className={`rounded-[12px] p-4 ${registration.parent_policy ? 'bg-emerald-50 border border-emerald-200' : 'bg-red-50 border border-red-200'}`}>
+            <div className="flex items-center gap-2">
+              {registration.parent_policy ? (
+                <CheckCircle className="w-4 h-4 text-emerald-600" />
+              ) : (
+                <XCircle className="w-4 h-4 text-red-600" />
+              )}
+              <span className={`text-sm font-medium ${registration.parent_policy ? 'text-emerald-700' : 'text-red-700'}`}>
+                {registration.parent_policy ? 'Parent Policy Accepted' : 'Parent Policy Not Accepted'}
+              </span>
+            </div>
+            {registration.parent_policy_accepted_at && (
+              <p className="text-xs text-admin-text-secondary mt-1">
+                Accepted on {formatDateTime(registration.parent_policy_accepted_at)}
               </p>
             )}
           </div>

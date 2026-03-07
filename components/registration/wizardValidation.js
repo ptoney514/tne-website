@@ -81,6 +81,9 @@ export function validateStep4(formData) {
   if (!formData.waiverMedia) {
     errors.waiverMedia = 'You must accept the media release';
   }
+  if (!formData.parentPolicy) {
+    errors.parentPolicy = 'You must accept the TNE United Parent Policy';
+  }
   if (!isOther && !formData.paymentTermsAcknowledged) {
     errors.paymentTermsAcknowledged = 'You must acknowledge the payment terms';
   }

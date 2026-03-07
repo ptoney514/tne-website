@@ -44,6 +44,7 @@ const initialFormData = {
   waiverLiability: false,
   waiverMedical: false,
   waiverMedia: false,
+  parentPolicy: false,
   paymentTermsAcknowledged: false,
 
   // Legacy fields for compatibility

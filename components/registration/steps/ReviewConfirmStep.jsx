@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { AlertCircle, Check, Shield, Camera, Heart, Send, Loader2, DollarSign } from 'lucide-react';
+import { AlertCircle, Check, Shield, Camera, Heart, Send, Loader2, DollarSign, FileText } from 'lucide-react';
 import { useWizard } from '../WizardContext';
 import { validateStep4 } from '../wizardValidation';
 import SummaryCard from '../ui/SummaryCard';
@@ -65,8 +65,8 @@ export default function ReviewConfirmStep({ onSubmit, isSubmitting }) {
   };
 
   const allWaiversAccepted = isOther
-    ? formData.waiverLiability && formData.waiverMedical && formData.waiverMedia
-    : formData.waiverLiability && formData.waiverMedical && formData.waiverMedia && formData.paymentTermsAcknowledged;
+    ? formData.waiverLiability && formData.waiverMedical && formData.waiverMedia && formData.parentPolicy
+    : formData.waiverLiability && formData.waiverMedical && formData.waiverMedia && formData.parentPolicy && formData.paymentTermsAcknowledged;
 
   return (
     <div className="space-y-6">
@@ -251,6 +251,43 @@ export default function ReviewConfirmStep({ onSubmit, isSubmitting }) {
                 activities to be used for promotional purposes, including but not limited to social
                 media, website, and marketing materials.
               </p>
+            </div>
+          </label>
+        </div>
+
+        {/* TNE United Parent Policy */}
+        <div
+          className={`
+            rounded-xl border p-4 transition-colors
+            ${validationErrors.parentPolicy ? 'border-red-300 bg-red-50' : 'border-neutral-200 bg-white'}
+          `}
+        >
+          <label className="flex items-start gap-3 cursor-pointer">
+            <div className="mt-0.5">
+              <input
+                type="checkbox"
+                checked={formData.parentPolicy}
+                onChange={(e) => handleWaiverChange('parentPolicy', e.target.checked)}
+                className="w-5 h-5 text-tne-red border-neutral-300 rounded focus:ring-tne-red/50"
+              />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <FileText className="w-4 h-4 text-neutral-500" />
+                <span className="font-medium text-neutral-900">TNE United Parent Policy *</span>
+              </div>
+              <p className="text-sm text-neutral-600 mt-1 mb-2">
+                I have read and agree to the TNE United Parent Policy:
+              </p>
+              <ul className="text-xs text-neutral-500 space-y-1.5 list-disc list-inside">
+                <li>All team fees must be paid in full or according to payment schedule. Parents are responsible regardless of attendance or quitting mid-season.</li>
+                <li>Default on payment may result in athlete dismissal until account is current.</li>
+                <li className="font-semibold text-neutral-700">NO REFUNDS WILL BE GIVEN DUE TO TEAM PLACEMENT.</li>
+                <li>All payments are non-refundable unless catastrophic injury or moving 75+ miles away. Refunds issued as account credit only.</li>
+                <li>Parents are responsible for transportation to and from all practices and games.</li>
+                <li>Verbally abusive or disrespectful behavior may result in removal from the program with no refund.</li>
+                <li>All TNE United players and families must represent TNE United positively at all events.</li>
+              </ul>
             </div>
           </label>
         </div>

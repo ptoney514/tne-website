@@ -133,6 +133,7 @@ export function useTeamRegistration() {
             waiver_liability: registrationData.waiverLiability,
             waiver_medical: registrationData.waiverMedical,
             waiver_media: registrationData.waiverMedia,
+            parent_policy: registrationData.parentPolicy,
             payment_terms_acknowledged: isOther ? false : (registrationData.paymentTermsAcknowledged || false),
             payment_plan_type: isOther ? null : registrationData.paymentPlanType,
             payment_plan_option: isOther ? null : (registrationData.paymentPlanOption || null),

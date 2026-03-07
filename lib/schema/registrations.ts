@@ -70,6 +70,8 @@ export const registrations = pgTable(
     waiverMedicalAcceptedAt: timestamp('waiver_medical_accepted_at'),
     waiverMediaAccepted: boolean('waiver_media_accepted').default(false),
     waiverMediaAcceptedAt: timestamp('waiver_media_accepted_at'),
+    parentPolicyAccepted: boolean('parent_policy_accepted').default(false),
+    parentPolicyAcceptedAt: timestamp('parent_policy_accepted_at'),
     // Payment
     paymentStatus: paymentStatusEnum('payment_status').notNull().default('pending'),
     paymentAmount: decimal('payment_amount', { precision: 10, scale: 2 }),

@@ -27,7 +27,7 @@ function WizardContent({ onSubmit, submitting, submitSuccess, onReset }) {
     if (isOther) {
       const registrationData = {
         registrationType: 'team',
-        teamId: null,
+        teamId: 'other',
         teamOther: true,
         playerFirstName: formData.playerFirstName,
         playerLastName: formData.playerLastName,
@@ -37,6 +37,9 @@ function WizardContent({ onSubmit, submitting, submitSuccess, onReset }) {
         playerGender: formData.playerGender,
         jerseySize: null,
         position: formData.position,
+        desiredJerseyNumber: null,
+        lastTeamPlayedFor: formData.lastTeamPlayedFor,
+        medicalNotes: formData.medicalNotes,
         parentFirstName: formData.parentFirstName,
         parentLastName: formData.parentLastName,
         parentEmail: formData.parentEmail,
@@ -65,6 +68,7 @@ function WizardContent({ onSubmit, submitting, submitSuccess, onReset }) {
         waiverLiability: formData.waiverLiability,
         waiverMedical: formData.waiverMedical,
         waiverMedia: formData.waiverMedia,
+        parentPolicy: formData.parentPolicy,
         status: 'pending_team_placement',
       };
 
@@ -114,6 +118,9 @@ function WizardContent({ onSubmit, submitting, submitSuccess, onReset }) {
       playerGender: formData.playerGender,
       jerseySize: formData.jerseySize,
       position: formData.position,
+      desiredJerseyNumber: formData.desiredJerseyNumber,
+      lastTeamPlayedFor: formData.lastTeamPlayedFor,
+      medicalNotes: formData.medicalNotes,
       parentFirstName: formData.parentFirstName,
       parentLastName: formData.parentLastName,
       parentEmail: formData.parentEmail,
@@ -142,6 +149,7 @@ function WizardContent({ onSubmit, submitting, submitSuccess, onReset }) {
       waiverLiability: formData.waiverLiability,
       waiverMedical: formData.waiverMedical,
       waiverMedia: formData.waiverMedia,
+      parentPolicy: formData.parentPolicy,
       status,
     };
 

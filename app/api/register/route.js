@@ -32,6 +32,8 @@ function sendRegistrationEmails(registration, referenceId) {
   const parentName = [registration.parent_first_name, registration.parent_last_name].filter(Boolean).join(' ') || '';
   const isOther = registration.team_other === true;
   const teamOrSeasonName = registration.team_name || (isOther ? 'Team Pending' : 'Team Registration');
+  const waiverAccepted = !!(registration.waiver_liability && registration.waiver_medical && registration.waiver_media);
+  const parentPolicyAccepted = !!registration.parent_policy;
 
   // Parent confirmation
   if (registration.parent_email) {
@@ -42,6 +44,8 @@ function sendRegistrationEmails(registration, referenceId) {
       teamOrSeasonName,
       parentName,
       referenceId,
+      waiverAccepted,
+      parentPolicyAccepted,
     }).catch((err) => console.error('[Register] Failed to send confirmation email:', err));
   }
 
@@ -84,6 +88,8 @@ function sendRegistrationEmails(registration, referenceId) {
     emergencyContactPhone: registration.emergency_contact_phone || '',
     teamOrSeasonName,
     paymentPlan: registration.payment_plan_type || '',
+    waiverAccepted,
+    parentPolicyAccepted,
   }).catch((err) => console.error('[Register] Failed to send admin notification:', err));
 }
 
@@ -138,6 +144,7 @@ function validateRegistration(data) {
   if (!data.waiver_liability) errors.push('Liability waiver acceptance is required');
   if (!data.waiver_medical) errors.push('Medical authorization is required');
   if (!data.waiver_media) errors.push('Media release is required');
+  if (!data.parent_policy) errors.push('TNE United Parent Policy acceptance is required');
 
   // Payment (team only, skip for "Other")
   if (!isOther) {
