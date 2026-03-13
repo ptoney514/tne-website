@@ -7,7 +7,7 @@ import { useSeason } from '@/contexts/SeasonContext';
 const DashboardStatsContext = createContext(null);
 
 export function DashboardStatsProvider({ children }) {
-  const { selectedSeason } = useSeason();
+  const { selectedSeason, loading: seasonLoading } = useSeason();
   const [stats, setStats] = useState({
     teams: 0,
     players: 0,
@@ -22,6 +22,8 @@ export function DashboardStatsProvider({ children }) {
   const [error, setError] = useState(null);
 
   const fetchStats = useCallback(async () => {
+    if (seasonLoading) return;
+
     try {
       setLoading(true);
       setError(null);
@@ -29,19 +31,27 @@ export function DashboardStatsProvider({ children }) {
       const params = selectedSeason?.id ? `?seasonId=${selectedSeason.id}` : '';
       const [data, registrations] = await Promise.all([
         api.get(`/admin/dashboard${params}`),
-        api.get(`/admin/registrations${params}`).catch(() => []),
+        api.get(`/admin/registrations${params}`).catch(() => null),
       ]);
+
+      const registrationList = Array.isArray(registrations) ? registrations : null;
+      const registrationTotal = registrationList
+        ? registrationList.length
+        : (data.registrations?.total || 0);
+      const pendingRegistrationTotal = registrationList
+        ? registrationList.filter((registration) => registration.status === 'pending').length
+        : (data.registrations?.pending || 0);
 
       setStats({
         teams: data.teams?.total || 0,
         players: data.players?.onRoster || 0,
-        registrations: data.registrations?.total || 0,
-        pendingRegistrations: data.registrations?.pending || 0,
+        registrations: registrationTotal,
+        pendingRegistrations: pendingRegistrationTotal,
         pendingPayments: 0,
         tryoutSignups: data.tryouts?.recentSignups || 0,
       });
 
-      const regs = (Array.isArray(registrations) ? registrations : [])
+      const regs = (registrationList || [])
         .slice(0, 6)
         .map(r => ({ ...r, type: 'registration' }));
       const tryouts = (data.recentTryoutSignups || [])
@@ -57,7 +67,7 @@ export function DashboardStatsProvider({ children }) {
     } finally {
       setLoading(false);
     }
-  }, [selectedSeason?.id]);
+  }, [seasonLoading, selectedSeason?.id]);
 
   useEffect(() => {
     fetchStats();
