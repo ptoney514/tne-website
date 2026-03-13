@@ -31,6 +31,7 @@ const mockDashboardData = {
   },
   players: {
     total: 25,
+    onRoster: 25,
   },
   registrations: {
     total: 10,
@@ -94,9 +95,31 @@ describe('useDashboardStats', () => {
     // Stats should be populated
     expect(result.current.stats.teams).toBe(5);
     expect(result.current.stats.players).toBe(25);
-    expect(result.current.stats.registrations).toBe(10);
+    expect(result.current.stats.registrations).toBe(2);
+    expect(result.current.stats.pendingRegistrations).toBe(1);
     expect(api.get).toHaveBeenCalledWith('/admin/dashboard?seasonId=season-1');
     expect(api.get).toHaveBeenCalledWith('/admin/registrations?seasonId=season-1');
+  });
+
+  it('should fall back to dashboard registration counts when registrations fetch fails', async () => {
+    api.get.mockImplementation((url) => {
+      if (String(url).startsWith('/admin/dashboard')) {
+        return Promise.resolve(mockDashboardData);
+      }
+      if (String(url).startsWith('/admin/registrations')) {
+        return Promise.reject(new Error('registrations unavailable'));
+      }
+      return Promise.resolve([]);
+    });
+
+    const { result } = renderHook(() => useDashboardStats(), { wrapper });
+
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
+
+    expect(result.current.stats.registrations).toBe(10);
+    expect(result.current.stats.pendingRegistrations).toBe(3);
   });
 
   it('should return recent activity', async () => {

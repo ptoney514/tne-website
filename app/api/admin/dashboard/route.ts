@@ -68,7 +68,15 @@ export async function GET(request: NextRequest) {
                 count: sql<number>`count(*)::int`,
               })
               .from(registrations)
-              .where(inArray(registrations.teamId, coachTeamIds))
+              .leftJoin(teams, eq(registrations.teamId, teams.id))
+              .where(
+                currentSeasonId
+                  ? and(
+                      inArray(registrations.teamId, coachTeamIds),
+                      eq(teams.seasonId, currentSeasonId)
+                    )
+                  : inArray(registrations.teamId, coachTeamIds)
+              )
               .groupBy(registrations.status)
           : [],
       ]);
@@ -153,7 +161,12 @@ export async function GET(request: NextRequest) {
       db
         .select({ count: sql<number>`count(*)::int` })
         .from(registrations)
-        .where(eq(registrations.status, 'pending')),
+        .leftJoin(teams, eq(registrations.teamId, teams.id))
+        .where(
+          currentSeasonId
+            ? and(eq(registrations.status, 'pending'), eq(teams.seasonId, currentSeasonId))
+            : eq(registrations.status, 'pending')
+        ),
 
       // Recent tryout signups (last 30 days)
       db
@@ -173,14 +186,23 @@ export async function GET(request: NextRequest) {
         .where(eq(teamRoster.isActive, true)),
 
       // Registrations by status
-      db
-        .select({
-          status: registrations.status,
-          count: sql<number>`count(*)::int`,
-        })
-        .from(registrations)
-        .groupBy(registrations.status),
-
+      currentSeasonId
+        ? db
+            .select({
+              status: registrations.status,
+              count: sql<number>`count(*)::int`,
+            })
+            .from(registrations)
+            .leftJoin(teams, eq(registrations.teamId, teams.id))
+            .where(eq(teams.seasonId, currentSeasonId))
+            .groupBy(registrations.status)
+        : db
+            .select({
+              status: registrations.status,
+              count: sql<number>`count(*)::int`,
+            })
+            .from(registrations)
+            .groupBy(registrations.status),
       // Recent tryout signups with session name
       db.select({
         id: tryoutSignups.id,
