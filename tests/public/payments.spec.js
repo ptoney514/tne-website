@@ -107,7 +107,7 @@ test.describe('Payments Page - Payment Form', () => {
   });
 
   test('should display Payment Options header', async ({ page }) => {
-    await expect(page.getByText('Payment Options')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Payment Options' })).toBeVisible();
     await expect(page.getByText('Secure checkout via PayPal')).toBeVisible();
   });
 

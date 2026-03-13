@@ -1,4 +1,8 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
+import {
+  getTurnstileClientConfig,
+  TURNSTILE_TEST_SITE_KEY,
+} from '@/lib/turnstile-client.js';
 
 /**
  * Cloudflare Turnstile widget component
@@ -9,8 +13,8 @@ import { useEffect, useRef, useState, useCallback } from 'react';
  * Environment variables:
  * - NEXT_PUBLIC_TURNSTILE_SITE_KEY: Cloudflare Turnstile site key
  *
- * For development, use Cloudflare's test keys:
- * - Always passes: 1x00000000000000000000AA
+ * In local development and automated tests, fall back to Cloudflare's
+ * public test key. Production must provide a real site key.
  * - Always fails: 2x00000000000000000000AB
  */
 
@@ -22,8 +26,13 @@ export default function Turnstile({ onSuccess, onError, onExpire, className = ''
   const [isLoaded, setIsLoaded] = useState(false);
   const [loadError, setLoadError] = useState(false);
 
-  // Get site key from environment or use test key
-  const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || '1x00000000000000000000AA';
+  const turnstileConfig = getTurnstileClientConfig();
+  const { siteKey, error: configurationError } = turnstileConfig;
+  const shouldBypassForAutomation = Boolean(
+    siteKey === TURNSTILE_TEST_SITE_KEY
+    && typeof navigator !== 'undefined'
+    && navigator.webdriver
+  );
 
   // Memoize error handler to use in script.onerror
   const handleLoadError = useCallback(() => {
@@ -32,6 +41,17 @@ export default function Turnstile({ onSuccess, onError, onExpire, className = ''
   }, [onError]);
 
   useEffect(() => {
+    if (shouldBypassForAutomation) {
+      setIsLoaded(true);
+      setLoadError(false);
+      onSuccess?.('automation-turnstile-token');
+      return undefined;
+    }
+
+    if (!siteKey) {
+      return undefined;
+    }
+
     // Load Turnstile script if not already loaded
     if (window.turnstile) {
       setIsLoaded(true);
@@ -62,10 +82,10 @@ export default function Turnstile({ onSuccess, onError, onExpire, className = ''
     script.onerror = handleLoadError;
 
     document.head.appendChild(script);
-  }, [handleLoadError]);
+  }, [handleLoadError, onSuccess, shouldBypassForAutomation, siteKey]);
 
   useEffect(() => {
-    if (!isLoaded || !containerRef.current || widgetIdRef.current) {
+    if (shouldBypassForAutomation || !siteKey || !isLoaded || !containerRef.current || widgetIdRef.current) {
       return;
     }
 
@@ -95,7 +115,26 @@ export default function Turnstile({ onSuccess, onError, onExpire, className = ''
         widgetIdRef.current = null;
       }
     };
-  }, [isLoaded, siteKey, onSuccess, onError, onExpire]);
+  }, [isLoaded, onError, onExpire, onSuccess, shouldBypassForAutomation, siteKey]);
+
+  if (configurationError) {
+    return (
+      <div
+        className={`text-sm text-red-700 p-3 bg-red-50 border border-red-200 rounded-lg ${className}`}
+        data-testid="turnstile-config-error"
+      >
+        {configurationError}
+      </div>
+    );
+  }
+
+  if (shouldBypassForAutomation) {
+    return (
+      <div className={`text-sm text-emerald-600 p-3 ${className}`} data-testid="turnstile-automation-bypass">
+        Verification complete
+      </div>
+    );
+  }
 
   if (loadError) {
     return (

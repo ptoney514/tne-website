@@ -12,6 +12,14 @@ if (process.env.RESEND_API_KEY) {
 
 const FROM_ADDRESS = 'TNE United Express <noreply@tnebasketball.com>';
 
+export interface EmailDeliveryResult {
+  sent: boolean;
+  messageId?: string;
+  reason?: 'missing_recipient' | 'no_recipients' | 'not_configured' | 'send_failed';
+  error?: string;
+  recipients?: string[];
+}
+
 function getAdminEmails(): string[] {
   const envVal = process.env.ADMIN_NOTIFICATION_EMAILS || 'pernell@gmail.com';
   return envVal.split(',').map((e) => e.trim()).filter(Boolean);
@@ -237,10 +245,22 @@ export async function sendRegistrationConfirmation({
   referenceId,
   waiverAccepted,
   parentPolicyAccepted,
-}: RegistrationConfirmationParams) {
+}: RegistrationConfirmationParams): Promise<EmailDeliveryResult> {
   if (!resend) {
     console.warn('Skipping registration confirmation — Resend not configured');
-    return;
+    return {
+      sent: false,
+      reason: 'not_configured',
+      recipients: to ? [to] : [],
+    };
+  }
+
+  if (!to) {
+    return {
+      sent: false,
+      reason: 'missing_recipient',
+      recipients: [],
+    };
   }
 
   const typeLabel = registrationType === 'season' ? 'Season' : 'Team';
@@ -276,7 +296,7 @@ export async function sendRegistrationConfirmation({
       <a href="mailto:info@tnebasketball.com" style="color:#E31837;">info@tnebasketball.com</a>.
     </p>`;
 
-  const { error } = await resend.emails.send({
+  const { data, error } = await resend.emails.send({
     from: FROM_ADDRESS,
     to,
     subject: `Registration Confirmed — ${playerName}`,
@@ -286,6 +306,17 @@ export async function sendRegistrationConfirmation({
   if (error) {
     throw new Error(`Resend error: ${error.message}`);
   }
+
+  console.log('[Email] Registration confirmation queued', {
+    messageId: data?.id ?? null,
+    to,
+  });
+
+  return {
+    sent: true,
+    messageId: data?.id,
+    recipients: [to],
+  };
 }
 
 // ─── New: Admin Registration Notification (team/season) ──────────────
@@ -328,14 +359,26 @@ interface AdminRegistrationNotificationParams {
   parentPolicyAccepted?: boolean;
 }
 
-export async function sendAdminRegistrationNotification(params: AdminRegistrationNotificationParams) {
+export async function sendAdminRegistrationNotification(
+  params: AdminRegistrationNotificationParams
+): Promise<EmailDeliveryResult> {
   if (!resend) {
     console.warn('Skipping admin registration notification — Resend not configured');
-    return;
+    return {
+      sent: false,
+      reason: 'not_configured',
+      recipients: [],
+    };
   }
 
   const adminEmails = getAdminEmails();
-  if (adminEmails.length === 0) return;
+  if (adminEmails.length === 0) {
+    return {
+      sent: false,
+      reason: 'no_recipients',
+      recipients: [],
+    };
+  }
 
   const playerName = `${params.playerFirstName} ${params.playerLastName}`;
   const parentName = `${params.parentFirstName} ${params.parentLastName}`;
@@ -404,7 +447,7 @@ export async function sendAdminRegistrationNotification(params: AdminRegistratio
       detailRow('Parent Policy', params.parentPolicyAccepted ? '✅ Accepted' : '❌ Not Accepted')
     )}`;
 
-  const { error } = await resend.emails.send({
+  const { data, error } = await resend.emails.send({
     from: FROM_ADDRESS,
     to: adminEmails,
     subject: `New ${typeLabel} Registration — ${playerName}`,
@@ -414,4 +457,15 @@ export async function sendAdminRegistrationNotification(params: AdminRegistratio
   if (error) {
     throw new Error(`Resend error: ${error.message}`);
   }
+
+  console.log('[Email] Admin registration notification queued', {
+    messageId: data?.id ?? null,
+    to: adminEmails,
+  });
+
+  return {
+    sent: true,
+    messageId: data?.id,
+    recipients: adminEmails,
+  };
 }

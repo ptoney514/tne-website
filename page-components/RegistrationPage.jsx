@@ -287,7 +287,17 @@ function SidebarContent() {
 }
 
 // Inner content component — uses wizard context to switch between views
-function RegistrationContent({ onSubmit, submitting, submitSuccess, onReset, isTryoutsOpen, isRegistrationOpen, tryoutsLabel, loading }) {
+function RegistrationContent({
+  onSubmit,
+  submitting,
+  submitSuccess,
+  submitResult,
+  onReset,
+  isTryoutsOpen,
+  isRegistrationOpen,
+  tryoutsLabel,
+  loading,
+}) {
   const { registrationType, setRegistrationType, resetWizard } = useWizard();
 
   // Loading state
@@ -380,6 +390,7 @@ function RegistrationContent({ onSubmit, submitting, submitSuccess, onReset, isT
               onSubmit={onSubmit}
               submitting={submitting}
               submitSuccess={submitSuccess}
+              submitResult={submitResult}
               onReset={onReset}
             />
           </div>
@@ -402,6 +413,7 @@ export default function RegistrationPage() {
     submitRegistration,
     submitting,
     submitSuccess,
+    submitResult,
     resetSubmitState,
   } = useTeamRegistration();
 
@@ -444,6 +456,7 @@ export default function RegistrationPage() {
             onSubmit={submitRegistration}
             submitting={submitting}
             submitSuccess={submitSuccess}
+            submitResult={submitResult}
             onReset={resetSubmitState}
             isTryoutsOpen={isTryoutsOpen}
             isRegistrationOpen={isRegistrationOpen}

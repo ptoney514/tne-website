@@ -24,30 +24,42 @@ import { createRateLimiter } from '@/lib/rate-limit';
 // Rate limiter: 5 registrations per minute per IP
 const limiter = createRateLimiter('register', { max: 5, windowMs: 60_000 });
 
+function createEmailFailureResult(reason, error, recipients = []) {
+  return {
+    sent: false,
+    reason,
+    error: error instanceof Error ? error.message : error || undefined,
+    recipients,
+  };
+}
+
 /**
- * Fire-and-forget registration emails (parent confirmation + admin notification)
+ * Send registration emails and capture delivery status for the response/UI.
  */
-function sendRegistrationEmails(registration, referenceId) {
+async function sendRegistrationEmails(registration, referenceId) {
   const playerName = `${registration.player_first_name} ${registration.player_last_name}`;
   const parentName = [registration.parent_first_name, registration.parent_last_name].filter(Boolean).join(' ') || '';
   const isOther = registration.team_other === true;
   const teamOrSeasonName = registration.team_name || (isOther ? 'Team Pending' : 'Team Registration');
+  const emailReferenceId = registration.payment_reference_id || referenceId;
   const waiverAccepted = !!(registration.waiver_liability && registration.waiver_medical && registration.waiver_media);
   const parentPolicyAccepted = !!registration.parent_policy;
 
-  // Parent confirmation
-  if (registration.parent_email) {
-    sendRegistrationConfirmation({
+  const confirmationPromise = registration.parent_email
+    ? sendRegistrationConfirmation({
       to: registration.parent_email,
       playerName,
       registrationType: 'team',
       teamOrSeasonName,
       parentName,
-      referenceId,
+      referenceId: emailReferenceId,
       waiverAccepted,
       parentPolicyAccepted,
-    }).catch((err) => console.error('[Register] Failed to send confirmation email:', err));
-  }
+    }).catch((err) => {
+      console.error('[Register] Failed to send confirmation email:', err);
+      return createEmailFailureResult('send_failed', err, [registration.parent_email]);
+    })
+    : Promise.resolve(createEmailFailureResult('missing_recipient', null, []));
 
   // Build full address if available
   const addressParts = [
@@ -58,10 +70,9 @@ function sendRegistrationEmails(registration, referenceId) {
   ].filter(Boolean);
   const fullAddress = addressParts.length > 0 ? addressParts.join(', ') : '';
 
-  // Admin notification
-  sendAdminRegistrationNotification({
+  const adminPromise = sendAdminRegistrationNotification({
     registrationType: 'team',
-    referenceId,
+    referenceId: emailReferenceId,
     playerFirstName: registration.player_first_name,
     playerLastName: registration.player_last_name,
     playerDob: registration.player_date_of_birth || '',
@@ -90,7 +101,17 @@ function sendRegistrationEmails(registration, referenceId) {
     paymentPlan: registration.payment_plan_type || '',
     waiverAccepted,
     parentPolicyAccepted,
-  }).catch((err) => console.error('[Register] Failed to send admin notification:', err));
+  }).catch((err) => {
+    console.error('[Register] Failed to send admin notification:', err);
+    return createEmailFailureResult('send_failed', err);
+  });
+
+  const [confirmation, admin] = await Promise.all([confirmationPromise, adminPromise]);
+
+  return {
+    confirmation,
+    admin,
+  };
 }
 
 
@@ -223,14 +244,14 @@ export async function POST(request) {
         }
       }
 
-      // Fire-and-forget registration emails
-      sendRegistrationEmails(registration, sheetsResult.registrationId);
+      const emailStatus = await sendRegistrationEmails(registration, sheetsResult.registrationId);
 
       // Success!
       return NextResponse.json({
         success: true,
         referenceId: sheetsResult.registrationId,
         message: 'Registration submitted successfully',
+        emailStatus,
       });
     } else {
       // Google Sheets not configured - try Supabase only or log
@@ -245,11 +266,12 @@ export async function POST(request) {
         const supabaseResult = await insertRegistration(registration);
         if (supabaseResult.success && !supabaseResult.skipped) {
           console.log('[Register] Registration saved to Supabase:', supabaseResult.id);
-          sendRegistrationEmails(registration, referenceId);
+          const emailStatus = await sendRegistrationEmails(registration, referenceId);
           return NextResponse.json({
             success: true,
             referenceId,
             message: 'Registration submitted successfully',
+            emailStatus,
           });
         } else if (!supabaseResult.skipped) {
           console.error('[Register] Supabase write failed:', supabaseResult.error);
@@ -258,11 +280,13 @@ export async function POST(request) {
 
       // Neither configured - development mode
       console.log('[Register] Registration data:', JSON.stringify(registration, null, 2));
+      const emailStatus = await sendRegistrationEmails(registration, referenceId);
 
       return NextResponse.json({
         success: true,
         referenceId,
         message: 'Registration submitted successfully (development mode)',
+        emailStatus,
       });
     }
   } catch (error) {

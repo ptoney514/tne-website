@@ -14,6 +14,7 @@ export function useTeamRegistration() {
   const [submitting, setSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [submitError, setSubmitError] = useState(null);
+  const [submitResult, setSubmitResult] = useState(null);
 
   const fetchTeams = useCallback(async () => {
     setLoading(true);
@@ -73,6 +74,7 @@ export function useTeamRegistration() {
       setSubmitting(true);
       setSubmitError(null);
       setSubmitSuccess(false);
+      setSubmitResult(null);
 
       try {
         const isOther = registrationData.teamId === 'other';
@@ -163,7 +165,12 @@ export function useTeamRegistration() {
         }
 
         setSubmitSuccess(true);
-        return { success: true, referenceId: result.referenceId };
+        const nextSubmitResult = {
+          referenceId: result.referenceId || null,
+          emailStatus: result.emailStatus || null,
+        };
+        setSubmitResult(nextSubmitResult);
+        return { success: true, ...nextSubmitResult };
       } catch (err) {
         console.error('Error submitting registration:', err);
         setSubmitError(err.message || 'Failed to submit registration');
@@ -179,6 +186,7 @@ export function useTeamRegistration() {
     setSubmitting(false);
     setSubmitError(null);
     setSubmitSuccess(false);
+    setSubmitResult(null);
   }, []);
 
   return {
@@ -190,6 +198,7 @@ export function useTeamRegistration() {
     submitting,
     submitSuccess,
     submitError,
+    submitResult,
     resetSubmitState,
   };
 }
