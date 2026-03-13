@@ -176,6 +176,12 @@ test.describe('Registration Form Submissions', () => {
           success: true,
           referenceId,
           message: 'Registration submitted successfully',
+          emailStatus: {
+            confirmation: {
+              sent: true,
+              messageId: `email-${i + 1}`,
+            },
+          },
         }),
       });
     });
@@ -223,6 +229,7 @@ test.describe('Registration Form Submissions', () => {
       // Regular payments show "Registration Complete!", special requests show "Request Submitted"
       const successLocator = page.locator('h3:has-text("Registration Complete"), h3:has-text("Request Submitted")');
       await expect(successLocator).toBeVisible({ timeout: 15000 });
+      await expect(page.getByRole('link', { name: /View Payment Status/i })).toHaveCount(0);
 
       console.log(`Registration ${i + 1}: form submitted successfully`);
     });

@@ -118,8 +118,8 @@ export const SPECIAL_REQUEST_REASONS = [
 export const PAYMENT_METHODS = {
   paypal: {
     name: 'PayPal',
-    url: 'https://www.tnebasketball.com',
-    displayUrl: 'tnebasketball.com',
+    url: '/payments',
+    displayUrl: 'tnebasketball.com/payments',
   },
   venmo: {
     name: 'Venmo',
@@ -153,7 +153,7 @@ export const faqItems = [
   {
     question: 'Can I set up a payment plan?',
     answer:
-      'Yes! Select the "Partial Payment" option ($150) to make installment payments. Contact Director Alvin Mitchell at (402) 510-4919 to set up a payment schedule that works for your family.',
+      'Yes. Use the partial payment options on the payments page, or contact Director Alvin Mitchell at (402) 510-4919 to arrange a schedule that works for your family.',
   },
   {
     question: "What's the difference between Fall and Winter?",

@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { CheckCircle, DollarSign, Clock, AlertTriangle } from 'lucide-react';
+import { CheckCircle, Clock, AlertTriangle } from 'lucide-react';
 import { WizardProvider, useWizard } from './WizardContext';
 import { calculateGraduatingYear } from './wizardValidation';
 import StepIndicator from './ui/StepIndicator';
@@ -9,7 +9,7 @@ import PaymentCommitmentStep from './steps/PaymentCommitmentStep';
 import ReviewConfirmStep from './steps/ReviewConfirmStep';
 import { getPaymentPlanDetails, PAYMENT_METHODS } from '@/constants/payments';
 
-function WizardContent({ onSubmit, submitting, submitSuccess, onReset }) {
+function WizardContent({ onSubmit, submitting, submitSuccess, submitResult, onReset }) {
   const {
     currentStep,
     formData,
@@ -19,6 +19,36 @@ function WizardContent({ onSubmit, submitting, submitSuccess, onReset }) {
   } = useWizard();
 
   const isOther = formData.teamId === 'other';
+  const confirmationEmail = submitResult?.emailStatus?.confirmation;
+
+  const renderConfirmationCopy = () => {
+    if (!formData.parentEmail) {
+      return null;
+    }
+
+    if (confirmationEmail?.sent) {
+      return (
+        <p className="text-neutral-500 text-sm mb-6 max-w-md mx-auto">
+          Confirmation email sent to <strong>{formData.parentEmail}</strong>.
+        </p>
+      );
+    }
+
+    if (confirmationEmail?.reason === 'not_configured' || confirmationEmail?.reason === 'send_failed') {
+      return (
+        <p className="text-amber-700 text-sm mb-6 max-w-md mx-auto">
+          Registration was saved, but we couldn&apos;t send the confirmation email to{' '}
+          <strong>{formData.parentEmail}</strong> right now.
+        </p>
+      );
+    }
+
+    return (
+      <p className="text-neutral-500 text-sm mb-6 max-w-md mx-auto">
+        We&apos;ll email the confirmation details to <strong>{formData.parentEmail}</strong>.
+      </p>
+    );
+  };
 
   const handleSubmit = async (turnstileToken = null) => {
     const graduatingYear = calculateGraduatingYear(formData.playerGrade);
@@ -193,9 +223,7 @@ function WizardContent({ onSubmit, submitting, submitSuccess, onReset }) {
                 Thank you for registering <strong>{formData.playerFirstName}</strong>.
                 We&apos;ll contact you once a team has been assigned.
               </p>
-              <p className="text-neutral-500 text-sm mb-6 max-w-md mx-auto">
-                A confirmation email will be sent to <strong>{formData.parentEmail}</strong>.
-              </p>
+              {renderConfirmationCopy()}
             </>
           ) : (
             <>
@@ -209,9 +237,7 @@ function WizardContent({ onSubmit, submitting, submitSuccess, onReset }) {
                 Thank you for registering <strong>{formData.playerFirstName}</strong> for{' '}
                 <strong>{selectedTeam?.name}</strong>.
               </p>
-              <p className="text-neutral-500 text-sm mb-6 max-w-md mx-auto">
-                A confirmation email will be sent to <strong>{formData.parentEmail}</strong>.
-              </p>
+              {renderConfirmationCopy()}
             </>
           )}
 
@@ -229,8 +255,12 @@ function WizardContent({ onSubmit, submitting, submitSuccess, onReset }) {
                 <div>
                   <p className="text-sm font-medium text-amber-800">Payment Required</p>
                   <p className="text-xs text-amber-700 mt-1">
-                    Please complete your payment to secure your spot. Include your reference ID
-                    ({paymentReferenceId}) with your payment.
+                    Please complete your payment on the{' '}
+                    <Link href="/payments" className="font-semibold underline underline-offset-2">
+                      payments page
+                    </Link>{' '}
+                    to secure your spot. Include your reference ID ({paymentReferenceId}) with
+                    your payment.
                   </p>
                   <div className="mt-2 space-y-1 text-xs text-amber-700">
                     <p><strong>Venmo:</strong> {PAYMENT_METHODS.venmo.handle}</p>
@@ -241,14 +271,7 @@ function WizardContent({ onSubmit, submitting, submitSuccess, onReset }) {
             </div>
           )}
 
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Link
-              href="/payments"
-              className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-tne-red text-white font-medium hover:bg-tne-red-dark transition-colors"
-            >
-              <DollarSign className="w-4 h-4" />
-              View Payment Status
-            </Link>
+          <div className="flex justify-center">
             <button
               onClick={onReset}
               className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-neutral-100 text-neutral-700 font-medium hover:bg-neutral-200 transition-colors"
@@ -302,6 +325,7 @@ export default function RegistrationWizard({
   onSubmit,
   submitting,
   submitSuccess,
+  submitResult,
   onReset,
 }) {
   return (
@@ -310,6 +334,7 @@ export default function RegistrationWizard({
         onSubmit={onSubmit}
         submitting={submitting}
         submitSuccess={submitSuccess}
+        submitResult={submitResult}
         onReset={onReset}
       />
     </WizardProvider>

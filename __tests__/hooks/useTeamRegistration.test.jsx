@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { useTeamRegistration } from '@/hooks/useTeamRegistration';
+import { api } from '@/lib/api-client';
 
 // Mock fetch globally
 const mockFetch = vi.fn();
@@ -67,6 +68,7 @@ const mockRegistrationData = {
 describe('useTeamRegistration', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(api.get).mockResolvedValue([]);
   });
 
   afterEach(() => {
@@ -83,7 +85,21 @@ describe('useTeamRegistration', () => {
       expect(result.current.teams).toEqual([]);
     });
 
-    it('should fetch teams from JSON files', async () => {
+    it('should fetch teams from the public API', async () => {
+      vi.mocked(api.get).mockResolvedValue(mockTeamsData.teams);
+
+      const { result } = renderHook(() => useTeamRegistration());
+
+      await waitFor(() => {
+        expect(result.current.teams).toHaveLength(2);
+      });
+
+      expect(result.current.teams).toHaveLength(2);
+      expect(result.current.teams[0].name).toBe('5th Grade Boys Elite');
+    });
+
+    it('should handle API fetch error and use JSON fallback data', async () => {
+      vi.mocked(api.get).mockRejectedValue(new Error('Network error'));
       mockFetch.mockImplementation((url) => {
         if (url.includes('teams.json')) {
           return Promise.resolve({
@@ -103,26 +119,12 @@ describe('useTeamRegistration', () => {
       const { result } = renderHook(() => useTeamRegistration());
 
       await waitFor(() => {
-        expect(result.current.loading).toBe(false);
+        expect(result.current.teams.length).toBeGreaterThan(0);
       });
 
-      expect(result.current.teams).toHaveLength(2);
-      expect(result.current.teams[0].name).toBe('5th Grade Boys Elite');
-      expect(result.current.teams[0].season.name).toBe('2025-26 Winter');
-    });
-
-    it('should handle fetch error and use fallback data', async () => {
-      mockFetch.mockRejectedValue(new Error('Network error'));
-
-      const { result } = renderHook(() => useTeamRegistration());
-
-      await waitFor(() => {
-        expect(result.current.loading).toBe(false);
-      });
-
-      // Should have fallback sample teams
       expect(result.current.teams.length).toBeGreaterThan(0);
-      expect(result.current.error).toBe('Network error');
+      expect(result.current.teams[0].season.name).toBe('2025-26 Winter');
+      expect(result.current.error).toBe(null);
     });
 
     it('should provide refetch function', async () => {
@@ -377,7 +379,16 @@ describe('useTeamRegistration', () => {
         if (url.includes('/api/register')) {
           return Promise.resolve({
             ok: true,
-            json: () => Promise.resolve({ success: true, referenceId: 'REF-123' }),
+            json: () => Promise.resolve({
+              success: true,
+              referenceId: 'REF-123',
+              emailStatus: {
+                confirmation: {
+                  sent: true,
+                  messageId: 'email_123',
+                },
+              },
+            }),
           });
         }
         return Promise.reject(new Error('Unknown URL'));
@@ -392,9 +403,27 @@ describe('useTeamRegistration', () => {
         submitResult = await result.current.submitRegistration(mockRegistrationData);
       });
 
-      expect(submitResult).toEqual({ success: true, referenceId: 'REF-123' });
+      expect(submitResult).toEqual({
+        success: true,
+        referenceId: 'REF-123',
+        emailStatus: {
+          confirmation: {
+            sent: true,
+            messageId: 'email_123',
+          },
+        },
+      });
       expect(result.current.submitSuccess).toBe(true);
       expect(result.current.submitError).toBe(null);
+      expect(result.current.submitResult).toEqual({
+        referenceId: 'REF-123',
+        emailStatus: {
+          confirmation: {
+            sent: true,
+            messageId: 'email_123',
+          },
+        },
+      });
     });
 
     it('should handle submission error', async () => {
@@ -498,6 +527,7 @@ describe('useTeamRegistration', () => {
       expect(result.current.submitting).toBe(false);
       expect(result.current.submitError).toBe(null);
       expect(result.current.submitSuccess).toBe(false);
+      expect(result.current.submitResult).toBe(null);
     });
   });
 });
