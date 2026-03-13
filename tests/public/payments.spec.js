@@ -122,13 +122,31 @@ test.describe('Payments Page - Payment Form', () => {
     await expect(page.getByTestId('paypal-embed-container')).toBeVisible();
     // Verify the container has the correct ID for PayPal integration
     await expect(page.locator('#paypal-embed-container')).toBeVisible();
+    await expect(page.getByTestId('paypal-payment-form')).toBeVisible();
   });
 
-  test('should display PayPal placeholder text', async ({ page }) => {
+  test('should render the live PayPal form fields', async ({ page }) => {
     await expect(page.getByText('PayPal Payment Form')).toBeVisible();
+    await expect(page.getByLabel('Payment Type')).toBeVisible();
+    await expect(page.getByLabel('Player Name')).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Add to Cart' })).toBeVisible();
     await expect(
-      page.getByText('Your PayPal embed code will appear here')
+      page.getByText('A new PayPal tab opens to finish payment securely.')
     ).toBeVisible();
+  });
+
+  test('should submit to the configured PayPal hosted button', async ({ page }) => {
+    const form = page.getByTestId('paypal-payment-form');
+
+    await expect(form).toHaveAttribute('action', 'https://www.paypal.com/cgi-bin/webscr');
+    await expect(form).toHaveAttribute('method', 'post');
+    await expect(form).toHaveAttribute('target', '_blank');
+    await expect(form.locator('input[name="cmd"]')).toHaveValue('_s-xclick');
+    await expect(form.locator('input[name="hosted_button_id"]')).toHaveValue(
+      'JR728RWWYXFCU'
+    );
+    await expect(form.locator('input[name="currency_code"]')).toHaveValue('USD');
+    await expect(page.getByLabel('Payment Type').locator('option')).toHaveCount(10);
   });
 
   test('should display security badges', async ({ page }) => {

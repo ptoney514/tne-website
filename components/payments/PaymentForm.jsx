@@ -8,7 +8,49 @@ import {
   CalendarCheck,
 } from 'lucide-react';
 import { useRegistrationStatus } from '@/hooks/useRegistrationStatus';
-import { useSeasonFees } from '@/hooks/useSeasonFees';
+
+const PAYPAL_PAYMENT_OPTIONS = [
+  {
+    value: 'Express United (3rd/4th)',
+    label: 'Express United (3rd/4th) $450.00 USD',
+  },
+  {
+    value: 'Express United (5th-8th)',
+    label: 'Express United (5th-8th) $500.00 USD',
+  },
+  {
+    value: 'TNE I/II (3rd/4th)',
+    label: 'TNE I/II (3rd/4th) $550.00 USD',
+  },
+  {
+    value: 'TNE I/II (5th-8th)',
+    label: 'TNE I/II (5th-8th) $800.00 USD',
+  },
+  {
+    value: 'TNE Jr 3SSB',
+    label: 'TNE Jr 3SSB $1,400.00 USD',
+  },
+  {
+    value: 'Girls',
+    label: 'Girls $450.00 USD',
+  },
+  {
+    value: 'Partial Payment - 1',
+    label: 'Partial Payment - 1 $100.00 USD',
+  },
+  {
+    value: 'Partial Payment - 2',
+    label: 'Partial Payment - 2 $250.00 USD',
+  },
+  {
+    value: 'Girls Uniform',
+    label: 'Girls Uniform $75.00 USD',
+  },
+  {
+    value: 'Boys Uniform',
+    label: 'Boys Uniform $110.00 USD',
+  },
+];
 
 function PayPalIcon({ className }) {
   return (
@@ -18,18 +60,8 @@ function PayPalIcon({ className }) {
   );
 }
 
-function formatCurrency(amount) {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(amount);
-}
-
 export default function PaymentForm() {
-  const { seasonId, seasonName, isRegistrationOpen, loading: statusLoading } = useRegistrationStatus();
-  const { fees, loading: feesLoading } = useSeasonFees(seasonId);
+  const { seasonName, isRegistrationOpen, loading: statusLoading } = useRegistrationStatus();
 
   const statusText = statusLoading
     ? 'Loading...'
@@ -65,12 +97,7 @@ export default function PaymentForm() {
             </span>
           </div>
 
-          {/* =============================================
-              PAYPAL EMBED GOES HERE
-              Replace this placeholder div with your PayPal code
-              ============================================= */}
           <div id="paypal-embed-container" className="mb-8" data-testid="paypal-embed-container">
-            {/* START: PayPal Embed Placeholder */}
             <div className="border-2 border-dashed border-neutral-300 rounded-xl p-8 bg-neutral-50">
               <div className="text-center space-y-4">
                 <div className="w-16 h-16 mx-auto bg-[#0070ba] rounded-xl flex items-center justify-center">
@@ -81,54 +108,80 @@ export default function PaymentForm() {
                     PayPal Payment Form
                   </p>
                   <p className="text-xs text-neutral-500">
-                    Your PayPal embed code will appear here
+                    Complete the fields below to continue to secure checkout.
                   </p>
                 </div>
 
-                {/* Simulated Form Elements (for preview) */}
-                <div className="max-w-sm mx-auto space-y-4 pt-4">
+                <form
+                  action="https://www.paypal.com/cgi-bin/webscr"
+                  method="post"
+                  target="_blank"
+                  className="max-w-sm mx-auto space-y-4 pt-4 text-left"
+                  data-testid="paypal-payment-form"
+                >
+                  <input type="hidden" name="cmd" value="_s-xclick" />
+                  <input
+                    type="hidden"
+                    name="hosted_button_id"
+                    value="JR728RWWYXFCU"
+                  />
+                  <input type="hidden" name="on0" value="Payments" />
                   <div>
-                    <label className="block text-sm font-medium text-neutral-700 text-left mb-1">
+                    <label
+                      htmlFor="paypal-payment-type"
+                      className="block text-sm font-medium text-neutral-700 text-left mb-1"
+                    >
                       Payment Type
                     </label>
                     <select
+                      id="paypal-payment-type"
+                      name="os0"
+                      defaultValue={PAYPAL_PAYMENT_OPTIONS[0].value}
                       className="w-full px-4 py-3 border border-neutral-300 rounded-lg text-neutral-900 bg-white focus:ring-2 focus:ring-tne-red focus:border-tne-red"
-                      disabled
+                      data-testid="paypal-payment-type"
+                      required
                     >
-                      {feesLoading ? (
-                        <option>Loading fees...</option>
-                      ) : fees.length > 0 ? (
-                        fees.map((fee) => (
-                          <option key={fee.id} value={fee.id}>
-                            {fee.name} {formatCurrency(fee.amount)} USD
-                          </option>
-                        ))
-                      ) : (
-                        <option>No fees available</option>
-                      )}
+                      {PAYPAL_PAYMENT_OPTIONS.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
                     </select>
                   </div>
+                  <input type="hidden" name="on1" value="Player Name" />
                   <div>
-                    <label className="block text-sm font-medium text-neutral-700 text-left mb-1">
+                    <label
+                      htmlFor="paypal-player-name"
+                      className="block text-sm font-medium text-neutral-700 text-left mb-1"
+                    >
                       Player Name
                     </label>
                     <input
+                      id="paypal-player-name"
                       type="text"
+                      name="os1"
+                      maxLength={200}
                       placeholder="Enter player's full name"
                       className="w-full px-4 py-3 border border-neutral-300 rounded-lg text-neutral-900 placeholder-neutral-400 focus:ring-2 focus:ring-tne-red focus:border-tne-red"
-                      disabled
+                      data-testid="paypal-player-name"
+                      autoComplete="name"
+                      required
                     />
                   </div>
+                  <input type="hidden" name="currency_code" value="USD" />
                   <button
+                    type="submit"
                     className="w-full py-3 bg-[#ffc439] hover:bg-[#f0b72f] text-neutral-900 font-semibold rounded-lg transition-colors flex items-center justify-center gap-2"
-                    disabled
+                    data-testid="paypal-submit"
                   >
                     <span>Add to Cart</span>
                   </button>
-                </div>
+                  <p className="text-center text-xs text-neutral-500">
+                    A new PayPal tab opens to finish payment securely.
+                  </p>
+                </form>
               </div>
             </div>
-            {/* END: PayPal Embed Placeholder */}
           </div>
 
           {/* Security Badges */}
