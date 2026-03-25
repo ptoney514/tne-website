@@ -369,6 +369,11 @@ export default function ReviewConfirmStep({ onSubmit, isSubmitting }) {
                       Note: Your registration will be held pending approval of your special payment request.
                     </span>
                   )}
+                  {formData.paymentPlanType === 'make_arrangements' && (
+                    <span className="block mt-2 font-medium">
+                      We will contact you to discuss payment arrangements.
+                    </span>
+                  )}
                 </>
               )}
             </p>

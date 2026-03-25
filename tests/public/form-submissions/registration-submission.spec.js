@@ -95,7 +95,7 @@ async function fillStep2(page, data) {
 
 /**
  * Helper to fill Step 3 - Payment
- * Returns true if special request (needs different navigation)
+ * No interstitial — all paths go directly to Review
  */
 async function fillStep3(page, data) {
   switch (data.paymentPlanType) {
@@ -103,51 +103,40 @@ async function fillStep3(page, data) {
       // Select Pay in Full
       await page.locator('button').filter({ hasText: 'Pay in Full' }).filter({ hasText: 'Complete your registration' }).click();
       await page.waitForTimeout(500);
-      // For full payment, button says "Continue to Payment"
-      await page.getByRole('button', { name: /Continue to Payment/i }).click();
-      // Wait for payment instructions screen
-      await page.waitForTimeout(500);
-      // Click "Continue to Review" button
-      await page.getByRole('button', { name: /Continue to Review/i }).click();
-      return false;
+      // Click Continue (no interstitial)
+      await page.getByRole('button', { name: /Continue/i }).click();
+      return;
 
     case 'installment':
       // Select Payment Plan
       await page.locator('button').filter({ hasText: 'Payment Plan' }).filter({ hasText: 'Split your payment' }).click();
       // Wait for plan options to appear
       await page.waitForTimeout(500);
-      // Select a plan option - look for "Plan A" or "Plan B"
+      // Select a plan option
       const planButton = page.locator('button:has-text("Plan A")').or(page.locator('button:has-text("Plan B")'));
       await planButton.first().click();
       await page.waitForTimeout(500);
-      // For installment, button says "Continue to Payment"
-      await page.getByRole('button', { name: /Continue to Payment/i }).click();
-      // Wait for payment instructions screen
-      await page.waitForTimeout(500);
-      // Click "Continue to Review" button
-      await page.getByRole('button', { name: /Continue to Review/i }).click();
-      return false;
+      // Click Continue (no interstitial)
+      await page.getByRole('button', { name: /Continue/i }).click();
+      return;
 
-    case 'special_request':
-      // Select Special Arrangement
-      await page.locator('button').filter({ hasText: 'Request Special Arrangement' }).click();
-      // Wait for form fields
+    case 'make_arrangements':
+      // Select Make Arrangements
+      await page.locator('button').filter({ hasText: 'Make Arrangements' }).click();
       await page.waitForTimeout(500);
-      // Fill special request details
-      await page.locator('select#specialRequestReason').selectOption(data.specialRequestReason);
+      // Optional notes
       if (data.specialRequestNotes) {
         await page.locator('textarea#specialRequestNotes').fill(data.specialRequestNotes);
       }
-      // Submit the special request - button says "Submit Request"
-      await page.getByRole('button', { name: /Submit Request/i }).click();
-      return true; // Special request has different flow
+      // Click Continue
+      await page.getByRole('button', { name: /Continue/i }).click();
+      return;
 
     default:
       // Default to Pay in Full
       await page.locator('button').filter({ hasText: 'Pay in Full' }).filter({ hasText: 'Complete your registration' }).click();
       await page.waitForTimeout(500);
-      await page.getByRole('button', { name: /Continue to Payment/i }).click();
-      return false;
+      await page.getByRole('button', { name: /Continue/i }).click();
   }
 }
 
@@ -179,7 +168,7 @@ test.describe('Registration Form Submissions', () => {
           emailStatus: {
             confirmation: {
               sent: true,
-              messageId: `email-${i + 1}`,
+              messageId: `email-test`,
             },
           },
         }),
@@ -225,11 +214,9 @@ test.describe('Registration Form Submissions', () => {
       // Click submit and verify form submission completes
       await submitButton.click();
 
-      // Wait for success message to appear
-      // Regular payments show "Registration Complete!", special requests show "Request Submitted"
-      const successLocator = page.locator('h3:has-text("Registration Complete"), h3:has-text("Request Submitted")');
+      // All paths now show "Registration Complete!"
+      const successLocator = page.locator('h3:has-text("Registration Complete")');
       await expect(successLocator).toBeVisible({ timeout: 15000 });
-      await expect(page.getByRole('link', { name: /View Payment Status/i })).toHaveCount(0);
 
       console.log(`Registration ${i + 1}: form submitted successfully`);
     });
@@ -258,11 +245,9 @@ test.describe('Registration Form - Payment Type Coverage', () => {
     // Select Pay in Full
     await page.locator('button').filter({ hasText: 'Pay in Full' }).filter({ hasText: 'Complete your registration' }).click();
     await page.waitForTimeout(500);
-    await page.getByRole('button', { name: /Continue to Payment/i }).click();
 
-    // Wait for payment instructions screen and click Continue to Review
-    await page.waitForTimeout(500);
-    await page.getByRole('button', { name: /Continue to Review/i }).click();
+    // Click Continue — goes directly to Review (no interstitial)
+    await page.getByRole('button', { name: /Continue/i }).click();
 
     await expect(page.locator('h3:has-text("Review & Confirm")')).toBeVisible({ timeout: 10000 });
   });
@@ -285,24 +270,20 @@ test.describe('Registration Form - Payment Type Coverage', () => {
     await page.locator('button').filter({ hasText: 'Payment Plan' }).filter({ hasText: 'Split your payment' }).click();
     await page.waitForTimeout(500);
 
-    // Select a payment plan option (Plan A or Plan B)
+    // Select a payment plan option
     const planButton = page.locator('button:has-text("Plan A")').or(page.locator('button:has-text("Plan B")'));
     await planButton.first().click();
     await page.waitForTimeout(500);
-    await page.getByRole('button', { name: /Continue to Payment/i }).click();
 
-    // Wait for payment instructions screen and click Continue to Review
-    await page.waitForTimeout(500);
-    await page.getByRole('button', { name: /Continue to Review/i }).click();
+    // Click Continue — goes directly to Review (no interstitial)
+    await page.getByRole('button', { name: /Continue/i }).click();
 
     await expect(page.locator('h3:has-text("Review & Confirm")')).toBeVisible({ timeout: 10000 });
   });
 
-  test('should complete registration with Special Arrangement', async ({ page }) => {
+  test('should complete registration with Make Arrangements', async ({ page }) => {
     const testData = generateRegistrationData(2);
-    testData.paymentPlanType = 'special_request';
-    testData.specialRequestReason = 'financial_hardship';
-    testData.specialRequestNotes = 'Test special request';
+    testData.paymentPlanType = 'make_arrangements';
 
     await fillStep1(page, testData);
     await page.getByRole('button', { name: /Continue/i }).click();
@@ -313,16 +294,15 @@ test.describe('Registration Form - Payment Type Coverage', () => {
 
     await expect(page.getByText('Choose Your Payment Option')).toBeVisible({ timeout: 5000 });
 
-    // Select Special Arrangement
-    await page.locator('button').filter({ hasText: 'Request Special Arrangement' }).click();
+    // Select Make Arrangements
+    await page.locator('button').filter({ hasText: 'Make Arrangements' }).click();
     await page.waitForTimeout(500);
 
-    // Fill special request details
-    await page.locator('select#specialRequestReason').selectOption('financial_hardship');
-    await page.locator('textarea#specialRequestNotes').fill('Test special request');
+    // Optional: add notes
+    await page.locator('textarea#specialRequestNotes').fill('Will pay after first practice');
 
-    // Submit the special request
-    await page.getByRole('button', { name: /Submit Request/i }).click();
+    // Click Continue
+    await page.getByRole('button', { name: /Continue/i }).click();
 
     await expect(page.locator('h3:has-text("Review & Confirm")')).toBeVisible({ timeout: 10000 });
   });
@@ -412,11 +392,7 @@ test.describe('Registration Form - Navigation', () => {
     await expect(page.getByText('Choose Your Payment Option')).toBeVisible({ timeout: 5000 });
     await page.locator('button').filter({ hasText: 'Pay in Full' }).filter({ hasText: 'Complete your registration' }).click();
     await page.waitForTimeout(500);
-    await page.getByRole('button', { name: /Continue to Payment/i }).click();
-
-    // Wait for payment instructions screen and click Continue to Review
-    await page.waitForTimeout(500);
-    await page.getByRole('button', { name: /Continue to Review/i }).click();
+    await page.getByRole('button', { name: /Continue/i }).click();
 
     // Step 4 (Review)
     await expect(page.locator('h3:has-text("Review & Confirm")')).toBeVisible({ timeout: 10000 });

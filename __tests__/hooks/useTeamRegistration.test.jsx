@@ -211,7 +211,28 @@ describe('useTeamRegistration', () => {
       expect(payload.registration.payment_status).toBe('payment_plan_active');
     });
 
-    it('should set awaiting_approval for special request', async () => {
+    it('should set pending for make_arrangements', async () => {
+      const { result } = renderHook(() => useTeamRegistration());
+
+      await waitFor(() => expect(result.current.loading).toBe(false));
+
+      await act(async () => {
+        await result.current.submitRegistration({
+          ...mockRegistrationData,
+          paymentPlanType: 'make_arrangements',
+          paymentConfirmed: false,
+        });
+      });
+
+      const registerCall = mockFetch.mock.calls.find((call) =>
+        call[0].includes('/api/register')
+      );
+      const payload = JSON.parse(registerCall[1].body);
+      expect(payload.registration.payment_status).toBe('pending');
+      expect(payload.registration.payment_plan_type).toBe('make_arrangements');
+    });
+
+    it('should set pending for special_request (backward compat)', async () => {
       const { result } = renderHook(() => useTeamRegistration());
 
       await waitFor(() => expect(result.current.loading).toBe(false));
@@ -228,7 +249,7 @@ describe('useTeamRegistration', () => {
         call[0].includes('/api/register')
       );
       const payload = JSON.parse(registerCall[1].body);
-      expect(payload.registration.payment_status).toBe('awaiting_approval');
+      expect(payload.registration.payment_status).toBe('pending');
     });
 
     it('should set pending for full payment not confirmed', async () => {

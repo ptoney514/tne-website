@@ -123,7 +123,7 @@ function generateDobForGrade(grade) {
 export function generateRegistrationData(index) {
   const grades = ['3', '4', '5', '6', '7', '8'];
   const genders = ['male', 'female'];
-  const paymentTypes = ['full', 'installment', 'special_request'];
+  const paymentTypes = ['full', 'installment', 'make_arrangements'];
   const jerseySizes = ['YS', 'YM', 'YL', 'AS', 'AM'];
   // Position values must match the actual form options: guard, forward, center, none, or null (empty)
   const positions = ['guard', 'forward', 'center', 'none', null, null];
@@ -169,8 +169,8 @@ export function generateRegistrationData(index) {
     // Payment
     paymentPlanType: paymentType,
     paymentPlanOption: paymentType === 'installment' ? (index % 2 === 0 ? 'planA' : 'planB') : null,
-    specialRequestReason: paymentType === 'special_request' ? specialRequestReasons[index % specialRequestReasons.length] : null,
-    specialRequestNotes: paymentType === 'special_request' ? specialRequestNotes[index % specialRequestNotes.length] : null,
+    specialRequestReason: null,
+    specialRequestNotes: paymentType === 'make_arrangements' ? specialRequestNotes[index % specialRequestNotes.length] : null,
 
     // Waivers
     waiverLiability: true,
