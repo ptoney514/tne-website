@@ -79,6 +79,9 @@ export default function SummaryCard() {
             {formData.paymentPlanType === 'special_request' && (
               <p className="font-medium text-amber-600">Pending Approval</p>
             )}
+            {formData.paymentPlanType === 'make_arrangements' && (
+              <p className="font-medium text-amber-600">Arrangements Pending</p>
+            )}
           </div>
         </div>
 
@@ -96,7 +99,7 @@ export default function SummaryCard() {
         )}
 
         {/* Amount Due */}
-        {formData.paymentPlanType && formData.paymentPlanType !== 'special_request' && (
+        {formData.paymentPlanType && formData.paymentPlanType !== 'special_request' && formData.paymentPlanType !== 'make_arrangements' && (
           <div className="pt-3 border-t border-neutral-200">
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium text-neutral-600">Amount Due Today</span>

@@ -34,7 +34,7 @@ const initialFormData = {
   parent2Email: '',
 
   // Step 3: Payment Commitment
-  paymentPlanType: '', // 'full', 'installment', 'special_request'
+  paymentPlanType: '', // 'full', 'installment', 'make_arrangements'
   paymentPlanOption: '', // 'plan_1', 'plan_2', etc.
   specialRequestReason: '',
   specialRequestNotes: '',

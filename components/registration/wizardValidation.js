@@ -56,14 +56,7 @@ export function validateStep3(formData) {
     errors.paymentPlanOption = 'Please select a payment plan';
   }
 
-  if (formData.paymentPlanType === 'special_request') {
-    if (!formData.specialRequestReason) {
-      errors.specialRequestReason = 'Please select a reason';
-    }
-    if (!formData.specialRequestNotes?.trim()) {
-      errors.specialRequestNotes = 'Please provide an explanation';
-    }
-  }
+  // 'make_arrangements' requires no additional fields
 
   return errors;
 }

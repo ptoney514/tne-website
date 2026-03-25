@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { CheckCircle, Clock, AlertTriangle } from 'lucide-react';
+import { CheckCircle, AlertTriangle } from 'lucide-react';
 import { WizardProvider, useWizard } from './WizardContext';
 import { calculateGraduatingYear } from './wizardValidation';
 import StepIndicator from './ui/StepIndicator';
@@ -111,11 +111,10 @@ function WizardContent({ onSubmit, submitting, submitSuccess, submitResult, onRe
 
     // Normal team flow
     let status = 'pending_payment';
-    if (formData.paymentPlanType === 'special_request') {
-      status = 'awaiting_approval';
-    } else if (formData.paymentPlanType === 'installment') {
+    if (formData.paymentPlanType === 'installment') {
       status = 'payment_plan_active';
     }
+    // 'full' and 'make_arrangements' both get 'pending_payment'
 
     const teamFee = selectedTeam ? parseFloat(selectedTeam.team_fee) || 0 : 0;
     const uniformFee = selectedTeam ? parseFloat(selectedTeam.uniform_fee) || 0 : 0;
@@ -192,26 +191,12 @@ function WizardContent({ onSubmit, submitting, submitSuccess, submitResult, onRe
 
   // Registration success state
   if (submitSuccess) {
-    const isSpecialRequest = formData.paymentPlanType === 'special_request';
     const isPaidInFull = formData.paymentPlanType === 'full' && formData.paymentConfirmed;
 
     return (
       <div className="rounded-3xl bg-white border border-neutral-300 shadow-sm overflow-hidden">
         <div className="px-6 py-12 text-center">
-          {isSpecialRequest ? (
-            <>
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-amber-100 text-amber-600 mb-4">
-                <Clock className="w-8 h-8" />
-              </div>
-              <h3 className="text-xl font-semibold text-neutral-900 mb-2">
-                Request Submitted
-              </h3>
-              <p className="text-neutral-600 mb-6 max-w-md mx-auto">
-                Your registration and special payment arrangement request has been submitted.
-                Our team will review your request and contact you within 1-2 business days.
-              </p>
-            </>
-          ) : isOther ? (
+          {isOther ? (
             <>
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 mb-4">
                 <CheckCircle className="w-8 h-8" />
@@ -248,7 +233,7 @@ function WizardContent({ onSubmit, submitting, submitSuccess, submitResult, onRe
           </div>
 
           {/* Next Steps */}
-          {!isOther && !isSpecialRequest && !isPaidInFull && (
+          {!isOther && !isPaidInFull && (
             <div className="rounded-xl bg-amber-50 border border-amber-200 p-4 mb-6 text-left max-w-md mx-auto">
               <div className="flex items-start gap-3">
                 <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />

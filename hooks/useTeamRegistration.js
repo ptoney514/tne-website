@@ -93,8 +93,11 @@ export function useTeamRegistration() {
           paymentStatus = 'pending_verification';
         } else if (registrationData.paymentPlanType === 'installment') {
           paymentStatus = 'payment_plan_active';
+        } else if (registrationData.paymentPlanType === 'make_arrangements') {
+          paymentStatus = 'pending';
         } else if (registrationData.paymentPlanType === 'special_request') {
-          paymentStatus = 'awaiting_approval';
+          // Backward compat for any in-flight drafts
+          paymentStatus = 'pending';
         }
 
         const payload = {
