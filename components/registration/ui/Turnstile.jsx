@@ -27,7 +27,8 @@ export default function Turnstile({ onSuccess, onError, onExpire, className = ''
   const [loadError, setLoadError] = useState(false);
 
   const turnstileConfig = getTurnstileClientConfig();
-  const { siteKey, error: configurationError } = turnstileConfig;
+  const { siteKey, mode, error: configurationError } = turnstileConfig;
+  const isUnconfigured = mode === 'unconfigured';
   const shouldBypassForAutomation = Boolean(
     siteKey === TURNSTILE_TEST_SITE_KEY
     && typeof navigator !== 'undefined'
@@ -41,6 +42,11 @@ export default function Turnstile({ onSuccess, onError, onExpire, className = ''
   }, [onError]);
 
   useEffect(() => {
+    if (isUnconfigured) {
+      onSuccess?.('turnstile-unconfigured');
+      return undefined;
+    }
+
     if (shouldBypassForAutomation) {
       setIsLoaded(true);
       setLoadError(false);
@@ -82,10 +88,10 @@ export default function Turnstile({ onSuccess, onError, onExpire, className = ''
     script.onerror = handleLoadError;
 
     document.head.appendChild(script);
-  }, [handleLoadError, onSuccess, shouldBypassForAutomation, siteKey]);
+  }, [handleLoadError, isUnconfigured, onSuccess, shouldBypassForAutomation, siteKey]);
 
   useEffect(() => {
-    if (shouldBypassForAutomation || !siteKey || !isLoaded || !containerRef.current || widgetIdRef.current) {
+    if (isUnconfigured || shouldBypassForAutomation || !siteKey || !isLoaded || !containerRef.current || widgetIdRef.current) {
       return;
     }
 
@@ -116,6 +122,10 @@ export default function Turnstile({ onSuccess, onError, onExpire, className = ''
       }
     };
   }, [isLoaded, onError, onExpire, onSuccess, shouldBypassForAutomation, siteKey]);
+
+  if (isUnconfigured) {
+    return null;
+  }
 
   if (configurationError) {
     return (

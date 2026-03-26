@@ -15,17 +15,17 @@ describe('getTurnstileClientConfig', () => {
     });
   });
 
-  it('blocks missing site key in production', () => {
+  it('returns unconfigured mode when site key is missing in production', () => {
     expect(
       getTurnstileClientConfig({ siteKey: '', nodeEnv: 'production' })
     ).toEqual({
       siteKey: null,
-      mode: 'missing',
-      error: 'Security verification is temporarily unavailable. Please contact us if this issue persists.',
+      mode: 'unconfigured',
+      error: null,
     });
   });
 
-  it('blocks the public test key in production', () => {
+  it('returns unconfigured mode when test key is used in production', () => {
     expect(
       getTurnstileClientConfig({
         siteKey: TURNSTILE_TEST_SITE_KEY,
@@ -33,8 +33,8 @@ describe('getTurnstileClientConfig', () => {
       })
     ).toEqual({
       siteKey: null,
-      mode: 'invalid_test_key',
-      error: 'Security verification is temporarily unavailable. Please contact us if this issue persists.',
+      mode: 'unconfigured',
+      error: null,
     });
   });
 
