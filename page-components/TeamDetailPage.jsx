@@ -48,7 +48,8 @@ function formatCoachName(coach) {
   if (coach.first_name === 'Coach') {
     return `Coach ${coach.last_name}`;
   }
-  return `Coach ${coach.first_name} ${coach.last_name}`;
+  const name = [coach.first_name, coach.last_name].filter(Boolean).join(' ').trim();
+  return name ? `Coach ${name}` : null;
 }
 
 // Capitalize day of week
