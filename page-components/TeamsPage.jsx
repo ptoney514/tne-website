@@ -22,7 +22,8 @@ function getTeamType(team) {
 // Format coach name for display
 function formatCoachName(coach) {
   if (!coach) return 'Coach: TBD';
-  return `Coach: ${coach.last_name}`;
+  const name = [coach.first_name, coach.last_name].filter(Boolean).join(' ').trim();
+  return name ? `Coach: ${name}` : 'Coach: TBD';
 }
 
 // Extract raw grade (e.g., "4th" from "4th Grade" or "4")
